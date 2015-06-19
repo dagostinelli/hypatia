@@ -10,6 +10,7 @@ A word about naming convention:  In pure-C code, math-related function names see
 
 FAQ
 ---
+
 - Can I trust this math library?
 A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  In this beta release, a number of functions do not yet have unit tests proving 1E-5, but more are coming.
 
