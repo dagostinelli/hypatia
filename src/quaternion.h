@@ -1,30 +1,22 @@
-/** 
- * @file quaternion.h
- *
- */ 
-
 #ifndef _INC_QUATERNION
 #define _INC_QUATERNION
 
-#include "vector3.h"
-#include "matrix4.h"
 
-
-typedef struct tagquaternion
+struct tagquaternion
 {
-	union
+	union quaternion_value
 		{
 		float q[4];
-		struct
+		struct quaternion_xyzw
 			{
 			float x, y, z, w;
 			};
-		struct
+		struct quaternion_ijka
 			{
 			float i, j, k, a;
 			};
 		};
-} quaternion;
+};
 
 
 HYPAPI int quaternion_equals(const quaternion *self, const quaternion *vT);

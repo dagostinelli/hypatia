@@ -90,8 +90,9 @@
 /* forward declarations */
 typedef struct tagvector2 vector2;
 typedef struct tagvector3 vector3;
+typedef struct tagvector4 vector4;
 typedef struct tagmatrix4 matrix4;
-typedef struct tagquaternion quaternion;	
+typedef struct tagquaternion quaternion;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

@@ -2,17 +2,17 @@
 #define _INC_MATRIX4
 
 
-typedef struct tagmatrix4
+struct tagmatrix4
 {
-	union
+	union matrix4_value
 		{
 		float m[16];
-		struct
+		struct matrix4_m44
 			{
 			/* reference the matrix [row][column] */
 			float m44[4][4];
 			};
-		struct
+		struct matrix4_indexed
 			{
 			/**
 			 * indexed (column-major numbering)
@@ -26,14 +26,14 @@ typedef struct tagmatrix4
 			float i02, i06, i10, i14;
 			float i03, i07, i11, i15;
 			};			
-		struct
+		struct matrix4_column
 			{ /* col-row */
 			float c00, c10, c20, c30;
 			float c01, c11, c21, c31;
 			float c02, c12, c22, c32;
 			float c03, c13, c23, c33;
 			};
-		struct
+		struct marix4_row
 			{ /* row-col */
 			float r00, r01, r02, r03;
 			float r10, r11, r12, r13;
@@ -41,7 +41,7 @@ typedef struct tagmatrix4
 			float r30, r31, r32, r33;
 			};
 	};
-} matrix4;
+};
 
 
 HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT);

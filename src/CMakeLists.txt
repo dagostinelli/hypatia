@@ -55,6 +55,11 @@ if(MSVC)
 endif()
 
 
+if("${CMAKE_C_COMPILER}" MATCHES "clang$" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+	SET(CMAKE_COMPILER_IS_GNUCC 1)
+endif()
+
+
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
 
@@ -62,6 +67,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	ADD_DEFINITIONS(-ggdb) #add debug info for gdb
 	
 	ADD_DEFINITIONS(-std=c90)
+	ADD_DEFINITIONS(-pedantic)
 	ADD_DEFINITIONS(-Wall)
 	ADD_DEFINITIONS(-Wextra)
 	ADD_DEFINITIONS(-Wmissing-prototypes)

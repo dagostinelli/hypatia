@@ -2,17 +2,17 @@
 #define _INC_VECTOR4
 
 
-typedef struct tagvector4
+struct tagvector4
 {
-	union
+	union vector4_value
 	{
 		float v[4];
-		struct
+		struct vector4_xyzw
 		{
 			float x, y, z, w;
 		};
 	};
-} vector4;
+};
 
 
 HYPAPI int vector4_equals(const vector4 *self, const vector4 *vT);

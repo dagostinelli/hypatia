@@ -2,21 +2,21 @@
 #define _INC_VECTOR3
 
 
-typedef struct tagvector3
+struct tagvector3
 {
-	union
+	union vector3_value
 		{
 		float v[3];
-		struct
+		struct vector3_xyz
 			{
 			float x, y, z;
 			};
-		struct
+		struct vector3_ypr
 			{
 			float yaw, pitch, roll;
 			};
 		};
-} vector3;
+};
 
 
 HYPAPI int vector3_equals(const vector3 *self, const vector3 *vT);
