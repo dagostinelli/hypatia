@@ -4,10 +4,10 @@
 
 struct tagvector2
 {
-	union vector2_value
+	union
 		{
 		float v[2];
-		struct vector2_xy
+		struct
 			{
 			float x, y;
 			};

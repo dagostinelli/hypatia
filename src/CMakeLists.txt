@@ -67,7 +67,7 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	ADD_DEFINITIONS(-ggdb) #add debug info for gdb
 	
 	ADD_DEFINITIONS(-std=c90)
-	ADD_DEFINITIONS(-pedantic)
+	#ADD_DEFINITIONS(-pedantic)
 	ADD_DEFINITIONS(-Wall)
 	ADD_DEFINITIONS(-Wextra)
 	ADD_DEFINITIONS(-Wmissing-prototypes)

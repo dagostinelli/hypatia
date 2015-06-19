@@ -4,10 +4,10 @@
 
 struct tagvector4
 {
-	union vector4_value
+	union
 	{
 		float v[4];
-		struct vector4_xyzw
+		struct
 		{
 			float x, y, z, w;
 		};

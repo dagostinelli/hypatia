@@ -4,14 +4,14 @@
 
 struct tagvector3
 {
-	union vector3_value
+	union
 		{
 		float v[3];
-		struct vector3_xyz
+		struct
 			{
 			float x, y, z;
 			};
-		struct vector3_ypr
+		struct
 			{
 			float yaw, pitch, roll;
 			};

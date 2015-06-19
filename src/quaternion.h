@@ -4,14 +4,14 @@
 
 struct tagquaternion
 {
-	union quaternion_value
+	union
 		{
 		float q[4];
-		struct quaternion_xyzw
+		struct
 			{
 			float x, y, z, w;
 			};
-		struct quaternion_ijka
+		struct
 			{
 			float i, j, k, a;
 			};

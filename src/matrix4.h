@@ -4,15 +4,15 @@
 
 struct tagmatrix4
 {
-	union matrix4_value
+	union
 		{
 		float m[16];
-		struct matrix4_m44
+		struct
 			{
 			/* reference the matrix [row][column] */
 			float m44[4][4];
 			};
-		struct matrix4_indexed
+		struct
 			{
 			/**
 			 * indexed (column-major numbering)
@@ -26,14 +26,14 @@ struct tagmatrix4
 			float i02, i06, i10, i14;
 			float i03, i07, i11, i15;
 			};			
-		struct matrix4_column
+		struct
 			{ /* col-row */
 			float c00, c10, c20, c30;
 			float c01, c11, c21, c31;
 			float c02, c12, c22, c32;
 			float c03, c13, c23, c33;
 			};
-		struct marix4_row
+		struct
 			{ /* row-col */
 			float r00, r01, r02, r03;
 			float r10, r11, r12, r13;
