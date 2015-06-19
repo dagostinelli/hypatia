@@ -10,6 +10,7 @@ INCLUDE_DIRECTORIES(.)
 
 
 SET( HYPATIA_HEADERS
+	hypatia.hpp
 	hypatia.h
 	vector2.h
 	vector3.h
