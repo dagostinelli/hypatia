@@ -1,0 +1,32 @@
+Remaining Work:
+
+- Conditionally declare -ggdb to add debug symbols
+- Re-test the Visual Studio compilation
+- Make it work with Clang and LLVM
+- Build a Visual Studio makefile/project file
+- Fix this: (shouldn't be outputting a lib file for the test project)
+	Linking C executable test_hypatia.exe
+	   Creating library test_hypatia.lib and object test_hypatia.exp
+	   Creating library test_hypatia.lib and object test_hypatia.exp
+	[100%] Built target test_hypatia
+
+- consider renaming the transformation matrix generators to something like "make_transform"
+- consider renaming the helper functions like matrix4_scalev3 to something like l_matrix4_scalev3
+- Implement: Q20. How do I calculate the inverse of a rotation matrix?
+- mat4 Test the identity property I * M = M and also M * I = M
+- mat4 Test the associative property A(BC) == (AB)C
+- mat4 Test the distributive property A(B+C) == AB + AC
+- mat4 Test the lack of commutative property AB != BA (in general)
+- Add all the variations of rotations with a matrix using matrix4_set_from_quaternion, matrix4_set_from_axis_angle, matrix4_transformation_rotation_x,y,z
+- add a vector to a quat, add each element one by one
+- add a scalar to a quat, add the scalar to each element of the quat
+- review quaternion_magnitude
+- in quat-slerp is the shortest arc properly computed with negate or conjugate?
+- is quaternion_dot_product an appropriate operation on a quaternion?
+- add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
+- make doxygen ignore vector3_get_reference_vector3
+- drop the suffixes from the functions that use the same type as the prefix (vector3_dosomethingv3 -> vector3_dosomething)
+- compare the header files and make sure the names are internally consistent
+
+
+// end of TODO.txt ...

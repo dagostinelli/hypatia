@@ -1,0 +1,7 @@
+CHANGELOG
+=========
+
+- Deprecated matrix4_multiplyv3 for a new function called vector3_multiplym4
+
+
+// end of TODO.txt ...

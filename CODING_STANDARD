@@ -1,0 +1,10 @@
+
+CODING STANDARD
+---------------
+- indent with tabs
+- lower case function names for public-facing functions
+- all CAPS for public constants.  HYP is the prefix for public constants
+- use 'self' for describing the function context
+- math entities are mutable (conscious design choice)
+- 2 vertical line breaks between functions
+- blank line at the end of every file

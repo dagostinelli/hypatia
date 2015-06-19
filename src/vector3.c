@@ -1,0 +1,400 @@
+#include "hypatia.h"
+#include "internal.h"
+
+
+/**
+ * @file vector3.c
+ */
+
+
+static vector3 _vector3_zero = { { {0.0f, 0.0f, 0.0f} } };
+static vector3 _vector3_one = { { {1.0f, 1.0f, 1.0f} } };
+static vector3 _vector3_unit_x = { { {1.0f, 0.0f, 0.0f} } };
+static vector3 _vector3_unit_y = { { {0.0f, 1.0f, 0.0f} } };
+static vector3 _vector3_unit_z = { { {0.0f, 0.0f, 1.0f} } };
+static vector3 _vector3_unit_x_negative = { { {-1.0f, 0.0f, 0.0f} } };
+static vector3 _vector3_unit_y_negative = { { {0.0f, -1.0f,  0.0f} } };
+static vector3 _vector3_unit_z_negative = { { {0.0f,  0.0f, -1.0f} } };
+
+
+HYPAPI const vector3* vector3_get_reference_vector3(int id)
+{
+	switch(id)
+	{
+		case HYP_REF_VECTOR3_ZERO:
+			return &_vector3_zero;
+		case HYP_REF_VECTOR3_ONE:
+			return &_vector3_one;
+		case HYP_REF_VECTOR3_UNIT_X:
+			return &_vector3_unit_x;
+		case HYP_REF_VECTOR3_UNIT_Y:
+			return &_vector3_unit_y;
+		case HYP_REF_VECTOR3_UNIT_Z:
+			return &_vector3_unit_z;
+		case HYP_REF_VECTOR3_UNIT_X_NEGATIVE:
+			return &_vector3_unit_x_negative;
+		case HYP_REF_VECTOR3_UNIT_Y_NEGATIVE:
+			return &_vector3_unit_y_negative;
+		case HYP_REF_VECTOR3_UNIT_Z_NEGATIVE:
+			return &_vector3_unit_z_negative;
+		default:
+			/* undefined case */
+			return &_vector3_zero;
+	}
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief initializes the vertex with specific values
+ */
+HYPAPI vector3 * vector3_setf3(vector3 *self, float xT, float yT, float zT)
+{
+	self->x = xT; 
+	self->y = yT; 
+	self->z = zT;
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief initializes the vertex with values from another vector
+ */
+HYPAPI vector3 * vector3_set(vector3 *self, const vector3 *vT)
+{
+	self->x = vT->x;
+	self->y = vT->y;
+	self->z = vT->z;
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief initializes the vertex with zeros
+ */
+HYPAPI vector3 * vector3_zero(vector3 *self)
+{
+	return vector3_setf3(self, 0, 0, 0);
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief compares two vectors.  Uses epsilon to deal with rounding errors
+ */
+HYPAPI int vector3_equals(const vector3 *self, const vector3 *vT)
+{
+	return HYP_ABS(self->x - vT->x) < HYP_EPSILON
+	&& HYP_ABS(self->y - vT->y) < HYP_EPSILON
+	&& HYP_ABS(self->z - vT->z) < HYP_EPSILON
+	;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief switches the sign on each component of the vector
+ */
+HYPAPI vector3 * vector3_negate(vector3 *self)
+{
+	self->v[0] = -self->v[0]; 
+	self->v[1] = -self->v[1];
+	self->v[2] = -self->v[2];
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief adds vectors using component-wise addition
+ */
+HYPAPI vector3 * vector3_add(vector3 *self, const vector3 *vT)
+{
+	self->v[0] += vT->v[0];
+	self->v[1] += vT->v[1];
+	self->v[2] += vT->v[2];
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief add to each component of the vector using a scalar
+ */
+HYPAPI vector3 * vector3_addf(vector3 *self, float f)
+{
+	self->v[0] += f;
+	self->v[1] += f;
+	self->v[2] += f;
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief subtract two vectors using component-wise subtraction
+ */
+HYPAPI vector3 * vector3_subtract(vector3 *self, const vector3 *vT)
+{
+	self->v[0] -= vT->v[0];
+	self->v[1] -= vT->v[1];
+	self->v[2] -= vT->v[2];
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief subtract each vector's component by a scalar
+ */
+HYPAPI vector3 * vector3_subtractf(vector3 *self, float f)
+{
+	self->v[0] -= f;
+	self->v[1] -= f;
+	self->v[2] -= f;
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief multiplies two vectors using component-wise multiplication
+ */
+HYPAPI vector3 * vector3_multiply(vector3 *self, const vector3 *vT)
+{
+	self->v[0] *= vT->v[0];
+	self->v[1] *= vT->v[1];
+	self->v[2] *= vT->v[2];
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief multiplies each component of the vector by a scalar
+ */
+HYPAPI vector3 * vector3_multiplyf(vector3 *self, float f)
+{
+	self->v[0] *= f;
+	self->v[1] *= f;
+	self->v[2] *= f;
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief divides one vector into another using component-wise division
+ *
+ */
+HYPAPI vector3 * vector3_divide(vector3 *self, const vector3 *vT)
+{
+	self->v[0] /= vT->v[0];
+	self->v[1] /= vT->v[1];
+	self->v[2] /= vT->v[2];
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief calculates the magnitude of the vector
+ */
+HYPAPI float vector3_magnitude(const vector3 *self)
+{
+	return sqrt((self->x*self->x) + (self->y*self->y) + (self->z*self->z));
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief normalizes the vector by dividing each component by the magnitude
+ */
+HYPAPI vector3 * vector3_normalize(vector3 *self)
+{
+	float mag;
+	
+	mag = vector3_magnitude(self);
+	
+	if (mag == 0)
+	{
+		/* can't normalize a zero
+		 * avoid divide by zero
+		 */
+		return self;
+	}
+	
+	self->x = self->x / mag;
+	self->y = self->y / mag;
+	self->z = self->z / mag;
+	
+	return self;
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief computes the dot product of two vectors
+ */
+HYPAPI float vector3_dot_product(const vector3 *self, const vector3 *vT)
+{
+	return (self->x * vT->x) + (self->y * vT->y) + (self->z * vT->z);
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief computes the cross-product between two vectors
+ */
+HYPAPI vector3 * vector3_cross_product(vector3 *vR, const vector3 *vT1, const vector3 *vT2)
+{
+	vR->x = (vT1->y * vT2->z) - (vT1->z * vT2->y);
+	vR->y = (vT1->z * vT2->x) - (vT1->x * vT2->z);
+	vR->z = (vT1->x * vT2->y) - (vT1->y * vT2->x);
+	return vR;
+}
+
+/** 
+ * @ingroup vector3
+ * @brief finds the angle between two vectors. make sure to do this on a normalized vector only
+ * 
+ */
+HYPAPI float vector3_angle_between(const vector3 *vT1, const vector3 *vT2)
+{
+	float c; /* cosine */
+	
+	c = vector3_dot_product(vT1, vT2) / ( vector3_magnitude(vT1) * vector3_magnitude(vT2) );
+	
+	return 2.0f * HYP_ACOS(c);
+}
+
+
+/** 
+ * @ingroup vector3
+ * @brief finds the vector describing the normal between two vectors
+ * 
+ */
+HYPAPI vector3 *vector3_find_normal_axis_between(vector3 *vR, const vector3 *vT1, const vector3 *vT2)
+{
+	vector3_cross_product(vR, vT1, vT2);
+	vector3_normalize(vR);
+	return vR;
+}
+
+
+/** 
+ * @brief Calculates the distance between two points
+ *
+ * \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\f$
+ *
+ * https://en.wikipedia.org/wiki/Distance
+ */
+HYPAPI float vector3_distance(const vector3 *v1, const vector3 *v2)
+{
+	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z));
+}
+
+
+/**
+ * @brief Multiply a vector by a matrix, returns a vector
+ *
+ * @param self The vector being multiplied
+ * @param mT The matrix used to do the multiplication
+ */
+HYPAPI vector3 * vector3_multiplym4(vector3 *self, const matrix4 *mT)
+{
+	vector3 vR;
+	
+	vector3_zero(&vR);
+	
+	vR.x = self->x * mT->c00 + self->y * mT->c01 + self->z * mT->c02 + mT->c03;
+	vR.y = self->x * mT->c10 + self->y * mT->c11 + self->z * mT->c12 + mT->c13;
+	vR.z = self->x * mT->c20 + self->y * mT->c21 + self->z * mT->c22 + mT->c23;
+	
+	vector3_set(self, &vR);
+	
+	return self;
+}
+
+
+HYPAPI void _vector3_print(const vector3 *self)
+{
+	printf("x:%10f, y:%10f, z:%10f\r\n", self->x, self->y, self->z);
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Rotate a point by the quaternion.  Returns the rotated point.
+ *
+ * \f$self= qT * self * conjugate(qT)\f$
+ *
+ * @param self the starting point
+ * @param qT the quaternion
+ *
+ */
+HYPAPI vector3 * vector3_rotate_by_quaternion(vector3 *self, const quaternion *qT)
+{
+	quaternion qinverse;
+	quaternion q;
+	
+	/* make the conjugate */
+	quaternion_set(&qinverse, qT);
+	quaternion_conjugate(&qinverse);
+	
+	quaternion_set(&q, qT);
+	quaternion_multiplyv3(&q, self);
+	quaternion_multiply(&q, &qinverse);
+	
+	self->x = q.x;
+	self->y = q.y;
+	self->z = q.z;
+	
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Reflect a point by the quaternion.  Returns the reflected point. (through origin)
+ *
+ * \f$self= qT * self * qT\f$
+ *
+ * @param qT the quaternion
+ * @param self the starting point that is rotated by qT
+ *
+ */
+HYPAPI vector3 * vector3_reflect_by_quaternion(vector3 *self, const quaternion *qT)
+{
+	quaternion q;
+	
+	quaternion_set(&q, qT);
+	quaternion_multiplyv3(&q, self);
+	quaternion_multiply(&q, qT);
+	
+	/* this seems to be necessary */
+	quaternion_normalize(&q);
+	
+	self->x = q.x;
+	self->y = q.y;
+	self->z = q.z;
+	
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Randomly fills the vector with values. Good for testing.
+ *
+ */
+HYPAPI vector3 * _vector3_set_random(vector3 *self)
+{
+	self->x = HYP_RANDOM_FLOAT;
+	self->y = HYP_RANDOM_FLOAT;
+	self->z = HYP_RANDOM_FLOAT;
+	return self;
+}
+
