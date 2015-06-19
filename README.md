@@ -11,12 +11,10 @@ A word about naming convention:  In pure-C code, math-related function names see
 FAQ
 ---
 
-- Can I trust this math library?
-
+- Can I trust this math library?  
 A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  In this beta release, a number of functions do not yet have unit tests proving 1E-5, but more are coming.
 
-- Where is the matrix inverse function?
-
+- Where is the matrix inverse function?  
 It turns out that is pretty tough to get right and also do efficiently. It may be added some day if it is requested enough times.  In the mean time, what you could do instead is create an inverted view matrix (translate, then rotate, then scale instead of the other way around).
 
 
