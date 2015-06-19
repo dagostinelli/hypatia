@@ -1,0 +1,16 @@
+language: c
+
+#os:
+#  - linux
+#  - osx
+  
+compiler:
+  - clang
+  - gcc
+  
+script:
+  - mkdir build
+  - cd build
+  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 
+  - make && make test && make install
+  
