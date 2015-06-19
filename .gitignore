@@ -1,5 +1,6 @@
 # project files
 .kdev4
+*.kdev4
 
 # Object files
 *.o
