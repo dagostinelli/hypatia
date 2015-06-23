@@ -14,3 +14,7 @@ script:
   - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 
   - make && make test && make install
   
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install doxygen
+  - sudo apt-get install graphviz
