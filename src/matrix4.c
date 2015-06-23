@@ -433,7 +433,8 @@ HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation)
  * @brief Creates a temporary rotation matrix and then multiplies self by that.  Opinionated function about what rotation means.
  *
  * @param self The transformation matrix being rotated
- * @param scale the rotation vector
+ * @param axis the axis to rotate the matrix around
+ * @param angle the angle of rotation in radians
  *
  */
 HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, float angle)
