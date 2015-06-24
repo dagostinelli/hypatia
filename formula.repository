@@ -1,0 +1,9 @@
+\form#0:$angle= 2 * acos((self \cdot qT) / (||self|| * ||qT||))$
+\form#1:$\|q\| = x^2+y^2+z^2+w^2$
+\form#2:$\sqrt{\|q\|}$
+\form#3:$q'=-x, -y, -z, w$
+\form#4:$q^{-1} = (q')/\|q\|$
+\form#5:$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$
+\form#6:$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}$
+\form#7:$self= qT * self * conjugate(qT)$
+\form#8:$self= qT * self * qT$
