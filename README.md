@@ -9,6 +9,10 @@ Hypatia is a pure-C math library.  It is almost 100% C89/C90 compliant.  This li
 
 A word about naming convention:  In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (allows ambiguous names).  We don't have that in pure-C and Hypatia is intended for C-only projects.  Hypatia uses verbose names.  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".  :-)  As an experiment, some \c \#defines were put in to alias the verbose names and so now we have the verbose and some cryptic names.  This is beta software until a few people use it for real and tell me that they want the verbose names or the cryptic names.  I would like to hear from you about this.
 
+Documentation
+-------------
+The doxygen help pages [have been published online here](http://dagostinelli.github.io/hypatia/ "Documentation")
+
 
 FAQ
 ---
