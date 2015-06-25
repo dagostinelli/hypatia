@@ -13,7 +13,6 @@ Documentation
 -------------
 The doxygen help pages [have been published online here](http://dagostinelli.github.io/hypatia/ "Documentation")
 
-
 FAQ
 ---
 
@@ -23,4 +22,21 @@ A goal of the unit tests is to test each function against HYP_EPSILON which is d
 - Where is the matrix inverse function?  
 It turns out that is pretty tough to get right and also do efficiently. It may be added some day if it is requested enough times.  In the mean time, what you could do instead is create an inverted view matrix (translate, then rotate, then scale instead of the other way around).
 
+- Can this be compiled for asm.js?  
+Yes, but it is experimental.
+```
+cd /where/emsdk/is/stored
+source emsdk_env.sh
+cd /where/hypatia/is/stored/src
+emcc matrix4.c quaternion.c vector2.c scalar.c vector3.c ../test/main.c -I .
+```
+then run it
+```
+$> node a.out.js
+quaternion_all_tests
+matrix4_all_tests
+vector3_all_tests
+ALL TESTS PASSED
+Tests run: 36
+```
 
