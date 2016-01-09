@@ -13,8 +13,9 @@ script:
   - cd build
   - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 
   - make && make test && make install
-  
+
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install doxygen
-  - sudo apt-get install graphviz
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then sudo apt-get update; else brew update; fi
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then sudo apt-get install doxygen; else brew install doxygen; fi
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then sudo apt-get install graphviz; else brew install graphviz; fi
+
