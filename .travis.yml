@@ -8,10 +8,14 @@ compiler:
   - clang
   - gcc
   
+env:
+  - FLAGS="-DCMAKE_BUILD_TYPE=Debug"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Release"
+  
 script:
   - mkdir build
   - cd build
-  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 
+  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 $FLAGS
   - make && make test && make install
 
 before_install:
