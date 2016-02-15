@@ -11,6 +11,7 @@
 #include "test_vector2.c"
 #include "test_vector3.c"
 #include "test_quaternion.c"
+#include "test_matrix3.c"
 #include "test_matrix4.c"
 
 int tests_run = 0;
@@ -20,6 +21,8 @@ static char * all_testsuites()
 {
 	printf("quaternion_all_tests\n");
 	run_test(quaternion_all_tests);
+	printf("matrix3_all_tests\n");
+	run_test(matrix3_all_tests);
 	printf("matrix4_all_tests\n");
 	run_test(matrix4_all_tests);
 	printf("vector3_all_tests\n");

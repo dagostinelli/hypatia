@@ -6,7 +6,7 @@ struct tagmatrix4
 {
 	union
 		{
-		float m[16];
+		float m[16]; /* row-major numbering */
 		struct
 			{
 			/* reference the matrix [row][column] */
@@ -14,13 +14,7 @@ struct tagmatrix4
 			};
 		struct
 			{
-			/**
-			 * indexed (column-major numbering)
-			 * 0 4 8  12
-			 * 1 5 9  13
-			 * 2 6 10 14
-			 * 3 7 11 15
-			 */
+			/* indexed (column-major numbering) */
 			float i00, i04, i08, i12;
 			float i01, i05, i09, i13;
 			float i02, i06, i10, i14;

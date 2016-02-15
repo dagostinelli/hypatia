@@ -7,6 +7,37 @@
  */
 
 
+static vector2 _vector2_zero = { { {0.0f, 0.0f} } };
+static vector2 _vector2_one = { { {1.0f, 1.0f} } };
+static vector2 _vector2_unit_x = { { {1.0f, 0.0f} } };
+static vector2 _vector2_unit_y = { { {0.0f, 1.0f} } };
+static vector2 _vector2_unit_x_negative = { { {-1.0f, 0.0f} } };
+static vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
+
+
+HYPAPI const vector2* vector2_get_reference_vector2(int id)
+{
+	switch(id)
+	{
+		case HYP_REF_VECTOR2_ZERO:
+			return &_vector2_zero;
+		case HYP_REF_VECTOR2_ONE:
+			return &_vector2_one;
+		case HYP_REF_VECTOR2_UNIT_X:
+			return &_vector2_unit_x;
+		case HYP_REF_VECTOR2_UNIT_Y:
+			return &_vector2_unit_y;
+		case HYP_REF_VECTOR2_UNIT_X_NEGATIVE:
+			return &_vector2_unit_x_negative;
+		case HYP_REF_VECTOR2_UNIT_Y_NEGATIVE:
+			return &_vector2_unit_y_negative;
+		default:
+			/* undefined case */
+			return &_vector2_zero;
+	}
+}
+
+
 HYPAPI vector2 * vector2_set(vector2 *self, const vector2 *vT)
 {
 	self->x = vT->x;
@@ -162,6 +193,27 @@ HYPAPI vector2 *vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1
 HYPAPI float vector2_distance(const vector2 *v1, const vector2 *v2)
 {
 	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
+}
+
+
+/**
+ * @brief Multiply a vector by a matrix, returns a vector
+ *
+ * @param self The vector being multiplied
+ * @param mT The matrix used to do the multiplication
+ */
+HYPAPI vector2 * vector2_multiplym3(vector2 *self, const matrix3 *mT)
+{
+	vector2 vR;
+	
+	vector2_zero(&vR);
+	
+	vR.x = self->x * mT->c00 + self->y * mT->c01 + mT->c20;
+	vR.y = self->x * mT->c10 + self->y * mT->c11 + mT->c21;
+	
+	vector2_set(self, &vR);
+	
+	return self;
 }
 
 

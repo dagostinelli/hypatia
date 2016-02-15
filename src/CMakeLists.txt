@@ -15,6 +15,7 @@ SET( HYPATIA_HEADERS
 	vector2.h
 	vector3.h
 	vector4.h
+	matrix3.h
 	matrix4.h
 	quaternion.h
 	experimental.h
@@ -26,6 +27,7 @@ SET( Hypatia_SRCS
 	vector2.c
 	vector3.c
 	vector4.c
+	matrix3.c
 	matrix4.c
 	quaternion.c
 	experimental.c
@@ -37,6 +39,12 @@ SET( Hypatia_Tests_SRCS
 	tests/main.c
 )
 SOURCE_GROUP(Tests FILES ${Hypatia_Tests_SRCS})
+
+
+IF(NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE DEBUG)
+	MESSAGE(STATUS "No CMAKE_BUILD_TYPE specified, using default DEBUG")
+ENDIF()
 
 
 if(MSVC)
@@ -63,18 +71,8 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
-
-	# todo make this dependent on debug flag
-	ADD_DEFINITIONS(-ggdb) #add debug info for gdb
-
-	ADD_DEFINITIONS(-std=c90)
-	#ADD_DEFINITIONS(-pedantic)
-	ADD_DEFINITIONS(-Wall)
-	ADD_DEFINITIONS(-Wextra)
-	ADD_DEFINITIONS(-Wmissing-prototypes)
-	ADD_DEFINITIONS(-Wstrict-prototypes)
-	ADD_DEFINITIONS(-Wold-style-definition)
-	ADD_DEFINITIONS(-Werror)
+	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
+	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
 endif()
 
 

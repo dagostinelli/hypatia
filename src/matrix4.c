@@ -416,7 +416,7 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *m, float angle
  * @brief Creates a temporary translation matrix and then multiplies self by that.  Opinionated function about what translation means.
  *
  * @param self The transformation matrix being translated
- * @param scale the translation vector
+ * @param translation the translation vector
  *
  */
 HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation)

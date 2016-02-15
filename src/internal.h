@@ -6,6 +6,9 @@
 #include <memory.h>
 #include <math.h>
 
+HYPAPI void _matrix3_print_with_columnrow_indexer(matrix3 *self);
+HYPAPI void _matrix3_print_with_rowcolumn_indexer(matrix3 *self);
+HYPAPI matrix3 * _matrix3_set_random(matrix3 *self);
 
 HYPAPI void _matrix4_print_with_columnrow_indexer(matrix4 *self);
 HYPAPI void _matrix4_print_with_rowcolumn_indexer(matrix4 *self);

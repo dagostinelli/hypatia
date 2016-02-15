@@ -6,16 +6,8 @@ INCLUDE_DIRECTORIES(${hypatia_SOURCE_DIR})
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
-	
-	ADD_DEFINITIONS(-std=c90)
-
-#TODO Make this conditional
-	ADD_DEFINITIONS(-ggdb) #add debug info for gdb
-
-	ADD_DEFINITIONS(-Werror)
-	ADD_DEFINITIONS(-Wextra)
-	ADD_DEFINITIONS(-Wall)
-	ADD_DEFINITIONS(-Wno-missing-braces) #we like the missing braces in the unit tests
+	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
+	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
 endif()
 
 IF(HYPATIA_BUILD_SHARED)

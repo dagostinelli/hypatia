@@ -40,6 +40,8 @@ HYPAPI vector2 * vector2_cross_product(vector2 *vR, const vector2 *vT1, const ve
 HYPAPI float vector2_angle_between(const vector2 *self, const vector2 *vT);
 HYPAPI vector2 * vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1, const vector2 *vT2);
 
+HYPAPI vector2 * vector2_multiplym3(vector2 *self, const matrix3 *mT);
+
 /* the length is the same as "magnitude" */
 #define vector2_length(v) vector2_magnitude(v)
 

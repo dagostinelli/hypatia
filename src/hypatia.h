@@ -91,6 +91,7 @@
 typedef struct tagvector2 vector2;
 typedef struct tagvector3 vector3;
 typedef struct tagvector4 vector4;
+typedef struct tagmatrix3 matrix3;
 typedef struct tagmatrix4 matrix4;
 typedef struct tagquaternion quaternion;
 
@@ -99,11 +100,21 @@ typedef struct tagquaternion quaternion;
 #include "vector2.h"
 #include "vector3.h"
 #include "vector4.h"
+#include "matrix3.h"
 #include "matrix4.h"
 #include "quaternion.h"
 #include "experimental.h"
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+#define HYP_REF_VECTOR2_ZERO 0
+#define HYP_REF_VECTOR2_UNIT_X 1
+#define HYP_REF_VECTOR2_UNIT_Y 2
+#define HYP_REF_VECTOR2_UNIT_X_NEGATIVE 3
+#define HYP_REF_VECTOR2_UNIT_Y_NEGATIVE 4
+#define HYP_REF_VECTOR2_ONE 5
+
+HYPAPI const vector2* vector2_get_reference_vector2(int id);
 
 #define HYP_REF_VECTOR3_ZERO 0
 #define HYP_REF_VECTOR3_UNIT_X 1
@@ -159,6 +170,35 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id);
 #define HYP_VECTOR3_UNIT_Z_NEGATIVE vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_Z_NEGATIVE)
 /** @brief {1,1,1} */
 #define HYP_VECTOR3_ONE vector3_get_reference_vector3(HYP_REF_VECTOR3_ONE)
+/* @} */
+
+
+/** 
+ * @defgroup _reference_vectors2 Reference Vectors
+ * @ingroup _vector2
+ * These are the reference vectors.  
+ *
+ * They can be used like so:
+ * @code
+ * vector2 x_axis;
+ * vector2_set(&x_axis, HYP_VECTOR2_UNIT_X);
+ * @endcode
+ *
+ * @{
+ */
+
+/** @brief {0,0} */
+#define HYP_VECTOR2_ZERO vector2_get_reference_vector2(HYP_REF_VECTOR2_ZERO)
+/** @brief {1,0} */
+#define HYP_VECTOR2_UNIT_X vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_X)
+/** @brief {0,1} */
+#define HYP_VECTOR2_UNIT_Y vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_Y)
+/** @brief {-1,0} */
+#define HYP_VECTOR2_UNIT_X_NEGATIVE vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_X_NEGATIVE)
+/** @brief {0,-1} */
+#define HYP_VECTOR2_UNIT_Y_NEGATIVE vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_Y_NEGATIVE)
+/** @brief {1,1} */
+#define HYP_VECTOR2_ONE vector2_get_reference_vector2(HYP_REF_VECTOR2_ONE)
 /* @} */
 
 
