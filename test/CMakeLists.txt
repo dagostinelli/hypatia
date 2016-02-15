@@ -6,8 +6,8 @@ INCLUDE_DIRECTORIES(${hypatia_SOURCE_DIR})
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
-	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
-	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
+	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wall -Werror -Wno-missing-braces")
+	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wall -Werror -Wno-missing-braces")
 endif()
 
 IF(HYPATIA_BUILD_SHARED)
