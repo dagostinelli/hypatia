@@ -11,7 +11,9 @@ compiler:
 env:
   - FLAGS="-DCMAKE_BUILD_TYPE=Debug"
   - FLAGS="-DCMAKE_BUILD_TYPE=Release"
-  
+
+cache: apt
+
 script:
   - mkdir build
   - cd build
