@@ -49,12 +49,10 @@ HYPAPI matrix3 * matrix3_transpose(matrix3 *self);
 
 HYPAPI matrix3 * matrix3_make_transformation_translationv2(matrix3 *self, const vector2 *translation);
 HYPAPI matrix3 * matrix3_make_transformation_scalingv2(matrix3 *self, const vector2 *scale);
-HYPAPI matrix3 * matrix3_make_transformation_rotationq(matrix3 *self, const quaternion *qT);
 HYPAPI matrix3 * matrix3_make_transformation_rotationf_z(matrix3 *self, float angle);
 
 HYPAPI matrix3 * matrix3_translatev2(matrix3 *self, const vector2 * translation);
 HYPAPI matrix3 * matrix3_rotate(matrix3 *self, float angle);
-HYPAPI matrix3 * matrix3_rotatev3(matrix3 *self, const vector3 *axis, float angle);
 HYPAPI matrix3 * matrix3_scalev2(matrix3 *self, const vector2 *scale);
 
 HYPAPI matrix3 * _matrix3_transpose_rowcolumn(matrix3 *self);

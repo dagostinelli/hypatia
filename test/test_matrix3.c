@@ -184,7 +184,7 @@ static char * test_matrix3_rotatev3_xz_quarter_turn()
 	
 	vector2_set(&r, HYP_VECTOR2_UNIT_X);
 	matrix3_identity(&m);
-	matrix3_rotatev3(&m, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f);
+	matrix3_rotate(&m, HYP_TAU / 4.0f);
 	vector2_multiplym3(&r, &m);
 	test_assert(vector2_equals(&r, HYP_VECTOR2_UNIT_Y));
 	
@@ -199,7 +199,7 @@ static char * test_matrix3_rotatev3_xz_quarter_turn_opposite()
 	
 	vector2_set(&r, HYP_VECTOR2_UNIT_X);
 	matrix3_identity(&m);
-	matrix3_rotatev3(&m, HYP_VECTOR3_UNIT_Z, -(HYP_TAU / 4.0f));
+	matrix3_rotate(&m, -(HYP_TAU / 4.0f));
 	vector2_multiplym3(&r, &m);
 	test_assert(vector2_equals(&r, HYP_VECTOR2_UNIT_Y_NEGATIVE));
 	

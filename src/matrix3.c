@@ -261,35 +261,6 @@ HYPAPI matrix3 * _matrix3_set_random(matrix3 *self)
 
 /**
  * @ingroup matrix3
- * @brief converts the quaternion to a 4x4 rotation matrix (column major, right hand rule)
- *
- */
-HYPAPI matrix3 * matrix3_make_transformation_rotationq(matrix3 *self, const quaternion *qT)
-{
-	matrix3 *m;
-	const quaternion *q;
-	
-	q = qT;
-	m = self;
-	
-	matrix3_identity(m);
-	
-	m->m[0] = 1.0f - 2.0f * (q->y * q->y + q->z * q->z);
-	m->m[4] = 2.0f * (q->x * q->y - q->z * q->w);
-	m->m[8] = 2.0f * (q->x * q->z + q->y * q->w);
-	m->m[1] = 2.0f * (q->x * q->y + q->z * q->w);
-	m->m[5] = 1.0f - 2.0f * (q->x * q->x + q->z * q->z);
-	m->m[9] = 2.0f * (q->y * q->z - q->x * q->w);
-	m->m[2] = 2.0f * (q->x * q->z - q->y * q->w);
-	m->m[6] = 2.0f * (q->y * q->z + q->x * q->w);
-	m->m[10] = 1.0f - 2.0f * (q->x * q->x + q->y * q->y);
-	
-	return self;
-}
-
-
-/**
- * @ingroup matrix3
  * @brief creates a translation matrix.  It's opinionated about what that means.
  *
  */
@@ -370,31 +341,9 @@ HYPAPI matrix3 * matrix3_translatev2(matrix3 *self, const vector2 * translation)
 HYPAPI matrix3 * matrix3_rotate(matrix3 *self, float angle)
 {
 	matrix3 rotationMatrix;
-	quaternion q;
 	
 	return matrix3_multiply(self, 
-		matrix3_make_transformation_rotationq(&rotationMatrix, 
-			quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, angle)));
-}
-
-
-/**
- * @ingroup matrix3
- * @brief Creates a temporary rotation matrix and then multiplies self by that.  Opinionated function about what rotation means.
- *
- * @param self The transformation matrix being rotated
- * @param axis the axis to rotate the matrix around
- * @param angle the angle of rotation in radians
- *
- */
-HYPAPI matrix3 * matrix3_rotatev3(matrix3 *self, const vector3 *axis, float angle)
-{
-	matrix3 rotationMatrix;
-	quaternion q;
-	
-	return matrix3_multiply(self, 
-		matrix3_make_transformation_rotationq(&rotationMatrix, 
-			quaternion_set_from_axis_anglev3(&q, axis, angle)));
+		matrix3_make_transformation_rotationf_z(&rotationMatrix, angle));
 }
 
 
