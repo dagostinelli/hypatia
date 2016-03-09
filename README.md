@@ -24,6 +24,12 @@ Documentation
 -------------
 Help pages [have been published online here](http://dagostinelli.github.io/hypatia/ "Documentation")
 
+
+Quick Start
+-----------
+A great way to learn how to use the library is to review the unit tests.
+
+
 FAQ
 ---
 
@@ -33,8 +39,10 @@ A goal of the unit tests is to test each function against HYP_EPSILON which is d
 - Where is the matrix inverse function?  
 It turns out that is pretty tough to get right and also do efficiently. It may be added some day if it is requested enough times.  In the mean time, what you could do instead is create an inverted view matrix (translate, then rotate, then scale instead of the other way around).
 
-- Can this be compiled for asm.js?  
-Yes, but it is experimental.
+asm.js
+-----------
+This library can be compiled for asm.js. But it is experimental.
+
 ```
 cd /where/emsdk/is/stored
 source emsdk_env.sh
