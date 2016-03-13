@@ -34,7 +34,7 @@ HYPAPI vector4 * _vector4_set_random(vector4 *self);
 #define HYP_SQRT(x) sqrt(x)
 
 /** @brief A macro that returns the cotangent of \a a.  The angle is in radians.*/
-#define HYP_COTF(a) (1.0f / HYP_TAN(a))
+#define HYP_COT(a) (1.0f / HYP_TAN(a))
 
 #define UNUSED_VARIABLE(x) (void)(x)
 

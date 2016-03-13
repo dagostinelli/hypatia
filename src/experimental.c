@@ -12,7 +12,7 @@
  * @param az the z axis
  *
  */
-HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, float ax, float ay, float az)
+HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	vector3 vx;
 	vector3 vy;
@@ -21,9 +21,9 @@ HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, flo
 	quaternion qy;
 	quaternion qz;
 	
-	vector3_setf3(&vx, 1, 0, 0);
-	vector3_setf3(&vy, 0, 1, 0);
-	vector3_setf3(&vz, 0, 0, 1);
+	vector3_setf3(&vx, 1.0f, 0.0f, 0.0f);
+	vector3_setf3(&vy, 0.0f, 1.0f, 0.0f);
+	vector3_setf3(&vz, 0.0f, 0.0f, 1.0f);
 	
 	quaternion_set_from_axis_anglev3(&qx, &vx, ax);
 	quaternion_set_from_axis_anglev3(&qy, &vy, ay);
@@ -71,7 +71,7 @@ HYPAPI quaternion * quaternion_rotate_by_quaternion_EXP(quaternion *self, const 
  * @param angle the transformed point
  *
  */
-HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const vector3 *axis, float angle)
+HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const vector3 *axis, HYP_FLOAT angle)
 {
 	quaternion qT;
 	quaternion_set_from_axis_anglev3(&qT, axis, angle);
@@ -87,7 +87,7 @@ HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const 
  * @brief returns a score that seeks to describe the difference between two quaternions 
  *
  */
-HYPAPI float quaternion_difference_EXP(const quaternion *q1, const quaternion *q2)
+HYPAPI HYP_FLOAT quaternion_difference_EXP(const quaternion *q1, const quaternion *q2)
 {
 	quaternion diff;
 	diff.x = q2->x - q1->x;
@@ -110,7 +110,7 @@ HYPAPI float quaternion_difference_EXP(const quaternion *q1, const quaternion *q
  * @param az roll
  *
  */
-HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, float ax, float ay, float az)
+HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	quaternion qT;
 	
@@ -151,9 +151,9 @@ HYPAPI quaternion quaternion_cross_product_EXP(const quaternion *self, const qua
  *  * \f$angle= 2 * acos((self \cdot qT) / (||self|| * ||qT||))\f$
  *
  */
-HYPAPI float quaternion_angle_between_EXP(const quaternion *self, const quaternion *qT)
+HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const quaternion *self, const quaternion *qT)
 {
-	float c; /* cosine */
+	HYP_FLOAT c; /* cosine */
 	
 	c = quaternion_dot_product(self, qT) / ( quaternion_norm(self) * quaternion_norm(qT) );
 	
@@ -179,14 +179,14 @@ HYPAPI void quaternion_axis_between_EXP(const quaternion *self, const quaternion
  * @ingroup experimental
  * @brief creates an perspective projection matrix using the RH system with a FOV about the Y-axis.  It's opinionated about what that means.
  */
-HYPAPI matrix4* matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, float fovy, float aspect, float zNear, float zFar)
+HYPAPI matrix4* matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
-	float h;
-	float w;
-	float p;
-	float q;
+	HYP_FLOAT h;
+	HYP_FLOAT w;
+	HYP_FLOAT p;
+	HYP_FLOAT q;
 	
-	h = HYP_COTF(fovy) / 2.0f;
+	h = HYP_COT(fovy) / 2.0f;
 	w = h * aspect;
 	
 	p = zFar/(zNear-zFar);
@@ -208,10 +208,10 @@ HYPAPI matrix4* matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, float 
  * @ingroup experimental
  * @brief make an orthographic projection matrix with right handed coordinates
  */
-HYPAPI matrix4* matrix4_projection_ortho3d_rh_EXP(matrix4 *self, float xmin, float xmax,float ymin, float ymax,float zNear, float zFar)
+HYPAPI matrix4* matrix4_projection_ortho3d_rh_EXP(matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax,HYP_FLOAT ymin, HYP_FLOAT ymax,HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
-	float width;
-	float height;
+	HYP_FLOAT width;
+	HYP_FLOAT height;
 	
 	matrix4_zero(self);
 	
@@ -257,10 +257,10 @@ HYPAPI vector3 * matrix4_multiplyv3_EXP(const matrix4 *m, const vector3 *vT, vec
  * @param angle the angle in radians
  *
  */
-HYPAPI matrix4 * matrix4_set_from_axisf3_angle_EXP(matrix4 *self, float x, float y, float z, const float angle)
+HYPAPI matrix4 * matrix4_set_from_axisf3_angle_EXP(matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle)
 {
-	float c = HYP_COS(angle);
-	float s = HYP_SIN(angle);
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
 	
 	self->c00 = (x * x) * (1.0f - c) + c;
 	self->c01 = (x * y) * (1.0f - c) + (z * s);
@@ -295,7 +295,7 @@ HYPAPI matrix4 * matrix4_set_from_axisf3_angle_EXP(matrix4 *self, float x, float
  * @param angle the angle in radians
  *
  */
-HYPAPI matrix4 * matrix4_set_from_axisv3_angle_EXP(matrix4 *self, const vector3 *axis, float angle)
+HYPAPI matrix4 * matrix4_set_from_axisv3_angle_EXP(matrix4 *self, const vector3 *axis, HYP_FLOAT angle)
 {
 	return matrix4_set_from_axisf3_angle_EXP(self, axis->x, axis->y, axis->z, angle);
 }

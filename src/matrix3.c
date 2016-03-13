@@ -122,7 +122,7 @@ HYPAPI matrix3 * matrix3_subtract(matrix3 *self, const matrix3 *mT)
  * @param self The matrix being changed
  * @param scalar The scalar factor being multiplied in
  */
-HYPAPI matrix3 * matrix3_multiplyf(matrix3 *self, float scalar)
+HYPAPI matrix3 * matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar)
 {
 	unsigned char i;
 	
@@ -191,7 +191,7 @@ HYPAPI matrix3 * matrix3_transpose(matrix3 *self)
  */
 HYPAPI matrix3 * _matrix3_transpose_rowcolumn(matrix3 *self)
 {
-	float tmp;
+	HYP_FLOAT tmp;
 	_SWAP(self->r01, self->r10);
 	_SWAP(self->r02, self->r20);
 	_SWAP(self->r12, self->r21);
@@ -207,7 +207,7 @@ HYPAPI matrix3 * _matrix3_transpose_rowcolumn(matrix3 *self)
  */
 HYPAPI matrix3 * _matrix3_transpose_columnrow(matrix3 *self)
 {
-	float tmp;
+	HYP_FLOAT tmp;
 	_SWAP(self->c01, self->c10);
 	_SWAP(self->c02, self->c20);
 	_SWAP(self->c12, self->c21);
@@ -297,10 +297,10 @@ HYPAPI matrix3 * matrix3_make_transformation_scalingv2(matrix3 *self, const vect
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix3 * matrix3_make_transformation_rotationf_z(matrix3 *m, float angle)
+HYPAPI matrix3 * matrix3_make_transformation_rotationf_z(matrix3 *m, HYP_FLOAT angle)
 {
-	float c = HYP_COS(angle);
-	float s = HYP_SIN(angle);
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
 	
 	matrix3_identity(m);
 	
@@ -338,7 +338,7 @@ HYPAPI matrix3 * matrix3_translatev2(matrix3 *self, const vector2 * translation)
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI matrix3 * matrix3_rotate(matrix3 *self, float angle)
+HYPAPI matrix3 * matrix3_rotate(matrix3 *self, HYP_FLOAT angle)
 {
 	matrix3 rotationMatrix;
 	

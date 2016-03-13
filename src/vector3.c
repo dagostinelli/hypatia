@@ -48,7 +48,7 @@ HYPAPI const vector3* vector3_get_reference_vector3(int id)
  * @ingroup vector3
  * @brief initializes the vertex with specific values
  */
-HYPAPI vector3 * vector3_setf3(vector3 *self, float xT, float yT, float zT)
+HYPAPI vector3 * vector3_setf3(vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT)
 {
 	self->x = xT; 
 	self->y = yT; 
@@ -76,7 +76,7 @@ HYPAPI vector3 * vector3_set(vector3 *self, const vector3 *vT)
  */
 HYPAPI vector3 * vector3_zero(vector3 *self)
 {
-	return vector3_setf3(self, 0, 0, 0);
+	return vector3_setf3(self, 0.0f, 0.0f, 0.0f);
 }
 
 
@@ -123,7 +123,7 @@ HYPAPI vector3 * vector3_add(vector3 *self, const vector3 *vT)
  * @ingroup vector3
  * @brief add to each component of the vector using a scalar
  */
-HYPAPI vector3 * vector3_addf(vector3 *self, float f)
+HYPAPI vector3 * vector3_addf(vector3 *self, HYP_FLOAT f)
 {
 	self->v[0] += f;
 	self->v[1] += f;
@@ -149,7 +149,7 @@ HYPAPI vector3 * vector3_subtract(vector3 *self, const vector3 *vT)
  * @ingroup vector3
  * @brief subtract each vector's component by a scalar
  */
-HYPAPI vector3 * vector3_subtractf(vector3 *self, float f)
+HYPAPI vector3 * vector3_subtractf(vector3 *self, HYP_FLOAT f)
 {
 	self->v[0] -= f;
 	self->v[1] -= f;
@@ -175,7 +175,7 @@ HYPAPI vector3 * vector3_multiply(vector3 *self, const vector3 *vT)
  * @ingroup vector3
  * @brief multiplies each component of the vector by a scalar
  */
-HYPAPI vector3 * vector3_multiplyf(vector3 *self, float f)
+HYPAPI vector3 * vector3_multiplyf(vector3 *self, HYP_FLOAT f)
 {
 	self->v[0] *= f;
 	self->v[1] *= f;
@@ -202,7 +202,7 @@ HYPAPI vector3 * vector3_divide(vector3 *self, const vector3 *vT)
  * @ingroup vector3
  * @brief calculates the magnitude of the vector
  */
-HYPAPI float vector3_magnitude(const vector3 *self)
+HYPAPI HYP_FLOAT vector3_magnitude(const vector3 *self)
 {
 	return sqrt((self->x*self->x) + (self->y*self->y) + (self->z*self->z));
 }
@@ -214,11 +214,11 @@ HYPAPI float vector3_magnitude(const vector3 *self)
  */
 HYPAPI vector3 * vector3_normalize(vector3 *self)
 {
-	float mag;
+	HYP_FLOAT mag;
 	
 	mag = vector3_magnitude(self);
 	
-	if (mag == 0)
+	if (mag == 0.0f)
 	{
 		/* can't normalize a zero
 		 * avoid divide by zero
@@ -238,7 +238,7 @@ HYPAPI vector3 * vector3_normalize(vector3 *self)
  * @ingroup vector3
  * @brief computes the dot product of two vectors
  */
-HYPAPI float vector3_dot_product(const vector3 *self, const vector3 *vT)
+HYPAPI HYP_FLOAT vector3_dot_product(const vector3 *self, const vector3 *vT)
 {
 	return (self->x * vT->x) + (self->y * vT->y) + (self->z * vT->z);
 }
@@ -261,9 +261,9 @@ HYPAPI vector3 * vector3_cross_product(vector3 *vR, const vector3 *vT1, const ve
  * @brief finds the angle between two vectors. make sure to do this on a normalized vector only
  * 
  */
-HYPAPI float vector3_angle_between(const vector3 *vT1, const vector3 *vT2)
+HYPAPI HYP_FLOAT vector3_angle_between(const vector3 *vT1, const vector3 *vT2)
 {
-	float c; /* cosine */
+	HYP_FLOAT c; /* cosine */
 	
 	c = vector3_dot_product(vT1, vT2) / ( vector3_magnitude(vT1) * vector3_magnitude(vT2) );
 	
@@ -291,7 +291,7 @@ HYPAPI vector3 *vector3_find_normal_axis_between(vector3 *vR, const vector3 *vT1
  *
  * https://en.wikipedia.org/wiki/Distance
  */
-HYPAPI float vector3_distance(const vector3 *v1, const vector3 *v2)
+HYPAPI HYP_FLOAT vector3_distance(const vector3 *v1, const vector3 *v2)
 {
 	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z));
 }

@@ -31,7 +31,7 @@ HYPAPI quaternion * quaternion_identity(quaternion *self)
  * @ingroup quaternion
  * @brief initializes the quaternion with the passed in x, y, z, w
  */
-HYPAPI quaternion * quaternion_setf4(quaternion *self, float x, float y, float z, float w)
+HYPAPI quaternion * quaternion_setf4(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w)
 {
 	self->x = x;
 	self->y = y;
@@ -65,10 +65,10 @@ HYPAPI quaternion * quaternion_set(quaternion * self, const quaternion *qT)
  * q = cos(a/2) + i ( x * sin(a/2)) + j (y * sin(a/2)) + k ( z * sin(a/2))
  *
  */
-HYPAPI quaternion * quaternion_set_from_axis_anglef3(quaternion *self, float x, float y, float z, float angle)
+HYPAPI quaternion * quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle)
 {
-	float s = HYP_SIN(angle / 2.0f);
-	float c = HYP_COS(angle / 2.0f);
+	HYP_FLOAT s = HYP_SIN(angle / 2.0f);
+	HYP_FLOAT c = HYP_COS(angle / 2.0f);
 	
 	self->x = x * s;
 	self->y = y * s;
@@ -89,7 +89,7 @@ HYPAPI quaternion * quaternion_set_from_axis_anglef3(quaternion *self, float x, 
  * @param angle the angle is in radians
  *
  */
-HYPAPI quaternion * quaternion_set_from_axis_anglev3(quaternion *self, const vector3 *axis, float angle)
+HYPAPI quaternion * quaternion_set_from_axis_anglev3(quaternion *self, const vector3 *axis, HYP_FLOAT angle)
 {
 	return quaternion_set_from_axis_anglef3(self, axis->x, axis->y, axis->z, angle);
 }
@@ -117,7 +117,7 @@ HYPAPI int quaternion_equals(const quaternion *self, const quaternion *qT)
  * \f$\|q\| = x^2+y^2+z^2+w^2\f$.
  *
  */
-HYPAPI float quaternion_norm(const quaternion *self)
+HYPAPI HYP_FLOAT quaternion_norm(const quaternion *self)
 {
 	return (self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w);
 }
@@ -131,7 +131,7 @@ HYPAPI float quaternion_norm(const quaternion *self)
  *
  * \f$\sqrt{\|q\|}\f$
  */
-HYPAPI float quaternion_magnitude(const quaternion *self)
+HYPAPI HYP_FLOAT quaternion_magnitude(const quaternion *self)
 {
 	return HYP_SQRT(quaternion_norm(self));
 }
@@ -186,7 +186,7 @@ HYPAPI quaternion * quaternion_negate(quaternion *self)
  */
 HYPAPI quaternion * quaternion_inverse(quaternion *self)
 {
-	float norm;
+	HYP_FLOAT norm;
 	
 	norm = quaternion_norm(self);
 	
@@ -220,7 +220,7 @@ HYPAPI quaternion * quaternion_inverse(quaternion *self)
  */
 HYPAPI quaternion * quaternion_normalize(quaternion *self)
 {
-	float mag;
+	HYP_FLOAT mag;
 	
 	mag = quaternion_magnitude(self);
 	
@@ -271,7 +271,7 @@ HYPAPI short quaternion_is_pure(quaternion *self)
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion * quaternion_nlerp(const quaternion *start, const quaternion *end, float percent, quaternion *qR)
+HYPAPI quaternion * quaternion_nlerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
 {
 	quaternion_lerp(start, end, percent, qR);
 	quaternion_normalize(qR);
@@ -289,9 +289,9 @@ HYPAPI quaternion * quaternion_nlerp(const quaternion *start, const quaternion *
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion * quaternion_lerp(const quaternion *start, const quaternion *end, float percent, quaternion *qR)
+HYPAPI quaternion * quaternion_lerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
 {
-	float f1, f2;
+	HYP_FLOAT f1, f2;
 	
 	/* if percent is 0, return start */
 	if(percent == 0.0f)
@@ -332,12 +332,12 @@ HYPAPI quaternion * quaternion_lerp(const quaternion *start, const quaternion *e
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion * quaternion_slerp(const quaternion *start, const quaternion *end, float percent, quaternion *qR)
+HYPAPI quaternion * quaternion_slerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
 {
-	float dot;
-	float f1, f2;
-	float theta;
-	float s;
+	HYP_FLOAT dot;
+	HYP_FLOAT f1, f2;
+	HYP_FLOAT theta;
+	HYP_FLOAT s;
 	quaternion qneg;
 	
 	/* if percent is 0, return start */
@@ -406,7 +406,7 @@ HYPAPI quaternion * quaternion_slerp(const quaternion *start, const quaternion *
  * @brief Used by SLERP. This treats the whole quaternion as a 4D vector and computes a regular dot product on it
  *
  */
-HYPAPI float quaternion_dot_product(const quaternion *self, const quaternion *qT)
+HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion *qT)
 {
 	return (self->x * qT->x) + (self->y * qT->y) + (self->z * qT->z) + (self->w * qT->w);
 }
@@ -452,7 +452,7 @@ HYPAPI quaternion * quaternion_subtract(quaternion *self, const quaternion *qT)
  * to multiply by a scalar, apply it to element one by one like a vector
  *
  */
-HYPAPI quaternion * quaternion_multiplyf(quaternion *self, float f)
+HYPAPI quaternion * quaternion_multiplyf(quaternion *self, HYP_FLOAT f)
 {
 	self->x *= f;
 	self->y *= f;
@@ -514,10 +514,10 @@ HYPAPI quaternion * quaternion_multiplyv3(quaternion *self, const vector3 *vT)
  * @param angle the angle in radians; will be filled with the angle value
  *
  */
-HYPAPI void quaternion_get_axis_anglev3(const quaternion *self, vector3 *vR, float *angle)
+HYPAPI void quaternion_get_axis_anglev3(const quaternion *self, vector3 *vR, HYP_FLOAT *angle)
 {
 	/* scale is not same as magnitude */
-	float scale = HYP_SQRT( 1.0f - self->w * self->w);
+	HYP_FLOAT scale = HYP_SQRT( 1.0f - self->w * self->w);
 	
 	vR->x = self->x / scale;
 	vR->y = self->y / scale;
@@ -565,8 +565,8 @@ HYPAPI quaternion * quaternion_get_rotation_tov3(const vector3 *from, const vect
 {	
 	/* this code avoids sqrt and cos and sin and would be nice to avoid division */
 	vector3 w;
-	float dot;
-	float norm;
+	HYP_FLOAT dot;
+	HYP_FLOAT norm;
 	
 	vector3_cross_product(&w, from, to);
 	dot = vector3_dot_product(from, to);

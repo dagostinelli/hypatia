@@ -58,9 +58,9 @@ static char * test_quaternion_inverse()
 static char * test_quaternion_axis_anglev3()
 {
 	quaternion q, q1;
-	float c;
-	float s;
-	float angle = HYP_TAU / 4.0f;
+	HYP_FLOAT c;
+	HYP_FLOAT s;
+	HYP_FLOAT angle = HYP_TAU / 4.0f;
 	vector3 axis;
 	
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, angle);
@@ -86,7 +86,7 @@ static char * test_quaternion_axis_anglev3()
 static char * test_quaternion_get_set_axis_anglev3()
 {
 	quaternion q;
-	float angle, angle1;
+	HYP_FLOAT angle, angle1;
 	vector3 axis, axis1;
 	
 	vector3_set(&axis, HYP_VECTOR3_UNIT_X);
@@ -232,7 +232,7 @@ static char * test_vector3_rotate_by_quaternion_xy_half_turn()
 static char * test_quaternion_slerp()
 {
 	quaternion q, q1, q2, q3;
-	float angle;
+	HYP_FLOAT angle;
 
 	angle = HYP_TAU / 4.0f;
 

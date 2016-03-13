@@ -1,0 +1,47 @@
+version: 0.0.{build}-{branch}
+
+matrix:
+  fast_finish: true
+  
+platform:
+ - x86
+ - x64
+ - ARM
+
+configuration:
+ - Debug
+ - Release
+ 
+environment:
+  matrix:
+   - vstudio: Visual Studio 9
+   - vstudio: Visual Studio 10
+   - vstudio: Visual Studio 11
+   - vstudio: Visual Studio 12
+   - vstudio: Visual Studio 14   
+
+before_build:
+ - echo %vstudio%
+ - echo %platform%
+ - echo %configuration%
+ - if "%vstudio%"=="Visual Studio 9" (call "%VS90COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
+ - if "%vstudio%"=="Visual Studio 10" (call "%VS100COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
+ - if "%vstudio%"=="Visual Studio 11" (call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
+ - if "%vstudio%"=="Visual Studio 12" (call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
+ - if "%vstudio%"=="Visual Studio 13" (call "%VS140COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%) 
+
+build_script:
+ - mkdir build
+ - cd build
+ - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev --config %configuration% -G "NMake Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 -DHYPATIA_BUILD_DOCS=0 -DHYPATIA_USE_SINGLE=0
+ - cmake --build "%cd%"
+ # Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake
+ #- cpack -G "ZIP"
+ 
+test_script:
+ - ctest
+
+# Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake 
+#artifacts:
+# - path: '**\*.zip'
+#   name: renamethis

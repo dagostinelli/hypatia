@@ -1,8 +1,6 @@
 Remaining Work:
 
-- Conditionally declare -ggdb to add debug symbols
 - Re-test the Visual Studio compilation
-- Make it work with Clang and LLVM
 - Build a Visual Studio makefile/project file
 - Fix this: (shouldn't be outputting a lib file for the test project)
 	Linking C executable test_hypatia.exe

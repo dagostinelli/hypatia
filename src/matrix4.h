@@ -6,33 +6,33 @@ struct tagmatrix4
 {
 	union
 		{
-		float m[16]; /* row-major numbering */
+		HYP_FLOAT m[16]; /* row-major numbering */
 		struct
 			{
 			/* reference the matrix [row][column] */
-			float m44[4][4];
+			HYP_FLOAT m44[4][4];
 			};
 		struct
 			{
 			/* indexed (column-major numbering) */
-			float i00, i04, i08, i12;
-			float i01, i05, i09, i13;
-			float i02, i06, i10, i14;
-			float i03, i07, i11, i15;
+			HYP_FLOAT i00, i04, i08, i12;
+			HYP_FLOAT i01, i05, i09, i13;
+			HYP_FLOAT i02, i06, i10, i14;
+			HYP_FLOAT i03, i07, i11, i15;
 			};			
 		struct
 			{ /* col-row */
-			float c00, c10, c20, c30;
-			float c01, c11, c21, c31;
-			float c02, c12, c22, c32;
-			float c03, c13, c23, c33;
+			HYP_FLOAT c00, c10, c20, c30;
+			HYP_FLOAT c01, c11, c21, c31;
+			HYP_FLOAT c02, c12, c22, c32;
+			HYP_FLOAT c03, c13, c23, c33;
 			};
 		struct
 			{ /* row-col */
-			float r00, r01, r02, r03;
-			float r10, r11, r12, r13;
-			float r20, r21, r22, r23;
-			float r30, r31, r32, r33;
+			HYP_FLOAT r00, r01, r02, r03;
+			HYP_FLOAT r10, r11, r12, r13;
+			HYP_FLOAT r20, r21, r22, r23;
+			HYP_FLOAT r30, r31, r32, r33;
 			};
 	};
 };
@@ -46,18 +46,18 @@ HYPAPI matrix4 * matrix4_set(matrix4 *self, const matrix4 *mT);
 HYPAPI matrix4 * matrix4_add(matrix4 *self, const matrix4 *mT);
 HYPAPI matrix4 * matrix4_subtract(matrix4 *self, const matrix4 *mT);
 HYPAPI matrix4 * matrix4_multiply(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, float scalar);
+HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar);
 HYPAPI matrix4 * matrix4_transpose(matrix4 *self);
 
 HYPAPI matrix4 * matrix4_make_transformation_translationv3(matrix4 *self, const vector3 *translation);
 HYPAPI matrix4 * matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale);
 HYPAPI matrix4 * matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *self, float angle);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *self, float angle);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *self, float angle);
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *self, HYP_FLOAT angle);
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *self, HYP_FLOAT angle);
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *self, HYP_FLOAT angle);
 
 HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation);
-HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, float angle);
+HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle);
 HYPAPI matrix4 * matrix4_scalev3(matrix4 *self, const vector3 *scale);
 
 HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self);

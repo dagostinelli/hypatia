@@ -123,7 +123,7 @@ HYPAPI matrix4 * matrix4_subtract(matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param scalar The scalar factor being multiplied in
  */
-HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, float scalar)
+HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
 {
 	unsigned char i;
 	
@@ -201,7 +201,7 @@ HYPAPI matrix4 * matrix4_transpose(matrix4 *self)
  */
 HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self)
 {
-	float tmp;
+	HYP_FLOAT tmp;
 	_SWAP(self->r01, self->r10);
 	_SWAP(self->r02, self->r20);
 	_SWAP(self->r03, self->r30);
@@ -220,7 +220,7 @@ HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self)
  */
 HYPAPI matrix4 * _matrix4_transpose_columnrow(matrix4 *self)
 {
-	float tmp;
+	HYP_FLOAT tmp;
 	_SWAP(self->c01, self->c10);
 	_SWAP(self->c02, self->c20);
 	_SWAP(self->c03, self->c30);
@@ -348,10 +348,10 @@ HYPAPI matrix4 * matrix4_make_transformation_scalingv3(matrix4 *self, const vect
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *m, float angle)
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT angle)
 {
-	float c = HYP_COS(angle);
-	float s = HYP_SIN(angle);
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
 	
 	matrix4_identity(m);
 	
@@ -371,10 +371,10 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *m, float angle
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *m, float angle)
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT angle)
 {
-	float c = HYP_COS(angle);
-	float s = HYP_SIN(angle);
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
 	
 	matrix4_identity(m);
 	
@@ -394,10 +394,10 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *m, float angle
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *m, float angle)
+HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT angle)
 {
-	float c = HYP_COS(angle);
-	float s = HYP_SIN(angle);
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
 	
 	matrix4_identity(m);
 	
@@ -437,7 +437,7 @@ HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation)
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, float angle)
+HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle)
 {
 	matrix4 rotationMatrix;
 	quaternion q;

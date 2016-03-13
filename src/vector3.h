@@ -6,14 +6,14 @@ struct tagvector3
 {
 	union
 		{
-		float v[3];
+		HYP_FLOAT v[3];
 		struct
 			{
-			float x, y, z;
+			HYP_FLOAT x, y, z;
 			};
 		struct
 			{
-			float yaw, pitch, roll;
+			HYP_FLOAT yaw, pitch, roll;
 			};
 		};
 };
@@ -23,25 +23,25 @@ HYPAPI int vector3_equals(const vector3 *self, const vector3 *vT);
 
 HYPAPI vector3 * vector3_zero(vector3 *self);
 HYPAPI vector3 * vector3_set(vector3 *self, const vector3 *vT);
-HYPAPI vector3 * vector3_setf3(vector3 *self, float xT, float yT, float zT);
+HYPAPI vector3 * vector3_setf3(vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT);
 HYPAPI vector3 * vector3_negate(vector3 *self);
 HYPAPI vector3 * vector3_add(vector3 *self, const vector3 *vT);
-HYPAPI vector3 * vector3_addf(vector3 *self, float fT);
+HYPAPI vector3 * vector3_addf(vector3 *self, HYP_FLOAT fT);
 HYPAPI vector3 * vector3_subtract(vector3 *self, const vector3 *vT);
-HYPAPI vector3 * vector3_subtractf(vector3 *self, float fT);
+HYPAPI vector3 * vector3_subtractf(vector3 *self, HYP_FLOAT fT);
 HYPAPI vector3 * vector3_multiply(vector3 *self, const vector3 *vT);
-HYPAPI vector3 * vector3_multiplyf(vector3 *self, float fT);
+HYPAPI vector3 * vector3_multiplyf(vector3 *self, HYP_FLOAT fT);
 HYPAPI vector3 * vector3_divide(vector3 *self, const vector3 *vT);
-HYPAPI vector3 * vector3_dividef(vector3 *self, float fT);
+HYPAPI vector3 * vector3_dividef(vector3 *self, HYP_FLOAT fT);
 
 HYPAPI vector3 * vector3_normalize(vector3 *self);
-HYPAPI float vector3_magnitude(const vector3 *self);
-HYPAPI float vector3_distance(const vector3 *v1, const vector3 *v2);
+HYPAPI HYP_FLOAT vector3_magnitude(const vector3 *self);
+HYPAPI HYP_FLOAT vector3_distance(const vector3 *v1, const vector3 *v2);
 
-HYPAPI float vector3_dot_product(const vector3 *self, const vector3 *vT);
+HYPAPI HYP_FLOAT vector3_dot_product(const vector3 *self, const vector3 *vT);
 HYPAPI vector3 * vector3_cross_product(vector3 *vR, const vector3 *vT1, const vector3 *vT2);
 
-HYPAPI float vector3_angle_between(const vector3 *self, const vector3 *vT);
+HYPAPI HYP_FLOAT vector3_angle_between(const vector3 *self, const vector3 *vT);
 HYPAPI vector3 * vector3_find_normal_axis_between(vector3 *vR, const vector3 *vT1, const vector3 *vT2);
 
 HYPAPI vector3 * vector3_multiplym4(vector3 *self, const matrix4 *mT);

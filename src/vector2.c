@@ -46,7 +46,7 @@ HYPAPI vector2 * vector2_set(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 * vector2_setf2(vector2 *self, float xT, float yT) 
+HYPAPI vector2 * vector2_setf2(vector2 *self, HYP_FLOAT xT, HYP_FLOAT yT) 
 {
 	self->x = xT;
 	self->y = yT;
@@ -56,7 +56,7 @@ HYPAPI vector2 * vector2_setf2(vector2 *self, float xT, float yT)
 
 HYPAPI vector2 * vector2_zero(vector2 *self)
 {
-	return vector2_setf2(self, 0, 0);
+	return vector2_setf2(self, 0.0f, 0.0f);
 }
 
 
@@ -82,7 +82,7 @@ HYPAPI vector2 * vector2_add(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 * vector2_addf(vector2 *self, float fT)
+HYPAPI vector2 * vector2_addf(vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] += fT;
 	self->v[1] += fT;
@@ -98,7 +98,7 @@ HYPAPI vector2 * vector2_subtract(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 * vector2_subtractf(vector2 *self, float fT)
+HYPAPI vector2 * vector2_subtractf(vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] -= fT;
 	self->v[1] -= fT;
@@ -114,7 +114,7 @@ HYPAPI vector2 * vector2_multiply(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 * vector2_multiplyf(vector2 *self, float fT)
+HYPAPI vector2 * vector2_multiplyf(vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] *= fT;
 	self->v[1] *= fT;
@@ -130,7 +130,7 @@ HYPAPI vector2 * vector2_divide(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 * vector2_dividef(vector2 *self, float fT)
+HYPAPI vector2 * vector2_dividef(vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] /= fT;
 	self->v[1] /= fT;
@@ -138,7 +138,7 @@ HYPAPI vector2 * vector2_dividef(vector2 *self, float fT)
 }
 
 
-HYPAPI float vector2_magnitude(const vector2 *self)
+HYPAPI HYP_FLOAT vector2_magnitude(const vector2 *self)
 {
 	return sqrt((self->x*self->x) + (self->y*self->y));
 }
@@ -146,7 +146,7 @@ HYPAPI float vector2_magnitude(const vector2 *self)
 
 HYPAPI vector2 * vector2_normalize(vector2 *self)
 {
-	float mag = vector2_magnitude(self);
+	HYP_FLOAT mag = vector2_magnitude(self);
 
 	self->x = self->x / mag;
 	self->y = self->y / mag;
@@ -154,7 +154,7 @@ HYPAPI vector2 * vector2_normalize(vector2 *self)
 }
 
 
-HYPAPI float vector2_dot_product(const vector2 *self, const vector2 *vT)
+HYPAPI HYP_FLOAT vector2_dot_product(const vector2 *self, const vector2 *vT)
 {
 	return (self->x * vT->x) + (self->y * vT->y);
 }
@@ -168,7 +168,7 @@ HYPAPI vector2 * vector2_cross_product(vector2 *vR, const vector2 *vT1, const ve
 }
 
 
-HYPAPI float vector2_angle_between(const vector2 *self, const vector2 *vT)
+HYPAPI HYP_FLOAT vector2_angle_between(const vector2 *self, const vector2 *vT)
 { 
 	return vector2_dot_product(self, vT) / ( vector2_magnitude(self) * vector2_magnitude(vT) ); 
 }
@@ -190,7 +190,7 @@ HYPAPI vector2 *vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1
  *
  * https://en.wikipedia.org/wiki/Distance
  */
-HYPAPI float vector2_distance(const vector2 *v1, const vector2 *v2)
+HYPAPI HYP_FLOAT vector2_distance(const vector2 *v1, const vector2 *v2)
 {
 	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
 }

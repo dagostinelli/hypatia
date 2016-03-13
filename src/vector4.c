@@ -48,7 +48,7 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id)
  * @ingroup vector4
  * @brief initializes the vertex with specific values
  */
-HYPAPI vector4 * vector4_setf4(vector4 *self, float xT, float yT, float zT, float wT)
+HYPAPI vector4 * vector4_setf4(vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT)
 {
 	self->x = xT; 
 	self->y = yT; 
@@ -77,7 +77,7 @@ HYPAPI vector4 * vector4_set(vector4 *self, const vector4 *vT)
  */
 HYPAPI vector4 * vector4_zero(vector4 *self)
 {
-	return vector4_setf4(self, 0, 0, 0, 0);
+	return vector4_setf4(self, 0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 
@@ -127,7 +127,7 @@ HYPAPI vector4 * vector4_add(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief add to each component of the vector using a scalar
  */
-HYPAPI vector4 * vector4_addf(vector4 *self, float f)
+HYPAPI vector4 * vector4_addf(vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] += f;
 	self->v[1] += f;
@@ -155,7 +155,7 @@ HYPAPI vector4 * vector4_subtract(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief subtract each vector's component by a scalar
  */
-HYPAPI vector4 * vector4_subtractf(vector4 *self, float f)
+HYPAPI vector4 * vector4_subtractf(vector4 *self, HYP_FLOAT f)
 {
 	self->x -= f;
 	self->y -= f;
@@ -183,7 +183,7 @@ HYPAPI vector4 * vector4_multiply(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief multiplies each component of the vector by a scalar
  */
-HYPAPI vector4 * vector4_multiplyf(vector4 *self, float f)
+HYPAPI vector4 * vector4_multiplyf(vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] *= f;
 	self->v[1] *= f;
@@ -212,7 +212,7 @@ HYPAPI vector4 * vector4_divide(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief calculates the magnitude of the vector
  */
-HYPAPI float vector4_magnitude(const vector4 *self)
+HYPAPI HYP_FLOAT vector4_magnitude(const vector4 *self)
 {
 	return sqrt((self->x*self->x) + (self->y*self->y) + (self->z*self->z) + (self->w*self->w));
 }
@@ -224,7 +224,7 @@ HYPAPI float vector4_magnitude(const vector4 *self)
  */
 HYPAPI vector4 * vector4_normalize(vector4 *self)
 {
-	float mag;
+	HYP_FLOAT mag;
 	
 	mag = vector4_magnitude(self);
 	
@@ -249,7 +249,7 @@ HYPAPI vector4 * vector4_normalize(vector4 *self)
  * @ingroup vector4
  * @brief computes the dot product of two vectors
  */
-HYPAPI float vector4_dot_product(const vector4 *self, const vector4 *vT)
+HYPAPI HYP_FLOAT vector4_dot_product(const vector4 *self, const vector4 *vT)
 {
 	return (self->x * vT->x) + (self->y * vT->y) + (self->z * vT->z) + (self->w * vT->w);
 }
@@ -276,7 +276,7 @@ HYPAPI vector4 * vector4_cross_product(vector4 *vR, const vector4 *vT1, const ve
  *
  * https://en.wikipedia.org/wiki/Distance
  */
-HYPAPI float vector4_distance(const vector4 *v1, const vector4 *v2)
+HYPAPI HYP_FLOAT vector4_distance(const vector4 *v1, const vector4 *v2)
 {
 	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z) + (v2->w - v1->w) * (v2->w - v1->w));
 }

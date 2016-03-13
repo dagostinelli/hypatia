@@ -1,31 +1,39 @@
-/** 
+/**
  * @file hypatia.h
- * 
-*/ 
+ *
+*/
 
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
 
 /* start with HYPAPI being off */
-/*
 #ifndef HYPAPI
-	#define HYPAPI
+#	define HYPAPI
 #endif
-*/
+
+
+#include "config.h"
 
 
 #if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER) || defined(WIN32)
-	//#undef HYPAPI
-	#define HYPAPI __declspec(dllexport)
+#	undef HYPAPI
+#	define HYPAPI __declspec(dllexport)
 	//#ifndef HYP_EXPORTS_ON
 	//#else
 	//	#define HYPAPI __declspec(dllimport)
 	//#endif
 #else
-	#define HYPAPI
+#	undef HYPAPI
+#	define HYPAPI
 #endif
 
-#include <math.h> /* sinf, cosf, acosf */
+#ifdef HYPATIA_USE_SINGLE
+#	define HYP_FLOAT float
+#else
+#	define HYP_FLOAT double
+#endif
+
+#include <math.h> /* sin, cos, acos */
 #include <stdlib.h> /* RAND_MAX, rand */
 
 /**
@@ -42,7 +50,7 @@
 /** @brief PI * PI */
 #define HYP_PI_SQUARED 9.8696044010893586f
 /** @brief Log e is the Natural Logarithm in base 10 */
-#define HYP_E 2.71828182845904523536028747135266249775724709369995f              
+#define HYP_E 2.71828182845904523536028747135266249775724709369995f
 /** @brief Radians per Degree = PI/180 */
 #define HYP_RAD_PER_DEG 0.0174532925199432957692369076848861f
 /** @brief Degrees per Radian = 180/PI */
@@ -52,8 +60,12 @@
 /** @brief 180/PI */
 #define HYP_PIUNDER180 HYP_DEG_PER_RAD
 /** @brief Epsilon.  This is the value that is used to determine how much rounding error is tolerated. */
-#define HYP_EPSILON 1E-5
-/*@}*/ 
+#ifdef HYPATIA_USE_SINGLE
+#	define HYP_EPSILON 1E-5
+#else
+#	define HYP_EPSILON 1E-7
+#endif
+/*@}*/
 
 /** @brief A macro that returns the minimum of \a a and \a b */
 #define HYP_MIN(a, b)  (((a) < (b)) ? (a) : (b))
@@ -62,10 +74,10 @@
 #define HYP_MAX(a, b)  (((a) > (b)) ? (b) : (a))
 
 /** @brief A macro that swaps \a a and \a b */
-#define HYP_SWAP(a, b) { float f = a; a = b; b = f; }
+#define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
 
 /** @brief A macro that returns a random float point number up to RAND_MAX */
-#define HYP_RANDOM_FLOAT (((float)rand()-(float)rand())/RAND_MAX)
+#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand()-(HYP_FLOAT)rand())/RAND_MAX)
 
 /** @brief A macro that converts an angle in degress to an angle in radians */
 #define HYP_DEG_TO_RAD(angle)  ((angle)*HYP_RAD_PER_DEG)
@@ -140,10 +152,10 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id);
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-/** 
+/**
  * @defgroup _reference_vectors3 Reference Vectors
  * @ingroup _vector3
- * These are the reference vectors.  
+ * These are the reference vectors.
  *
  * They can be used like so:
  * @code
@@ -173,10 +185,10 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id);
 /* @} */
 
 
-/** 
+/**
  * @defgroup _reference_vectors2 Reference Vectors
  * @ingroup _vector2
- * These are the reference vectors.  
+ * These are the reference vectors.
  *
  * They can be used like so:
  * @code
@@ -202,7 +214,7 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id);
 /* @} */
 
 
-HYPAPI int scalar_equals(const float f1, const float f2);
+HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #define scalar_equalsf scalar_equals
 
 

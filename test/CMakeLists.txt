@@ -1,8 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
-
-PROJECT(hypatia_tests)
-
-INCLUDE_DIRECTORIES(${hypatia_SOURCE_DIR})
+INCLUDE_DIRECTORIES(${hypatia_SOURCE_DIR}/src)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
@@ -14,6 +10,13 @@ IF(HYPATIA_BUILD_SHARED)
 	ADD_EXECUTABLE(test_hypatia_shared main.c)
 	TARGET_LINK_LIBRARIES(test_hypatia_shared hypatia ${LIBM})
 	ADD_TEST(NAME test_hypatia_shared COMMAND test_hypatia_shared)
+	IF (MSVC)
+		#add_custom_command(TARGET test_hypatia_shared POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${hypatia_BINARY_DIR}/src/hypatia.dll" $<TARGET_FILE_DIR:test_hypatia_shared>)
+		add_custom_command(TARGET test_hypatia_shared POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE_DIR:hypatia>/$<TARGET_FILE_NAME:hypatia> $<TARGET_FILE_DIR:test_hypatia_shared>)
+		IF (CMAKE_BUILD_TYPE==Debug)
+			add_custom_command(TARGET test_hypatia_shared POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${hypatia_BINARY_DIR}/hypatia*.pdb" $<TARGET_FILE_DIR:test_hypatia_shared>)
+		ENDIF()
+	ENDIF()
 ENDIF()
 
 IF(HYPATIA_BUILD_STATIC)
@@ -21,4 +24,3 @@ IF(HYPATIA_BUILD_STATIC)
 	TARGET_LINK_LIBRARIES(test_hypatia_static hypatia_static ${LIBM})
 	ADD_TEST(NAME test_hypatia_static COMMAND test_hypatia_static)
 ENDIF()
-

@@ -286,7 +286,7 @@ static char * test_matrix4_rotatev3_xy_quarter_turn_opposite()
 	matrix4 m1;
 	matrix4 m2;	
 	vector3 axis;
-	float angle;
+	HYP_FLOAT angle;
 	quaternion q;
 	
 	matrix4_identity(&m1);

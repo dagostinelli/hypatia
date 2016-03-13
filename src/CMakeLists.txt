@@ -1,17 +1,17 @@
-cmake_minimum_required(VERSION 2.8)
-
-PROJECT(hypatia C)
-
-SET(HYPATIA_VERSION 1.0)
-SET(HYPATIA_SOVERSION 1) # Increment this if/when we break backwards compatibility.
-
-
 INCLUDE_DIRECTORIES(.)
+
+
+OPTION(HYPATIA_USE_SINGLE "Use single precision floating point values" TRUE)
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+	${CMAKE_CURRENT_SOURCE_DIR}/config.h
+)
 
 
 SET( HYPATIA_HEADERS
 	hypatia.hpp
 	hypatia.h
+	config.h
 	vector2.h
 	vector3.h
 	vector4.h
@@ -71,8 +71,18 @@ endif()
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
-	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
-	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Werror")
+
+	#-Wtraditional -Wfloat-equal -Wdouble-promotion -Wpedantic -Wtrampolines -Wtraditional-conversion -Wunsafe-loop-optimizations -Wfloat-conversion -Wconversion 
+	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith")
+	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition")
+	
+	IF (HYPATIA_USE_SINGLE)
+		# Cannot make warnings as errors anymore when using single-precision floats because -Wconversion will complain about not casting sqrt()
+	ELSE()
+		SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror")
+		SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Werror")
+	ENDIF(HYPATIA_USE_SINGLE)
+
 endif()
 
 
@@ -123,8 +133,12 @@ INSTALL(TARGETS ${HYPATIA_LIB_TARGET}
 INSTALL(FILES ${HYPATIA_HEADERS} DESTINATION include/hypatia)
 
 
-IF(MSVC)
-	INSTALL(FILES hypatiad.pdb DESTINATION bin)
+IF ((MSVC) AND (CMAKE_BUILD_TYPE==Debug))
+	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/hypatiad.pdb DESTINATION bin)
 ENDIF()
 
 
+#get_cmake_property(_variableNames VARIABLES)
+#	foreach (_variableName ${_variableNames})
+#		message(STATUS "${_variableName}=${${_variableName}}")
+#	endforeach()
