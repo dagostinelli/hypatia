@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
-cmake_policy(SET CMP0054 NEW)
+cmake_minimum_required(VERSION 2.8)
+#cmake_policy(SET CMP0054 NEW)
 
 PROJECT(hypatia C)
 
