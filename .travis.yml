@@ -20,7 +20,7 @@ script:
   - mkdir build
   - cd build
   - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 $FLAGS $VARYSINGLE
-  - make && ctest && make install && cpack -G "ZIP"
+  - make && ctest && make install && cpack -G "TGZ"
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then sudo apt-get update; else brew update; fi
