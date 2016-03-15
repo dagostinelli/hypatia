@@ -9,15 +9,15 @@ compiler:
   - gcc
   
 env:
-  - VARYSINGLE="-DHYPATIA_USE_SINGLE=0"
-  - VARYSINGLE="-DHYPATIA_USE_SINGLE=1"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_USE_SINGLE=0"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_USE_SINGLE=1"
 
 cache: apt
 
 script:
   - mkdir build
   - cd build
-  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 $VARYSINGLE
+  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 $FLAGS $VARYSINGLE
   - make
   - ctest
 
