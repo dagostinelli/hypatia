@@ -1,47 +1,52 @@
-version: 0.0.{build}-{branch}
-
-#matrix:
-#  fast_finish: true
-  
-platform:
- - x86
- - amd64
- - amd64_arm
+shallow_clone: true
 
 configuration:
  - Debug
  - Release
- 
+
 environment:
   matrix:
-   - vstudio: Visual Studio 9
-   - vstudio: Visual Studio 10
-   - vstudio: Visual Studio 11
-   - vstudio: Visual Studio 12
-   - vstudio: Visual Studio 14   
+   - vstudio: Visual Studio 14 2015
+   - vstudio: Visual Studio 12 2013
+   - vstudio: Visual Studio 11 2012
+   - vstudio: Visual Studio 10 2010
+   - vstudio: Visual Studio 9 2008
+   - vstudio: Visual Studio 14 2015 Win64
+   - vstudio: Visual Studio 12 2013 Win64
+   - vstudio: Visual Studio 11 2012 Win64
+   - vstudio: Visual Studio 10 2010 Win64
+   - vstudio: Visual Studio 9 2008 Win64
+   - vstudio: Visual Studio 14 2015 ARM
+   - vstudio: Visual Studio 12 2013 ARM
+   - vstudio: Visual Studio 11 2012 ARM
+   - vstudio: Visual Studio 10 2010 IA64
+   - vstudio: Visual Studio 9 2008 IA64
 
 before_build:
+ - set
  - echo %vstudio%
- - echo %platform%
  - echo %configuration%
- - if "%vstudio%"=="Visual Studio 9" (call "%VS90COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
- - if "%vstudio%"=="Visual Studio 10" (call "%VS100COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
- - if "%vstudio%"=="Visual Studio 11" (call "%VS110COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
- - if "%vstudio%"=="Visual Studio 12" (call "%VS120COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%)
- - if "%vstudio%"=="Visual Studio 13" (call "%VS140COMNTOOLS%..\..\VC\vcvarsall.bat" %platform%) 
 
 build_script:
  - mkdir build
  - cd build
- - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev --config %configuration% -G "NMake Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 -DHYPATIA_BUILD_DOCS=0 -DHYPATIA_USE_SINGLE=0
- - cmake --build "%cd%"
- # Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake
- #- cpack -G "ZIP"
- 
-test_script:
- - ctest
+ - cmake -G "%vstudio%" -trace --warn-uninitialized --warn-unused_vars -Wdev
+   --config %configuration%
+   -DCMAKE_INSTALL_PREFIX=../install
+   -DHYPATIA_BUILD_STATIC=1
+   -DHYPATIA_BUILD_SHARED=1
+   -DHYPATIA_BUILD_DOCS=0
+   -DHYPATIA_USE_SINGLE=0
+   ..
+ - cmake --build "%cd%" --config %configuration%
+#  Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake
+# - cpack -G "ZIP"
 
-# Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake 
+test_script:
+ - ctest --output-on-failure
+   -C %configuration%
+
+# Disabled cpack for now because appveyor has Chocolatey in a name conflict with cmake
 #artifacts:
 # - path: '**\*.zip'
 #   name: renamethis
