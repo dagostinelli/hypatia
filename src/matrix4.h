@@ -19,7 +19,7 @@ struct tagmatrix4
 			HYP_FLOAT i01, i05, i09, i13;
 			HYP_FLOAT i02, i06, i10, i14;
 			HYP_FLOAT i03, i07, i11, i15;
-			};			
+			};
 		struct
 			{ /* col-row */
 			HYP_FLOAT c00, c10, c20, c30;
@@ -40,28 +40,28 @@ struct tagmatrix4
 
 HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT);
 
-HYPAPI matrix4 * matrix4_zero(matrix4 *self);
-HYPAPI matrix4 * matrix4_identity(matrix4 *self);
-HYPAPI matrix4 * matrix4_set(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 * matrix4_add(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 * matrix4_subtract(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 * matrix4_multiply(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar);
-HYPAPI matrix4 * matrix4_transpose(matrix4 *self);
+HYPAPI matrix4 *matrix4_zero(matrix4 *self);
+HYPAPI matrix4 *matrix4_identity(matrix4 *self);
+HYPAPI matrix4 *matrix4_set(matrix4 *self, const matrix4 *mT);
+HYPAPI matrix4 *matrix4_add(matrix4 *self, const matrix4 *mT);
+HYPAPI matrix4 *matrix4_subtract(matrix4 *self, const matrix4 *mT);
+HYPAPI matrix4 *matrix4_multiply(matrix4 *self, const matrix4 *mT);
+HYPAPI matrix4 *matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar);
+HYPAPI matrix4 *matrix4_transpose(matrix4 *self);
 
-HYPAPI matrix4 * matrix4_make_transformation_translationv3(matrix4 *self, const vector3 *translation);
-HYPAPI matrix4 * matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale);
-HYPAPI matrix4 * matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *self, HYP_FLOAT angle);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *self, HYP_FLOAT angle);
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *self, HYP_FLOAT angle);
+HYPAPI matrix4 *matrix4_make_transformation_translationv3(matrix4 *self, const vector3 *translation);
+HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale);
+HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT);
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *self, HYP_FLOAT angle);
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *self, HYP_FLOAT angle);
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *self, HYP_FLOAT angle);
 
-HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation);
-HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle);
-HYPAPI matrix4 * matrix4_scalev3(matrix4 *self, const vector3 *scale);
+HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 *translation);
+HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle);
+HYPAPI matrix4 *matrix4_scalev3(matrix4 *self, const vector3 *scale);
 
-HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self);
-HYPAPI matrix4 * _matrix4_transpose_columnrow(matrix4 *self);
+HYPAPI matrix4 *_matrix4_transpose_rowcolumn(matrix4 *self);
+HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

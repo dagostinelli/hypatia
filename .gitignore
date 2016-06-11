@@ -38,3 +38,5 @@
 src/config.h
 build
 install
+*.plist
+

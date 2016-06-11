@@ -18,7 +18,7 @@ struct tagmatrix3
 			HYP_FLOAT i00, i03, i06;
 			HYP_FLOAT i01, i04, i07;
 			HYP_FLOAT i02, i05, i08;
-			};			
+			};
 		struct
 			{ /* col-row */
 			HYP_FLOAT c00, c10, c20;
@@ -38,25 +38,25 @@ struct tagmatrix3
 
 HYPAPI int matrix3_equals(const matrix3 *self, const matrix3 *mT);
 
-HYPAPI matrix3 * matrix3_zero(matrix3 *self);
-HYPAPI matrix3 * matrix3_identity(matrix3 *self);
-HYPAPI matrix3 * matrix3_set(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 * matrix3_add(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 * matrix3_subtract(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 * matrix3_multiply(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 * matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar);
-HYPAPI matrix3 * matrix3_transpose(matrix3 *self);
+HYPAPI matrix3 *matrix3_zero(matrix3 *self);
+HYPAPI matrix3 *matrix3_identity(matrix3 *self);
+HYPAPI matrix3 *matrix3_set(matrix3 *self, const matrix3 *mT);
+HYPAPI matrix3 *matrix3_add(matrix3 *self, const matrix3 *mT);
+HYPAPI matrix3 *matrix3_subtract(matrix3 *self, const matrix3 *mT);
+HYPAPI matrix3 *matrix3_multiply(matrix3 *self, const matrix3 *mT);
+HYPAPI matrix3 *matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar);
+HYPAPI matrix3 *matrix3_transpose(matrix3 *self);
 
-HYPAPI matrix3 * matrix3_make_transformation_translationv2(matrix3 *self, const vector2 *translation);
-HYPAPI matrix3 * matrix3_make_transformation_scalingv2(matrix3 *self, const vector2 *scale);
-HYPAPI matrix3 * matrix3_make_transformation_rotationf_z(matrix3 *self, HYP_FLOAT angle);
+HYPAPI matrix3 *matrix3_make_transformation_translationv2(matrix3 *self, const vector2 *translation);
+HYPAPI matrix3 *matrix3_make_transformation_scalingv2(matrix3 *self, const vector2 *scale);
+HYPAPI matrix3 *matrix3_make_transformation_rotationf_z(matrix3 *self, HYP_FLOAT angle);
 
-HYPAPI matrix3 * matrix3_translatev2(matrix3 *self, const vector2 * translation);
-HYPAPI matrix3 * matrix3_rotate(matrix3 *self, HYP_FLOAT angle);
-HYPAPI matrix3 * matrix3_scalev2(matrix3 *self, const vector2 *scale);
+HYPAPI matrix3 *matrix3_translatev2(matrix3 *self, const vector2 *translation);
+HYPAPI matrix3 *matrix3_rotate(matrix3 *self, HYP_FLOAT angle);
+HYPAPI matrix3 *matrix3_scalev2(matrix3 *self, const vector2 *scale);
 
-HYPAPI matrix3 * _matrix3_transpose_rowcolumn(matrix3 *self);
-HYPAPI matrix3 * _matrix3_transpose_columnrow(matrix3 *self);
+HYPAPI matrix3 *_matrix3_transpose_rowcolumn(matrix3 *self);
+HYPAPI matrix3 *_matrix3_transpose_columnrow(matrix3 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

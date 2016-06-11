@@ -72,10 +72,10 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC)
 	FIND_LIBRARY(LIBM m)
 
-	#-Wtraditional -Wfloat-equal -Wdouble-promotion -Wpedantic -Wtrampolines -Wtraditional-conversion -Wunsafe-loop-optimizations -Wfloat-conversion -Wconversion 
-	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith")
+	#-Wtraditional -Wfloat-equal -Wdouble-promotion -Wpedantic -Wtrampolines -Wtraditional-conversion -Wunsafe-loop-optimizations -Wfloat-conversion -Wconversion
+	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror")
 	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition")
-	
+
 	IF (HYPATIA_USE_SINGLE)
 		# Cannot make warnings as errors anymore when using single-precision floats because -Wconversion will complain about not casting sqrt()
 	ELSE()

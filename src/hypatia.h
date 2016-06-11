@@ -18,10 +18,11 @@
 #if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER) || defined(WIN32)
 #	undef HYPAPI
 #	define HYPAPI __declspec(dllexport)
-	//#ifndef HYP_EXPORTS_ON
-	//#else
-	//	#define HYPAPI __declspec(dllimport)
-	//#endif
+	/* #ifndef HYP_EXPORTS_ON
+	 * #else
+	 *	#define HYPAPI __declspec(dllimport)
+	 * #endif
+	 */
 #else
 #	undef HYPAPI
 #	define HYPAPI
@@ -77,16 +78,16 @@
 #define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
 
 /** @brief A macro that returns a random float point number up to RAND_MAX */
-#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand()-(HYP_FLOAT)rand())/RAND_MAX)
+#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / RAND_MAX)
 
 /** @brief A macro that converts an angle in degress to an angle in radians */
-#define HYP_DEG_TO_RAD(angle)  ((angle)*HYP_RAD_PER_DEG)
+#define HYP_DEG_TO_RAD(angle)  ((angle) * HYP_RAD_PER_DEG)
 
 /** @brief A macro that converts an angle in radians to an angle in degrees */
-#define HYP_RAD_TO_DEG(radians) ((radians)*HYP_DEG_PER_RAD)
+#define HYP_RAD_TO_DEG(radians) ((radians) * HYP_DEG_PER_RAD)
 
 /** @brief A macro that squares a value squared */
-#define HYP_SQUARE(number) (number*number)
+#define HYP_SQUARE(number) (number * number)
 
 /** @brief A macro that returns the absolute value */
 #define HYP_ABS(value) (((value) < 0) ? -(value) : (value))
@@ -95,7 +96,7 @@
 #define HYP_WRAP(value, start, limit) (value = fmod(start + (value - start), (limit - start)))
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
-#define HYP_CLAMP(value, start, limit) (value = ( ( value < start ) ? start : ( value > limit ) ? limit : value ))
+#define HYP_CLAMP(value, start, limit) (value = ((value < start) ? start : (value > limit) ? limit : value))
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -126,7 +127,7 @@ typedef struct tagquaternion quaternion;
 #define HYP_REF_VECTOR2_UNIT_Y_NEGATIVE 4
 #define HYP_REF_VECTOR2_ONE 5
 
-HYPAPI const vector2* vector2_get_reference_vector2(int id);
+HYPAPI const vector2 * vector2_get_reference_vector2(int id);
 
 #define HYP_REF_VECTOR3_ZERO 0
 #define HYP_REF_VECTOR3_UNIT_X 1
@@ -137,7 +138,7 @@ HYPAPI const vector2* vector2_get_reference_vector2(int id);
 #define HYP_REF_VECTOR3_UNIT_Z_NEGATIVE 6
 #define HYP_REF_VECTOR3_ONE 7
 
-HYPAPI const vector3* vector3_get_reference_vector3(int id);
+HYPAPI const vector3 * vector3_get_reference_vector3(int id);
 
 #define HYP_REF_VECTOR4_ZERO 0
 #define HYP_REF_VECTOR4_UNIT_X 1
@@ -148,7 +149,7 @@ HYPAPI const vector3* vector3_get_reference_vector3(int id);
 #define HYP_REF_VECTOR4_UNIT_Z_NEGATIVE 6
 #define HYP_REF_VECTOR4_ONE 7
 
-HYPAPI const vector4* vector4_get_reference_vector4(int id);
+HYPAPI const vector4 * vector4_get_reference_vector4(int id);
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

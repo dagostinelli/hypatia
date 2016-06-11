@@ -1,8 +1,8 @@
-/** 
+/**
  * @defgroup _constants Numeric Constants
  * @brief These are a collection of commonly used constants.  They are precalculated and stored at high precisions in the code.
  * At compile time, the compiler will perform some degree of rounding.
- * 
+ *
  */
 
 /**
@@ -12,7 +12,7 @@
  * https://en.wikipedia.org/wiki/Quaternion
  * @{
  */
- 
+
 /* no children */
 
 /* @} */
@@ -44,7 +44,7 @@
 
 /**
  * @defgroup experimental Experimental Functions
- * @brief    Experimental functions 
+ * @brief    Experimental functions
  *
  * https://en.wikipedia.org/wiki/Quaternion
  * @{

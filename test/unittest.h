@@ -1,5 +1,5 @@
 
-/* Modified from: 
+/* Modified from:
  * http://www.jera.com/techinfo/jtns/jtn002.html
  * http://stackoverflow.com/questions/19343205/c-concatenating-file-and-line-macros
  */
@@ -12,13 +12,8 @@
 #define MAKE_MESSAGE1(test, msg) PREPEND_LOCATION((test)) " " #msg
 
 #define test_assert(test) do { if (!(test)) return MAKE_MESSAGE0((test)); } while (0)
-#define test_assert1(test, msg) do { if (!(test)) return MAKE_MESSAGE1((test), msg); } while (0) */
+#define test_assert1(test, msg) do { if (!(test)) return MAKE_MESSAGE1((test), msg); } while (0)
 #define run_test(test) do { test_message = test(); tests_run++; if (test_message) return test_message; } while (0)
 
 extern int tests_run;
-extern char * test_message;
-
-
-
-
-
+extern char *test_message;

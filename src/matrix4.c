@@ -11,7 +11,7 @@
  * @ingroup matrix4
  * @brief Initializes the matrix with 0.0 in every element.
  */
-HYPAPI matrix4 * matrix4_zero(matrix4 *self)
+HYPAPI matrix4 *matrix4_zero(matrix4 *self)
 {
 	memset(self, 0, sizeof(matrix4));
 	return self;
@@ -22,13 +22,13 @@ HYPAPI matrix4 * matrix4_zero(matrix4 *self)
  * @ingroup matrix4
  * @brief Initializes the matrix as an identity matrix.
  */
-HYPAPI matrix4 * matrix4_identity(matrix4 *m)
+HYPAPI matrix4 *matrix4_identity(matrix4 *m)
 {
 	m->c00 = 1.0f, m->c10 = 0.0f, m->c20 = 0.0f, m->c30 = 0.0f;
 	m->c01 = 0.0f, m->c11 = 1.0f, m->c21 = 0.0f, m->c31 = 0.0f;
 	m->c02 = 0.0f, m->c12 = 0.0f, m->c22 = 1.0f, m->c32 = 0.0f;
 	m->c03 = 0.0f, m->c13 = 0.0f, m->c23 = 0.0f, m->c33 = 1.0f;
-	
+
 	return m;
 }
 
@@ -40,15 +40,15 @@ HYPAPI matrix4 * matrix4_identity(matrix4 *m)
  * @param self The matrix to initialize
  * @param mT The matrix to copy
  */
-HYPAPI matrix4 * matrix4_set(matrix4 *self, const matrix4 *mT)
+HYPAPI matrix4 *matrix4_set(matrix4 *self, const matrix4 *mT)
 {
 	unsigned char i;
-	
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
 		self->m[i] = mT->m[i];
 	}
-	
+
 	return self;
 }
 
@@ -61,15 +61,15 @@ HYPAPI matrix4 * matrix4_set(matrix4 *self, const matrix4 *mT)
 HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT)
 {
 	unsigned char i;
-	
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
-		if(scalar_equalsf(self->m[i], mT->m[i]) == 0)
+		if (scalar_equalsf(self->m[i], mT->m[i]) == 0)
 		{
 			return 0;
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -81,16 +81,16 @@ HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to add
  */
-HYPAPI matrix4 * matrix4_add(matrix4 *self, const matrix4 *mT)
+HYPAPI matrix4 *matrix4_add(matrix4 *self, const matrix4 *mT)
 {
 	/* "add row and column to row and column" */
 	unsigned char i;
-	
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
 		self->m[i] += mT->m[i];
 	}
-	
+
 	return self;
 }
 
@@ -102,16 +102,16 @@ HYPAPI matrix4 * matrix4_add(matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to subtract from self (self = self - mT)
  */
-HYPAPI matrix4 * matrix4_subtract(matrix4 *self, const matrix4 *mT)
+HYPAPI matrix4 *matrix4_subtract(matrix4 *self, const matrix4 *mT)
 {
 	/* "subtract row and column from row and column" */
 	unsigned char i;
-	
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
 		self->m[i] -= mT->m[i];
 	}
-	
+
 	return self;
 }
 
@@ -123,15 +123,15 @@ HYPAPI matrix4 * matrix4_subtract(matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param scalar The scalar factor being multiplied in
  */
-HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
+HYPAPI matrix4 *matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
 {
 	unsigned char i;
-	
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
 		self->m[i] *= scalar;
 	}
-	
+
 	return self;
 }
 
@@ -142,42 +142,43 @@ HYPAPI matrix4 * matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
  *
  * @param self the matrix being changed
  * @param mT The matrix being multiplied into self
- * 
+ *
  * self = self * mT
  */
-HYPAPI matrix4 * matrix4_multiply(matrix4 *self, const matrix4 *mT)
+HYPAPI matrix4 *matrix4_multiply(matrix4 *self, const matrix4 *mT)
 {
 	/* mT is the multiplicand */
-	
+
 	matrix4 r;
+
 	matrix4_identity(&r);
-	
+
 	/* first row */
 	r.r00 = self->c00 * mT->c00 + self->c01 * mT->c10 + self->c02 * mT->c20 + self->c03 * mT->c30;
 	r.r01 = self->c10 * mT->c00 + self->c11 * mT->c10 + self->c12 * mT->c20 + self->c13 * mT->c30;
 	r.r02 = self->c20 * mT->c00 + self->c21 * mT->c10 + self->c22 * mT->c20 + self->c23 * mT->c30;
 	r.r03 = self->c30 * mT->c00 + self->c31 * mT->c10 + self->c32 * mT->c20 + self->c33 * mT->c30;
-	
+
 	/* second row */
 	r.r10 = self->c00 * mT->c01 + self->c01 * mT->c11 + self->c02 * mT->c21 + self->c03 * mT->c31;
 	r.r11 = self->c10 * mT->c01 + self->c11 * mT->c11 + self->c12 * mT->c21 + self->c13 * mT->c31;
 	r.r12 = self->c20 * mT->c01 + self->c21 * mT->c11 + self->c22 * mT->c21 + self->c23 * mT->c31;
 	r.r13 = self->c30 * mT->c01 + self->c31 * mT->c11 + self->c32 * mT->c21 + self->c33 * mT->c31;
-	
+
 	/* third row */
 	r.r20 = self->c00 * mT->c02 + self->c01 * mT->c12 + self->c02 * mT->c22 + self->c03 * mT->c32;
 	r.r21 = self->c10 * mT->c02 + self->c11 * mT->c12 + self->c12 * mT->c22 + self->c13 * mT->c32;
 	r.r22 = self->c20 * mT->c02 + self->c21 * mT->c12 + self->c22 * mT->c22 + self->c23 * mT->c32;
 	r.r23 = self->c30 * mT->c02 + self->c31 * mT->c12 + self->c32 * mT->c22 + self->c33 * mT->c32;
-	
+
 	/* fourth row */
 	r.r30 = self->c00 * mT->c03 + self->c01 * mT->c13 + self->c02 * mT->c23 + self->c03 * mT->c33;
 	r.r31 = self->c10 * mT->c03 + self->c11 * mT->c13 + self->c12 * mT->c23 + self->c13 * mT->c33;
 	r.r32 = self->c20 * mT->c03 + self->c21 * mT->c13 + self->c22 * mT->c23 + self->c23 * mT->c33;
 	r.c33 = self->c30 * mT->c03 + self->c31 * mT->c13 + self->c32 * mT->c23 + self->c33 * mT->c33;
-	
+
 	matrix4_set(self, &r); /* overwrite/save it */
-	
+
 	return self;
 }
 
@@ -188,27 +189,28 @@ HYPAPI matrix4 * matrix4_multiply(matrix4 *self, const matrix4 *mT)
  *
  * @param self The matrix being changed
  */
-HYPAPI matrix4 * matrix4_transpose(matrix4 *self)
+HYPAPI matrix4 *matrix4_transpose(matrix4 *self)
 {
 	return _matrix4_transpose_columnrow(self);
 }
 
 
 /**
- * @ingroup matrix4 
+ * @ingroup matrix4
  * @brief Swaps the row and column
  *
  */
-HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self)
+HYPAPI matrix4 *_matrix4_transpose_rowcolumn(matrix4 *self)
 {
 	HYP_FLOAT tmp;
+
 	_SWAP(self->r01, self->r10);
 	_SWAP(self->r02, self->r20);
 	_SWAP(self->r03, self->r30);
 	_SWAP(self->r12, self->r21);
 	_SWAP(self->r13, self->r31);
 	_SWAP(self->r23, self->r32);
-	
+
 	return self;
 }
 
@@ -218,16 +220,17 @@ HYPAPI matrix4 * _matrix4_transpose_rowcolumn(matrix4 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI matrix4 * _matrix4_transpose_columnrow(matrix4 *self)
+HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self)
 {
 	HYP_FLOAT tmp;
+
 	_SWAP(self->c01, self->c10);
 	_SWAP(self->c02, self->c20);
 	_SWAP(self->c03, self->c30);
 	_SWAP(self->c12, self->c21);
 	_SWAP(self->c13, self->c31);
 	_SWAP(self->c23, self->c32);
-	
+
 	return self;
 }
 
@@ -265,14 +268,15 @@ HYPAPI void _matrix4_print_with_rowcolumn_indexer(matrix4 *self)
  * @brief Randomly fills the matrix with values. Good for testing.
  *
  */
-HYPAPI matrix4 * _matrix4_set_random(matrix4 *self)
+HYPAPI matrix4 *_matrix4_set_random(matrix4 *self)
 {
 	unsigned char i;
-	for(i = 0; i < 16; i++)
+
+	for (i = 0; i < 16; i++)
 	{
 		self->m[i] = HYP_RANDOM_FLOAT;
 	}
-	
+
 	return self;
 }
 
@@ -282,16 +286,16 @@ HYPAPI matrix4 * _matrix4_set_random(matrix4 *self)
  * @brief converts the quaternion to a 4x4 rotation matrix (column major, right hand rule)
  *
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT)
+HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT)
 {
 	matrix4 *m;
 	const quaternion *q;
-	
+
 	q = qT;
 	m = self;
-	
+
 	matrix4_identity(m);
-	
+
 	m->m[0] = 1.0f - 2.0f * (q->y * q->y + q->z * q->z);
 	m->m[4] = 2.0f * (q->x * q->y - q->z * q->w);
 	m->m[8] = 2.0f * (q->x * q->z + q->y * q->w);
@@ -301,7 +305,7 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationq(matrix4 *self, const quat
 	m->m[2] = 2.0f * (q->x * q->z - q->y * q->w);
 	m->m[6] = 2.0f * (q->y * q->z + q->x * q->w);
 	m->m[10] = 1.0f - 2.0f * (q->x * q->x + q->y * q->y);
-	
+
 	return self;
 }
 
@@ -311,15 +315,14 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationq(matrix4 *self, const quat
  * @brief creates a translation matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix4 * matrix4_make_transformation_translationv3(matrix4 *self, const vector3 *translation)
+HYPAPI matrix4 *matrix4_make_transformation_translationv3(matrix4 *self, const vector3 * translation)
 {
 	matrix4_identity(self);
-	
-	/* assuming col-major */
-	self->m[12] = translation->x;
-	self->m[13] = translation->y;
-	self->m[14] = translation->z;
-	
+
+	self->c30 = translation->x;
+	self->c31 = translation->y;
+	self->c32 = translation->z;
+
 	return self;
 }
 
@@ -329,15 +332,14 @@ HYPAPI matrix4 * matrix4_make_transformation_translationv3(matrix4 *self, const 
  * @brief creates a scaling matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix4 * matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale)
+HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale)
 {
 	matrix4_identity(self);
-	
-	/* assuming col-major */
-	self->m[0] = scale->x;
-	self->m[5] = scale->y;
-	self->m[10] = scale->z;
-	
+
+	self->c00 = scale->x;
+	self->c11 = scale->y;
+	self->c22 = scale->z;
+
 	return self;
 }
 
@@ -348,19 +350,18 @@ HYPAPI matrix4 * matrix4_make_transformation_scalingv3(matrix4 *self, const vect
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT angle)
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
-	
+
 	matrix4_identity(m);
-	
-	/* assuming col-major */
+
 	m->r11 = c;
 	m->r12 = s;
 	m->r21 = -s;
 	m->r22 = c;
-	
+
 	return m;
 }
 
@@ -371,19 +372,19 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT a
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT angle)
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
-	
+
 	matrix4_identity(m);
-	
+
 	/* assuming col-major */
 	m->r00 = c;
 	m->r02 = -s;
 	m->r20 = s;
 	m->r22 = c;
-	
+
 	return m;
 }
 
@@ -394,19 +395,19 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT a
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT angle)
+HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
-	
+
 	matrix4_identity(m);
-	
+
 	/* assuming col-major */
 	m->r00 = c;
 	m->r01 = s;
 	m->r10 = -s;
 	m->r11 = c;
-	
+
 	return m;
 }
 
@@ -419,11 +420,11 @@ HYPAPI matrix4 * matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT a
  * @param translation the translation vector
  *
  */
-HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation)
+HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 * translation)
 {
 	matrix4 translationMatrix;
-	
-	return matrix4_multiply(self, 
+
+	return matrix4_multiply(self,
 		matrix4_make_transformation_translationv3(&translationMatrix, translation));
 }
 
@@ -437,13 +438,13 @@ HYPAPI matrix4 * matrix4_translatev3(matrix4 *self, const vector3 * translation)
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle)
+HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 * axis, HYP_FLOAT angle)
 {
 	matrix4 rotationMatrix;
 	quaternion q;
-	
-	return matrix4_multiply(self, 
-		matrix4_make_transformation_rotationq(&rotationMatrix, 
+
+	return matrix4_multiply(self,
+		matrix4_make_transformation_rotationq(&rotationMatrix,
 			quaternion_set_from_axis_anglev3(&q, axis, angle)));
 }
 
@@ -456,10 +457,10 @@ HYPAPI matrix4 * matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT 
  * @param scale the scaling vector
  *
  */
-HYPAPI matrix4 * matrix4_scalev3(matrix4 *self, const vector3 *scale)
+HYPAPI matrix4 *matrix4_scalev3(matrix4 *self, const vector3 *scale)
 {
 	matrix4 scalingMatrix;
-	
-	return matrix4_multiply(self, 
+
+	return matrix4_multiply(self,
 		matrix4_make_transformation_scalingv3(&scalingMatrix, scale));
 }

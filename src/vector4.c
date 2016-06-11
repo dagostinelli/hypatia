@@ -17,9 +17,9 @@ static vector4 _vector4_unit_y_negative = { { {0.0f, -1.0f,  0.0f, 0.0f} } };
 static vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} } };
 
 
-HYPAPI const vector4* vector4_get_reference_vector4(int id)
+HYPAPI const vector4 *vector4_get_reference_vector4(int id)
 {
-	switch(id)
+	switch (id)
 	{
 		case HYP_REF_VECTOR4_ZERO:
 			return &_vector4_zero;
@@ -44,25 +44,25 @@ HYPAPI const vector4* vector4_get_reference_vector4(int id)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief initializes the vertex with specific values
  */
-HYPAPI vector4 * vector4_setf4(vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT)
+HYPAPI vector4 *vector4_setf4(vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT)
 {
-	self->x = xT; 
-	self->y = yT; 
+	self->x = xT;
+	self->y = yT;
 	self->z = zT;
 	self->w = wT;
 	return self;
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief initializes the vertex with values from another vector
  */
-HYPAPI vector4 * vector4_set(vector4 *self, const vector4 *vT)
+HYPAPI vector4 *vector4_set(vector4 *self, const vector4 *vT)
 {
 	self->x = vT->x;
 	self->y = vT->y;
@@ -71,17 +71,17 @@ HYPAPI vector4 * vector4_set(vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief initializes the vertex with zeros
  */
-HYPAPI vector4 * vector4_zero(vector4 *self)
+HYPAPI vector4 *vector4_zero(vector4 *self)
 {
 	return vector4_setf4(self, 0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief compares two vectors.  Uses epsilon to deal with rounding errors
  */
@@ -95,13 +95,13 @@ HYPAPI int vector4_equals(const vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief switches the sign on each component of the vector
  */
-HYPAPI vector4 * vector4_negate(vector4 *self)
+HYPAPI vector4 *vector4_negate(vector4 *self)
 {
-	self->v[0] = -self->v[0]; 
+	self->v[0] = -self->v[0];
 	self->v[1] = -self->v[1];
 	self->v[2] = -self->v[2];
 	self->v[3] = -self->v[3];
@@ -109,11 +109,11 @@ HYPAPI vector4 * vector4_negate(vector4 *self)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief adds vectors using component-wise addition
  */
-HYPAPI vector4 * vector4_add(vector4 *self, const vector4 *vT)
+HYPAPI vector4 *vector4_add(vector4 *self, const vector4 *vT)
 {
 	self->v[0] += vT->v[0];
 	self->v[1] += vT->v[1];
@@ -123,11 +123,11 @@ HYPAPI vector4 * vector4_add(vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief add to each component of the vector using a scalar
  */
-HYPAPI vector4 * vector4_addf(vector4 *self, HYP_FLOAT f)
+HYPAPI vector4 *vector4_addf(vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] += f;
 	self->v[1] += f;
@@ -137,11 +137,11 @@ HYPAPI vector4 * vector4_addf(vector4 *self, HYP_FLOAT f)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief subtract two vectors using component-wise subtraction
  */
-HYPAPI vector4 * vector4_subtract(vector4 *self, const vector4 *vT)
+HYPAPI vector4 *vector4_subtract(vector4 *self, const vector4 *vT)
 {
 	self->v[0] -= vT->v[0];
 	self->v[1] -= vT->v[1];
@@ -151,11 +151,11 @@ HYPAPI vector4 * vector4_subtract(vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief subtract each vector's component by a scalar
  */
-HYPAPI vector4 * vector4_subtractf(vector4 *self, HYP_FLOAT f)
+HYPAPI vector4 *vector4_subtractf(vector4 *self, HYP_FLOAT f)
 {
 	self->x -= f;
 	self->y -= f;
@@ -165,11 +165,11 @@ HYPAPI vector4 * vector4_subtractf(vector4 *self, HYP_FLOAT f)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief multiplies two vectors using component-wise multiplication
  */
-HYPAPI vector4 * vector4_multiply(vector4 *self, const vector4 *vT)
+HYPAPI vector4 *vector4_multiply(vector4 *self, const vector4 *vT)
 {
 	self->v[0] *= vT->v[0];
 	self->v[1] *= vT->v[1];
@@ -179,11 +179,11 @@ HYPAPI vector4 * vector4_multiply(vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief multiplies each component of the vector by a scalar
  */
-HYPAPI vector4 * vector4_multiplyf(vector4 *self, HYP_FLOAT f)
+HYPAPI vector4 *vector4_multiplyf(vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] *= f;
 	self->v[1] *= f;
@@ -193,12 +193,12 @@ HYPAPI vector4 * vector4_multiplyf(vector4 *self, HYP_FLOAT f)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief divides one vector into another using component-wise division
  *
  */
-HYPAPI vector4 * vector4_divide(vector4 *self, const vector4 *vT)
+HYPAPI vector4 *vector4_divide(vector4 *self, const vector4 *vT)
 {
 	self->v[0] /= vT->v[0];
 	self->v[1] /= vT->v[1];
@@ -208,7 +208,7 @@ HYPAPI vector4 * vector4_divide(vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief calculates the magnitude of the vector
  */
@@ -218,16 +218,16 @@ HYPAPI HYP_FLOAT vector4_magnitude(const vector4 *self)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief normalizes the vector by dividing each component by the magnitude
  */
-HYPAPI vector4 * vector4_normalize(vector4 *self)
+HYPAPI vector4 *vector4_normalize(vector4 *self)
 {
 	HYP_FLOAT mag;
-	
+
 	mag = vector4_magnitude(self);
-	
+
 	if (mag == 0)
 	{
 		/* can't normalize a zero
@@ -235,17 +235,17 @@ HYPAPI vector4 * vector4_normalize(vector4 *self)
 		 */
 		return self;
 	}
-	
+
 	self->x = self->x / mag;
 	self->y = self->y / mag;
 	self->z = self->z / mag;
 	self->w = self->w / mag;
-	
+
 	return self;
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief computes the dot product of two vectors
  */
@@ -255,11 +255,11 @@ HYPAPI HYP_FLOAT vector4_dot_product(const vector4 *self, const vector4 *vT)
 }
 
 
-/** 
+/**
  * @ingroup vector4
  * @brief computes the cross-product between two vectors
  */
-HYPAPI vector4 * vector4_cross_product(vector4 *vR, const vector4 *vT1, const vector4 *vT2)
+HYPAPI vector4 *vector4_cross_product(vector4 *vR, const vector4 *vT1, const vector4 *vT2)
 {
 	vR->x = (vT1->y * vT2->z) - (vT1->z * vT2->y);
 	vR->y = (vT1->z * vT2->x) - (vT1->x * vT2->z);
@@ -269,7 +269,7 @@ HYPAPI vector4 * vector4_cross_product(vector4 *vR, const vector4 *vT1, const ve
 }
 
 
-/** 
+/**
  * @brief Calculates the distance between two points
  *
  * \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\f$
@@ -278,7 +278,10 @@ HYPAPI vector4 * vector4_cross_product(vector4 *vR, const vector4 *vT1, const ve
  */
 HYPAPI HYP_FLOAT vector4_distance(const vector4 *v1, const vector4 *v2)
 {
-	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z) + (v2->w - v1->w) * (v2->w - v1->w));
+	return sqrt((v2->x - v1->x) * (v2->x - v1->x)
+		    + (v2->y - v1->y) * (v2->y - v1->y)
+		    + (v2->z - v1->z) * (v2->z - v1->z)
+		    + (v2->w - v1->w) * (v2->w - v1->w));
 }
 
 
@@ -293,7 +296,7 @@ HYPAPI void _vector4_print(const vector4 *self)
  * @brief Randomly fills the vector with values. Good for testing.
  *
  */
-HYPAPI vector4 * _vector4_set_random(vector4 *self)
+HYPAPI vector4 *_vector4_set_random(vector4 *self)
 {
 	self->x = HYP_RANDOM_FLOAT;
 	self->y = HYP_RANDOM_FLOAT;
@@ -301,4 +304,3 @@ HYPAPI vector4 * _vector4_set_random(vector4 *self)
 	self->w = HYP_RANDOM_FLOAT;
 	return self;
 }
-

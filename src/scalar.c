@@ -12,6 +12,6 @@ HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2)
 	{
 		return 0;
 	}
-	
+
 	return 1;
 }

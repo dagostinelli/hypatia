@@ -36,4 +36,3 @@ test_script:
 
 artifacts:
  - path: 'build\*.zip'
- 

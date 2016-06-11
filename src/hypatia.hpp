@@ -4,4 +4,3 @@
 extern "C" {
 #include "hypatia.h"
 }
-

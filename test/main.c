@@ -14,10 +14,10 @@
 #include "test_matrix3.c"
 #include "test_matrix4.c"
 
-int tests_run = 0;
-char *test_message = 0;
+int tests_run;
+char *test_message;
 
-static char * all_testsuites()
+static char *all_testsuites()
 {
 	printf("quaternion_all_tests\n");
 	run_test(quaternion_all_tests);
@@ -26,8 +26,8 @@ static char * all_testsuites()
 	printf("matrix4_all_tests\n");
 	run_test(matrix4_all_tests);
 	printf("vector3_all_tests\n");
-	run_test(vector3_all_tests);	
-	
+	run_test(vector3_all_tests);
+
 	return 0;
 }
 
@@ -38,13 +38,16 @@ int main(int argc, char *argv[])
 
 	UNUSED_VARIABLE(argc);
 	UNUSED_VARIABLE(argv);
-		
+
+	tests_run = 0;
+	test_message = 0;
+
 	result = all_testsuites();
 	if (result != 0)
 	{
 		printf("%s\n", result);
 	}
-	else	
+	else
 	{
 		printf("ALL TESTS PASSED\n");
 	}
@@ -52,3 +55,4 @@ int main(int argc, char *argv[])
 
 	return result != 0;
 }
+

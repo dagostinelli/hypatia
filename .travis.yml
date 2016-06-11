@@ -5,11 +5,11 @@ sudo: false
 os:
   - linux
   - osx
-  
+
 compiler:
   - clang
   - gcc
-  
+
 env:
   - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_USE_SINGLE=0"
   - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_USE_SINGLE=0"

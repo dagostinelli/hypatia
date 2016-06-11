@@ -9,4 +9,3 @@ cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_S
 make && ctest && make install && cpack -G "TGZ"
 
 popd
-
