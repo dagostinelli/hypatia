@@ -86,10 +86,9 @@ HYPAPI vector3 *vector3_zero(vector3 *self)
  */
 HYPAPI int vector3_equals(const vector3 *self, const vector3 *vT)
 {
-	return HYP_ABS(self->x - vT->x) < HYP_EPSILON
-	&& HYP_ABS(self->y - vT->y) < HYP_EPSILON
-	&& HYP_ABS(self->z - vT->z) < HYP_EPSILON
-	;
+	return  HYP_ABS(self->x - vT->x) < HYP_EPSILON &&
+		HYP_ABS(self->y - vT->y) < HYP_EPSILON &&
+		HYP_ABS(self->z - vT->z) < HYP_EPSILON;
 }
 
 

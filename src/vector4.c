@@ -87,11 +87,10 @@ HYPAPI vector4 *vector4_zero(vector4 *self)
  */
 HYPAPI int vector4_equals(const vector4 *self, const vector4 *vT)
 {
-	return HYP_ABS(self->x - vT->x) < HYP_EPSILON
-	&& HYP_ABS(self->y - vT->y) < HYP_EPSILON
-	&& HYP_ABS(self->z - vT->z) < HYP_EPSILON
-	&& HYP_ABS(self->w - vT->w) < HYP_EPSILON
-	;
+	return  HYP_ABS(self->x - vT->x) < HYP_EPSILON &&
+		HYP_ABS(self->y - vT->y) < HYP_EPSILON &&
+		HYP_ABS(self->z - vT->z) < HYP_EPSILON &&
+		HYP_ABS(self->w - vT->w) < HYP_EPSILON;
 }
 
 
