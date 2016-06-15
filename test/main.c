@@ -17,7 +17,7 @@
 int tests_run;
 char *test_message;
 
-static char *all_testsuites()
+static char *all_testsuites(void)
 {
 	printf("quaternion_all_tests\n");
 	run_test(quaternion_all_tests);

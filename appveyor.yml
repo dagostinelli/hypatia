@@ -22,10 +22,10 @@ build_script:
    --config %configuration%
    -DCMAKE_BUILD_TYPE=%configuration%
    -DCMAKE_INSTALL_PREFIX=../install
-   -DHYPATIA_BUILD_STATIC=1
-   -DHYPATIA_BUILD_SHARED=1
-   -DHYPATIA_BUILD_DOCS=0
-   -DHYPATIA_USE_SINGLE=0
+   -DHYPATIA_BUILD_STATIC=ON
+   -DHYPATIA_BUILD_SHARED=ON
+   -DHYPATIA_BUILD_DOCS=OFF
+   -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
    ..
  - cmake --build "%cd%" --config %configuration%
  - cmd: '"c:\Program Files (x86)\CMake\bin\cpack.exe" -G "ZIP" -C %configuration%'

@@ -1,7 +1,12 @@
 INCLUDE_DIRECTORIES(.)
 
 
-OPTION(HYPATIA_USE_SINGLE "Use single precision floating point values" TRUE)
+OPTION(HYPATIA_SINGLE_PRECISION_FLOATS "Use single precision floating point values" BOOL:FALSE)
+IF(HYPATIA_SINGLE_PRECISION_FLOATS)
+	MESSAGE(STATUS "Using single-precision floating point values")
+ELSE()
+	MESSAGE(STATUS "Using double-precision floating point values")
+ENDIF()
 configure_file(
 	${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_SOURCE_DIR}/config.h
@@ -42,9 +47,10 @@ SOURCE_GROUP(Tests FILES ${Hypatia_Tests_SRCS})
 
 
 IF(NOT CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE DEBUG)
-	MESSAGE(STATUS "No CMAKE_BUILD_TYPE specified, using default DEBUG")
+	SET(CMAKE_BUILD_TYPE Release)
+	MESSAGE(STATUS "No CMAKE_BUILD_TYPE specified, using default RELEASE")
 ENDIF()
+MESSAGE(STATUS "Built type is set to ${CMAKE_BUILD_TYPE}")
 
 
 if(MSVC)
@@ -64,33 +70,19 @@ if(MSVC)
 endif()
 
 
-if("${CMAKE_C_COMPILER}" MATCHES "clang$" OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-	SET(CMAKE_COMPILER_IS_GNUCC 1)
+INCLUDE(../cmake/CMakeBuildFlags.cmake)
+
+# unit tests do not use strict-prototypes, so this is here
+if(CMAKE_COMPILER_IS_GNUC OR CMAKE_COMPILER_IS_CLANG)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
 endif()
 
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	FIND_LIBRARY(LIBM m)
-
-	#-Wtraditional -Wfloat-equal -Wdouble-promotion -Wpedantic -Wtrampolines -Wtraditional-conversion -Wunsafe-loop-optimizations -Wfloat-conversion -Wconversion
-	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror")
-	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wmissing-prototypes -Wall -Wstrict-prototypes -Wold-style-definition")
-
-	IF (HYPATIA_USE_SINGLE)
-		# Cannot make warnings as errors anymore when using single-precision floats because -Wconversion will complain about not casting sqrt()
-	ELSE()
-		SET(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Werror")
-		SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Werror")
-	ENDIF(HYPATIA_USE_SINGLE)
-
-endif()
-
-
-OPTION(HYPATIA_BUILD_STATIC "Build static library" TRUE)
+OPTION(HYPATIA_BUILD_STATIC "Build static library" ON)
 IF(HYPATIA_BUILD_STATIC)
 	ADD_LIBRARY(hypatia_static STATIC ${Hypatia_SRCS})
 	SET_TARGET_PROPERTIES(hypatia_static PROPERTIES LINKER_LANGUAGE C)
-	if(CMAKE_COMPILER_IS_GNUCC)
+	if(CMAKE_COMPILER_IS_GNUC)
 		SET_TARGET_PROPERTIES(hypatia_static PROPERTIES OUTPUT_NAME "hypatia")
 	endif()
 	list(APPEND HYPATIA_LIB_TARGET hypatia_static)
@@ -101,7 +93,7 @@ IF(HYPATIA_BUILD_STATIC)
 ENDIF(HYPATIA_BUILD_STATIC)
 
 
-OPTION(HYPATIA_BUILD_SHARED "Build shared library" TRUE)
+OPTION(HYPATIA_BUILD_SHARED "Build shared library" ON)
 IF(HYPATIA_BUILD_SHARED)
 	ADD_LIBRARY(hypatia SHARED ${Hypatia_SRCS})
 	SET_TARGET_PROPERTIES(hypatia PROPERTIES LINKER_LANGUAGE C)
@@ -120,11 +112,6 @@ IF(NOT HYPATIA_BUILD_STATIC AND NOT HYPATIA_BUILD_SHARED)
 ENDIF(NOT HYPATIA_BUILD_STATIC AND NOT HYPATIA_BUILD_SHARED)
 
 
-#IF(HYPATIA_BUILD_STATIC AND HYPATIA_BUILD_SHARED)
-#	MESSAGE(FATAL_ERROR "Please do not specity both shared and static libraries at the same time")
-#ENDIF()
-
-
 INSTALL(TARGETS ${HYPATIA_LIB_TARGET}
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib
@@ -136,9 +123,3 @@ INSTALL(FILES ${HYPATIA_HEADERS} DESTINATION include/hypatia)
 IF ((MSVC) AND (CMAKE_BUILD_TYPE==Debug))
 	INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/hypatiad.pdb DESTINATION bin)
 ENDIF()
-
-
-#get_cmake_property(_variableNames VARIABLES)
-#	foreach (_variableName ${_variableNames})
-#		message(STATUS "${_variableName}=${${_variableName}}")
-#	endforeach()

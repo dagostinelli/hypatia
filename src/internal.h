@@ -27,11 +27,11 @@ HYPAPI void _vector4_print(const vector4 *self);
 HYPAPI vector4 *_vector4_set_random(vector4 *self);
 
 
-#define HYP_SIN(x) sin(x)
-#define HYP_COS(x) cos(x)
-#define HYP_TAN(x) tan(x)
-#define HYP_ACOS(x) acos(x)
-#define HYP_SQRT(x) sqrt(x)
+#define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+
 
 /** @brief A macro that returns the cotangent of \a a.  The angle is in radians.*/
 #define HYP_COT(a) (1.0f / HYP_TAN(a))

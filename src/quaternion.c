@@ -189,7 +189,7 @@ HYPAPI quaternion *quaternion_inverse(quaternion *self)
 
 	norm = quaternion_norm(self);
 
-	if (norm == 0.0f)
+	if (scalar_equalsf(norm, 0.0f))
 	{
 		/* avoid divide by zero */
 		return self;
@@ -197,7 +197,7 @@ HYPAPI quaternion *quaternion_inverse(quaternion *self)
 
 	quaternion_conjugate(self);
 
-	if (norm == 1.0f)
+	if (scalar_equalsf(norm, 1.0f))
 	{
 		/* we're done */
 		return self;
@@ -225,7 +225,7 @@ HYPAPI quaternion *quaternion_normalize(quaternion *self)
 
 	mag = quaternion_magnitude(self);
 
-	if (mag == 0.0f)
+	if (scalar_equalsf(mag, 0.0f))
 	{
 		/* can't normalize a zero
 		 * avoid divide by zero
@@ -295,14 +295,14 @@ HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *en
 	HYP_FLOAT f1, f2;
 
 	/* if percent is 0, return start */
-	if (percent == 0.0f)
+	if (scalar_equalsf(percent, 0.0f))
 	{
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (percent == 1.0f)
+	if (scalar_equalsf(percent, 1.0f))
 	{
 		quaternion_set(qR, end);
 		return qR;
@@ -342,14 +342,14 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
 	quaternion qneg;
 
 	/* if percent is 0, return start */
-	if (percent == 0.0f)
+	if (scalar_equalsf(percent, 0.0f))
 	{
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (percent == 1.0f)
+	if (scalar_equalsf(percent, 1.0f))
 	{
 		quaternion_set(qR, end);
 		return qR;
@@ -362,7 +362,8 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
 	 *	- This avoids div/0
 	 *	- At small angles, the slerp and lerp are the same
 	 */
-	if ((1.0f - HYP_ABS(dot)) < HYP_EPSILON)
+
+	if (scalar_equalsf(dot, 1.0f))
 	{
 		quaternion_lerp(start, end, percent, qR);
 		return qR;
@@ -581,7 +582,7 @@ HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vecto
 	qR->w += norm;
 
 	/* normalization with avoidance of div/0 and reusing the norm (already calculated above) */
-	if (norm != 0)
+	if (!scalar_equalsf(norm, 0.0f))
 	{
 		qR->x /= norm;
 		qR->y /= norm;

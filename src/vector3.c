@@ -203,7 +203,7 @@ HYPAPI vector3 *vector3_divide(vector3 *self, const vector3 *vT)
  */
 HYPAPI HYP_FLOAT vector3_magnitude(const vector3 *self)
 {
-	return sqrt((self->x*self->x) + (self->y*self->y) + (self->z*self->z));
+	return HYP_SQRT((self->x*self->x) + (self->y*self->y) + (self->z*self->z));
 }
 
 
@@ -217,7 +217,7 @@ HYPAPI vector3 *vector3_normalize(vector3 *self)
 
 	mag = vector3_magnitude(self);
 
-	if (mag == 0.0f)
+	if (scalar_equalsf(mag, 0.0f))
 	{
 		/* can't normalize a zero
 		 * avoid divide by zero
@@ -292,7 +292,7 @@ HYPAPI vector3 *vector3_find_normal_axis_between(vector3 *vR, const vector3 *vT1
  */
 HYPAPI HYP_FLOAT vector3_distance(const vector3 *v1, const vector3 *v2)
 {
-	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z));
+	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z));
 }
 
 

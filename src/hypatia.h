@@ -28,7 +28,7 @@
 #	define HYPAPI
 #endif
 
-#ifdef HYPATIA_USE_SINGLE
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #	define HYP_FLOAT float
 #else
 #	define HYP_FLOAT double
@@ -36,6 +36,7 @@
 
 #include <math.h> /* sin, cos, acos */
 #include <stdlib.h> /* RAND_MAX, rand */
+#include <float.h> /*FLT_EPSILON, DBL_EPSILON*/
 
 /**
  * @ingroup _constants
@@ -61,7 +62,7 @@
 /** @brief 180/PI */
 #define HYP_PIUNDER180 HYP_DEG_PER_RAD
 /** @brief Epsilon.  This is the value that is used to determine how much rounding error is tolerated. */
-#ifdef HYPATIA_USE_SINGLE
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #	define HYP_EPSILON 1E-5
 #else
 #	define HYP_EPSILON 1E-7
@@ -78,7 +79,7 @@
 #define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
 
 /** @brief A macro that returns a random float point number up to RAND_MAX */
-#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / RAND_MAX)
+#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
 
 /** @brief A macro that converts an angle in degress to an angle in radians */
 #define HYP_DEG_TO_RAD(angle)  ((angle) * HYP_RAD_PER_DEG)
@@ -88,6 +89,9 @@
 
 /** @brief A macro that squares a value squared */
 #define HYP_SQUARE(number) (number * number)
+
+/** @brief A macro that finds the square root of a value */
+#define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
 
 /** @brief A macro that returns the absolute value */
 #define HYP_ABS(value) (((value) < 0) ? -(value) : (value))
@@ -217,7 +221,6 @@ HYPAPI const vector4 * vector4_get_reference_vector4(int id);
 
 HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #define scalar_equalsf scalar_equals
-
 
 
 #endif /* _INC_HYPATIA */

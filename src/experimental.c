@@ -388,12 +388,12 @@ HYPAPI matrix4 *matrix4_invert_EXP(matrix4 *self)
 
 	determinant = matrix4_determinant_EXP(self);
 
-	if (determinant == 0.0)
+	if (scalar_equalsf(determinant, 0.0f))
 	{
 		return 0;
 	}
 
-	determinant = 1.0 / determinant;
+	determinant = 1.0f / determinant;
 
 	B(11) = A3(22, 33, 44) + A3(23, 34, 42) + A3(24, 32, 43) - A3(22, 34, 43) - A3(23, 32, 44) - A3(24, 33, 42);
 	B(12) = A3(12, 34, 43) + A3(13, 32, 44) + A3(14, 33, 42) - A3(12, 33, 44) - A3(13, 34, 42) - A3(14, 32, 43);

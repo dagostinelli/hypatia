@@ -1,17 +1,17 @@
 
 
 /** [quaternion identity example] */
-static char *test_quaternion_identity()
+static char *test_quaternion_identity(void)
 {
 	quaternion q;
 
 	quaternion_identity(&q);
-	test_assert(q.x == 0.0f);
-	test_assert(q.y == 0.0f);
-	test_assert(q.z == 0.0f);
-	test_assert(q.w == 1.0f);
-	test_assert(quaternion_norm(&q) == 1.0f);
-	/* test_assert(0.0f == quaternion_magnitude(&q)); */
+	test_assert(scalar_equalsf(q.x, 0.0f));
+	test_assert(scalar_equalsf(q.y, 0.0f));
+	test_assert(scalar_equalsf(q.z, 0.0f));
+	test_assert(scalar_equalsf(q.w, 1.0f));
+	test_assert(scalar_equalsf(1.0f, quaternion_norm(&q)));
+	test_assert(scalar_equalsf(1.0f, quaternion_magnitude(&q)));
 	test_assert(quaternion_is_unit(&q));
 	test_assert(!quaternion_is_pure(&q));
 
@@ -21,7 +21,7 @@ static char *test_quaternion_identity()
 
 
 /** [quaternion conjugate example] */
-static char *test_quaternion_conjugate()
+static char *test_quaternion_conjugate(void)
 {
 	quaternion qA;
 	quaternion qB;
@@ -37,7 +37,7 @@ static char *test_quaternion_conjugate()
 
 
 /** [quaternion inverse example] */
-static char *test_quaternion_inverse()
+static char *test_quaternion_inverse(void)
 {
 	quaternion qA;
 	quaternion qInverse;
@@ -56,7 +56,7 @@ static char *test_quaternion_inverse()
 /** [quaternion inverse example] */
 
 
-static char *test_quaternion_axis_anglev3()
+static char *test_quaternion_axis_anglev3(void)
 {
 	quaternion q, q1;
 	HYP_FLOAT c;
@@ -84,7 +84,7 @@ static char *test_quaternion_axis_anglev3()
 }
 
 
-static char *test_quaternion_get_set_axis_anglev3()
+static char *test_quaternion_get_set_axis_anglev3(void)
 {
 	quaternion q;
 	HYP_FLOAT angle, angle1;
@@ -103,7 +103,7 @@ static char *test_quaternion_get_set_axis_anglev3()
 }
 
 
-static char *test_quaternion_multiply()
+static char *test_quaternion_multiply(void)
 {
 	quaternion qA, qB;
 
@@ -119,7 +119,7 @@ static char *test_quaternion_multiply()
 }
 
 
-static char *test_quaternion_multiply_identity()
+static char *test_quaternion_multiply_identity(void)
 {
 	quaternion qA, qB, q;
 
@@ -139,7 +139,7 @@ static char *test_quaternion_multiply_identity()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yx_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -152,7 +152,7 @@ static char *test_vector3_rotate_by_quaternion_yx_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_zx_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -165,7 +165,7 @@ static char *test_vector3_rotate_by_quaternion_zx_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xy_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -178,7 +178,7 @@ static char *test_vector3_rotate_by_quaternion_xy_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_zy_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -191,7 +191,7 @@ static char *test_vector3_rotate_by_quaternion_zy_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xz_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -204,7 +204,7 @@ static char *test_vector3_rotate_by_quaternion_xz_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yz_quarter_turn()
+static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -217,7 +217,7 @@ static char *test_vector3_rotate_by_quaternion_yz_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yx_half_turn()
+static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -230,7 +230,7 @@ static char *test_vector3_rotate_by_quaternion_yx_half_turn()
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xy_half_turn()
+static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 {
 	quaternion q;
 	vector3 r;
@@ -243,7 +243,7 @@ static char *test_vector3_rotate_by_quaternion_xy_half_turn()
 }
 
 
-static char *test_quaternion_slerp()
+static char *test_quaternion_slerp(void)
 {
 	quaternion q, q1, q2, q3;
 	HYP_FLOAT angle;
@@ -314,7 +314,7 @@ static char *test_quaternion_slerp()
 }
 
 
-/*static char *test_quaternion_tofromrotationmatrix()
+/*static char *test_quaternion_tofromrotationmatrix(void)
 {
 	quaternion q, q1, q2;
 	matrix4 m, m1;
@@ -355,7 +355,7 @@ static char *test_quaternion_slerp()
 }*/
 
 
-static char *quaternion_all_tests()
+static char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_identity);
 	run_test(test_quaternion_conjugate);

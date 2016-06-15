@@ -1,5 +1,5 @@
 
-static char *test_matrix3_zero()
+static char *test_matrix3_zero(void)
 {
 	matrix3 zero;
 	int i;
@@ -8,14 +8,14 @@ static char *test_matrix3_zero()
 
 	for (i = 0; i < 9; i++)
 	{
-		test_assert(zero.m[i] == 0);
+		test_assert(scalar_equalsf(zero.m[i], 0.0f));
 	}
 
 	return 0;
 }
 
 
-static char *test_matrix3_equals()
+static char *test_matrix3_equals(void)
 {
 	matrix3 m, identity;
 
@@ -32,7 +32,7 @@ static char *test_matrix3_equals()
 }
 
 
-static char *test_matrix3_multiplym3()
+static char *test_matrix3_multiplym3(void)
 {
 	matrix3 m1, m2, mR;
 
@@ -54,7 +54,7 @@ static char *test_matrix3_multiplym3()
 }
 
 
-static char *test_matrix3_identity_with_vector()
+static char *test_matrix3_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
 	matrix3 m;
@@ -70,7 +70,7 @@ static char *test_matrix3_identity_with_vector()
 }
 
 
-static char *test_matrix3_transpose()
+static char *test_matrix3_transpose(void)
 {
 	matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 	matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
@@ -81,7 +81,7 @@ static char *test_matrix3_transpose()
 }
 
 
-static char *test_matrix3_columnrowcolumn()
+static char *test_matrix3_columnrowcolumn(void)
 {
 	matrix3 c;
 	matrix3 r;
@@ -117,7 +117,7 @@ static char *test_matrix3_columnrowcolumn()
 }
 
 
-static char *test_matrix3_transformation_translatev2()
+static char *test_matrix3_transformation_translatev2(void)
 {
 	matrix3 transform;
 
@@ -133,7 +133,7 @@ static char *test_matrix3_transformation_translatev2()
 }
 
 
-static char *test_matrix3_transformation_translatev2_negative()
+static char *test_matrix3_transformation_translatev2_negative(void)
 {
 	matrix3 transform;
 
@@ -149,7 +149,7 @@ static char *test_matrix3_transformation_translatev2_negative()
 }
 
 
-static char *test_matrix3_transformation_scalingv2()
+static char *test_matrix3_transformation_scalingv2(void)
 {
 	matrix3 transform;
 
@@ -165,7 +165,7 @@ static char *test_matrix3_transformation_scalingv2()
 }
 
 
-static char *test_vector2_rotate_by_matrix_zx_quarter_turn()
+static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 {
 	matrix3 m;
 	vector2 r;
@@ -179,7 +179,7 @@ static char *test_vector2_rotate_by_matrix_zx_quarter_turn()
 }
 
 
-static char *test_matrix3_rotatev3_xz_quarter_turn()
+static char *test_matrix3_rotatev3_xz_quarter_turn(void)
 {
 	matrix3 m;
 	vector2 r;
@@ -194,7 +194,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn()
 }
 
 
-static char *test_matrix3_rotatev3_xz_quarter_turn_opposite()
+static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 {
 	matrix3 m;
 	vector2 r;
@@ -209,7 +209,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite()
 }
 
 
-/*static char *test_matrix3_set_from_axisf2_angle()
+/*static char *test_matrix3_set_from_axisf2_angle(void)
 {
 	matrix3 m1;
 	matrix3 m2;
@@ -236,7 +236,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite()
 }*/
 
 
-static char *matrix3_all_tests()
+static char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_zero);
 	run_test(test_matrix3_equals);

@@ -140,7 +140,7 @@ HYPAPI vector2 *vector2_dividef(vector2 *self, HYP_FLOAT fT)
 
 HYPAPI HYP_FLOAT vector2_magnitude(const vector2 *self)
 {
-	return sqrt((self->x*self->x) + (self->y*self->y));
+	return HYP_SQRT((self->x*self->x) + (self->y*self->y));
 }
 
 
@@ -192,7 +192,7 @@ HYPAPI vector2 *vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1
  */
 HYPAPI HYP_FLOAT vector2_distance(const vector2 *v1, const vector2 *v2)
 {
-	return sqrt((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
+	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
 }
 
 

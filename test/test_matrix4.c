@@ -1,5 +1,5 @@
 
-static char *test_matrix4_zero()
+static char *test_matrix4_zero(void)
 {
 	matrix4 zero;
 	int i;
@@ -8,14 +8,14 @@ static char *test_matrix4_zero()
 
 	for (i = 0; i < 16; i++)
 	{
-		test_assert(zero.m[i] == 0);
+		test_assert(scalar_equalsf(zero.m[i], 0.0f));
 	}
 
 	return 0;
 }
 
 
-static char *test_matrix4_equals()
+static char *test_matrix4_equals(void)
 {
 	matrix4 m, identity;
 
@@ -32,7 +32,7 @@ static char *test_matrix4_equals()
 }
 
 
-static char *test_matrix4_multiplym4()
+static char *test_matrix4_multiplym4(void)
 {
 	matrix4 m1, m2, mR;
 
@@ -56,7 +56,7 @@ static char *test_matrix4_multiplym4()
 }
 
 
-static char *test_matrix4_identity_with_vector()
+static char *test_matrix4_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
 	matrix4 m;
@@ -72,7 +72,7 @@ static char *test_matrix4_identity_with_vector()
 }
 
 
-static char *test_matrix4_transpose()
+static char *test_matrix4_transpose(void)
 {
 	matrix4 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 	matrix4 e = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
@@ -83,7 +83,7 @@ static char *test_matrix4_transpose()
 }
 
 
-static char *test_matrix4_columnrowcolumn()
+static char *test_matrix4_columnrowcolumn(void)
 {
 	matrix4 c;
 	matrix4 r;
@@ -119,7 +119,7 @@ static char *test_matrix4_columnrowcolumn()
 }
 
 
-static char *test_matrix4_transformation_translatev3()
+static char *test_matrix4_transformation_translatev3(void)
 {
 	matrix4 transform;
 
@@ -135,7 +135,7 @@ static char *test_matrix4_transformation_translatev3()
 }
 
 
-static char *test_matrix4_transformation_translatev3_negative()
+static char *test_matrix4_transformation_translatev3_negative(void)
 {
 	matrix4 transform;
 
@@ -151,7 +151,7 @@ static char *test_matrix4_transformation_translatev3_negative()
 }
 
 
-static char *test_matrix4_transformation_scalingv3()
+static char *test_matrix4_transformation_scalingv3(void)
 {
 	matrix4 transform;
 
@@ -167,7 +167,7 @@ static char *test_matrix4_transformation_scalingv3()
 }
 
 
-static char *test_matrix4_transformation_scale_then_translatev3()
+static char *test_matrix4_transformation_scale_then_translatev3(void)
 {
 	matrix4 transform;
 	matrix4 scratch;
@@ -187,7 +187,7 @@ static char *test_matrix4_transformation_scale_then_translatev3()
 }
 
 
-static char *test_vector3_rotate_by_matrix_xy_quarter_turn()
+static char *test_vector3_rotate_by_matrix_xy_quarter_turn(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -202,7 +202,7 @@ static char *test_vector3_rotate_by_matrix_xy_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_matrix_yx_quarter_turn()
+static char *test_vector3_rotate_by_matrix_yx_quarter_turn(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -216,7 +216,7 @@ static char *test_vector3_rotate_by_matrix_yx_quarter_turn()
 }
 
 
-static char *test_vector3_rotate_by_matrix_zx_quarter_turn()
+static char *test_vector3_rotate_by_matrix_zx_quarter_turn(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -230,7 +230,7 @@ static char *test_vector3_rotate_by_matrix_zx_quarter_turn()
 }
 
 
-static char *test_matrix4_rotatev3_xz_quarter_turn()
+static char *test_matrix4_rotatev3_xz_quarter_turn(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -245,7 +245,7 @@ static char *test_matrix4_rotatev3_xz_quarter_turn()
 }
 
 
-static char *test_matrix4_rotatev3_xz_quarter_turn_opposite()
+static char *test_matrix4_rotatev3_xz_quarter_turn_opposite(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -260,7 +260,7 @@ static char *test_matrix4_rotatev3_xz_quarter_turn_opposite()
 }
 
 
-static char *test_matrix4_rotatev3_xy_quarter_turn()
+static char *test_matrix4_rotatev3_xy_quarter_turn(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -275,7 +275,7 @@ static char *test_matrix4_rotatev3_xy_quarter_turn()
 }
 
 
-static char *test_matrix4_rotatev3_xy_quarter_turn_opposite()
+static char *test_matrix4_rotatev3_xy_quarter_turn_opposite(void)
 {
 	matrix4 m;
 	vector3 r;
@@ -290,7 +290,7 @@ static char *test_matrix4_rotatev3_xy_quarter_turn_opposite()
 }
 
 
-static char *test_matrix4_set_from_quaternion_xy_quarter_turn()
+static char *test_matrix4_set_from_quaternion_xy_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -304,7 +304,7 @@ static char *test_matrix4_set_from_quaternion_xy_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_xz_quarter_turn()
+static char *test_matrix4_set_from_quaternion_xz_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -318,7 +318,7 @@ static char *test_matrix4_set_from_quaternion_xz_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_yx_quarter_turn()
+static char *test_matrix4_set_from_quaternion_yx_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -332,7 +332,7 @@ static char *test_matrix4_set_from_quaternion_yx_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_yz_quarter_turn()
+static char *test_matrix4_set_from_quaternion_yz_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -346,7 +346,7 @@ static char *test_matrix4_set_from_quaternion_yz_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_zx_quarter_turn()
+static char *test_matrix4_set_from_quaternion_zx_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -360,7 +360,7 @@ static char *test_matrix4_set_from_quaternion_zx_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_zy_quarter_turn()
+static char *test_matrix4_set_from_quaternion_zy_quarter_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -374,7 +374,7 @@ static char *test_matrix4_set_from_quaternion_zy_quarter_turn()
 }
 
 
-static char *test_matrix4_set_from_quaternion_xy_half_turn()
+static char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -389,7 +389,7 @@ static char *test_matrix4_set_from_quaternion_xy_half_turn()
 
 
 /*
-static char *test_matrix4_set_from_axisf3_angle()
+static char *test_matrix4_set_from_axisf3_angle(void)
 {
 	matrix4 m1;
 	matrix4 m2;
@@ -417,7 +417,7 @@ static char *test_matrix4_set_from_axisf3_angle()
 */
 
 
-static char *test_matrix4_match_transformation_matrix_quaternion()
+static char *test_matrix4_match_transformation_matrix_quaternion(void)
 {
 	matrix4 m;
 	quaternion q;
@@ -438,7 +438,7 @@ static char *test_matrix4_match_transformation_matrix_quaternion()
 }
 
 
-static char *test_matrix4_transform_3d()
+static char *test_matrix4_transform_3d(void)
 {
 	quaternion orientation;
 	matrix4 modelMatrix, worldMatrix, scaleM, rotateM, translateM;
@@ -470,7 +470,7 @@ static char *test_matrix4_transform_3d()
 }
 
 
-static char *test_matrix4_transform_3d_combined()
+static char *test_matrix4_transform_3d_combined(void)
 {
 	quaternion orientation;
 	matrix4 worldMatrix, scaleM, rotateM, translateM;
@@ -495,7 +495,7 @@ static char *test_matrix4_transform_3d_combined()
 }
 
 
-static char *test_matrix4_transform_3d_scale_translate()
+static char *test_matrix4_transform_3d_scale_translate(void)
 {
 	matrix4 worldMatrix, scaleM, translateM;
 
@@ -516,7 +516,7 @@ static char *test_matrix4_transform_3d_scale_translate()
 }
 
 
-static char *test_matrix4_inverse()
+static char *test_matrix4_inverse(void)
 {
 	matrix4 originalMatrix;
 	matrix4 identity;
@@ -549,7 +549,7 @@ static char *test_matrix4_inverse()
 }
 
 
-static char *matrix4_all_tests()
+static char *matrix4_all_tests(void)
 {
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);

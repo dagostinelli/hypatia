@@ -213,7 +213,7 @@ HYPAPI vector4 *vector4_divide(vector4 *self, const vector4 *vT)
  */
 HYPAPI HYP_FLOAT vector4_magnitude(const vector4 *self)
 {
-	return sqrt((self->x*self->x) + (self->y*self->y) + (self->z*self->z) + (self->w*self->w));
+	return HYP_SQRT((self->x*self->x) + (self->y*self->y) + (self->z*self->z) + (self->w*self->w));
 }
 
 
@@ -227,7 +227,7 @@ HYPAPI vector4 *vector4_normalize(vector4 *self)
 
 	mag = vector4_magnitude(self);
 
-	if (mag == 0)
+	if (scalar_equalsf(mag, 0.0))
 	{
 		/* can't normalize a zero
 		 * avoid divide by zero
@@ -277,7 +277,7 @@ HYPAPI vector4 *vector4_cross_product(vector4 *vR, const vector4 *vT1, const vec
  */
 HYPAPI HYP_FLOAT vector4_distance(const vector4 *v1, const vector4 *v2)
 {
-	return sqrt((v2->x - v1->x) * (v2->x - v1->x)
+	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x)
 		    + (v2->y - v1->y) * (v2->y - v1->y)
 		    + (v2->z - v1->z) * (v2->z - v1->z)
 		    + (v2->w - v1->w) * (v2->w - v1->w));

@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 2.8)
-#cmake_policy(SET CMP0054 NEW)
 
 PROJECT(hypatia C)
 
@@ -11,17 +10,12 @@ SET(HYPATIA_SOVERSION 1) # Increment this if/when we break backwards compatibili
 
 ADD_SUBDIRECTORY("src")
 
-OPTION(HYPATIA_BUILD_TESTS "Build unit tests" TRUE)
+OPTION(HYPATIA_BUILD_TESTS "Build unit tests" ON)
 IF(HYPATIA_BUILD_TESTS)
 	ADD_SUBDIRECTORY("test")
 ENDIF(HYPATIA_BUILD_TESTS)
 
-OPTION(HYPATIA_BUILD_DOCS "Build help documents" TRUE)
+OPTION(HYPATIA_BUILD_DOCS "Build help documents" ON)
 IF(HYPATIA_BUILD_DOCS)
 	ADD_SUBDIRECTORY("doc")
 ENDIF(HYPATIA_BUILD_DOCS)
-
-#get_cmake_property(_variableNames VARIABLES)
-#	foreach (_variableName ${_variableNames})
-#		message(STATUS "${_variableName}=${${_variableName}}")
-#	endforeach()

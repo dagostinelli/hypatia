@@ -11,16 +11,16 @@ compiler:
   - gcc
 
 env:
-  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_USE_SINGLE=0"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_USE_SINGLE=0"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_USE_SINGLE=1"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_USE_SINGLE=1"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=OFF"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=OFF"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=ON"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=ON"
 
 script:
   - mkdir build
   - cd build
   - cmake --version
-  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 $FLAGS $VARYSINGLE
+  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=ON -DHYPATIA_BUILD_SHARED=ON $FLAGS $VARYSINGLE
   - make && ctest && make install && cpack -G "TGZ"
 
 addons:
@@ -28,4 +28,6 @@ addons:
     packages:
     - cmake
     - doxygen
+    - doxygen-latex
     - graphviz
+

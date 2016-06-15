@@ -13,12 +13,50 @@ A word about naming convention:  Hypatia uses verbose names. In pure-C code, mat
 
 Building
 --------
+
+**Linux**
 ```
 git clone https://github.com/dagostinelli/hypatia
 mkdir build
 cd build
-cmake -G "Unix Makefiles" ../hypatia/ -DCMAKE_INSTALL_PREFIX=../install
-make && make install
+cmake ..
+make
+```
+
+You can also build using single-precision floating point values instead of
+double (default) by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
+
+```
+cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
+```
+
+There are additional environment variables available:
+- HYPATIA_BUILD_SHARED: (Default ON) Controls if the shared library is built
+- HYPATIA_BUILD_STATIC: (Default ON) Controls if the static library is built
+- HYPATIA_BUILD_DOCS: (Default ON) Build the help documents
+- HYPATIA_BUILD_TESTS: (Default ON) Build the unit tests
+- HYPATIA_SINGLE_PRECISION_FLOATS: (Default OFF) Use single-precision
+floating point values.  This is experimental.
+- CMAKE_BUILD_TYPE: (Default Release) Set this to 'Release' or 'Debug'
+- CMAKE_INSTALL_PREFIX: Allows you to specify `make install` sends the output.
+
+Unit tests can be executed as follows
+```
+mkdir build
+cd build
+cmake ..
+make && ctest
+```
+
+There is a built in packager using cpack. To build a tar.gz file, do as
+follows.
+
+
+```
+mkdir build
+cd build
+cmake ..
+make && ctest && cpack -G "TGZ"
 ```
 
 
@@ -31,19 +69,17 @@ Quick Start
 -----------
 A great way to learn how to use the library is to review the unit tests.
 
-
-FAQ
----
-
-- Can I trust this math library?
-A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  In this beta release, a number of functions do not yet have unit tests proving 1E-5, but more are coming.
-
-- Where is the matrix inverse function?
-It turns out that is pretty tough to get right and also do efficiently. It may be added some day if it is requested enough times.  In the mean time, what you could do instead is create an inverted view matrix (translate, then rotate, then scale instead of the other way around).
+Can I trust this math library?
+------------------------------
+A goal of the unit tests is to test each function against HYP_EPSILON which
+is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet
+have unit tests proving 1E-5, but more are coming.
 
 asm.js
 -----------
-This library can be compiled for asm.js. But it is experimental.
+This library can be compiled for asm.js. But it is experimental.  You'll have
+to specify all of the .c files manually because there is not yet a CMake
+target for this yet.
 
 ```
 cd /where/emsdk/is/stored
@@ -51,7 +87,7 @@ source emsdk_env.sh
 cd /where/hypatia/is/stored/src
 emcc matrix4.c quaternion.c vector2.c scalar.c vector3.c ../test/main.c -I .
 ```
-then run it
+then run the unit tests
 ```
 $> node a.out.js
 quaternion_all_tests
@@ -60,3 +96,4 @@ vector3_all_tests
 ALL TESTS PASSED
 Tests run: 36
 ```
+

@@ -1,10 +1,8 @@
 INCLUDE_DIRECTORIES(${hypatia_SOURCE_DIR}/src)
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	FIND_LIBRARY(LIBM m)
-	SET(CMAKE_C_FLAGS_DEBUG "-ggdb -std=c90 -Wextra -Wall -Werror -Wno-missing-braces")
-	SET(CMAKE_C_FLAGS_RELEASE "-std=c90 -Wextra -Wall -Werror -Wno-missing-braces")
-endif()
+
+INCLUDE(../cmake/CMakeBuildFlags.cmake)
+
 
 IF(HYPATIA_BUILD_SHARED)
 	ADD_EXECUTABLE(test_hypatia_shared main.c)
@@ -24,3 +22,4 @@ IF(HYPATIA_BUILD_STATIC)
 	TARGET_LINK_LIBRARIES(test_hypatia_static hypatia_static ${LIBM})
 	ADD_TEST(NAME test_hypatia_static COMMAND test_hypatia_static)
 ENDIF()
+
