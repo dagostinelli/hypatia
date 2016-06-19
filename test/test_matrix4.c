@@ -456,8 +456,8 @@ static char *test_matrix4_transform_3d(void)
 	matrix4_identity(&worldMatrix);
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_translationv3(&translateM, &translation));
 	matrix4_multiply(&worldMatrix,
-		matrix4_make_transformation_rotationq(&rotateM,
-			quaternion_set_from_axis_anglev3(&orientation, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f)));
+			 matrix4_make_transformation_rotationq(&rotateM,
+							       quaternion_set_from_axis_anglev3(&orientation, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f)));
 
 	/* Read this right to left */
 	/* vT = worldMatrix * modelMatrix * vT */
@@ -484,8 +484,8 @@ static char *test_matrix4_transform_3d_combined(void)
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_scalingv3(&scaleM, &scale));
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_translationv3(&translateM, &translation));
 	matrix4_multiply(&worldMatrix,
-		matrix4_make_transformation_rotationq(&rotateM,
-			quaternion_set_from_axis_anglev3(&orientation, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f)));
+			 matrix4_make_transformation_rotationq(&rotateM,
+							       quaternion_set_from_axis_anglev3(&orientation, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f)));
 
 	vector3_multiplym4(&startingPosition, &worldMatrix);
 

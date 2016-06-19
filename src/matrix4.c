@@ -283,7 +283,8 @@ HYPAPI matrix4 *_matrix4_set_random(matrix4 *self)
 
 /**
  * @ingroup matrix4
- * @brief converts the quaternion to a 4x4 rotation matrix (column major, right hand rule)
+ * @brief converts the quaternion to a 4x4 rotation matrix (column major,
+ * right hand rule)
  *
  */
 HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT)
@@ -346,7 +347,8 @@ HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vecto
 
 /**
  * @ingroup matrix4
- * @brief creates a rotation matrix about the x.  It's opinionated about what that means.
+ * @brief creates a rotation matrix about the x.  It's opinionated about
+ * what that means.
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
@@ -368,7 +370,8 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT an
 
 /**
  * @ingroup matrix4
- * @brief creates a rotation matrix about the y.  It's opinionated about what that means.
+ * @brief creates a rotation matrix about the y.  It's opinionated about
+ * what that means.
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
@@ -391,7 +394,8 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT an
 
 /**
  * @ingroup matrix4
- * @brief creates a rotation matrix about the z.  It's opinionated about what that means.
+ * @brief creates a rotation matrix about the z.  It's opinionated about
+ * what that means.
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
@@ -414,7 +418,8 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT an
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary translation matrix and then multiplies self by that.  Opinionated function about what translation means.
+ * @brief Creates a temporary translation matrix and then multiplies self
+ * by that.  Opinionated function about what translation means.
  *
  * @param self The transformation matrix being translated
  * @param translation the translation vector
@@ -431,7 +436,8 @@ HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 * translation)
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary rotation matrix and then multiplies self by that.  Opinionated function about what rotation means.
+ * @brief Creates a temporary rotation matrix and then multiplies self by that.
+ * Opinionated function about what rotation means.
  *
  * @param self The transformation matrix being rotated
  * @param axis the axis to rotate the matrix around
@@ -444,14 +450,15 @@ HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 * axis, HYP_FLOAT 
 	quaternion q;
 
 	return matrix4_multiply(self,
-		matrix4_make_transformation_rotationq(&rotationMatrix,
-			quaternion_set_from_axis_anglev3(&q, axis, angle)));
+				matrix4_make_transformation_rotationq(&rotationMatrix,
+								      quaternion_set_from_axis_anglev3(&q, axis, angle)));
 }
 
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary scaling matrix and then multiplies self by that.  Opinionated function about what scaling means.
+ * @brief Creates a temporary scaling matrix and then multiplies self by that.
+ * Opinionated function about what scaling means.
  *
  * @param self The transformation matrix being scaled
  * @param scale the scaling vector

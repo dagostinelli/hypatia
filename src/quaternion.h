@@ -51,5 +51,16 @@ HYPAPI quaternion *quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT 
 
 HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vector3 *to, quaternion *qR);
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+/* BETA aliases */
+#define quat quaternion
+#define quat_eq quaternion_equals
+#define quat_ident quaternion_identity
+#define quat_lerp quaternion_lerp
+#define quat_nlerp quaternion_nlerp
+#define quat_slerp quaternion_slerp
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_QUATERNION */

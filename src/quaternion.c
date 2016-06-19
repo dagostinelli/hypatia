@@ -8,11 +8,14 @@
 
 /**
  * @ingroup quaternion
- * @brief Initializes the vector portion of the quaternion with 0.0 and the scalar portion with 1.0.
+ * @brief Initializes the vector portion of the quaternion with 0.0 and the
+ * scalar portion with 1.0.
  * The resulting quaternion has a norm of 1.0
  *
- * While Hypatia as well as other math libraries call this the `identity` quaternion, this is not an accurate term.
- * Since the principle of a quaternion with no rotation works similar to an identity matrix, we let the term pass.
+ * While Hypatia as well as other math libraries call this the 'identity'
+ * quaternion, this is not an accurate term.  Since the principle of a
+ * quaternion with no rotation works similar to an identity matrix, we let
+ * the term pass.
  *
  * @snippet test_quaternion.c quaternion identity example
  */
@@ -44,7 +47,8 @@ HYPAPI quaternion *quaternion_setf4(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, 
 
 /**
  * @ingroup quaternion
- * @brief initializes the quaternion by copying the data from qT.  This is effectively a copy function.
+ * @brief initializes the quaternion by copying the data from qT.  This is
+ * effectively a copy function.
  */
 HYPAPI quaternion *quaternion_set(quaternion * self, const quaternion *qT)
 {
@@ -54,9 +58,11 @@ HYPAPI quaternion *quaternion_set(quaternion * self, const quaternion *qT)
 
 /**
  * @ingroup quaternion
- * @brief Sets the values in the quaternion, in place, based on the axis and angle.
+ * @brief Sets the values in the quaternion, in place, based on the axis and
+ * angle.
  *
- * @param self the quaternion that will become initialized with the values of the axis and angle
+ * @param self the quaternion that will become initialized with the values of
+ * the axis and angle
  * @param x the x axis
  * @param y the y axis
  * @param z the z axis
@@ -82,9 +88,11 @@ HYPAPI quaternion *quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT 
 
 /**
  * @ingroup quaternion
- * @brief Sets the values in the quaternion, in place, based on the axis and angle.
+ * @brief Sets the values in the quaternion, in place, based on the axis and
+ * angle.
  *
- * @param self the quaternion that will become initialized with the values of the axis and angle
+ * @param self the quaternion that will become initialized with the values of
+ * the axis and angle
  * @param axis the reference axis
  * @param angle the angle is in radians
  *
@@ -179,7 +187,8 @@ HYPAPI quaternion *quaternion_negate(quaternion *self)
  *
  * inverse = conjugate(q) / norm(q)
  *
- * The inverse can be checked by multiplying the inverse against the original quaternion. The result should be the identity.
+ * The inverse can be checked by multiplying the inverse against the original
+ * quaternion. The result should be the identity.
  *
  * @snippet test_quaternion.c quaternion inverse example
  */
@@ -244,7 +253,8 @@ HYPAPI quaternion *quaternion_normalize(quaternion *self)
 
 /**
  * @ingroup quaternion
- * @brief if the norm is 1.0, then the quaternion is said to be a *unit quaternion*
+ * @brief if the norm is 1.0, then the quaternion is said to be a 'unit
+ * quaternion'
  */
 HYPAPI short quaternion_is_unit(quaternion *self)
 {
@@ -254,7 +264,8 @@ HYPAPI short quaternion_is_unit(quaternion *self)
 
 /**
  * @ingroup quaternion
- * @brief if the scalar is 0.0 (w == 0.0), then the quaternion is said to be a *pure quaternion*
+ * @brief if the scalar is 0.0 (w == 0.0), then the quaternion is said to be a
+ * 'pure quaternion'
  */
 HYPAPI short quaternion_is_pure(quaternion *self)
 {
@@ -264,9 +275,12 @@ HYPAPI short quaternion_is_pure(quaternion *self)
 
 /**
  * @ingroup quaternion
- * @brief Normalized LERP.  This calls lerp and then normalizes the quaternion (pulls it back on the manifold)
+ * @brief Normalized LERP.  This calls lerp and then normalizes the quaternion
+ * (pulls it back on the manifold)
  *
- * @param percent This refers to how far along we want to go toward end.  1.0 means go to the end. 0.0 means start.  1.1 is nonsense. Negative is nonsense.
+ * @param percent This refers to how far along we want to go toward end.  1.0
+ * means go to the end. 0.0 means start.  1.1 is nonsense. Negative is
+ * nonsense.
  * @param start The quaternion representing the starting orientation
  * @param end The quaternion representing the final or ending orientation
  * @param qR The resulting new orientation.
@@ -282,9 +296,11 @@ HYPAPI quaternion *quaternion_nlerp(const quaternion *start, const quaternion *e
 
 /**
  * @ingroup quaternion
- * @brief Linear interpolates between two quaternions.  It will cause the resulting quaternion to move in a straight line "through the 3-sphere"
+ * @brief Linear interpolates between two quaternions.  It will cause the
+ * resulting quaternion to move in a straight line "through the 3-sphere"
  *
- * @param percent This refers to how far along we want to go toward end.  1.0 means go to the end. 0.0 means start.  1.1 is nonsense. Negative is nonsense.
+ * @param percent This refers to how far along we want to go toward end. 1.0
+ * means go to the end. 0.0 means start. 1.1 is nonsense. Negative is nonsense.
  * @param start The quaternion representing the starting orientation
  * @param end The quaternion representing the final or ending orientation
  * @param qR The resulting new orientation.
@@ -311,7 +327,9 @@ HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *en
 	f1 = 1.0f - percent;
 	f2 = percent;
 
-	/* this expanded form avoids calling quaternion_multiply and quaternion_add */
+	/* this expanded form avoids calling quaternion_multiply and
+	 * quaternion_add
+	 */
 	qR->w = f1 * start->w + f2 * end->w;
 	qR->x = f1 * start->x + f2 * end->x;
 	qR->y = f1 * start->y + f2 * end->y;
@@ -323,11 +341,15 @@ HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *en
 
 /**
  * @ingroup quaternion
- * @brief This computes the SLERP between two quaternions.  It computes that absolute final position interopolated between start and end.
+ * @brief This computes the SLERP between two quaternions.  It computes that
+ * absolute final position interopolated between start and end.
  * This function computes shortest arc.
- * If the start and end result in a negative dot product (reversed direction) then the SLERP will reverse direction.
+ * If the start and end result in a negative dot product (reversed direction)
+ * then the SLERP will reverse direction.
  *
- * @param percent This refers to how far along we want to go toward end.  1.0 means go to the end. 0.0 means start.  1.1 is nonsense. Negative is nonsense.
+ * @param percent This refers to how far along we want to go toward end.
+ * 1.0 means go to the end. 0.0 means start.  1.1 is nonsense. Negative is
+ * nonsense.
  * @param start The quaternion representing the starting orientation
  * @param end The quaternion representing the final or ending orientation
  * @param qR The resulting new orientation.
@@ -371,8 +393,9 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
 
 	/* if dot is negative, they are "pointing" away from one another,
 	 * use the shortest arc instead (reverse end and start)
-	 * This has the effect of changing the direction of travel around the sphere
-	 * beginning with "end" and going the other way around the sphere
+	 * This has the effect of changing the direction of travel around
+	 * the sphere beginning with "end" and going the other way around
+	 * the sphere
 	 */
 	if (dot < 0.0f)
 	{
@@ -385,15 +408,22 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
 		return qR;
 	}
 
-	/* keep the dot product in the range that acos can handle (shouldn't get here) */
+	/* keep the dot product in the range that acos can handle */
+	/* (shouldn't get here) */
 	HYP_CLAMP(dot, -1.0f, 1.0f);
 
-	theta = HYP_ACOS(dot);				/* what is the angle between start and end in radians */
-	s = HYP_SIN(theta);				/* cache */
-	f1 = HYP_SIN((1.0 - percent) * theta) / s;	/* compute negative */
-	f2 = HYP_SIN(percent * theta) / s;		/* compute positive */
+	/* the angle between start and end in radians */
+	theta = HYP_ACOS(dot);
+	/* cache */
+	s = HYP_SIN(theta);
+	/* compute negative */
+	f1 = HYP_SIN((1.0 - percent) * theta) / s;
+	/* compute positive */
+	f2 = HYP_SIN(percent * theta) / s;
 
-	/* this expanded form avoids calling quaternion_multiply and quaternion_add */
+	/* this expanded form avoids calling quaternion_multiply
+	 * and quaternion_add
+	 */
 	qR->w = f1 * start->w + f2 * end->w;
 	qR->x = f1 * start->x + f2 * end->x;
 	qR->y = f1 * start->y + f2 * end->y;
@@ -405,7 +435,8 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
 
 /**
  * @ingroup quaternion
- * @brief Used by SLERP. This treats the whole quaternion as a 4D vector and computes a regular dot product on it
+ * @brief Used by SLERP. This treats the whole quaternion as a 4D vector and
+ * computes a regular dot product on it
  *
  */
 HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion *qT)
@@ -416,7 +447,8 @@ HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion
 
 /**
  * @ingroup quaternion
- * @brief in place adds each element of the quaternion by the other quaternion. This has a "scaling" effect.
+ * @brief in place adds each element of the quaternion by the other quaternion.
+ * This has a "scaling" effect.
  * To add quaternions, add each element one by one like a vector.
  *
  */
@@ -433,7 +465,8 @@ HYPAPI quaternion *quaternion_add(quaternion *self, const quaternion *qT)
 
 /**
  * @ingroup quaternion
- * @brief in place subtracts each element of the quaternion by the scalar value. This has a "scaling" effect.
+ * @brief in place subtracts each element of the quaternion by the scalar
+ * value. This has a "scaling" effect.
  * to subtract quaternions, subtract each element one by one like a vector
  *
  */
@@ -450,7 +483,8 @@ HYPAPI quaternion *quaternion_subtract(quaternion *self, const quaternion *qT)
 
 /**
  * @ingroup quaternion
- * @brief in place multiplies each element of the quaternion by the scalar value. This has a "scaling" effect.
+ * @brief in place multiplies each element of the quaternion by the scalar
+ * value. This has a "scaling" effect.
  * to multiply by a scalar, apply it to element one by one like a vector
  *
  */
@@ -509,7 +543,8 @@ HYPAPI quaternion *quaternion_multiplyv3(quaternion *self, const vector3 *vT)
 
 /**
  * @ingroup quaternion
- * @brief Retrieves the axis and angle from the quaternion, assumes normalized quaternion
+ * @brief Retrieves the axis and angle from the quaternion, assumes normalized
+ * quaternion
  *
  * @param self the quaternion
  * @param vR the axis that will be filled
@@ -557,15 +592,19 @@ HYPAPI void _quaternion_print(const quaternion *self)
 
 /**
  * @ingroup quaternion
- * @brief Given two vectors, find a quaternion that will get you from one to the other
+ * @brief Given two vectors, find a quaternion that will get you from one to
+ * the other
  *
  * @param from the starting vector
  * @param to the ending vector
- * @param qR the resulting quaternion that gets you from the starting vector to the ending vector
+ * @param qR the resulting quaternion that gets you from the starting vector
+ * to the ending vector
  */
 HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vector3 *to, quaternion *qR)
 {
-	/* this code avoids sqrt and cos and sin and would be nice to avoid division */
+	/* this code avoids sqrt and cos and sin and would be nice to
+	 * avoid division
+	 */
 	vector3 w;
 	HYP_FLOAT dot;
 	HYP_FLOAT norm;
@@ -581,7 +620,8 @@ HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vecto
 	norm = quaternion_norm(qR);
 	qR->w += norm;
 
-	/* normalization with avoidance of div/0 and reusing the norm (already calculated above) */
+	/* normalization with avoidance of div/0 and reusing the norm */
+	/* (already calculated above) */
 	if (!scalar_equalsf(norm, 0.0f))
 	{
 		qR->x /= norm;

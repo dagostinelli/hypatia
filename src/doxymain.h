@@ -1,6 +1,7 @@
 /**
  * @defgroup _constants Numeric Constants
- * @brief These are a collection of commonly used constants.  They are precalculated and stored at high precisions in the code.
+ * @brief These are a collection of commonly used constants.  They are
+ * precalculated and stored at high precisions in the code.
  * At compile time, the compiler will perform some degree of rounding.
  *
  */

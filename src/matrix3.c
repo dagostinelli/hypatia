@@ -297,7 +297,8 @@ HYPAPI matrix3 *matrix3_make_transformation_scalingv2(matrix3 *self, const vecto
 
 /**
  * @ingroup matrix3
- * @brief creates a rotation matrix about the z.  It's opinionated about what that means.
+ * @brief creates a rotation matrix about the z.  It's opinionated about what
+ * that means.
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
@@ -319,7 +320,8 @@ HYPAPI matrix3 *matrix3_make_transformation_rotationf_z(matrix3 *m, HYP_FLOAT an
 
 /**
  * @ingroup matrix3
- * @brief Creates a temporary translation matrix and then multiplies self by that.  Opinionated function about what translation means.
+ * @brief Creates a temporary translation matrix and then multiplies self by
+ * that.  Opinionated function about what translation means.
  *
  * @param self The transformation matrix being translated
  * @param translation the translation vector
@@ -355,7 +357,8 @@ HYPAPI matrix3 *matrix3_rotate(matrix3 *self, HYP_FLOAT angle)
 
 /**
  * @ingroup matrix3
- * @brief Creates a temporary scaling matrix and then multiplies self by that.  Opinionated function about what scaling means.
+ * @brief Creates a temporary scaling matrix and then multiplies self by that.
+ * Opinionated function about what scaling means.
  *
  * @param self The transformation matrix being scaled
  * @param scale the scaling vector

@@ -257,7 +257,8 @@ HYPAPI vector3 *vector3_cross_product(vector3 *vR, const vector3 *vT1, const vec
 
 /**
  * @ingroup vector3
- * @brief finds the angle between two vectors. make sure to do this on a normalized vector only
+ * @brief finds the angle between two vectors. make sure to do this on a
+ * normalized vector only
  *
  */
 HYPAPI HYP_FLOAT vector3_angle_between(const vector3 *vT1, const vector3 *vT2)
@@ -357,7 +358,8 @@ HYPAPI vector3 *vector3_rotate_by_quaternion(vector3 *self, const quaternion *qT
 
 /**
  * @ingroup vector3
- * @brief Reflect a point by the quaternion.  Returns the reflected point. (through origin)
+ * @brief Reflect a point by the quaternion.  Returns the reflected point.
+ * (through the origin)
  *
  * \f$self= qT * self * qT\f$
  *

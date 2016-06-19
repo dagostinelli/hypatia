@@ -29,7 +29,9 @@
 
 /**
  * @ingroup experimental
- * @brief this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down
+ * @brief this is an opinionated method
+ * (opinionated about what axis is yaw, pitch, roll and
+ * what is left/right/up/down)
  *
  * @param self the quaternion
  * @param ax the x axis
@@ -69,7 +71,8 @@ HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, HYP
 
 /**
  * @ingroup experimental
- * @brief rotate a quaternion by a quaternion (basically, multiply and then normalize)
+ * @brief rotate a quaternion by a quaternion
+ * (basically, multiply and then normalize)
  *
  * @param self the quaternion being rotated
  * @param qT the other quaternion
@@ -110,7 +113,8 @@ HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const 
 
 /**
  * @ingroup experimental
- * @brief returns a score that seeks to describe the difference between two quaternions
+ * @brief returns a score that seeks to describe the difference
+ * between two quaternions
  *
  */
 HYPAPI HYP_FLOAT quaternion_difference_EXP(const quaternion *q1, const quaternion *q2)
@@ -127,8 +131,9 @@ HYPAPI HYP_FLOAT quaternion_difference_EXP(const quaternion *q1, const quaternio
 
 /**
  * @ingroup experimental
- * @brief this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down
- * applies the rotations in this order: x, y, z (yaw, pitch, roll)
+ * @brief this is an opinionated method (opinionated about what axis is
+ * yaw, pitch, roll and what is left/right/up/down applies the rotations
+ * in this order: x, y, z (yaw, pitch, roll)
  * rotates the quaternion by these angles
  *
  * @param self the quaternion being rotated
@@ -153,14 +158,17 @@ HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_
 
 /**
  * @ingroup experimental
- * @brief This code is suspect.  Computes the cross-product on the vector portion and then something that resembles a negated dot product on the real portion
+ * @brief This code is suspect.  Computes the cross-product on the vector
+ * portion and then something that resembles a negated dot product on the
+ * real portion.
  *
  */
 HYPAPI quaternion quaternion_cross_product_EXP(const quaternion *self, const quaternion *vT)
 {
 	/*
 	 * The code is suspect (missing w element in this whole thing)
-	 * It is computing a cross-product on the vector portion and a negative dot product on the real portion
+	 * It is computing a cross-product on the vector portion and a
+	 * negative dot product on the real portion.
 	 */
 	quaternion r;
 
@@ -192,7 +200,8 @@ HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const quaternion *self, const quat
 
 /**
  * @ingroup experimental
- * @brief This code is suspect. Treats two quaternions sort of like 2 vector4's and then computes the cross-product between them.
+ * @brief This code is suspect. Treats two quaternions sort of like 2 vector4's
+ * and then computes the cross-product between them.
  *
  */
 HYPAPI void quaternion_axis_between_EXP(const quaternion *self, const quaternion *qT, quaternion *qR)
@@ -207,7 +216,8 @@ HYPAPI void quaternion_axis_between_EXP(const quaternion *self, const quaternion
 
 /**
  * @ingroup experimental
- * @brief creates an perspective projection matrix using the RH system with a FOV about the Y-axis.  It's opinionated about what that means.
+ * @brief creates an perspective projection matrix using the RH system with a
+ * FOV about the Y-axis.  It's opinionated about what that means.
  */
 HYPAPI matrix4 *matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
@@ -281,7 +291,8 @@ HYPAPI vector3 *matrix4_multiplyv3_EXP(const matrix4 *m, const vector3 *vT, vect
 
 /**
  * @ingroup experimental
- * @brief Opinionated function about what the axis means.  Sets the axis and angle (used as a rotation matrix)
+ * @brief Opinionated function about what the axis means.  Sets the axis and
+ * angle (used as a rotation matrix)
  *
  * @param self The matrix
  * @param x The x part of the axis
@@ -321,7 +332,8 @@ HYPAPI matrix4 *matrix4_set_from_axisf3_angle_EXP(matrix4 *self, HYP_FLOAT x, HY
 
 /**
  * @ingroup experimental
- * @brief Opinionated function about what the axis means.  Sets the axis and angle (used as a rotation matrix)
+ * @brief Opinionated function about what the axis means.  Sets the axis and
+ * angle (used as a rotation matrix)
  *
  * @param self The matrix
  * @param axis The axis
@@ -486,7 +498,8 @@ HYPAPI matrix4 *matrix4_view_lookat_rh_EXP(matrix4 *self, const vector3 *eye, co
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary rotation matrix and then multiplies self by that.  Opinionated function about what rotation means.
+ * @brief Creates a temporary rotation matrix and then multiplies self by that.
+ * Opinionated function about what rotation means.
  *
  * @param self The transformation matrix being rotated
  * @param vR the euler angles

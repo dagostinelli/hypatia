@@ -30,7 +30,7 @@ double (default) by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
 cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
 ```
 
-There are additional environment variables available:
+There are additional build variables available:
 - HYPATIA_BUILD_SHARED: (Default ON) Controls if the shared library is built
 - HYPATIA_BUILD_STATIC: (Default ON) Controls if the static library is built
 - HYPATIA_BUILD_DOCS: (Default ON) Build the help documents

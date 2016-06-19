@@ -61,7 +61,9 @@
 #define HYP_PIOVER180  HYP_RAD_PER_DEG
 /** @brief 180/PI */
 #define HYP_PIUNDER180 HYP_DEG_PER_RAD
-/** @brief Epsilon.  This is the value that is used to determine how much rounding error is tolerated. */
+/** @brief Epsilon.  This is the value that is used to determine how much
+ * rounding error is tolerated.
+ */
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #	define HYP_EPSILON 1E-5
 #else
