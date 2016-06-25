@@ -55,8 +55,9 @@ HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vecto
 
 /* BETA aliases */
 #define quat quaternion
-#define quat_eq quaternion_equals
-#define quat_ident quaternion_identity
+
+#define quat_equals quaternion_equals
+#define quat_identity quaternion_identity
 #define quat_lerp quaternion_lerp
 #define quat_nlerp quaternion_nlerp
 #define quat_slerp quaternion_slerp
