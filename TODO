@@ -1,30 +1,31 @@
 Remaining Work:
 
+- matrix4 Test the identity property I * M = M and also M * I = M
+- matrix4 Test the associative property A(BC) == (AB)C
+- matrix4 Test the distributive property A(B+C) == AB + AC
+- matrix4 Test the lack of commutative property AB != BA (in general)
+- Add all the variations of rotations with a matrix using matrix4_set_from_quaternion, matrix4_set_from_axis_angle, matrix4_transformation_rotation_x,y,z
+- add a vector to a quat, add each element one by one
+- add a scalar to a quat, add the scalar to each element of the quat
+- in quat-slerp is the shortest arc properly computed with negate or conjugate?
+- is quaternion_dot_product an appropriate operation on a quaternion?
+- add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
+- make doxygen ignore vector3_get_reference_vector3
+
 - Re-test the Visual Studio compilation
-- Build a Visual Studio makefile/project file
-- Fix this: (shouldn't be outputting a lib file for the test project)
+	- Postfix is not being applied correctly for MSVC (hypatiad.dll)
+	- PDB is not being founds and added to install files (See CPack)
+	- PDB is not being collected by AppVeyor artifact collector
+
+- In Visual Studio compilation Fix this: (shouldn't be outputting a lib file for the test project)
 	Linking C executable test_hypatia.exe
 	   Creating library test_hypatia.lib and object test_hypatia.exp
 	   Creating library test_hypatia.lib and object test_hypatia.exp
 	[100%] Built target test_hypatia
 
-- consider renaming the transformation matrix generators to something like "make_transform"
-- consider renaming the helper functions like matrix4_scalev3 to something like l_matrix4_scalev3
-- Implement: Q20. How do I calculate the inverse of a rotation matrix?
-- mat4 Test the identity property I * M = M and also M * I = M
-- mat4 Test the associative property A(BC) == (AB)C
-- mat4 Test the distributive property A(B+C) == AB + AC
-- mat4 Test the lack of commutative property AB != BA (in general)
-- Add all the variations of rotations with a matrix using matrix4_set_from_quaternion, matrix4_set_from_axis_angle, matrix4_transformation_rotation_x,y,z
-- add a vector to a quat, add each element one by one
-- add a scalar to a quat, add the scalar to each element of the quat
-- review quaternion_magnitude
-- in quat-slerp is the shortest arc properly computed with negate or conjugate?
-- is quaternion_dot_product an appropriate operation on a quaternion?
-- add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
-- make doxygen ignore vector3_get_reference_vector3
-- drop the suffixes from the functions that use the same type as the prefix (vector3_dosomethingv3 -> vector3_dosomething)
-- compare the header files and make sure the names are internally consistent
-
+- CPack is using strange version numbers. Where is it getting those version numbers from?
+- AppVeyor is showing CMake warnings that do not appear on other platforms
+- TravisCI's Mac machines are not building Doxygen
+- Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
 // end of TODO.txt ...
