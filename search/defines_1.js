@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['scalar_5fequalsf',['scalar_equalsf',['../hypatia_8h.html#ab1fb9d51012958b13231cd101171dbdf',1,'hypatia.h']]]
+  ['b',['B',['../experimental_8c.html#a7b96e3a863c6ef1b261c051574113e7c',1,'experimental.c']]]
 ];

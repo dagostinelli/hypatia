@@ -1,4 +1,9 @@
 var searchData=
 [
-  ['unused_5fvariable',['UNUSED_VARIABLE',['../internal_8h.html#a4048bf3892868ded8a28f8cbdd339c09',1,'internal.h']]]
+  ['tagmatrix3',['tagmatrix3',['../structtagmatrix3.html',1,'']]],
+  ['tagmatrix4',['tagmatrix4',['../structtagmatrix4.html',1,'']]],
+  ['tagquaternion',['tagquaternion',['../structtagquaternion.html',1,'']]],
+  ['tagvector2',['tagvector2',['../structtagvector2.html',1,'']]],
+  ['tagvector3',['tagvector3',['../structtagvector3.html',1,'']]],
+  ['tagvector4',['tagvector4',['../structtagvector4.html',1,'']]]
 ];
