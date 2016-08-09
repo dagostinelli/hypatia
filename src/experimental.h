@@ -2,7 +2,9 @@
 #define _INC_EXPERIMENTAL
 
 
-HYPAPI quaternion *quaternion_set_from_euler_anglesf3_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az);
 HYPAPI quaternion *quaternion_rotate_by_quaternion_EXP(quaternion *self, const quaternion *qT);
 HYPAPI quaternion *quaternion_rotate_by_axis_angle_EXP(quaternion *self, const vector3 *axis, HYP_FLOAT angle);
 HYPAPI quaternion *quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);

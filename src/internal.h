@@ -30,7 +30,9 @@ HYPAPI vector4 *_vector4_set_random(vector4 *self);
 #define HYP_SIN(x) ((HYP_FLOAT)sin(x))
 #define HYP_COS(x) ((HYP_FLOAT)cos(x))
 #define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
 #define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#define HYP_ATAN2(y,x) ((HYP_FLOAT)atan2(y,x))
 
 
 /** @brief A macro that returns the cotangent of \a a.

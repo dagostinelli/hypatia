@@ -39,27 +39,20 @@
  * @param az the z axis
  *
  */
-HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
-	vector3 vx;
-	vector3 vy;
-	vector3 vz;
 	quaternion qx;
 	quaternion qy;
 	quaternion qz;
 
-	vector3_setf3(&vx, 1.0f, 0.0f, 0.0f);
-	vector3_setf3(&vy, 0.0f, 1.0f, 0.0f);
-	vector3_setf3(&vz, 0.0f, 0.0f, 1.0f);
+	quaternion_set_from_axis_anglev3(&qx, HYP_VECTOR3_UNIT_X, ax);
+	quaternion_set_from_axis_anglev3(&qy, HYP_VECTOR3_UNIT_Y, ay);
+	quaternion_set_from_axis_anglev3(&qz, HYP_VECTOR3_UNIT_Z, az);
 
-	quaternion_set_from_axis_anglev3(&qx, &vx, ax);
-	quaternion_set_from_axis_anglev3(&qy, &vy, ay);
-	quaternion_set_from_axis_anglev3(&qz, &vz, az);
-
-	/* self = qx * qy * qz */
-	quaternion_multiply(&qx, &qy);
-	quaternion_multiply(&qx, &qz);
-	quaternion_set(self, &qx);
+	/* self = qz * qy * qx */
+	quaternion_multiply(&qz, &qy);
+	quaternion_multiply(&qz, &qx);
+	quaternion_set(self, &qz);
 
 	quaternion_normalize(self);
 
@@ -67,6 +60,33 @@ HYPAPI quaternion * quaternion_set_from_euler_anglesf3_EXP(quaternion *self, HYP
 }
 
 
+HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+{
+	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
+	self->y = HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+	self->z = HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) - HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+
+	/* normalize */
+	quaternion_normalize(self);
+
+	return self;
+}
+
+
+HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
+{
+	HYP_FLOAT qx, qy, qz, qw;
+
+	qw = self->w;
+	qx = self->x;
+	qy = self->y;
+	qz = self->z;
+
+	*az = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
+	*ay = HYP_ASIN(-2.0f * ((qx * qz) - (qw * qy)));
+	*ax = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
+}
 
 
 /**
@@ -147,7 +167,7 @@ HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_
 	quaternion qT;
 
 	/* make a quaternion from the eulers */
-	quaternion_set_from_euler_anglesf3_EXP(&qT, ax, ay, az);
+	quaternion_set_from_euler_anglesf3_ZYX_EXP(&qT, ax, ay, az);
 
 	/* rotate the quaternion by it */
 	quaternion_rotate_by_quaternion_EXP(self, &qT);
