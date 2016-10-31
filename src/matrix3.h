@@ -2,7 +2,7 @@
 #define _INC_MATRIX3
 
 
-struct tagmatrix3
+struct matrix3
 {
 	union
 	{
@@ -37,33 +37,33 @@ struct tagmatrix3
 };
 
 
-HYPAPI int matrix3_equals(const matrix3 *self, const matrix3 *mT);
+HYPAPI int matrix3_equals(const struct matrix3 *self, const struct matrix3 *mT);
 
-HYPAPI matrix3 *matrix3_zero(matrix3 *self);
-HYPAPI matrix3 *matrix3_identity(matrix3 *self);
-HYPAPI matrix3 *matrix3_set(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 *matrix3_add(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 *matrix3_subtract(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 *matrix3_multiply(matrix3 *self, const matrix3 *mT);
-HYPAPI matrix3 *matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar);
-HYPAPI matrix3 *matrix3_transpose(matrix3 *self);
+HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self);
+HYPAPI struct matrix3 *matrix3_identity(struct matrix3 *self);
+HYPAPI struct matrix3 *matrix3_set(struct matrix3 *self, const struct matrix3 *mT);
+HYPAPI struct matrix3 *matrix3_add(struct matrix3 *self, const struct matrix3 *mT);
+HYPAPI struct matrix3 *matrix3_subtract(struct matrix3 *self, const struct matrix3 *mT);
+HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matrix3 *mT);
+HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar);
+HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self);
 
-HYPAPI matrix3 *matrix3_make_transformation_translationv2(matrix3 *self, const vector2 *translation);
-HYPAPI matrix3 *matrix3_make_transformation_scalingv2(matrix3 *self, const vector2 *scale);
-HYPAPI matrix3 *matrix3_make_transformation_rotationf_z(matrix3 *self, HYP_FLOAT angle);
+HYPAPI struct matrix3 *matrix3_make_transformation_translationv2(struct matrix3 *self, const struct vector2 *translation);
+HYPAPI struct matrix3 *matrix3_make_transformation_scalingv2(struct matrix3 *self, const struct vector2 *scale);
+HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *self, HYP_FLOAT angle);
 
-HYPAPI matrix3 *matrix3_translatev2(matrix3 *self, const vector2 *translation);
-HYPAPI matrix3 *matrix3_rotate(matrix3 *self, HYP_FLOAT angle);
-HYPAPI matrix3 *matrix3_scalev2(matrix3 *self, const vector2 *scale);
+HYPAPI struct matrix3 *matrix3_translatev2(struct matrix3 *self, const struct vector2 *translation);
+HYPAPI struct matrix3 *matrix3_rotate(struct matrix3 *self, HYP_FLOAT angle);
+HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector2 *scale);
 
-HYPAPI matrix3 *_matrix3_transpose_rowcolumn(matrix3 *self);
-HYPAPI matrix3 *_matrix3_transpose_columnrow(matrix3 *self);
+HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self);
+HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /* BETA aliases */
-#define mat3 matrix3
+#define mat3 struct matrix3
 
 #define mat3_equals matrix3_equals
 #define mat3_zero matrix3_zero
@@ -79,7 +79,7 @@ HYPAPI matrix3 *_matrix3_transpose_columnrow(matrix3 *self);
 #define mat3_scalev2 matrix3_scalev2
 
 
-#define m3 matrix3
+#define m3 struct matrix3
 
 #define m3_equals matrix3_equals
 #define m3_zero matrix3_zero

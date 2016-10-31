@@ -1,8 +1,8 @@
 
 static char *test_matrix4_zero(void)
 {
-	matrix4 zero;
-	int i;
+	struct matrix4 zero;
+	uint8_t i;
 
 	matrix4_zero(&zero);
 
@@ -17,7 +17,7 @@ static char *test_matrix4_zero(void)
 
 static char *test_matrix4_equals(void)
 {
-	matrix4 m, identity;
+	struct matrix4 m, identity;
 
 	matrix4_identity(&identity);
 	_matrix4_set_random(&m);
@@ -34,7 +34,7 @@ static char *test_matrix4_equals(void)
 
 static char *test_matrix4_multiplym4(void)
 {
-	matrix4 m1, m2, mR;
+	struct matrix4 m1, m2, mR;
 
 	m1.c00 = 1;  m1.c10 = 2;   m1.c20 = 3;  m1.c30 = 4;
 	m1.c01 = 5;  m1.c11 = 6;   m1.c21 = 7;  m1.c31 = 8;
@@ -59,9 +59,9 @@ static char *test_matrix4_multiplym4(void)
 static char *test_matrix4_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
-	matrix4 m;
-	vector3 startingPosition = {4.3f, 1.4f, 3.67f};
-	vector3 expectedPosition = {4.3f, 1.4f, 3.67f};
+	struct matrix4 m;
+	struct vector3 startingPosition = {4.3f, 1.4f, 3.67f};
+	struct vector3 expectedPosition = {4.3f, 1.4f, 3.67f};
 
 	matrix4_identity(&m);
 
@@ -74,8 +74,8 @@ static char *test_matrix4_identity_with_vector(void)
 
 static char *test_matrix4_transpose(void)
 {
-	matrix4 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	matrix4 e = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
+	struct matrix4 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+	struct matrix4 e = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
 
 	matrix4_transpose(&m);
 	test_assert(matrix4_equals(&m, &e));
@@ -85,9 +85,9 @@ static char *test_matrix4_transpose(void)
 
 static char *test_matrix4_columnrowcolumn(void)
 {
-	matrix4 c;
-	matrix4 r;
-	matrix4 m;
+	struct matrix4 c;
+	struct matrix4 r;
+	struct matrix4 m;
 
 	matrix4_zero(&c);
 	matrix4_zero(&r);
@@ -121,11 +121,11 @@ static char *test_matrix4_columnrowcolumn(void)
 
 static char *test_matrix4_transformation_translatev3(void)
 {
-	matrix4 transform;
+	struct matrix4 transform;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 translation = {0.1f, 0.1f, 0.1f};
-	vector3 expectedPosition = {0.1f, 1.1f, 0.1f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 translation = {0.1f, 0.1f, 0.1f};
+	struct vector3 expectedPosition = {0.1f, 1.1f, 0.1f};
 
 	matrix4_make_transformation_translationv3(&transform, &translation);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -137,11 +137,11 @@ static char *test_matrix4_transformation_translatev3(void)
 
 static char *test_matrix4_transformation_translatev3_negative(void)
 {
-	matrix4 transform;
+	struct matrix4 transform;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 translation = {-0.1f, -0.1f, -0.1f};
-	vector3 expectedPosition = {-0.1f, 0.9f, -0.1f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 translation = {-0.1f, -0.1f, -0.1f};
+	struct vector3 expectedPosition = {-0.1f, 0.9f, -0.1f};
 
 	matrix4_make_transformation_translationv3(&transform, &translation);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -153,11 +153,11 @@ static char *test_matrix4_transformation_translatev3_negative(void)
 
 static char *test_matrix4_transformation_scalingv3(void)
 {
-	matrix4 transform;
+	struct matrix4 transform;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 scale = {0.1f, 0.1f, 0.1f};
-	vector3 expectedPosition = {0.0f, 0.1f, 0.0f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 scale = {0.1f, 0.1f, 0.1f};
+	struct vector3 expectedPosition = {0.0f, 0.1f, 0.0f};
 
 	matrix4_make_transformation_scalingv3(&transform, &scale);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -169,13 +169,13 @@ static char *test_matrix4_transformation_scalingv3(void)
 
 static char *test_matrix4_transformation_scale_then_translatev3(void)
 {
-	matrix4 transform;
-	matrix4 scratch;
+	struct matrix4 transform;
+	struct matrix4 scratch;
 
-	vector3 startingPosition = {1.0f, 1.0f, 1.0f};
-	vector3 scale = {0.1f, 0.1f, 0.1f};
-	vector3 translation = {-0.1f, -0.1f, -0.1f};
-	vector3 expectedPosition = {0.0f, 0.0f, -0.0f};
+	struct vector3 startingPosition = {1.0f, 1.0f, 1.0f};
+	struct vector3 scale = {0.1f, 0.1f, 0.1f};
+	struct vector3 translation = {-0.1f, -0.1f, -0.1f};
+	struct vector3 expectedPosition = {0.0f, 0.0f, -0.0f};
 
 	matrix4_identity(&transform);
 	matrix4_multiply(&transform, matrix4_make_transformation_scalingv3(&scratch, &scale));
@@ -189,8 +189,8 @@ static char *test_matrix4_transformation_scale_then_translatev3(void)
 
 static char *test_vector3_rotate_by_matrix_xy_quarter_turn(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationf_x(&m, HYP_TAU / 4.0f);
 	vector3_set(&r, HYP_VECTOR3_UNIT_Y);
@@ -204,8 +204,8 @@ static char *test_vector3_rotate_by_matrix_xy_quarter_turn(void)
 
 static char *test_vector3_rotate_by_matrix_yx_quarter_turn(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationf_y(&m, HYP_TAU / 4.0f);
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
@@ -218,8 +218,8 @@ static char *test_vector3_rotate_by_matrix_yx_quarter_turn(void)
 
 static char *test_vector3_rotate_by_matrix_zx_quarter_turn(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationf_z(&m, HYP_TAU / 4.0f);
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
@@ -232,8 +232,8 @@ static char *test_vector3_rotate_by_matrix_zx_quarter_turn(void)
 
 static char *test_matrix4_rotatev3_xz_quarter_turn(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	matrix4_identity(&m);
@@ -247,8 +247,8 @@ static char *test_matrix4_rotatev3_xz_quarter_turn(void)
 
 static char *test_matrix4_rotatev3_xz_quarter_turn_opposite(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_identity(&m);
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Z, -(HYP_TAU / 4.0f));
@@ -262,8 +262,8 @@ static char *test_matrix4_rotatev3_xz_quarter_turn_opposite(void)
 
 static char *test_matrix4_rotatev3_xy_quarter_turn(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_identity(&m);
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Y, HYP_TAU / 4.0f);
@@ -277,8 +277,8 @@ static char *test_matrix4_rotatev3_xy_quarter_turn(void)
 
 static char *test_matrix4_rotatev3_xy_quarter_turn_opposite(void)
 {
-	matrix4 m;
-	vector3 r;
+	struct matrix4 m;
+	struct vector3 r;
 
 	matrix4_identity(&m);
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Y, -(HYP_TAU / 4.0f));
@@ -292,9 +292,9 @@ static char *test_matrix4_rotatev3_xy_quarter_turn_opposite(void)
 
 static char *test_matrix4_set_from_quaternion_xy_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
@@ -306,9 +306,9 @@ static char *test_matrix4_set_from_quaternion_xy_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_xz_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
@@ -320,9 +320,9 @@ static char *test_matrix4_set_from_quaternion_xz_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_yx_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
@@ -334,9 +334,9 @@ static char *test_matrix4_set_from_quaternion_yx_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_yz_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
@@ -348,9 +348,9 @@ static char *test_matrix4_set_from_quaternion_yz_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_zx_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
@@ -362,9 +362,9 @@ static char *test_matrix4_set_from_quaternion_zx_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_zy_quarter_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
@@ -376,9 +376,9 @@ static char *test_matrix4_set_from_quaternion_zy_quarter_turn(void)
 
 static char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 r;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 r;
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 2.0f));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
@@ -388,40 +388,11 @@ static char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 }
 
 
-/*
-static char *test_matrix4_set_from_axisf3_angle(void)
-{
-	matrix4 m1;
-	matrix4 m2;
-	vector3 axis;
-	HYP_FLOAT angle;
-	quaternion q;
-
-	matrix4_identity(&m1);
-	matrix4_identity(&m2);
-	_vector3_set_random(&axis);
-	angle = HYP_RANDOM_FLOAT;
-
-	matrix4_set_from_axisv3_angle(&m1, &axis, angle);
-
-	quaternion_set_from_axis_anglev3(&q, &axis, angle);
-	matrix4_set_from_quaternion(&m2, &q);
-
-	test_assert(matrix4_equals(&m1, &m2));
-
-	_matrix4_print_with_columnrow_indexer(&m1);
-	_matrix4_print_with_columnrow_indexer(&m2);
-
-	return 0;
-}
-*/
-
-
 static char *test_matrix4_match_transformation_matrix_quaternion(void)
 {
-	matrix4 m;
-	quaternion q;
-	vector3 vM, vQ;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 vM, vQ;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&vQ, HYP_VECTOR3_UNIT_Z), &q);
@@ -440,13 +411,13 @@ static char *test_matrix4_match_transformation_matrix_quaternion(void)
 
 static char *test_matrix4_transform_3d(void)
 {
-	quaternion orientation;
-	matrix4 modelMatrix, worldMatrix, scaleM, rotateM, translateM;
+	struct quaternion orientation;
+	struct matrix4 modelMatrix, worldMatrix, scaleM, rotateM, translateM;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 scale = {0.1f, 0.1f, 0.1f};
-	vector3 expectedPosition = {1.1f, 0.0f, 0.0f};
-	vector3 translation = {0.0f, 1.0f, 0.0f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 scale = {0.1f, 0.1f, 0.1f};
+	struct vector3 expectedPosition = {1.1f, 0.0f, 0.0f};
+	struct vector3 translation = {0.0f, 1.0f, 0.0f};
 
 	/* modelMatrix */
 	matrix4_identity(&modelMatrix);
@@ -472,13 +443,13 @@ static char *test_matrix4_transform_3d(void)
 
 static char *test_matrix4_transform_3d_combined(void)
 {
-	quaternion orientation;
-	matrix4 worldMatrix, scaleM, rotateM, translateM;
+	struct quaternion orientation;
+	struct matrix4 worldMatrix, scaleM, rotateM, translateM;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 scale = {0.1f, 0.1f, 0.1f};
-	vector3 expectedPosition = {1.1f, 0.0f, 0.0f};
-	vector3 translation = {0.0f, 1.0f, 0.0f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 scale = {0.1f, 0.1f, 0.1f};
+	struct vector3 expectedPosition = {1.1f, 0.0f, 0.0f};
+	struct vector3 translation = {0.0f, 1.0f, 0.0f};
 
 	matrix4_identity(&worldMatrix);
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_scalingv3(&scaleM, &scale));
@@ -497,12 +468,12 @@ static char *test_matrix4_transform_3d_combined(void)
 
 static char *test_matrix4_transform_3d_scale_translate(void)
 {
-	matrix4 worldMatrix, scaleM, translateM;
+	struct matrix4 worldMatrix, scaleM, translateM;
 
-	vector3 startingPosition = {0.0f, 1.0f, 0.0f};
-	vector3 scale = {0.1f, 0.1f, 0.1f};
-	vector3 expectedPosition = {0.0f, 1.1f, 0.0f};
-	vector3 translation = {0.0f, 1.0f, 0.0f};
+	struct vector3 startingPosition = {0.0f, 1.0f, 0.0f};
+	struct vector3 scale = {0.1f, 0.1f, 0.1f};
+	struct vector3 expectedPosition = {0.0f, 1.1f, 0.0f};
+	struct vector3 translation = {0.0f, 1.0f, 0.0f};
 
 	matrix4_identity(&worldMatrix);
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_scalingv3(&scaleM, &scale));
@@ -518,11 +489,11 @@ static char *test_matrix4_transform_3d_scale_translate(void)
 
 static char *test_matrix4_inverse(void)
 {
-	matrix4 originalMatrix;
-	matrix4 identity;
-	matrix4 inverted;
-	vector3 scratchVector;
-	matrix4 scratchMatrix;
+	struct matrix4 originalMatrix;
+	struct matrix4 identity;
+	struct matrix4 inverted;
+	struct vector3 scratchVector;
+	struct matrix4 scratchMatrix;
 	void *hasInverse = 0;
 
 	matrix4_identity(&identity);

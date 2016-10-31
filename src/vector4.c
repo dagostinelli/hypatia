@@ -7,17 +7,17 @@
  */
 
 
-static vector4 _vector4_zero = { { {0.0f, 0.0f, 0.0f, 0.0f} } };
-static vector4 _vector4_one = { { {1.0f, 1.0f, 1.0f, 1.0f} } };
-static vector4 _vector4_unit_x = { { {1.0f, 0.0f, 0.0f, 0.0f} } };
-static vector4 _vector4_unit_y = { { {0.0f, 1.0f, 0.0f, 0.0f} } };
-static vector4 _vector4_unit_z = { { {0.0f, 0.0f, 1.0f, 0.0f} } };
-static vector4 _vector4_unit_x_negative = { { {-1.0f, 0.0f, 0.0f, 0.0f} } };
-static vector4 _vector4_unit_y_negative = { { {0.0f, -1.0f,  0.0f, 0.0f} } };
-static vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} } };
+static struct vector4 _vector4_zero = { { {0.0f, 0.0f, 0.0f, 0.0f} } };
+static struct vector4 _vector4_one = { { {1.0f, 1.0f, 1.0f, 1.0f} } };
+static struct vector4 _vector4_unit_x = { { {1.0f, 0.0f, 0.0f, 0.0f} } };
+static struct vector4 _vector4_unit_y = { { {0.0f, 1.0f, 0.0f, 0.0f} } };
+static struct vector4 _vector4_unit_z = { { {0.0f, 0.0f, 1.0f, 0.0f} } };
+static struct vector4 _vector4_unit_x_negative = { { {-1.0f, 0.0f, 0.0f, 0.0f} } };
+static struct vector4 _vector4_unit_y_negative = { { {0.0f, -1.0f,  0.0f, 0.0f} } };
+static struct vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} } };
 
 
-HYPAPI const vector4 *vector4_get_reference_vector4(int id)
+HYPAPI const struct vector4 *vector4_get_reference_vector4(int id)
 {
 	switch (id)
 	{
@@ -48,7 +48,7 @@ HYPAPI const vector4 *vector4_get_reference_vector4(int id)
  * @ingroup vector4
  * @brief initializes the vertex with specific values
  */
-HYPAPI vector4 *vector4_setf4(vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT)
+HYPAPI struct vector4 *vector4_setf4(struct vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT)
 {
 	self->x = xT;
 	self->y = yT;
@@ -62,7 +62,7 @@ HYPAPI vector4 *vector4_setf4(vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLO
  * @ingroup vector4
  * @brief initializes the vertex with values from another vector
  */
-HYPAPI vector4 *vector4_set(vector4 *self, const vector4 *vT)
+HYPAPI struct vector4 *vector4_set(struct vector4 *self, const struct vector4 *vT)
 {
 	self->x = vT->x;
 	self->y = vT->y;
@@ -75,7 +75,7 @@ HYPAPI vector4 *vector4_set(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief initializes the vertex with zeros
  */
-HYPAPI vector4 *vector4_zero(vector4 *self)
+HYPAPI struct vector4 *vector4_zero(struct vector4 *self)
 {
 	return vector4_setf4(self, 0.0f, 0.0f, 0.0f, 0.0f);
 }
@@ -85,7 +85,7 @@ HYPAPI vector4 *vector4_zero(vector4 *self)
  * @ingroup vector4
  * @brief compares two vectors.  Uses epsilon to deal with rounding errors
  */
-HYPAPI int vector4_equals(const vector4 *self, const vector4 *vT)
+HYPAPI int vector4_equals(const struct vector4 *self, const struct vector4 *vT)
 {
 	return  HYP_ABS(self->x - vT->x) < HYP_EPSILON &&
 		HYP_ABS(self->y - vT->y) < HYP_EPSILON &&
@@ -98,7 +98,7 @@ HYPAPI int vector4_equals(const vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief switches the sign on each component of the vector
  */
-HYPAPI vector4 *vector4_negate(vector4 *self)
+HYPAPI struct vector4 *vector4_negate(struct vector4 *self)
 {
 	self->v[0] = -self->v[0];
 	self->v[1] = -self->v[1];
@@ -112,7 +112,7 @@ HYPAPI vector4 *vector4_negate(vector4 *self)
  * @ingroup vector4
  * @brief adds vectors using component-wise addition
  */
-HYPAPI vector4 *vector4_add(vector4 *self, const vector4 *vT)
+HYPAPI struct vector4 *vector4_add(struct vector4 *self, const struct vector4 *vT)
 {
 	self->v[0] += vT->v[0];
 	self->v[1] += vT->v[1];
@@ -126,7 +126,7 @@ HYPAPI vector4 *vector4_add(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief add to each component of the vector using a scalar
  */
-HYPAPI vector4 *vector4_addf(vector4 *self, HYP_FLOAT f)
+HYPAPI struct vector4 *vector4_addf(struct vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] += f;
 	self->v[1] += f;
@@ -140,7 +140,7 @@ HYPAPI vector4 *vector4_addf(vector4 *self, HYP_FLOAT f)
  * @ingroup vector4
  * @brief subtract two vectors using component-wise subtraction
  */
-HYPAPI vector4 *vector4_subtract(vector4 *self, const vector4 *vT)
+HYPAPI struct vector4 *vector4_subtract(struct vector4 *self, const struct vector4 *vT)
 {
 	self->v[0] -= vT->v[0];
 	self->v[1] -= vT->v[1];
@@ -154,7 +154,7 @@ HYPAPI vector4 *vector4_subtract(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief subtract each vector's component by a scalar
  */
-HYPAPI vector4 *vector4_subtractf(vector4 *self, HYP_FLOAT f)
+HYPAPI struct vector4 *vector4_subtractf(struct vector4 *self, HYP_FLOAT f)
 {
 	self->x -= f;
 	self->y -= f;
@@ -168,7 +168,7 @@ HYPAPI vector4 *vector4_subtractf(vector4 *self, HYP_FLOAT f)
  * @ingroup vector4
  * @brief multiplies two vectors using component-wise multiplication
  */
-HYPAPI vector4 *vector4_multiply(vector4 *self, const vector4 *vT)
+HYPAPI struct vector4 *vector4_multiply(struct vector4 *self, const struct vector4 *vT)
 {
 	self->v[0] *= vT->v[0];
 	self->v[1] *= vT->v[1];
@@ -182,7 +182,7 @@ HYPAPI vector4 *vector4_multiply(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief multiplies each component of the vector by a scalar
  */
-HYPAPI vector4 *vector4_multiplyf(vector4 *self, HYP_FLOAT f)
+HYPAPI struct vector4 *vector4_multiplyf(struct vector4 *self, HYP_FLOAT f)
 {
 	self->v[0] *= f;
 	self->v[1] *= f;
@@ -197,7 +197,7 @@ HYPAPI vector4 *vector4_multiplyf(vector4 *self, HYP_FLOAT f)
  * @brief divides one vector into another using component-wise division
  *
  */
-HYPAPI vector4 *vector4_divide(vector4 *self, const vector4 *vT)
+HYPAPI struct vector4 *vector4_divide(struct vector4 *self, const struct vector4 *vT)
 {
 	self->v[0] /= vT->v[0];
 	self->v[1] /= vT->v[1];
@@ -211,7 +211,7 @@ HYPAPI vector4 *vector4_divide(vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief calculates the magnitude of the vector
  */
-HYPAPI HYP_FLOAT vector4_magnitude(const vector4 *self)
+HYPAPI HYP_FLOAT vector4_magnitude(const struct vector4 *self)
 {
 	return HYP_SQRT((self->x*self->x) + (self->y*self->y) + (self->z*self->z) + (self->w*self->w));
 }
@@ -221,7 +221,7 @@ HYPAPI HYP_FLOAT vector4_magnitude(const vector4 *self)
  * @ingroup vector4
  * @brief normalizes the vector by dividing each component by the magnitude
  */
-HYPAPI vector4 *vector4_normalize(vector4 *self)
+HYPAPI struct vector4 *vector4_normalize(struct vector4 *self)
 {
 	HYP_FLOAT mag;
 
@@ -248,7 +248,7 @@ HYPAPI vector4 *vector4_normalize(vector4 *self)
  * @ingroup vector4
  * @brief computes the dot product of two vectors
  */
-HYPAPI HYP_FLOAT vector4_dot_product(const vector4 *self, const vector4 *vT)
+HYPAPI HYP_FLOAT vector4_dot_product(const struct vector4 *self, const struct vector4 *vT)
 {
 	return (self->x * vT->x) + (self->y * vT->y) + (self->z * vT->z) + (self->w * vT->w);
 }
@@ -258,7 +258,7 @@ HYPAPI HYP_FLOAT vector4_dot_product(const vector4 *self, const vector4 *vT)
  * @ingroup vector4
  * @brief computes the cross-product between two vectors
  */
-HYPAPI vector4 *vector4_cross_product(vector4 *vR, const vector4 *vT1, const vector4 *vT2)
+HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct vector4 *vT1, const struct vector4 *vT2)
 {
 	vR->x = (vT1->y * vT2->z) - (vT1->z * vT2->y);
 	vR->y = (vT1->z * vT2->x) - (vT1->x * vT2->z);
@@ -275,7 +275,7 @@ HYPAPI vector4 *vector4_cross_product(vector4 *vR, const vector4 *vT1, const vec
  *
  * https://en.wikipedia.org/wiki/Distance
  */
-HYPAPI HYP_FLOAT vector4_distance(const vector4 *v1, const vector4 *v2)
+HYPAPI HYP_FLOAT vector4_distance(const struct vector4 *v1, const struct vector4 *v2)
 {
 	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x)
 		    + (v2->y - v1->y) * (v2->y - v1->y)
@@ -284,7 +284,7 @@ HYPAPI HYP_FLOAT vector4_distance(const vector4 *v1, const vector4 *v2)
 }
 
 
-HYPAPI void _vector4_print(const vector4 *self)
+HYPAPI void _vector4_print(const struct vector4 *self)
 {
 	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
 }
@@ -295,7 +295,7 @@ HYPAPI void _vector4_print(const vector4 *self)
  * @brief Randomly fills the vector with values. Good for testing.
  *
  */
-HYPAPI vector4 *_vector4_set_random(vector4 *self)
+HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
 {
 	self->x = HYP_RANDOM_FLOAT;
 	self->y = HYP_RANDOM_FLOAT;

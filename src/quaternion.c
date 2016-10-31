@@ -19,7 +19,7 @@
  *
  * @snippet test_quaternion.c quaternion identity example
  */
-HYPAPI quaternion *quaternion_identity(quaternion *self)
+HYPAPI struct quaternion *quaternion_identity(struct quaternion *self)
 {
 	self->x = 0.0f;
 	self->y = 0.0f;
@@ -34,7 +34,7 @@ HYPAPI quaternion *quaternion_identity(quaternion *self)
  * @ingroup quaternion
  * @brief initializes the quaternion with the passed in x, y, z, w
  */
-HYPAPI quaternion *quaternion_setf4(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w)
+HYPAPI struct quaternion *quaternion_setf4(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w)
 {
 	self->x = x;
 	self->y = y;
@@ -50,7 +50,7 @@ HYPAPI quaternion *quaternion_setf4(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, 
  * @brief initializes the quaternion by copying the data from qT.  This is
  * effectively a copy function.
  */
-HYPAPI quaternion *quaternion_set(quaternion * self, const quaternion *qT)
+HYPAPI struct quaternion *quaternion_set(struct quaternion * self, const struct quaternion *qT)
 {
 	return quaternion_setf4(self, qT->x, qT->y, qT->z, qT->w);
 }
@@ -71,7 +71,7 @@ HYPAPI quaternion *quaternion_set(quaternion * self, const quaternion *qT)
  * q = cos(a/2) + i ( x * sin(a/2)) + j (y * sin(a/2)) + k ( z * sin(a/2))
  *
  */
-HYPAPI quaternion *quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle)
+HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle)
 {
 	HYP_FLOAT s = HYP_SIN(angle / 2.0f);
 	HYP_FLOAT c = HYP_COS(angle / 2.0f);
@@ -97,7 +97,7 @@ HYPAPI quaternion *quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT 
  * @param angle the angle is in radians
  *
  */
-HYPAPI quaternion *quaternion_set_from_axis_anglev3(quaternion *self, const vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	return quaternion_set_from_axis_anglef3(self, axis->x, axis->y, axis->z, angle);
 }
@@ -108,7 +108,7 @@ HYPAPI quaternion *quaternion_set_from_axis_anglev3(quaternion *self, const vect
  * @brief Checks for mathematical equality within EPSILON.
  *
  */
-HYPAPI int quaternion_equals(const quaternion *self, const quaternion *qT)
+HYPAPI int quaternion_equals(const struct quaternion *self, const struct quaternion *qT)
 {
 	return HYP_ABS(self->x - qT->x) < HYP_EPSILON &&
 		HYP_ABS(self->y - qT->y) < HYP_EPSILON &&
@@ -124,7 +124,7 @@ HYPAPI int quaternion_equals(const quaternion *self, const quaternion *qT)
  * \f$\|q\| = x^2+y^2+z^2+w^2\f$.
  *
  */
-HYPAPI HYP_FLOAT quaternion_norm(const quaternion *self)
+HYPAPI HYP_FLOAT quaternion_norm(const struct quaternion *self)
 {
 	return (self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w);
 }
@@ -138,7 +138,7 @@ HYPAPI HYP_FLOAT quaternion_norm(const quaternion *self)
  *
  * \f$\sqrt{\|q\|}\f$
  */
-HYPAPI HYP_FLOAT quaternion_magnitude(const quaternion *self)
+HYPAPI HYP_FLOAT quaternion_magnitude(const struct quaternion *self)
 {
 	return HYP_SQRT(quaternion_norm(self));
 }
@@ -152,7 +152,7 @@ HYPAPI HYP_FLOAT quaternion_magnitude(const quaternion *self)
  *
  * @snippet test_quaternion.c quaternion conjugate example
  */
-HYPAPI quaternion *quaternion_conjugate(quaternion *self)
+HYPAPI struct quaternion *quaternion_conjugate(struct quaternion *self)
 {
 	self->x = -self->x;
 	self->y = -self->y;
@@ -168,7 +168,7 @@ HYPAPI quaternion *quaternion_conjugate(quaternion *self)
  * @brief negates all parts of the quaternion
  *
  */
-HYPAPI quaternion *quaternion_negate(quaternion *self)
+HYPAPI struct quaternion *quaternion_negate(struct quaternion *self)
 {
 	self->x = -self->x;
 	self->y = -self->y;
@@ -192,7 +192,7 @@ HYPAPI quaternion *quaternion_negate(quaternion *self)
  *
  * @snippet test_quaternion.c quaternion inverse example
  */
-HYPAPI quaternion *quaternion_inverse(quaternion *self)
+HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
 {
 	HYP_FLOAT norm;
 
@@ -228,7 +228,7 @@ HYPAPI quaternion *quaternion_inverse(quaternion *self)
  * values on the manifold.
  *
  */
-HYPAPI quaternion *quaternion_normalize(quaternion *self)
+HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self)
 {
 	HYP_FLOAT mag;
 
@@ -256,7 +256,7 @@ HYPAPI quaternion *quaternion_normalize(quaternion *self)
  * @brief if the norm is 1.0, then the quaternion is said to be a 'unit
  * quaternion'
  */
-HYPAPI short quaternion_is_unit(quaternion *self)
+HYPAPI short quaternion_is_unit(struct quaternion *self)
 {
 	return scalar_equalsf(1.0f, quaternion_norm(self));
 }
@@ -267,7 +267,7 @@ HYPAPI short quaternion_is_unit(quaternion *self)
  * @brief if the scalar is 0.0 (w == 0.0), then the quaternion is said to be a
  * 'pure quaternion'
  */
-HYPAPI short quaternion_is_pure(quaternion *self)
+HYPAPI short quaternion_is_pure(struct quaternion *self)
 {
 	return scalar_equalsf(self->w, 0.0f);
 }
@@ -286,7 +286,7 @@ HYPAPI short quaternion_is_pure(quaternion *self)
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion *quaternion_nlerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
+HYPAPI struct quaternion *quaternion_nlerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR)
 {
 	quaternion_lerp(start, end, percent, qR);
 	quaternion_normalize(qR);
@@ -306,7 +306,7 @@ HYPAPI quaternion *quaternion_nlerp(const quaternion *start, const quaternion *e
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
+HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR)
 {
 	HYP_FLOAT f1, f2;
 
@@ -355,13 +355,13 @@ HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *en
  * @param qR The resulting new orientation.
  *
  */
-HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR)
+HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR)
 {
 	HYP_FLOAT dot;
 	HYP_FLOAT f1, f2;
 	HYP_FLOAT theta;
 	HYP_FLOAT s;
-	quaternion qneg;
+	struct quaternion qneg;
 
 	/* if percent is 0, return start */
 	if (scalar_equalsf(percent, 0.0f))
@@ -439,7 +439,7 @@ HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *e
  * computes a regular dot product on it
  *
  */
-HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion *qT)
+HYPAPI HYP_FLOAT quaternion_dot_product(const struct quaternion *self, const struct quaternion *qT)
 {
 	return (self->x * qT->x) + (self->y * qT->y) + (self->z * qT->z) + (self->w * qT->w);
 }
@@ -452,7 +452,7 @@ HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion
  * To add quaternions, add each element one by one like a vector.
  *
  */
-HYPAPI quaternion *quaternion_add(quaternion *self, const quaternion *qT)
+HYPAPI struct quaternion *quaternion_add(struct quaternion *self, const struct quaternion *qT)
 {
 	self->x += qT->x;
 	self->y += qT->y;
@@ -470,7 +470,7 @@ HYPAPI quaternion *quaternion_add(quaternion *self, const quaternion *qT)
  * to subtract quaternions, subtract each element one by one like a vector
  *
  */
-HYPAPI quaternion *quaternion_subtract(quaternion *self, const quaternion *qT)
+HYPAPI struct quaternion *quaternion_subtract(struct quaternion *self, const struct quaternion *qT)
 {
 	self->x -= qT->x;
 	self->y -= qT->y;
@@ -488,7 +488,7 @@ HYPAPI quaternion *quaternion_subtract(quaternion *self, const quaternion *qT)
  * to multiply by a scalar, apply it to element one by one like a vector
  *
  */
-HYPAPI quaternion *quaternion_multiplyf(quaternion *self, HYP_FLOAT f)
+HYPAPI struct quaternion *quaternion_multiplyf(struct quaternion *self, HYP_FLOAT f)
 {
 	self->x *= f;
 	self->y *= f;
@@ -503,11 +503,11 @@ HYPAPI quaternion *quaternion_multiplyf(quaternion *self, HYP_FLOAT f)
  * @ingroup quaternion
  * @brief in place multiplies the quaternion by a quaternion
  */
-HYPAPI quaternion *quaternion_multiply(quaternion *self, const quaternion *qT)
+HYPAPI struct quaternion *quaternion_multiply(struct quaternion *self, const struct quaternion *qT)
 {
 	/* qT is the multiplicand */
 
-	quaternion r;
+	struct quaternion r;
 
 	r.x = self->w * qT->x + self->x * qT->w + self->y * qT->z - self->z * qT->y;
 	r.y = self->w * qT->y - self->x * qT->z + self->y * qT->w + self->z * qT->x;
@@ -524,11 +524,11 @@ HYPAPI quaternion *quaternion_multiply(quaternion *self, const quaternion *qT)
  * @ingroup quaternion
  * @brief multiplies the quaternion by the vector.
  */
-HYPAPI quaternion *quaternion_multiplyv3(quaternion *self, const vector3 *vT)
+HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const struct vector3 *vT)
 {
 	/* vT is the multiplicand */
 
-	quaternion r;
+	struct quaternion r;
 
 	r.x = self->w*vT->x + self->y*vT->z - self->z*vT->y;
 	r.y = self->w*vT->y - self->x*vT->z + self->z*vT->x;
@@ -551,7 +551,7 @@ HYPAPI quaternion *quaternion_multiplyv3(quaternion *self, const vector3 *vT)
  * @param angle the angle in radians; will be filled with the angle value
  *
  */
-HYPAPI void quaternion_get_axis_anglev3(const quaternion *self, vector3 *vR, HYP_FLOAT *angle)
+HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct vector3 *vR, HYP_FLOAT *angle)
 {
 	/* scale is not same as magnitude */
 	HYP_FLOAT scale = HYP_SQRT(1.0f - self->w * self->w);
@@ -567,7 +567,7 @@ HYPAPI void quaternion_get_axis_anglev3(const quaternion *self, vector3 *vR, HYP
  * @ingroup quaternion
  * @brief initializes the quaternion with random values, then normalizes it
  */
-HYPAPI quaternion *_quaternion_set_random(quaternion *self)
+HYPAPI struct quaternion *_quaternion_set_random(struct quaternion *self)
 {
 	self->x = HYP_RANDOM_FLOAT;
 	self->y = HYP_RANDOM_FLOAT;
@@ -584,7 +584,7 @@ HYPAPI quaternion *_quaternion_set_random(quaternion *self)
  * @ingroup quaternion
  * @brief prints out the elements of the quaternion to stdout
  */
-HYPAPI void _quaternion_print(const quaternion *self)
+HYPAPI void _quaternion_print(const struct quaternion *self)
 {
 	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
 }
@@ -600,12 +600,12 @@ HYPAPI void _quaternion_print(const quaternion *self)
  * @param qR the resulting quaternion that gets you from the starting vector
  * to the ending vector
  */
-HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vector3 *to, quaternion *qR)
+HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR)
 {
 	/* this code avoids sqrt and cos and sin and would be nice to
 	 * avoid division
 	 */
-	vector3 w;
+	struct vector3 w;
 	HYP_FLOAT dot;
 	HYP_FLOAT norm;
 

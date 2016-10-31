@@ -11,9 +11,9 @@
  * @ingroup matrix3
  * @brief Initializes the matrix with 0.0 in every element.
  */
-HYPAPI matrix3 *matrix3_zero(matrix3 *self)
+HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self)
 {
-	memset(self, 0, sizeof(matrix3));
+	memset(self, 0, sizeof(struct matrix3));
 	return self;
 }
 
@@ -22,7 +22,7 @@ HYPAPI matrix3 *matrix3_zero(matrix3 *self)
  * @ingroup matrix3
  * @brief Initializes the matrix as an identity matrix.
  */
-HYPAPI matrix3 *matrix3_identity(matrix3 *m)
+HYPAPI struct matrix3 *matrix3_identity(struct matrix3 *m)
 {
 	m->c00 = 1.0f, m->c10 = 0.0f, m->c20 = 0.0f;
 	m->c01 = 0.0f, m->c11 = 1.0f, m->c21 = 0.0f;
@@ -39,9 +39,9 @@ HYPAPI matrix3 *matrix3_identity(matrix3 *m)
  * @param self The matrix to initialize
  * @param mT The matrix to copy
  */
-HYPAPI matrix3 *matrix3_set(matrix3 *self, const matrix3 *mT)
+HYPAPI struct matrix3 *matrix3_set(struct matrix3 *self, const struct matrix3 *mT)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -57,9 +57,9 @@ HYPAPI matrix3 *matrix3_set(matrix3 *self, const matrix3 *mT)
  * @brief Compares every element of the matrix.  Uses HYP_EPSILON for precision.
  * returns 1 if equal, 0 if different
  */
-HYPAPI int matrix3_equals(const matrix3 *self, const matrix3 *mT)
+HYPAPI int matrix3_equals(const struct matrix3 *self, const struct matrix3 *mT)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -80,10 +80,10 @@ HYPAPI int matrix3_equals(const matrix3 *self, const matrix3 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to add
  */
-HYPAPI matrix3 *matrix3_add(matrix3 *self, const matrix3 *mT)
+HYPAPI struct matrix3 *matrix3_add(struct matrix3 *self, const struct matrix3 *mT)
 {
 	/* "add row and column to row and column" */
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -101,10 +101,10 @@ HYPAPI matrix3 *matrix3_add(matrix3 *self, const matrix3 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to subtract from self (self = self - mT)
  */
-HYPAPI matrix3 *matrix3_subtract(matrix3 *self, const matrix3 *mT)
+HYPAPI struct matrix3 *matrix3_subtract(struct matrix3 *self, const struct matrix3 *mT)
 {
 	/* "subtract row and column from row and column" */
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -122,9 +122,9 @@ HYPAPI matrix3 *matrix3_subtract(matrix3 *self, const matrix3 *mT)
  * @param self The matrix being changed
  * @param scalar The scalar factor being multiplied in
  */
-HYPAPI matrix3 *matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar)
+HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -144,11 +144,11 @@ HYPAPI matrix3 *matrix3_multiplyf(matrix3 *self, HYP_FLOAT scalar)
  *
  * self = self * mT
  */
-HYPAPI matrix3 *matrix3_multiply(matrix3 *self, const matrix3 *mT)
+HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matrix3 *mT)
 {
 	/* mT is the multiplicand */
 
-	matrix3 r;
+	struct matrix3 r;
 
 	matrix3_identity(&r);
 
@@ -179,7 +179,7 @@ HYPAPI matrix3 *matrix3_multiply(matrix3 *self, const matrix3 *mT)
  *
  * @param self The matrix being changed
  */
-HYPAPI matrix3 *matrix3_transpose(matrix3 *self)
+HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self)
 {
 	return _matrix3_transpose_columnrow(self);
 }
@@ -190,7 +190,7 @@ HYPAPI matrix3 *matrix3_transpose(matrix3 *self)
  * @brief Swaps the row and column
  *
  */
-HYPAPI matrix3 *_matrix3_transpose_rowcolumn(matrix3 *self)
+HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
 {
 	HYP_FLOAT tmp;
 
@@ -207,7 +207,7 @@ HYPAPI matrix3 *_matrix3_transpose_rowcolumn(matrix3 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI matrix3 *_matrix3_transpose_columnrow(matrix3 *self)
+HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
 {
 	HYP_FLOAT tmp;
 
@@ -224,7 +224,7 @@ HYPAPI matrix3 *_matrix3_transpose_columnrow(matrix3 *self)
  * @brief Prints out the matrix using column and row notation
  *
  */
-HYPAPI void _matrix3_print_with_columnrow_indexer(matrix3 *self)
+HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 {
 	printf("%10f, %10f, %10f\r\n", self->c00, self->c10, self->c20);
 	printf("%10f, %10f, %10f\r\n", self->c01, self->c11, self->c21);
@@ -237,7 +237,7 @@ HYPAPI void _matrix3_print_with_columnrow_indexer(matrix3 *self)
  * @brief Prints out the matrix using row and column notation
  *
  */
-HYPAPI void _matrix3_print_with_rowcolumn_indexer(matrix3 *self)
+HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 {
 	printf("%10f, %10f, %10f\r\n", self->r00, self->r01, self->r02);
 	printf("%10f, %10f, %10f\r\n", self->r10, self->r11, self->r12);
@@ -250,9 +250,9 @@ HYPAPI void _matrix3_print_with_rowcolumn_indexer(matrix3 *self)
  * @brief Randomly fills the matrix with values. Good for testing.
  *
  */
-HYPAPI matrix3 *_matrix3_set_random(matrix3 *self)
+HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 9; i++)
 	{
@@ -268,7 +268,7 @@ HYPAPI matrix3 *_matrix3_set_random(matrix3 *self)
  * @brief creates a translation matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix3 *matrix3_make_transformation_translationv2(matrix3 *self, const vector2 *translation)
+HYPAPI struct matrix3 *matrix3_make_transformation_translationv2(struct matrix3 *self, const struct vector2 *translation)
 {
 	matrix3_identity(self);
 
@@ -284,7 +284,7 @@ HYPAPI matrix3 *matrix3_make_transformation_translationv2(matrix3 *self, const v
  * @brief creates a scaling matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix3 *matrix3_make_transformation_scalingv2(matrix3 *self, const vector2 *scale)
+HYPAPI struct matrix3 *matrix3_make_transformation_scalingv2(struct matrix3 *self, const struct vector2 *scale)
 {
 	matrix3_identity(self);
 
@@ -302,7 +302,7 @@ HYPAPI matrix3 *matrix3_make_transformation_scalingv2(matrix3 *self, const vecto
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix3 *matrix3_make_transformation_rotationf_z(matrix3 *m, HYP_FLOAT angle)
+HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -327,9 +327,9 @@ HYPAPI matrix3 *matrix3_make_transformation_rotationf_z(matrix3 *m, HYP_FLOAT an
  * @param translation the translation vector
  *
  */
-HYPAPI matrix3 *matrix3_translatev2(matrix3 *self, const vector2 * translation)
+HYPAPI struct matrix3 *matrix3_translatev2(struct matrix3 *self, const struct vector2 * translation)
 {
-	matrix3 translationMatrix;
+	struct matrix3 translationMatrix;
 
 	return matrix3_multiply(self,
 		matrix3_make_transformation_translationv2(&translationMatrix, translation));
@@ -346,9 +346,9 @@ HYPAPI matrix3 *matrix3_translatev2(matrix3 *self, const vector2 * translation)
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI matrix3 *matrix3_rotate(matrix3 *self, HYP_FLOAT angle)
+HYPAPI struct matrix3 *matrix3_rotate(struct matrix3 *self, HYP_FLOAT angle)
 {
-	matrix3 rotationMatrix;
+	struct matrix3 rotationMatrix;
 
 	return matrix3_multiply(self,
 		matrix3_make_transformation_rotationf_z(&rotationMatrix, angle));
@@ -364,9 +364,9 @@ HYPAPI matrix3 *matrix3_rotate(matrix3 *self, HYP_FLOAT angle)
  * @param scale the scaling vector
  *
  */
-HYPAPI matrix3 *matrix3_scalev2(matrix3 *self, const vector2 *scale)
+HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector2 *scale)
 {
-	matrix3 scalingMatrix;
+	struct matrix3 scalingMatrix;
 
 	return matrix3_multiply(self,
 		matrix3_make_transformation_scalingv2(&scalingMatrix, scale));

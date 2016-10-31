@@ -39,11 +39,11 @@
  * @param az the z axis
  *
  */
-HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
-	quaternion qx;
-	quaternion qy;
-	quaternion qz;
+	struct quaternion qx;
+	struct quaternion qy;
+	struct quaternion qz;
 
 	quaternion_set_from_axis_anglev3(&qx, HYP_VECTOR3_UNIT_X, ax);
 	quaternion_set_from_axis_anglev3(&qy, HYP_VECTOR3_UNIT_Y, ay);
@@ -60,7 +60,7 @@ HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(quaternion *self,
 }
 
 
-HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
 	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
@@ -74,7 +74,7 @@ HYPAPI quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(quaternion *self
 }
 
 
-HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
+HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
 {
 	HYP_FLOAT qx, qy, qz, qw;
 
@@ -98,7 +98,7 @@ HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(quaternion *self, HYP_FLOAT *a
  * @param qT the other quaternion
  *
  */
-HYPAPI quaternion * quaternion_rotate_by_quaternion_EXP(quaternion *self, const quaternion *qT)
+HYPAPI struct quaternion * quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT)
 {
 	/* self = self * qT */
 	quaternion_multiply(self, qT);
@@ -119,9 +119,9 @@ HYPAPI quaternion * quaternion_rotate_by_quaternion_EXP(quaternion *self, const 
  * @param angle the transformed point
  *
  */
-HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct quaternion * quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
-	quaternion qT;
+	struct quaternion qT;
 
 	quaternion_set_from_axis_anglev3(&qT, axis, angle);
 	quaternion_rotate_by_quaternion_EXP(self, &qT);
@@ -137,9 +137,9 @@ HYPAPI quaternion * quaternion_rotate_by_axis_angle_EXP(quaternion *self, const 
  * between two quaternions
  *
  */
-HYPAPI HYP_FLOAT quaternion_difference_EXP(const quaternion *q1, const quaternion *q2)
+HYPAPI HYP_FLOAT quaternion_difference_EXP(const struct quaternion *q1, const struct quaternion *q2)
 {
-	quaternion diff;
+	struct quaternion diff;
 
 	diff.x = q2->x - q1->x;
 	diff.y = q2->y - q1->y;
@@ -162,9 +162,9 @@ HYPAPI HYP_FLOAT quaternion_difference_EXP(const quaternion *q1, const quaternio
  * @param az roll
  *
  */
-HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion * quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
-	quaternion qT;
+	struct quaternion qT;
 
 	/* make a quaternion from the eulers */
 	quaternion_set_from_euler_anglesf3_ZYX_EXP(&qT, ax, ay, az);
@@ -183,14 +183,14 @@ HYPAPI quaternion * quaternion_rotate_by_euler_angles_EXP(quaternion *self, HYP_
  * real portion.
  *
  */
-HYPAPI quaternion quaternion_cross_product_EXP(const quaternion *self, const quaternion *vT)
+HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT)
 {
 	/*
 	 * The code is suspect (missing w element in this whole thing)
 	 * It is computing a cross-product on the vector portion and a
 	 * negative dot product on the real portion.
 	 */
-	quaternion r;
+	struct quaternion r;
 
 	r.x = (self->y * vT->z) - (self->z * vT->y);
 	r.y = (self->z * vT->x) - (self->x * vT->z);
@@ -208,7 +208,7 @@ HYPAPI quaternion quaternion_cross_product_EXP(const quaternion *self, const qua
  *  * \f$angle= 2 * acos((self \cdot qT) / (||self|| * ||qT||))\f$
  *
  */
-HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const quaternion *self, const quaternion *qT)
+HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const struct quaternion *self, const struct quaternion *qT)
 {
 	HYP_FLOAT c; /* cosine */
 
@@ -224,9 +224,9 @@ HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const quaternion *self, const quat
  * and then computes the cross-product between them.
  *
  */
-HYPAPI void quaternion_axis_between_EXP(const quaternion *self, const quaternion *qT, quaternion *qR)
+HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR)
 {
-	quaternion axis;
+	struct quaternion axis;
 
 	axis = quaternion_cross_product_EXP(self, qT);
 	quaternion_set(qR, &axis);
@@ -239,7 +239,7 @@ HYPAPI void quaternion_axis_between_EXP(const quaternion *self, const quaternion
  * @brief creates an perspective projection matrix using the RH system with a
  * FOV about the Y-axis.  It's opinionated about what that means.
  */
-HYPAPI matrix4 *matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
 	HYP_FLOAT h;
 	HYP_FLOAT w;
@@ -268,7 +268,7 @@ HYPAPI matrix4 *matrix4_projection_perspective_fovy_rh_EXP(matrix4 *self, HYP_FL
  * @ingroup experimental
  * @brief make an orthographic projection matrix with right handed coordinates
  */
-HYPAPI matrix4 *matrix4_projection_ortho3d_rh_EXP(matrix4 *self,
+HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self,
 						HYP_FLOAT xmin, HYP_FLOAT xmax,
 						HYP_FLOAT ymin, HYP_FLOAT ymax,
 						HYP_FLOAT zNear, HYP_FLOAT zFar)
@@ -299,7 +299,7 @@ HYPAPI matrix4 *matrix4_projection_ortho3d_rh_EXP(matrix4 *self,
  * @param vT The vector being multiplied
  * @param vR The result
  */
-HYPAPI vector3 *matrix4_multiplyv3_EXP(const matrix4 *m, const vector3 *vT, vector3 *vR)
+HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const struct vector3 *vT, struct vector3 *vR)
 {
 	vR->x = vT->x * m->c00 + vT->y * m->c01 + vT->z * m->c02 + m->c03;
 	vR->y = vT->x * m->c10 + vT->y * m->c11 + vT->z * m->c12 + m->c13;
@@ -321,7 +321,7 @@ HYPAPI vector3 *matrix4_multiplyv3_EXP(const matrix4 *m, const vector3 *vT, vect
  * @param angle the angle in radians
  *
  */
-HYPAPI matrix4 *matrix4_set_from_axisf3_angle_EXP(matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -360,13 +360,13 @@ HYPAPI matrix4 *matrix4_set_from_axisf3_angle_EXP(matrix4 *self, HYP_FLOAT x, HY
  * @param angle the angle in radians
  *
  */
-HYPAPI matrix4 *matrix4_set_from_axisv3_angle_EXP(matrix4 *self, const vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	return matrix4_set_from_axisf3_angle_EXP(self, axis->x, axis->y, axis->z, angle);
 }
 
 
-HYPAPI matrix4 *matrix4_set_from_euler_anglesf3_EXP(matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z)
+HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z)
 {
 	HYP_FLOAT A = HYP_COS(x);
 	HYP_FLOAT B = HYP_SIN(x);
@@ -402,7 +402,7 @@ HYPAPI matrix4 *matrix4_set_from_euler_anglesf3_EXP(matrix4 *self, const HYP_FLO
 }
 
 
-HYPAPI vector3 *matrix4_get_translation_EXP(const matrix4 *self, vector3 *vT)
+HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, struct vector3 *vT)
 {
 	vT->x = self->c30;
 	vT->y = self->c31;
@@ -412,11 +412,11 @@ HYPAPI vector3 *matrix4_get_translation_EXP(const matrix4 *self, vector3 *vT)
 }
 
 
-HYPAPI matrix4 *matrix4_invert_EXP(matrix4 *self)
+HYPAPI struct matrix4 *matrix4_invert_EXP(struct matrix4 *self)
 {
-	matrix4 inverse;
+	struct matrix4 inverse;
 	HYP_FLOAT determinant;
-	int i;
+	uint8_t i;
 
 	determinant = matrix4_determinant_EXP(self);
 
@@ -453,7 +453,7 @@ HYPAPI matrix4 *matrix4_invert_EXP(matrix4 *self)
 }
 
 
-HYPAPI HYP_FLOAT matrix4_determinant_EXP(const matrix4 *self)
+HYPAPI HYP_FLOAT matrix4_determinant_EXP(const struct matrix4 *self)
 {
 	HYP_FLOAT determinant;
 
@@ -476,11 +476,11 @@ HYPAPI HYP_FLOAT matrix4_determinant_EXP(const matrix4 *self)
  * @ingroup experimental
  * @brief creates a look at matrix using the RH system.
  */
-HYPAPI matrix4 *matrix4_view_lookat_rh_EXP(matrix4 *self, const vector3 *eye, const vector3 *target, const vector3 *up)
+HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up)
 {
-	vector3 yaxis;
-	vector3 zaxis;
-	vector3 xaxis;
+	struct vector3 yaxis;
+	struct vector3 zaxis;
+	struct vector3 xaxis;
 
 	zaxis.x = target->x - eye->x;
 	zaxis.y = target->y - eye->y;
@@ -525,9 +525,9 @@ HYPAPI matrix4 *matrix4_view_lookat_rh_EXP(matrix4 *self, const vector3 *eye, co
  * @param vR the euler angles
  *
  */
-HYPAPI matrix4 *matrix4_make_transformation_rotationv3_EXP(matrix4 *self, const vector3 *vR)
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4 *self, const struct vector3 *vR)
 {
-	matrix4 scratchMatrix;
+	struct matrix4 scratchMatrix;
 
 	matrix4_identity(self);
 
@@ -536,9 +536,9 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationv3_EXP(matrix4 *self, const 
 }
 
 
-HYPAPI matrix4 *matrix4_transformation_compose_EXP(matrix4 *self, const vector3 *scale, const quaternion *orientation, const vector3 *position)
+HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *position)
 {
-	matrix4 scaleM, rotateM;
+	struct matrix4 scaleM, rotateM;
 
 	matrix4_identity(self);
 	matrix4_multiply(self, matrix4_make_transformation_scalingv3(&scaleM, scale));
@@ -550,48 +550,3 @@ HYPAPI matrix4 *matrix4_transformation_compose_EXP(matrix4 *self, const vector3 
 
 	return self;
 }
-
-
-/*
-HYPAPI matrix4 *matrix4_transformation_decompose_EXP(const matrix4 *self, vector3 *scale, quaternion *orientation, vector3 *position)
-{
-	HYP_FLOAT sx, sy, sz, inverse_sx, inverse_sy, inverse_sz;
-	HYP_FLOAT determinant;
-	vector3 scratchVector;
-
-	sx = vector3_magnitude(vector3_setf3(&scratchVector, self->c00, self->c10, self->c20));
-	sy = vector3_magnitude(vector3_setf3(&scratchVector, self->c01, self->c11, self->c21));
-	sz = vector3_magnitude(vector3_setf3(&scratchVector, self->c02, self->c12, self->c22));
-
-	determinant = matrix4_determinant_EXP(self);
-
-	if (determinant < 0.0)
-	{
-		sx = -sx;
-	}
-
-	position->x = self->c30;
-	position->y = self->c31;
-	position->z = self->c32;
-
-	inverse_sx = 1.0 / sx;
-	inverse_sy = 1.0 / sy;
-	inverse_sz = 1.0 / sz;
-
-	self->c00 *= inverse_sx;
-	self->c10 *= inverse_sx;
-	self->c20 *= inverse_sx;
-
-	self->c01 *= inverse_sy;
-	self->c11 *= inverse_sy;
-	self->c21 *= inverse_sy;
-
-	self->c02 *= inverse_sz;
-	self->c12 *= inverse_sz;
-	self->c22 *= inverse_sz;
-
-	scale->x = sx;
-	scale->y = sy;
-	scale->z = sz;
-}
-*/

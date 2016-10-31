@@ -11,9 +11,9 @@
  * @ingroup matrix4
  * @brief Initializes the matrix with 0.0 in every element.
  */
-HYPAPI matrix4 *matrix4_zero(matrix4 *self)
+HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self)
 {
-	memset(self, 0, sizeof(matrix4));
+	memset(self, 0, sizeof(struct matrix4));
 	return self;
 }
 
@@ -22,7 +22,7 @@ HYPAPI matrix4 *matrix4_zero(matrix4 *self)
  * @ingroup matrix4
  * @brief Initializes the matrix as an identity matrix.
  */
-HYPAPI matrix4 *matrix4_identity(matrix4 *m)
+HYPAPI struct matrix4 *matrix4_identity(struct matrix4 *m)
 {
 	m->c00 = 1.0f, m->c10 = 0.0f, m->c20 = 0.0f, m->c30 = 0.0f;
 	m->c01 = 0.0f, m->c11 = 1.0f, m->c21 = 0.0f, m->c31 = 0.0f;
@@ -40,9 +40,9 @@ HYPAPI matrix4 *matrix4_identity(matrix4 *m)
  * @param self The matrix to initialize
  * @param mT The matrix to copy
  */
-HYPAPI matrix4 *matrix4_set(matrix4 *self, const matrix4 *mT)
+HYPAPI struct matrix4 *matrix4_set(struct matrix4 *self, const struct matrix4 *mT)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -58,9 +58,9 @@ HYPAPI matrix4 *matrix4_set(matrix4 *self, const matrix4 *mT)
  * @brief Compares every element of the matrix.  Uses HYP_EPSILON for precision.
  * returns 1 if equal, 0 if different
  */
-HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT)
+HYPAPI int matrix4_equals(const struct matrix4 *self, const struct matrix4 *mT)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -81,10 +81,10 @@ HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to add
  */
-HYPAPI matrix4 *matrix4_add(matrix4 *self, const matrix4 *mT)
+HYPAPI struct matrix4 *matrix4_add(struct matrix4 *self, const struct matrix4 *mT)
 {
 	/* "add row and column to row and column" */
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -102,10 +102,10 @@ HYPAPI matrix4 *matrix4_add(matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param mT The matrix to subtract from self (self = self - mT)
  */
-HYPAPI matrix4 *matrix4_subtract(matrix4 *self, const matrix4 *mT)
+HYPAPI struct matrix4 *matrix4_subtract(struct matrix4 *self, const struct matrix4 *mT)
 {
 	/* "subtract row and column from row and column" */
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -123,9 +123,9 @@ HYPAPI matrix4 *matrix4_subtract(matrix4 *self, const matrix4 *mT)
  * @param self The matrix being changed
  * @param scalar The scalar factor being multiplied in
  */
-HYPAPI matrix4 *matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
+HYPAPI struct matrix4 *matrix4_multiplyf(struct matrix4 *self, HYP_FLOAT scalar)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -145,11 +145,11 @@ HYPAPI matrix4 *matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar)
  *
  * self = self * mT
  */
-HYPAPI matrix4 *matrix4_multiply(matrix4 *self, const matrix4 *mT)
+HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matrix4 *mT)
 {
 	/* mT is the multiplicand */
 
-	matrix4 r;
+	struct matrix4 r;
 
 	matrix4_identity(&r);
 
@@ -189,7 +189,7 @@ HYPAPI matrix4 *matrix4_multiply(matrix4 *self, const matrix4 *mT)
  *
  * @param self The matrix being changed
  */
-HYPAPI matrix4 *matrix4_transpose(matrix4 *self)
+HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self)
 {
 	return _matrix4_transpose_columnrow(self);
 }
@@ -200,7 +200,7 @@ HYPAPI matrix4 *matrix4_transpose(matrix4 *self)
  * @brief Swaps the row and column
  *
  */
-HYPAPI matrix4 *_matrix4_transpose_rowcolumn(matrix4 *self)
+HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
 {
 	HYP_FLOAT tmp;
 
@@ -220,7 +220,7 @@ HYPAPI matrix4 *_matrix4_transpose_rowcolumn(matrix4 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self)
+HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
 {
 	HYP_FLOAT tmp;
 
@@ -240,7 +240,7 @@ HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self)
  * @brief Prints out the matrix using column and row notation
  *
  */
-HYPAPI void _matrix4_print_with_columnrow_indexer(matrix4 *self)
+HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self)
 {
 	printf("%10f, %10f, %10f, %10f\r\n", self->c00, self->c10, self->c20, self->c30);
 	printf("%10f, %10f, %10f, %10f\r\n", self->c01, self->c11, self->c21, self->c31);
@@ -254,7 +254,7 @@ HYPAPI void _matrix4_print_with_columnrow_indexer(matrix4 *self)
  * @brief Prints out the matrix using row and column notation
  *
  */
-HYPAPI void _matrix4_print_with_rowcolumn_indexer(matrix4 *self)
+HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 {
 	printf("%10f, %10f, %10f, %10f\r\n", self->r00, self->r01, self->r02, self->r03);
 	printf("%10f, %10f, %10f, %10f\r\n", self->r10, self->r11, self->r12, self->r13);
@@ -268,9 +268,9 @@ HYPAPI void _matrix4_print_with_rowcolumn_indexer(matrix4 *self)
  * @brief Randomly fills the matrix with values. Good for testing.
  *
  */
-HYPAPI matrix4 *_matrix4_set_random(matrix4 *self)
+HYPAPI struct matrix4 *_matrix4_set_random(struct matrix4 *self)
 {
-	unsigned char i;
+	uint8_t i;
 
 	for (i = 0; i < 16; i++)
 	{
@@ -287,10 +287,10 @@ HYPAPI matrix4 *_matrix4_set_random(matrix4 *self)
  * right hand rule)
  *
  */
-HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT)
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *self, const struct quaternion *qT)
 {
-	matrix4 *m;
-	const quaternion *q;
+	struct matrix4 *m;
+	const struct quaternion *q;
 
 	q = qT;
 	m = self;
@@ -316,7 +316,7 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quate
  * @brief creates a translation matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix4 *matrix4_make_transformation_translationv3(matrix4 *self, const vector3 * translation)
+HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 * translation)
 {
 	matrix4_identity(self);
 
@@ -333,7 +333,7 @@ HYPAPI matrix4 *matrix4_make_transformation_translationv3(matrix4 *self, const v
  * @brief creates a scaling matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale)
+HYPAPI struct matrix4 *matrix4_make_transformation_scalingv3(struct matrix4 *self, const struct vector3 *scale)
 {
 	matrix4_identity(self);
 
@@ -352,7 +352,7 @@ HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vecto
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_x(struct matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -375,7 +375,7 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *m, HYP_FLOAT an
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_y(struct matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -399,7 +399,7 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *m, HYP_FLOAT an
  *
  * multiply this matrix by another matrix to rotate the other matrix
  */
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_z(struct matrix4 *m, HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -425,9 +425,9 @@ HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *m, HYP_FLOAT an
  * @param translation the translation vector
  *
  */
-HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 * translation)
+HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct vector3 * translation)
 {
-	matrix4 translationMatrix;
+	struct matrix4 translationMatrix;
 
 	return matrix4_multiply(self,
 		matrix4_make_transformation_translationv3(&translationMatrix, translation));
@@ -444,10 +444,10 @@ HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 * translation)
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 * axis, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_rotatev3(struct matrix4 *self, const struct vector3 * axis, HYP_FLOAT angle)
 {
-	matrix4 rotationMatrix;
-	quaternion q;
+	struct matrix4 rotationMatrix;
+	struct quaternion q;
 
 	return matrix4_multiply(self,
 				matrix4_make_transformation_rotationq(&rotationMatrix,
@@ -464,9 +464,9 @@ HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 * axis, HYP_FLOAT 
  * @param scale the scaling vector
  *
  */
-HYPAPI matrix4 *matrix4_scalev3(matrix4 *self, const vector3 *scale)
+HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector3 *scale)
 {
-	matrix4 scalingMatrix;
+	struct matrix4 scalingMatrix;
 
 	return matrix4_multiply(self,
 		matrix4_make_transformation_scalingv3(&scalingMatrix, scale));

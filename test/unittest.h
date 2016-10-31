@@ -1,7 +1,7 @@
 
 /* Modified from:
  * http://www.jera.com/techinfo/jtns/jtn002.html
- * http://stackoverflow.com/questions/19343205/c-concatenating-file-and-line-macros
+ * http://stackoverflow.com/questions/19343205
  */
 
 #define S1(x) #x

@@ -2,7 +2,7 @@
 #define _INC_QUATERNION
 
 
-struct tagquaternion
+struct quaternion
 {
 	union
 		{
@@ -19,42 +19,42 @@ struct tagquaternion
 };
 
 
-HYPAPI int quaternion_equals(const quaternion *self, const quaternion *vT);
+HYPAPI int quaternion_equals(const struct quaternion *self, const struct quaternion *vT);
 
-HYPAPI quaternion *quaternion_identity(quaternion *self);
-HYPAPI quaternion *quaternion_setf4(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w);
-HYPAPI quaternion *quaternion_set(quaternion *self, const quaternion *qT);
-HYPAPI quaternion *quaternion_add(quaternion *self, const quaternion *qT);
-HYPAPI quaternion *quaternion_multiply(quaternion *self, const quaternion *qT);
-HYPAPI quaternion *quaternion_multiplyv3(quaternion *self, const vector3 *vT);
-HYPAPI quaternion *quaternion_multiplyf(quaternion *self, HYP_FLOAT f);
-HYPAPI quaternion *quaternion_subtract(quaternion *self, const quaternion *qT);
-HYPAPI quaternion *quaternion_negate(quaternion *self);
-HYPAPI quaternion *quaternion_conjugate(quaternion *self);
-HYPAPI quaternion *quaternion_inverse(quaternion *self);
+HYPAPI struct quaternion *quaternion_identity(struct quaternion *self);
+HYPAPI struct quaternion *quaternion_setf4(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w);
+HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct quaternion *quaternion_add(struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct quaternion *quaternion_multiply(struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const struct vector3 *vT);
+HYPAPI struct quaternion *quaternion_multiplyf(struct quaternion *self, HYP_FLOAT f);
+HYPAPI struct quaternion *quaternion_subtract(struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct quaternion *quaternion_negate(struct quaternion *self);
+HYPAPI struct quaternion *quaternion_conjugate(struct quaternion *self);
+HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self);
 
-HYPAPI short quaternion_is_unit(quaternion *self);
-HYPAPI short quaternion_is_pure(quaternion *self);
-HYPAPI HYP_FLOAT quaternion_norm(const quaternion *self);
-HYPAPI HYP_FLOAT quaternion_magnitude(const quaternion *self);
-HYPAPI quaternion *quaternion_normalize(quaternion *self);
-HYPAPI HYP_FLOAT quaternion_dot_product(const quaternion *self, const quaternion *qT);
+HYPAPI short quaternion_is_unit(struct quaternion *self);
+HYPAPI short quaternion_is_pure(struct quaternion *self);
+HYPAPI HYP_FLOAT quaternion_norm(const struct quaternion *self);
+HYPAPI HYP_FLOAT quaternion_magnitude(const struct quaternion *self);
+HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self);
+HYPAPI HYP_FLOAT quaternion_dot_product(const struct quaternion *self, const struct quaternion *qT);
 
-HYPAPI quaternion *quaternion_lerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR);
-HYPAPI quaternion *quaternion_nlerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR);
-HYPAPI quaternion *quaternion_slerp(const quaternion *start, const quaternion *end, HYP_FLOAT percent, quaternion *qR);
+HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR);
+HYPAPI struct quaternion *quaternion_nlerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR);
+HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const struct quaternion *end, HYP_FLOAT percent, struct quaternion *qR);
 
-HYPAPI void quaternion_get_axis_anglev3(const quaternion *self, vector3 *vR, HYP_FLOAT *angle);
+HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct vector3 *vR, HYP_FLOAT *angle);
 
-HYPAPI quaternion *quaternion_set_from_axis_anglev3(quaternion *self, const vector3 *axis, HYP_FLOAT angle);
-HYPAPI quaternion *quaternion_set_from_axis_anglef3(quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle);
+HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
+HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle);
 
-HYPAPI quaternion *quaternion_get_rotation_tov3(const vector3 *from, const vector3 *to, quaternion *qR);
+HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /* BETA aliases */
-#define quat quaternion
+#define quat struct quaternion
 
 #define quat_equals quaternion_equals
 #define quat_identity quaternion_identity

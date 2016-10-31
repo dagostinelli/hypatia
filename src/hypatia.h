@@ -107,12 +107,12 @@
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /* forward declarations */
-typedef struct tagvector2 vector2;
-typedef struct tagvector3 vector3;
-typedef struct tagvector4 vector4;
-typedef struct tagmatrix3 matrix3;
-typedef struct tagmatrix4 matrix4;
-typedef struct tagquaternion quaternion;
+struct vector2;
+struct vector3;
+struct vector4;
+struct matrix3;
+struct matrix4;
+struct quaternion;
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -133,7 +133,7 @@ typedef struct tagquaternion quaternion;
 #define HYP_REF_VECTOR2_UNIT_Y_NEGATIVE 4
 #define HYP_REF_VECTOR2_ONE 5
 
-HYPAPI const vector2 * vector2_get_reference_vector2(int id);
+HYPAPI const struct vector2 *vector2_get_reference_vector2(int id);
 
 #define HYP_REF_VECTOR3_ZERO 0
 #define HYP_REF_VECTOR3_UNIT_X 1
@@ -144,7 +144,7 @@ HYPAPI const vector2 * vector2_get_reference_vector2(int id);
 #define HYP_REF_VECTOR3_UNIT_Z_NEGATIVE 6
 #define HYP_REF_VECTOR3_ONE 7
 
-HYPAPI const vector3 * vector3_get_reference_vector3(int id);
+HYPAPI const struct vector3 *vector3_get_reference_vector3(int id);
 
 #define HYP_REF_VECTOR4_ZERO 0
 #define HYP_REF_VECTOR4_UNIT_X 1
@@ -155,7 +155,7 @@ HYPAPI const vector3 * vector3_get_reference_vector3(int id);
 #define HYP_REF_VECTOR4_UNIT_Z_NEGATIVE 6
 #define HYP_REF_VECTOR4_ONE 7
 
-HYPAPI const vector4 * vector4_get_reference_vector4(int id);
+HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 

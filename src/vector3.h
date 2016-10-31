@@ -2,7 +2,7 @@
 #define _INC_VECTOR3
 
 
-struct tagvector3
+struct vector3
 {
 	union
 		{
@@ -19,34 +19,34 @@ struct tagvector3
 };
 
 
-HYPAPI int vector3_equals(const vector3 *self, const vector3 *vT);
+HYPAPI int vector3_equals(const struct vector3 *self, const struct vector3 *vT);
 
-HYPAPI vector3 *vector3_zero(vector3 *self);
-HYPAPI vector3 *vector3_set(vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_setf3(vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT);
-HYPAPI vector3 *vector3_negate(vector3 *self);
-HYPAPI vector3 *vector3_add(vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_addf(vector3 *self, HYP_FLOAT fT);
-HYPAPI vector3 *vector3_subtract(vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_subtractf(vector3 *self, HYP_FLOAT fT);
-HYPAPI vector3 *vector3_multiply(vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_multiplyf(vector3 *self, HYP_FLOAT fT);
-HYPAPI vector3 *vector3_divide(vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_dividef(vector3 *self, HYP_FLOAT fT);
+HYPAPI struct vector3 *vector3_zero(struct vector3 *self);
+HYPAPI struct vector3 *vector3_set(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_setf3(struct vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT);
+HYPAPI struct vector3 *vector3_negate(struct vector3 *self);
+HYPAPI struct vector3 *vector3_add(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_addf(struct vector3 *self, HYP_FLOAT fT);
+HYPAPI struct vector3 *vector3_subtract(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_subtractf(struct vector3 *self, HYP_FLOAT fT);
+HYPAPI struct vector3 *vector3_multiply(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_multiplyf(struct vector3 *self, HYP_FLOAT fT);
+HYPAPI struct vector3 *vector3_divide(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_dividef(struct vector3 *self, HYP_FLOAT fT);
 
-HYPAPI vector3 *vector3_normalize(vector3 *self);
-HYPAPI HYP_FLOAT vector3_magnitude(const vector3 *self);
-HYPAPI HYP_FLOAT vector3_distance(const vector3 *v1, const vector3 *v2);
+HYPAPI struct vector3 *vector3_normalize(struct vector3 *self);
+HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self);
+HYPAPI HYP_FLOAT vector3_distance(const struct vector3 *v1, const struct vector3 *v2);
 
-HYPAPI HYP_FLOAT vector3_dot_product(const vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_cross_product(vector3 *vR, const vector3 *vT1, const vector3 *vT2);
+HYPAPI HYP_FLOAT vector3_dot_product(const struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_cross_product(struct vector3 *vR, const struct vector3 *vT1, const struct vector3 *vT2);
 
-HYPAPI HYP_FLOAT vector3_angle_between(const vector3 *self, const vector3 *vT);
-HYPAPI vector3 *vector3_find_normal_axis_between(vector3 *vR, const vector3 *vT1, const vector3 *vT2);
+HYPAPI HYP_FLOAT vector3_angle_between(const struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_find_normal_axis_between(struct vector3 *vR, const struct vector3 *vT1, const struct vector3 *vT2);
 
-HYPAPI vector3 *vector3_multiplym4(vector3 *self, const matrix4 *mT);
-HYPAPI vector3 *vector3_rotate_by_quaternion(vector3 *self, const quaternion *qT);
-HYPAPI vector3 *vector3_reflect_by_quaternion(vector3 *self, const quaternion *qT);
+HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct matrix4 *mT);
+HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT);
+HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const struct quaternion *qT);
 
 /*the length is the same as "magnitude" */
 #define vector3_length(v) vector3_magnitude(v)
@@ -54,7 +54,7 @@ HYPAPI vector3 *vector3_reflect_by_quaternion(vector3 *self, const quaternion *q
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /*BETA aliases */
-#define vec3 vector3
+#define vec3 struct vector3
 
 #endif /*DOXYGEN_SHOULD_SKIP_THIS */
 

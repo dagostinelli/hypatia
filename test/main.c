@@ -31,7 +31,6 @@ static char *all_testsuites(void)
 	return 0;
 }
 
-
 int main(int argc, char *argv[])
 {
 	char *result;
@@ -55,4 +54,3 @@ int main(int argc, char *argv[])
 
 	return result != 0;
 }
-
