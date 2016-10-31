@@ -1,8 +1,8 @@
 
 static char *test_matrix3_zero(void)
 {
-	matrix3 zero;
-	int i;
+	struct matrix3 zero;
+	uint8_t i;
 
 	matrix3_zero(&zero);
 
@@ -17,7 +17,7 @@ static char *test_matrix3_zero(void)
 
 static char *test_matrix3_equals(void)
 {
-	matrix3 m, identity;
+	struct matrix3 m, identity;
 
 	matrix3_identity(&identity);
 	_matrix3_set_random(&m);
@@ -34,7 +34,7 @@ static char *test_matrix3_equals(void)
 
 static char *test_matrix3_multiplym3(void)
 {
-	matrix3 m1, m2, mR;
+	struct matrix3 m1, m2, mR;
 
 	m1.c00 = 1;  m1.c10 = 2;   m1.c20 = 3;
 	m1.c01 = 5;  m1.c11 = 6;   m1.c21 = 7;
@@ -57,9 +57,9 @@ static char *test_matrix3_multiplym3(void)
 static char *test_matrix3_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
-	matrix3 m;
-	vector2 startingPosition = {4.3f, 1.4f};
-	vector2 expectedPosition = {4.3f, 1.4f};
+	struct matrix3 m;
+	struct vector2 startingPosition = {4.3f, 1.4f};
+	struct vector2 expectedPosition = {4.3f, 1.4f};
 
 	matrix3_identity(&m);
 
@@ -72,8 +72,8 @@ static char *test_matrix3_identity_with_vector(void)
 
 static char *test_matrix3_transpose(void)
 {
-	matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-	matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
+	struct matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+	struct matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
 
 	matrix3_transpose(&m);
 	test_assert(matrix3_equals(&m, &e));
@@ -83,9 +83,9 @@ static char *test_matrix3_transpose(void)
 
 static char *test_matrix3_columnrowcolumn(void)
 {
-	matrix3 c;
-	matrix3 r;
-	matrix3 m;
+	struct matrix3 c;
+	struct matrix3 r;
+	struct matrix3 m;
 
 	matrix3_zero(&c);
 	matrix3_zero(&r);
@@ -119,11 +119,11 @@ static char *test_matrix3_columnrowcolumn(void)
 
 static char *test_matrix3_transformation_translatev2(void)
 {
-	matrix3 transform;
+	struct matrix3 transform;
 
-	vector2 startingPosition = {0.0f, 1.0f};
-	vector2 translation = {0.1f, 0.1f};
-	vector2 expectedPosition = {0.1f, 1.1f};
+	struct vector2 startingPosition = {0.0f, 1.0f};
+	struct vector2 translation = {0.1f, 0.1f};
+	struct vector2 expectedPosition = {0.1f, 1.1f};
 
 	matrix3_make_transformation_translationv2(&transform, &translation);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -135,11 +135,11 @@ static char *test_matrix3_transformation_translatev2(void)
 
 static char *test_matrix3_transformation_translatev2_negative(void)
 {
-	matrix3 transform;
+	struct matrix3 transform;
 
-	vector2 startingPosition = {0.0f, 1.0f};
-	vector2 translation = {-0.1f, -0.1f};
-	vector2 expectedPosition = {-0.1f, 0.9f};
+	struct vector2 startingPosition = {0.0f, 1.0f};
+	struct vector2 translation = {-0.1f, -0.1f};
+	struct vector2 expectedPosition = {-0.1f, 0.9f};
 
 	matrix3_make_transformation_translationv2(&transform, &translation);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -151,11 +151,11 @@ static char *test_matrix3_transformation_translatev2_negative(void)
 
 static char *test_matrix3_transformation_scalingv2(void)
 {
-	matrix3 transform;
+	struct matrix3 transform;
 
-	vector2 startingPosition = {0.0f, 1.0f};
-	vector2 scale = {0.1f, 0.1f};
-	vector2 expectedPosition = {0.0f, 0.1f};
+	struct vector2 startingPosition = {0.0f, 1.0f};
+	struct vector2 scale = {0.1f, 0.1f};
+	struct vector2 expectedPosition = {0.0f, 0.1f};
 
 	matrix3_make_transformation_scalingv2(&transform, &scale);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -167,8 +167,8 @@ static char *test_matrix3_transformation_scalingv2(void)
 
 static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 {
-	matrix3 m;
-	vector2 r;
+	struct matrix3 m;
+	struct vector2 r;
 
 	matrix3_make_transformation_rotationf_z(&m, HYP_TAU / 4.0f);
 	vector2_set(&r, HYP_VECTOR2_UNIT_X);
@@ -181,8 +181,8 @@ static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 
 static char *test_matrix3_rotatev3_xz_quarter_turn(void)
 {
-	matrix3 m;
-	vector2 r;
+	struct matrix3 m;
+	struct vector2 r;
 
 	vector2_set(&r, HYP_VECTOR2_UNIT_X);
 	matrix3_identity(&m);
@@ -196,8 +196,8 @@ static char *test_matrix3_rotatev3_xz_quarter_turn(void)
 
 static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 {
-	matrix3 m;
-	vector2 r;
+	struct matrix3 m;
+	struct vector2 r;
 
 	vector2_set(&r, HYP_VECTOR2_UNIT_X);
 	matrix3_identity(&m);
@@ -207,33 +207,6 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 
 	return 0;
 }
-
-
-/*static char *test_matrix3_set_from_axisf2_angle(void)
-{
-	matrix3 m1;
-	matrix3 m2;
-	vector3 axis;
-	HYP_FLOAT angle;
-	quaternion q;
-
-	matrix3_identity(&m1);
-	matrix3_identity(&m2);
-	_vector3_set_random(&axis);
-	angle = HYP_RANDOM_FLOAT;
-
-	matrix3_set_from_axisv3_angle(&m1, &axis, angle);
-
-	quaternion_set_from_axis_anglev3(&q, &axis, angle);
-	matrix3_set_from_quaternion(&m2, &q);
-
-	test_assert(matrix3_equals(&m1, &m2));
-
-	_matrix3_print_with_columnrow_indexer(&m1);
-	_matrix3_print_with_columnrow_indexer(&m2);
-
-	return 0;
-}*/
 
 
 static char *matrix3_all_tests(void)
@@ -251,8 +224,6 @@ static char *matrix3_all_tests(void)
 
 	run_test(test_matrix3_rotatev3_xz_quarter_turn);
 	run_test(test_matrix3_rotatev3_xz_quarter_turn_opposite);
-
-	/*run_test(test_matrix3_set_from_axisf3_angle);*/
 
 	return 0;
 }

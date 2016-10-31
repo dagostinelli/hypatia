@@ -1,9 +1,9 @@
 
 static char *test_vector3_cross_product(void)
 {
-	vector3 a;
-	vector3 b;
-	vector3 r;
+	struct vector3 a;
+	struct vector3 b;
+	struct vector3 r;
 
 	vector3_setf3(&a, 3.0f, -3.0f, 1.0f);
 	vector3_setf3(&b, 4.0f, 9.0f, 2.0f);

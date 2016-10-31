@@ -2,7 +2,7 @@
 #define _INC_MATRIX4
 
 
-struct tagmatrix4
+struct matrix4
 {
 	union
 	{
@@ -40,36 +40,36 @@ struct tagmatrix4
 };
 
 
-HYPAPI int matrix4_equals(const matrix4 *self, const matrix4 *mT);
+HYPAPI int matrix4_equals(const struct matrix4 *self, const struct matrix4 *mT);
 
-HYPAPI matrix4 *matrix4_zero(matrix4 *self);
-HYPAPI matrix4 *matrix4_identity(matrix4 *self);
-HYPAPI matrix4 *matrix4_set(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 *matrix4_add(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 *matrix4_subtract(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 *matrix4_multiply(matrix4 *self, const matrix4 *mT);
-HYPAPI matrix4 *matrix4_multiplyf(matrix4 *self, HYP_FLOAT scalar);
-HYPAPI matrix4 *matrix4_transpose(matrix4 *self);
+HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self);
+HYPAPI struct matrix4 *matrix4_identity(struct matrix4 *self);
+HYPAPI struct matrix4 *matrix4_set(struct matrix4 *self, const struct matrix4 *mT);
+HYPAPI struct matrix4 *matrix4_add(struct matrix4 *self, const struct matrix4 *mT);
+HYPAPI struct matrix4 *matrix4_subtract(struct matrix4 *self, const struct matrix4 *mT);
+HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matrix4 *mT);
+HYPAPI struct matrix4 *matrix4_multiplyf(struct matrix4 *self, HYP_FLOAT scalar);
+HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self);
 
-HYPAPI matrix4 *matrix4_make_transformation_translationv3(matrix4 *self, const vector3 *translation);
-HYPAPI matrix4 *matrix4_make_transformation_scalingv3(matrix4 *self, const vector3 *scale);
-HYPAPI matrix4 *matrix4_make_transformation_rotationq(matrix4 *self, const quaternion *qT);
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_x(matrix4 *self, HYP_FLOAT angle);
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_y(matrix4 *self, HYP_FLOAT angle);
-HYPAPI matrix4 *matrix4_make_transformation_rotationf_z(matrix4 *self, HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation);
+HYPAPI struct matrix4 *matrix4_make_transformation_scalingv3(struct matrix4 *self, const struct vector3 *scale);
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *self, const struct quaternion *qT);
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_x(struct matrix4 *self, HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_y(struct matrix4 *self, HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_z(struct matrix4 *self, HYP_FLOAT angle);
 
-HYPAPI matrix4 *matrix4_translatev3(matrix4 *self, const vector3 *translation);
-HYPAPI matrix4 *matrix4_rotatev3(matrix4 *self, const vector3 *axis, HYP_FLOAT angle);
-HYPAPI matrix4 *matrix4_scalev3(matrix4 *self, const vector3 *scale);
+HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct vector3 *translation);
+HYPAPI struct matrix4 *matrix4_rotatev3(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector3 *scale);
 
-HYPAPI matrix4 *_matrix4_transpose_rowcolumn(matrix4 *self);
-HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self);
+HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self);
+HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /* BETA aliases */
-#define mat4 matrix4
+#define mat4 struct matrix4
 
 #define mat4_equals matrix4_equals
 #define mat4_zero matrix4_zero
@@ -85,7 +85,7 @@ HYPAPI matrix4 *_matrix4_transpose_columnrow(matrix4 *self);
 #define mat4_scalev3 matrix3_scalev3
 
 
-#define m4 matrix4
+#define m4 struct matrix4
 
 #define m4_equals matrix4_equals
 #define m4_zero matrix4_zero

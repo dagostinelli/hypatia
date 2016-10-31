@@ -3,7 +3,7 @@
 /** [quaternion identity example] */
 static char *test_quaternion_identity(void)
 {
-	quaternion q;
+	struct quaternion q;
 
 	quaternion_identity(&q);
 	test_assert(scalar_equalsf(q.x, 0.0f));
@@ -23,8 +23,8 @@ static char *test_quaternion_identity(void)
 /** [quaternion conjugate example] */
 static char *test_quaternion_conjugate(void)
 {
-	quaternion qA;
-	quaternion qB;
+	struct quaternion qA;
+	struct quaternion qB;
 
 	quaternion_set_from_axis_anglef3(&qA, 1.0f, 1.0f, 1.0f, HYP_TAU / 4.0f);
 	quaternion_set_from_axis_anglef3(&qB, -1.0f, -1.0f, -1.0f, HYP_TAU / 4.0f);
@@ -39,9 +39,9 @@ static char *test_quaternion_conjugate(void)
 /** [quaternion inverse example] */
 static char *test_quaternion_inverse(void)
 {
-	quaternion qA;
-	quaternion qInverse;
-	quaternion qIdentity;
+	struct quaternion qA;
+	struct quaternion qInverse;
+	struct quaternion qIdentity;
 
 	quaternion_set_from_axis_anglef3(&qA, 1.0f, 1.0f, 1.0f, HYP_TAU / 4.0f);
 	quaternion_set(&qInverse, &qA);
@@ -58,11 +58,11 @@ static char *test_quaternion_inverse(void)
 
 static char *test_quaternion_axis_anglev3(void)
 {
-	quaternion q, q1;
+	struct quaternion q, q1;
 	HYP_FLOAT c;
 	HYP_FLOAT s;
 	HYP_FLOAT angle = HYP_TAU / 4.0f;
-	vector3 axis;
+	struct vector3 axis;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, angle);
 
@@ -86,9 +86,9 @@ static char *test_quaternion_axis_anglev3(void)
 
 static char *test_quaternion_get_set_axis_anglev3(void)
 {
-	quaternion q;
+	struct quaternion q;
 	HYP_FLOAT angle, angle1;
-	vector3 axis, axis1;
+	struct vector3 axis, axis1;
 
 	vector3_set(&axis, HYP_VECTOR3_UNIT_X);
 	angle = HYP_TAU / 4.0f;
@@ -105,7 +105,7 @@ static char *test_quaternion_get_set_axis_anglev3(void)
 
 static char *test_quaternion_multiply(void)
 {
-	quaternion qA, qB;
+	struct quaternion qA, qB;
 
 	quaternion_set_from_axis_anglev3(&qA, HYP_VECTOR3_UNIT_X, HYP_TAU / 8.0f);
 	quaternion_set_from_axis_anglev3(&qB, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f);
@@ -121,7 +121,7 @@ static char *test_quaternion_multiply(void)
 
 static char *test_quaternion_multiply_identity(void)
 {
-	quaternion qA, qB, q;
+	struct quaternion qA, qB, q;
 
 	qA.x = 1;
 	qA.y = 2;
@@ -141,8 +141,8 @@ static char *test_quaternion_multiply_identity(void)
 
 static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
@@ -154,8 +154,8 @@ static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &q);
@@ -167,8 +167,8 @@ static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
@@ -180,8 +180,8 @@ static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &q);
@@ -193,8 +193,8 @@ static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
@@ -206,8 +206,8 @@ static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / 4.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
@@ -219,8 +219,8 @@ static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / 2.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
@@ -232,8 +232,8 @@ static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 
 static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 {
-	quaternion q;
-	vector3 r;
+	struct quaternion q;
+	struct vector3 r;
 
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / 2.0f);
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
@@ -245,7 +245,7 @@ static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 
 static char *test_quaternion_slerp(void)
 {
-	quaternion q, q1, q2, q3;
+	struct quaternion q, q1, q2, q3;
 	HYP_FLOAT angle;
 
 	angle = HYP_TAU / 4.0f;
@@ -314,47 +314,6 @@ static char *test_quaternion_slerp(void)
 }
 
 
-/*static char *test_quaternion_tofromrotationmatrix(void)
-{
-	quaternion q, q1, q2;
-	matrix4 m, m1;
-
-	q.x = 0.3f;
-	q.y = 0.16f;
-	q.z = 0.75f;
-	q.w = 0.40f;
-	quaternion_normalize(&q);
-
-	quaternion_to_rotation_matrix4(&q, &m);
-	quaternion_from_rotation_matrix4(&q1, &m);
-	quaternion_normalize(&q1);
-	quaternion_to_rotation_matrix4(&q1, &m1);
-	quaternion_from_rotation_matrix4(&q2, &m1);
-	quaternion_normalize(&q2);
-
-	printf("%lf %lf %lf %lf %lf %lf\r\n",
-		quaternion_angle_between(&q, &q1),
-		quaternion_angle_between(&q1, &q),
-		quaternion_angle_between(&q1, &q2),
-		quaternion_angle_between(&q2, &q1),
-		quaternion_angle_between(&q, &q2),
-		quaternion_angle_between(&q2, &q)
-		);
-
-	_quaternion_print(&q);
-	_quaternion_print(&q1);
-	_quaternion_print(&q2);
-
-	return 0;
-
-	test_assert(matrix4_equalsm4(&m, &m1) == 1);
-	test_assert(quaternion_equals(&q, &q2) == 1);
-	test_assert(quaternion_equals(&q, &q1) == 1);
-
-	return 0;
-}*/
-
-
 static char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_identity);
@@ -373,7 +332,6 @@ static char *quaternion_all_tests(void)
 	run_test(test_vector3_rotate_by_quaternion_yx_half_turn);
 	run_test(test_quaternion_get_set_axis_anglev3);
 	run_test(test_quaternion_slerp);
-	/*run_test(test_quaternion_tofromrotationmatrix);*/
 
 	return 0;
 }

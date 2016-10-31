@@ -7,15 +7,15 @@
  */
 
 
-static vector2 _vector2_zero = { { {0.0f, 0.0f} } };
-static vector2 _vector2_one = { { {1.0f, 1.0f} } };
-static vector2 _vector2_unit_x = { { {1.0f, 0.0f} } };
-static vector2 _vector2_unit_y = { { {0.0f, 1.0f} } };
-static vector2 _vector2_unit_x_negative = { { {-1.0f, 0.0f} } };
-static vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
+static struct vector2 _vector2_zero = { { {0.0f, 0.0f} } };
+static struct vector2 _vector2_one = { { {1.0f, 1.0f} } };
+static struct vector2 _vector2_unit_x = { { {1.0f, 0.0f} } };
+static struct vector2 _vector2_unit_y = { { {0.0f, 1.0f} } };
+static struct vector2 _vector2_unit_x_negative = { { {-1.0f, 0.0f} } };
+static struct vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
 
 
-HYPAPI const vector2 *vector2_get_reference_vector2(int id)
+HYPAPI const struct vector2 *vector2_get_reference_vector2(int id)
 {
 	switch (id)
 	{
@@ -38,7 +38,7 @@ HYPAPI const vector2 *vector2_get_reference_vector2(int id)
 }
 
 
-HYPAPI vector2 *vector2_set(vector2 *self, const vector2 *vT)
+HYPAPI struct vector2 *vector2_set(struct vector2 *self, const struct vector2 *vT)
 {
 	self->x = vT->x;
 	self->y = vT->y;
@@ -46,7 +46,7 @@ HYPAPI vector2 *vector2_set(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 *vector2_setf2(vector2 *self, HYP_FLOAT xT, HYP_FLOAT yT)
+HYPAPI struct vector2 *vector2_setf2(struct vector2 *self, HYP_FLOAT xT, HYP_FLOAT yT)
 {
 	self->x = xT;
 	self->y = yT;
@@ -54,19 +54,19 @@ HYPAPI vector2 *vector2_setf2(vector2 *self, HYP_FLOAT xT, HYP_FLOAT yT)
 }
 
 
-HYPAPI vector2 *vector2_zero(vector2 *self)
+HYPAPI struct vector2 *vector2_zero(struct vector2 *self)
 {
 	return vector2_setf2(self, 0.0f, 0.0f);
 }
 
 
-HYPAPI int vector2_equals(const vector2 *self, const vector2 *vT)
+HYPAPI int vector2_equals(const struct vector2 *self, const struct vector2 *vT)
 {
 	return scalar_equals(self->x, vT->x) && scalar_equals(self->y, vT->y);
 }
 
 
-HYPAPI vector2 *vector2_negate(vector2 *self)
+HYPAPI struct vector2 *vector2_negate(struct vector2 *self)
 {
 	self->v[0] = -self->v[0];
 	self->v[1] = -self->v[1];
@@ -74,7 +74,7 @@ HYPAPI vector2 *vector2_negate(vector2 *self)
 }
 
 
-HYPAPI vector2 *vector2_add(vector2 *self, const vector2 *vT)
+HYPAPI struct vector2 *vector2_add(struct vector2 *self, const struct vector2 *vT)
 {
 	self->v[0] += vT->v[0];
 	self->v[1] += vT->v[1];
@@ -82,7 +82,7 @@ HYPAPI vector2 *vector2_add(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 *vector2_addf(vector2 *self, HYP_FLOAT fT)
+HYPAPI struct vector2 *vector2_addf(struct vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] += fT;
 	self->v[1] += fT;
@@ -90,7 +90,7 @@ HYPAPI vector2 *vector2_addf(vector2 *self, HYP_FLOAT fT)
 }
 
 
-HYPAPI vector2 *vector2_subtract(vector2 *self, const vector2 *vT)
+HYPAPI struct vector2 *vector2_subtract(struct vector2 *self, const struct vector2 *vT)
 {
 	self->v[0] -= vT->v[0];
 	self->v[1] -= vT->v[1];
@@ -98,7 +98,7 @@ HYPAPI vector2 *vector2_subtract(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 *vector2_subtractf(vector2 *self, HYP_FLOAT fT)
+HYPAPI struct vector2 *vector2_subtractf(struct vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] -= fT;
 	self->v[1] -= fT;
@@ -106,7 +106,7 @@ HYPAPI vector2 *vector2_subtractf(vector2 *self, HYP_FLOAT fT)
 }
 
 
-HYPAPI vector2 *vector2_multiply(vector2 *self, const vector2 *vT)
+HYPAPI struct vector2 *vector2_multiply(struct vector2 *self, const struct vector2 *vT)
 {
 	self->v[0] *= vT->v[0];
 	self->v[1] *= vT->v[1];
@@ -114,7 +114,7 @@ HYPAPI vector2 *vector2_multiply(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 *vector2_multiplyf(vector2 *self, HYP_FLOAT fT)
+HYPAPI struct vector2 *vector2_multiplyf(struct vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] *= fT;
 	self->v[1] *= fT;
@@ -122,7 +122,7 @@ HYPAPI vector2 *vector2_multiplyf(vector2 *self, HYP_FLOAT fT)
 }
 
 
-HYPAPI vector2 *vector2_divide(vector2 *self, const vector2 *vT)
+HYPAPI struct vector2 *vector2_divide(struct vector2 *self, const struct vector2 *vT)
 {
 	self->v[0] /= vT->v[0];
 	self->v[1] /= vT->v[1];
@@ -130,7 +130,7 @@ HYPAPI vector2 *vector2_divide(vector2 *self, const vector2 *vT)
 }
 
 
-HYPAPI vector2 *vector2_dividef(vector2 *self, HYP_FLOAT fT)
+HYPAPI struct vector2 *vector2_dividef(struct vector2 *self, HYP_FLOAT fT)
 {
 	self->v[0] /= fT;
 	self->v[1] /= fT;
@@ -138,13 +138,13 @@ HYPAPI vector2 *vector2_dividef(vector2 *self, HYP_FLOAT fT)
 }
 
 
-HYPAPI HYP_FLOAT vector2_magnitude(const vector2 *self)
+HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self)
 {
 	return HYP_SQRT((self->x*self->x) + (self->y*self->y));
 }
 
 
-HYPAPI vector2 *vector2_normalize(vector2 *self)
+HYPAPI struct vector2 *vector2_normalize(struct vector2 *self)
 {
 	HYP_FLOAT mag = vector2_magnitude(self);
 
@@ -154,13 +154,13 @@ HYPAPI vector2 *vector2_normalize(vector2 *self)
 }
 
 
-HYPAPI HYP_FLOAT vector2_dot_product(const vector2 *self, const vector2 *vT)
+HYPAPI HYP_FLOAT vector2_dot_product(const struct vector2 *self, const struct vector2 *vT)
 {
 	return (self->x * vT->x) + (self->y * vT->y);
 }
 
 
-HYPAPI vector2 *vector2_cross_product(vector2 *vR, const vector2 *vT1, const vector2 *vT2)
+HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
 {
 	vR->x = (vT1->x * vT2->y) - (vT1->y * vT2->x);
 	vR->y = (vT1->y * vT2->x) - (vT1->x * vT2->y);
@@ -168,13 +168,13 @@ HYPAPI vector2 *vector2_cross_product(vector2 *vR, const vector2 *vT1, const vec
 }
 
 
-HYPAPI HYP_FLOAT vector2_angle_between(const vector2 *self, const vector2 *vT)
+HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT)
 {
 	return vector2_dot_product(self, vT) / (vector2_magnitude(self) * vector2_magnitude(vT));
 }
 
 
-HYPAPI vector2 *vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1, const vector2 *vT2)
+HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
 {
 	return
 		vector2_normalize(
@@ -190,7 +190,7 @@ HYPAPI vector2 *vector2_find_normal_axis_between(vector2 *vR, const vector2 *vT1
  *
  * https://en.wikipedia.org/wiki/Distance
  */
-HYPAPI HYP_FLOAT vector2_distance(const vector2 *v1, const vector2 *v2)
+HYPAPI HYP_FLOAT vector2_distance(const struct vector2 *v1, const struct vector2 *v2)
 {
 	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
 }
@@ -202,9 +202,9 @@ HYPAPI HYP_FLOAT vector2_distance(const vector2 *v1, const vector2 *v2)
  * @param self The vector being multiplied
  * @param mT The matrix used to do the multiplication
  */
-HYPAPI vector2 *vector2_multiplym3(vector2 *self, const matrix3 *mT)
+HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct matrix3 *mT)
 {
-	vector2 vR;
+	struct vector2 vR;
 
 	vector2_zero(&vR);
 
@@ -217,7 +217,7 @@ HYPAPI vector2 *vector2_multiplym3(vector2 *self, const matrix3 *mT)
 }
 
 
-HYPAPI void _vector2_print(const vector2 *self)
+HYPAPI void _vector2_print(const struct vector2 *self)
 {
 	printf("x:%10f, y:%10f\r\n", self->x, self->y);
 }
@@ -228,7 +228,7 @@ HYPAPI void _vector2_print(const vector2 *self)
  * @brief Randomly fills the vector with values. Good for testing.
  *
  */
-HYPAPI vector2 *_vector2_set_random(vector2 *self)
+HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self)
 {
 	self->x = HYP_RANDOM_FLOAT;
 	self->y = HYP_RANDOM_FLOAT;
