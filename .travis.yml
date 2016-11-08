@@ -30,4 +30,5 @@ addons:
     - doxygen
     - doxygen-latex
     - graphviz
-
+    sources:
+    - kalakris-cmake
