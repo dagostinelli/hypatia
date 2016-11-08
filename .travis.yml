@@ -26,9 +26,11 @@ script:
 addons:
   apt:
     packages:
-    - cmake3
+    - cmake
+    - cmake-data
     - doxygen
     - doxygen-latex
     - graphviz
     sources:
     - kalakris-cmake
+    - george-edison55-precise-backports
