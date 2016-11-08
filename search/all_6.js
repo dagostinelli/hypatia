@@ -2,6 +2,8 @@ var searchData=
 [
   ['hyp_5fabs',['HYP_ABS',['../hypatia_8h.html#a973812b0fd172623271eaf1ac00e93c8',1,'hypatia.h']]],
   ['hyp_5facos',['HYP_ACOS',['../internal_8h.html#aeb844cac2472229d83c52eb6e2d8c75d',1,'internal.h']]],
+  ['hyp_5fasin',['HYP_ASIN',['../internal_8h.html#a71a543b908397635f272ef661a445548',1,'internal.h']]],
+  ['hyp_5fatan2',['HYP_ATAN2',['../internal_8h.html#a31e47e5115c35c6926c68b3222cfa6d5',1,'internal.h']]],
   ['hyp_5fclamp',['HYP_CLAMP',['../hypatia_8h.html#a0fdeb43024702a0dcd365b35d4936629',1,'hypatia.h']]],
   ['hyp_5fcos',['HYP_COS',['../internal_8h.html#a8b39653d80f1e63942ff3b0dfd5c7b93',1,'internal.h']]],
   ['hyp_5fcot',['HYP_COT',['../internal_8h.html#a19e7d2f52d842e8e5d9428c965702fac',1,'internal.h']]],
@@ -43,5 +45,6 @@ var searchData=
   ['hyp_5fwrap',['HYP_WRAP',['../hypatia_8h.html#a18a38691e97c9cf319b37be6e92221ca',1,'hypatia.h']]],
   ['hypatia_2eh',['hypatia.h',['../hypatia_8h.html',1,'']]],
   ['hypatia_2ehpp',['hypatia.hpp',['../hypatia_8hpp.html',1,'']]],
-  ['hypatia_5fsingle_5fprecision_5ffloats',['HYPATIA_SINGLE_PRECISION_FLOATS',['../config_8h.html#ac9ebbdda4de84b25626bbe694b218694',1,'config.h']]]
+  ['hypatia_5fsingle_5fprecision_5ffloats',['HYPATIA_SINGLE_PRECISION_FLOATS',['../config_8h.html#ac9ebbdda4de84b25626bbe694b218694',1,'config.h']]],
+  ['hypatia_5fversion',['HYPATIA_VERSION',['../config_8h.html#a4430c486488d93baedcbd3b16270db7a',1,'config.h']]]
 ];

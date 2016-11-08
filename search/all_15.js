@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['y',['y',['../structtagquaternion.html#a1ef755e118341dc70b2fa1133e087963',1,'tagquaternion::y()'],['../structtagvector2.html#a630ee5b4102ef295d3ff1e2f0cedfa86',1,'tagvector2::y()'],['../structtagvector3.html#ab3d3017e9749711a14eafee1eeeeb66f',1,'tagvector3::y()'],['../structtagvector4.html#a067d0bce026a02410106665bfa94eb5f',1,'tagvector4::y()']]],
-  ['yaw',['yaw',['../structtagvector3.html#a2ae354b8bd44609fc07c75e8f2c5f84b',1,'tagvector3']]]
+  ['z',['z',['../structquaternion.html#a9d5613846a8bc2796d044609e5a60212',1,'quaternion::z()'],['../structvector3.html#ad87b87d87699bb06af47d2a699c117aa',1,'vector3::z()'],['../structvector4.html#ace1be7322e4348b360580be4d235ff33',1,'vector4::z()']]]
 ];

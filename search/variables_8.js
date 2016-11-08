@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['q',['q',['../structtagquaternion.html#a2c038c9acf8831ccd94b297e25e843c6',1,'tagquaternion']]]
+  ['q',['q',['../structquaternion.html#a333bd6b802927bcb8868728f68ef861b',1,'quaternion']]]
 ];

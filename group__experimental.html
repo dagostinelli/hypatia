@@ -24,7 +24,6 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Hypatia
-   &#160;<span id="projectnumber">1.0</span>
    </div>
   </td>
  </tr>
@@ -88,73 +87,73 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:gab46757956e9d276900d7872dd0a36d55"><td class="memItemLeft" align="right" valign="top">HYPAPI quaternion *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gab46757956e9d276900d7872dd0a36d55">quaternion_set_from_euler_anglesf3_EXP</a> (quaternion *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ay, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> az)</td></tr>
-<tr class="memdesc:gab46757956e9d276900d7872dd0a36d55"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down)  <a href="#gab46757956e9d276900d7872dd0a36d55">More...</a><br /></td></tr>
-<tr class="separator:gab46757956e9d276900d7872dd0a36d55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gabb0684091adceee0dcfc518b510ba780"><td class="memItemLeft" align="right" valign="top">HYPAPI quaternion *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gabb0684091adceee0dcfc518b510ba780">quaternion_rotate_by_quaternion_EXP</a> (quaternion *self, const quaternion *qT)</td></tr>
-<tr class="memdesc:gabb0684091adceee0dcfc518b510ba780"><td class="mdescLeft">&#160;</td><td class="mdescRight">rotate a quaternion by a quaternion (basically, multiply and then normalize)  <a href="#gabb0684091adceee0dcfc518b510ba780">More...</a><br /></td></tr>
-<tr class="separator:gabb0684091adceee0dcfc518b510ba780"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga20e91b464b7d4c7beb53a2f18911dd8f"><td class="memItemLeft" align="right" valign="top">HYPAPI quaternion *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga20e91b464b7d4c7beb53a2f18911dd8f">quaternion_rotate_by_axis_angle_EXP</a> (quaternion *self, const vector3 *axis, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
-<tr class="memdesc:ga20e91b464b7d4c7beb53a2f18911dd8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">rotate a quaternion by the indicated axis and angle first it makes a quaternion from the axis/angle then it rotates the quaternion by that axis/angle  <a href="#ga20e91b464b7d4c7beb53a2f18911dd8f">More...</a><br /></td></tr>
-<tr class="separator:ga20e91b464b7d4c7beb53a2f18911dd8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7f89bef69d34d26669be0e7f21f3cd23"><td class="memItemLeft" align="right" valign="top">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga7f89bef69d34d26669be0e7f21f3cd23">quaternion_difference_EXP</a> (const quaternion *q1, const quaternion *q2)</td></tr>
-<tr class="memdesc:ga7f89bef69d34d26669be0e7f21f3cd23"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns a score that seeks to describe the difference between two quaternions  <a href="#ga7f89bef69d34d26669be0e7f21f3cd23">More...</a><br /></td></tr>
-<tr class="separator:ga7f89bef69d34d26669be0e7f21f3cd23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga5625b57af464064e37f556014018bbef"><td class="memItemLeft" align="right" valign="top">HYPAPI quaternion *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga5625b57af464064e37f556014018bbef">quaternion_rotate_by_euler_angles_EXP</a> (quaternion *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ay, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> az)</td></tr>
-<tr class="memdesc:ga5625b57af464064e37f556014018bbef"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down applies the rotations in this order: x, y, z (yaw, pitch, roll) rotates the quaternion by these angles  <a href="#ga5625b57af464064e37f556014018bbef">More...</a><br /></td></tr>
-<tr class="separator:ga5625b57af464064e37f556014018bbef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga69458a807ebe0d386404c1462e589029"><td class="memItemLeft" align="right" valign="top">HYPAPI quaternion&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga69458a807ebe0d386404c1462e589029">quaternion_cross_product_EXP</a> (const quaternion *self, const quaternion *vT)</td></tr>
-<tr class="memdesc:ga69458a807ebe0d386404c1462e589029"><td class="mdescLeft">&#160;</td><td class="mdescRight">This code is suspect. Computes the cross-product on the vector portion and then something that resembles a negated dot product on the real portion.  <a href="#ga69458a807ebe0d386404c1462e589029">More...</a><br /></td></tr>
-<tr class="separator:ga69458a807ebe0d386404c1462e589029"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9cb19113d025303d39b1544291d85be8"><td class="memItemLeft" align="right" valign="top">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga9cb19113d025303d39b1544291d85be8">quaternion_angle_between_EXP</a> (const quaternion *self, const quaternion *qT)</td></tr>
-<tr class="memdesc:ga9cb19113d025303d39b1544291d85be8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the angle between two quaternions.  <a href="#ga9cb19113d025303d39b1544291d85be8">More...</a><br /></td></tr>
-<tr class="separator:ga9cb19113d025303d39b1544291d85be8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga1cfa8bb0a3ceaa3cb5b82d55bb939259"><td class="memItemLeft" align="right" valign="top">HYPAPI void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga1cfa8bb0a3ceaa3cb5b82d55bb939259">quaternion_axis_between_EXP</a> (const quaternion *self, const quaternion *qT, quaternion *qR)</td></tr>
-<tr class="memdesc:ga1cfa8bb0a3ceaa3cb5b82d55bb939259"><td class="mdescLeft">&#160;</td><td class="mdescRight">This code is suspect. Treats two quaternions sort of like 2 vector4's and then computes the cross-product between them.  <a href="#ga1cfa8bb0a3ceaa3cb5b82d55bb939259">More...</a><br /></td></tr>
-<tr class="separator:ga1cfa8bb0a3ceaa3cb5b82d55bb939259"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga781a77f050e2e016215ac73b1025fd6b"><td class="memItemLeft" align="right" valign="top">HYPAPI matrix4 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga781a77f050e2e016215ac73b1025fd6b">matrix4_projection_perspective_fovy_rh_EXP</a> (matrix4 *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> fovy, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> aspect, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zNear, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zFar)</td></tr>
-<tr class="memdesc:ga781a77f050e2e016215ac73b1025fd6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates an perspective projection matrix using the RH system with a FOV about the Y-axis. It's opinionated about what that means.  <a href="#ga781a77f050e2e016215ac73b1025fd6b">More...</a><br /></td></tr>
-<tr class="separator:ga781a77f050e2e016215ac73b1025fd6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaceac02033627ba5989a8c627c3c1823c"><td class="memItemLeft" align="right" valign="top">HYPAPI matrix4 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gaceac02033627ba5989a8c627c3c1823c">matrix4_projection_ortho3d_rh_EXP</a> (matrix4 *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> xmin, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> xmax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ymin, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ymax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zNear, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zFar)</td></tr>
-<tr class="memdesc:gaceac02033627ba5989a8c627c3c1823c"><td class="mdescLeft">&#160;</td><td class="mdescRight">make an orthographic projection matrix with right handed coordinates  <a href="#gaceac02033627ba5989a8c627c3c1823c">More...</a><br /></td></tr>
-<tr class="separator:gaceac02033627ba5989a8c627c3c1823c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaa7636ad52a11e75c8ab57e762010cac6"><td class="memItemLeft" align="right" valign="top">HYPAPI vector3 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gaa7636ad52a11e75c8ab57e762010cac6">matrix4_multiplyv3_EXP</a> (const matrix4 *m, const vector3 *vT, vector3 *vR)</td></tr>
-<tr class="memdesc:gaa7636ad52a11e75c8ab57e762010cac6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiply a matrix by a vector, returns a vector.  <a href="#gaa7636ad52a11e75c8ab57e762010cac6">More...</a><br /></td></tr>
-<tr class="separator:gaa7636ad52a11e75c8ab57e762010cac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga41491b8af30552ad7a3d25fd37981a18"><td class="memItemLeft" align="right" valign="top">HYPAPI matrix4 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga41491b8af30552ad7a3d25fd37981a18">matrix4_set_from_axisf3_angle_EXP</a> (matrix4 *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> x, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> y, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> z, const <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
-<tr class="memdesc:ga41491b8af30552ad7a3d25fd37981a18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opinionated function about what the axis means. Sets the axis and angle (used as a rotation matrix)  <a href="#ga41491b8af30552ad7a3d25fd37981a18">More...</a><br /></td></tr>
-<tr class="separator:ga41491b8af30552ad7a3d25fd37981a18"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga18e4da1719fa2e1b00289a9504540f11"><td class="memItemLeft" align="right" valign="top">HYPAPI matrix4 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga18e4da1719fa2e1b00289a9504540f11">matrix4_set_from_axisv3_angle_EXP</a> (matrix4 *self, const vector3 *axis, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
-<tr class="memdesc:ga18e4da1719fa2e1b00289a9504540f11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opinionated function about what the axis means. Sets the axis and angle (used as a rotation matrix)  <a href="#ga18e4da1719fa2e1b00289a9504540f11">More...</a><br /></td></tr>
-<tr class="separator:ga18e4da1719fa2e1b00289a9504540f11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga9f53325a03cf01cd12cdb1a3342ac41e"><td class="memItemLeft" align="right" valign="top">HYPAPI matrix4 *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga9f53325a03cf01cd12cdb1a3342ac41e">matrix4_view_lookat_rh_EXP</a> (matrix4 *self, const vector3 *eye, const vector3 *target, const vector3 *up)</td></tr>
-<tr class="memdesc:ga9f53325a03cf01cd12cdb1a3342ac41e"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates a look at matrix using the RH system.  <a href="#ga9f53325a03cf01cd12cdb1a3342ac41e">More...</a><br /></td></tr>
-<tr class="separator:ga9f53325a03cf01cd12cdb1a3342ac41e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga27aa153e8411bda2a5a02726ccf30426"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga27aa153e8411bda2a5a02726ccf30426">quaternion_set_from_euler_anglesf3_ZYX_EXP</a> (struct <a class="el" href="structquaternion.html">quaternion</a> *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ay, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> az)</td></tr>
+<tr class="memdesc:ga27aa153e8411bda2a5a02726ccf30426"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down)  <a href="#ga27aa153e8411bda2a5a02726ccf30426">More...</a><br /></td></tr>
+<tr class="separator:ga27aa153e8411bda2a5a02726ccf30426"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaccabcc416e2c8760db27febd8e77d44"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gaaccabcc416e2c8760db27febd8e77d44">quaternion_rotate_by_quaternion_EXP</a> (struct <a class="el" href="structquaternion.html">quaternion</a> *self, const struct <a class="el" href="structquaternion.html">quaternion</a> *qT)</td></tr>
+<tr class="memdesc:gaaccabcc416e2c8760db27febd8e77d44"><td class="mdescLeft">&#160;</td><td class="mdescRight">rotate a quaternion by a quaternion (basically, multiply and then normalize)  <a href="#gaaccabcc416e2c8760db27febd8e77d44">More...</a><br /></td></tr>
+<tr class="separator:gaaccabcc416e2c8760db27febd8e77d44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga43182b7560a1c06626686708d6d39383"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga43182b7560a1c06626686708d6d39383">quaternion_rotate_by_axis_angle_EXP</a> (struct <a class="el" href="structquaternion.html">quaternion</a> *self, const struct <a class="el" href="structvector3.html">vector3</a> *axis, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
+<tr class="memdesc:ga43182b7560a1c06626686708d6d39383"><td class="mdescLeft">&#160;</td><td class="mdescRight">rotate a quaternion by the indicated axis and angle first it makes a quaternion from the axis/angle then it rotates the quaternion by that axis/angle  <a href="#ga43182b7560a1c06626686708d6d39383">More...</a><br /></td></tr>
+<tr class="separator:ga43182b7560a1c06626686708d6d39383"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga466e72d7cda6761798f3c8068b4a981a"><td class="memItemLeft" align="right" valign="top">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga466e72d7cda6761798f3c8068b4a981a">quaternion_difference_EXP</a> (const struct <a class="el" href="structquaternion.html">quaternion</a> *q1, const struct <a class="el" href="structquaternion.html">quaternion</a> *q2)</td></tr>
+<tr class="memdesc:ga466e72d7cda6761798f3c8068b4a981a"><td class="mdescLeft">&#160;</td><td class="mdescRight">returns a score that seeks to describe the difference between two quaternions  <a href="#ga466e72d7cda6761798f3c8068b4a981a">More...</a><br /></td></tr>
+<tr class="separator:ga466e72d7cda6761798f3c8068b4a981a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8f921a5bc9d8cc72c7598262cd0ddc68"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga8f921a5bc9d8cc72c7598262cd0ddc68">quaternion_rotate_by_euler_angles_EXP</a> (struct <a class="el" href="structquaternion.html">quaternion</a> *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ay, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> az)</td></tr>
+<tr class="memdesc:ga8f921a5bc9d8cc72c7598262cd0ddc68"><td class="mdescLeft">&#160;</td><td class="mdescRight">this is an opinionated method (opinionated about what axis is yaw, pitch, roll and what is left/right/up/down applies the rotations in this order: x, y, z (yaw, pitch, roll) rotates the quaternion by these angles  <a href="#ga8f921a5bc9d8cc72c7598262cd0ddc68">More...</a><br /></td></tr>
+<tr class="separator:ga8f921a5bc9d8cc72c7598262cd0ddc68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaa1aeed3eb3ecef174c18b820ad4173fc"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gaa1aeed3eb3ecef174c18b820ad4173fc">quaternion_cross_product_EXP</a> (const struct <a class="el" href="structquaternion.html">quaternion</a> *self, const struct <a class="el" href="structquaternion.html">quaternion</a> *vT)</td></tr>
+<tr class="memdesc:gaa1aeed3eb3ecef174c18b820ad4173fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">This code is suspect. Computes the cross-product on the vector portion and then something that resembles a negated dot product on the real portion.  <a href="#gaa1aeed3eb3ecef174c18b820ad4173fc">More...</a><br /></td></tr>
+<tr class="separator:gaa1aeed3eb3ecef174c18b820ad4173fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac81b156780f38d56cefd06f3fa6eaf5a"><td class="memItemLeft" align="right" valign="top">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gac81b156780f38d56cefd06f3fa6eaf5a">quaternion_angle_between_EXP</a> (const struct <a class="el" href="structquaternion.html">quaternion</a> *self, const struct <a class="el" href="structquaternion.html">quaternion</a> *qT)</td></tr>
+<tr class="memdesc:gac81b156780f38d56cefd06f3fa6eaf5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Computes the angle between two quaternions.  <a href="#gac81b156780f38d56cefd06f3fa6eaf5a">More...</a><br /></td></tr>
+<tr class="separator:gac81b156780f38d56cefd06f3fa6eaf5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7010327cb0f9c37cbae9d76ff3373db6"><td class="memItemLeft" align="right" valign="top">HYPAPI void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga7010327cb0f9c37cbae9d76ff3373db6">quaternion_axis_between_EXP</a> (const struct <a class="el" href="structquaternion.html">quaternion</a> *self, const struct <a class="el" href="structquaternion.html">quaternion</a> *qT, struct <a class="el" href="structquaternion.html">quaternion</a> *qR)</td></tr>
+<tr class="memdesc:ga7010327cb0f9c37cbae9d76ff3373db6"><td class="mdescLeft">&#160;</td><td class="mdescRight">This code is suspect. Treats two quaternions sort of like 2 <a class="el" href="structvector4.html">vector4</a>'s and then computes the cross-product between them.  <a href="#ga7010327cb0f9c37cbae9d76ff3373db6">More...</a><br /></td></tr>
+<tr class="separator:ga7010327cb0f9c37cbae9d76ff3373db6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga095f20c0523325b1831dc3c7ff089ef5"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga095f20c0523325b1831dc3c7ff089ef5">matrix4_projection_perspective_fovy_rh_EXP</a> (struct <a class="el" href="structmatrix4.html">matrix4</a> *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> fovy, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> aspect, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zNear, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zFar)</td></tr>
+<tr class="memdesc:ga095f20c0523325b1831dc3c7ff089ef5"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates an perspective projection matrix using the RH system with a FOV about the Y-axis. It's opinionated about what that means.  <a href="#ga095f20c0523325b1831dc3c7ff089ef5">More...</a><br /></td></tr>
+<tr class="separator:ga095f20c0523325b1831dc3c7ff089ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf41b58c85ee065a3762a2291d8d90cea"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gaf41b58c85ee065a3762a2291d8d90cea">matrix4_projection_ortho3d_rh_EXP</a> (struct <a class="el" href="structmatrix4.html">matrix4</a> *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> xmin, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> xmax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ymin, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> ymax, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zNear, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> zFar)</td></tr>
+<tr class="memdesc:gaf41b58c85ee065a3762a2291d8d90cea"><td class="mdescLeft">&#160;</td><td class="mdescRight">make an orthographic projection matrix with right handed coordinates  <a href="#gaf41b58c85ee065a3762a2291d8d90cea">More...</a><br /></td></tr>
+<tr class="separator:gaf41b58c85ee065a3762a2291d8d90cea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga80d3e9487ae45bef788094e1cda92e4f"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga80d3e9487ae45bef788094e1cda92e4f">matrix4_multiplyv3_EXP</a> (const struct <a class="el" href="structmatrix4.html">matrix4</a> *m, const struct <a class="el" href="structvector3.html">vector3</a> *vT, struct <a class="el" href="structvector3.html">vector3</a> *vR)</td></tr>
+<tr class="memdesc:ga80d3e9487ae45bef788094e1cda92e4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Multiply a matrix by a vector, returns a vector.  <a href="#ga80d3e9487ae45bef788094e1cda92e4f">More...</a><br /></td></tr>
+<tr class="separator:ga80d3e9487ae45bef788094e1cda92e4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga4488b3391de8883aaf5df672fd697819"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga4488b3391de8883aaf5df672fd697819">matrix4_set_from_axisf3_angle_EXP</a> (struct <a class="el" href="structmatrix4.html">matrix4</a> *self, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> x, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> y, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> z, const <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
+<tr class="memdesc:ga4488b3391de8883aaf5df672fd697819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opinionated function about what the axis means. Sets the axis and angle (used as a rotation matrix)  <a href="#ga4488b3391de8883aaf5df672fd697819">More...</a><br /></td></tr>
+<tr class="separator:ga4488b3391de8883aaf5df672fd697819"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gad2809d01a88f4effe730b4719e4654a1"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#gad2809d01a88f4effe730b4719e4654a1">matrix4_set_from_axisv3_angle_EXP</a> (struct <a class="el" href="structmatrix4.html">matrix4</a> *self, const struct <a class="el" href="structvector3.html">vector3</a> *axis, <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> angle)</td></tr>
+<tr class="memdesc:gad2809d01a88f4effe730b4719e4654a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Opinionated function about what the axis means. Sets the axis and angle (used as a rotation matrix)  <a href="#gad2809d01a88f4effe730b4719e4654a1">More...</a><br /></td></tr>
+<tr class="separator:gad2809d01a88f4effe730b4719e4654a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga6d6d74b01b983ee85776164643b60fd2"><td class="memItemLeft" align="right" valign="top">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__experimental.html#ga6d6d74b01b983ee85776164643b60fd2">matrix4_view_lookat_rh_EXP</a> (struct <a class="el" href="structmatrix4.html">matrix4</a> *self, const struct <a class="el" href="structvector3.html">vector3</a> *eye, const struct <a class="el" href="structvector3.html">vector3</a> *target, const struct <a class="el" href="structvector3.html">vector3</a> *up)</td></tr>
+<tr class="memdesc:ga6d6d74b01b983ee85776164643b60fd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">creates a look at matrix using the RH system.  <a href="#ga6d6d74b01b983ee85776164643b60fd2">More...</a><br /></td></tr>
+<tr class="separator:ga6d6d74b01b983ee85776164643b60fd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <p>Experimental functions. </p>
 <p><a href="https://en.wikipedia.org/wiki/Quaternion">https://en.wikipedia.org/wiki/Quaternion</a> </p>
 <h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="gaa7636ad52a11e75c8ab57e762010cac6"></a>
+<a class="anchor" id="ga80d3e9487ae45bef788094e1cda92e4f"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI vector3* matrix4_multiplyv3_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structvector3.html">vector3</a>* matrix4_multiplyv3_EXP </td>
           <td>(</td>
-          <td class="paramtype">const matrix4 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>vT</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">vector3 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>vR</em>&#160;</td>
         </tr>
         <tr>
@@ -177,14 +176,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gaceac02033627ba5989a8c627c3c1823c"></a>
+<a class="anchor" id="gaf41b58c85ee065a3762a2291d8d90cea"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI matrix4* matrix4_projection_ortho3d_rh_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a>* matrix4_projection_ortho3d_rh_EXP </td>
           <td>(</td>
-          <td class="paramtype">matrix4 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
@@ -235,14 +234,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga781a77f050e2e016215ac73b1025fd6b"></a>
+<a class="anchor" id="ga095f20c0523325b1831dc3c7ff089ef5"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI matrix4* matrix4_projection_perspective_fovy_rh_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a>* matrix4_projection_perspective_fovy_rh_EXP </td>
           <td>(</td>
-          <td class="paramtype">matrix4 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
@@ -281,14 +280,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga41491b8af30552ad7a3d25fd37981a18"></a>
+<a class="anchor" id="ga4488b3391de8883aaf5df672fd697819"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI matrix4* matrix4_set_from_axisf3_angle_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a>* matrix4_set_from_axisf3_angle_EXP </td>
           <td>(</td>
-          <td class="paramtype">matrix4 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
@@ -337,20 +336,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga18e4da1719fa2e1b00289a9504540f11"></a>
+<a class="anchor" id="gad2809d01a88f4effe730b4719e4654a1"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI matrix4* matrix4_set_from_axisv3_angle_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a>* matrix4_set_from_axisv3_angle_EXP </td>
           <td>(</td>
-          <td class="paramtype">matrix4 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>axis</em>, </td>
         </tr>
         <tr>
@@ -379,32 +378,32 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga9f53325a03cf01cd12cdb1a3342ac41e"></a>
+<a class="anchor" id="ga6d6d74b01b983ee85776164643b60fd2"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI matrix4* matrix4_view_lookat_rh_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structmatrix4.html">matrix4</a>* matrix4_view_lookat_rh_EXP </td>
           <td>(</td>
-          <td class="paramtype">matrix4 *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structmatrix4.html">matrix4</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>eye</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>target</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>up</em>&#160;</td>
         </tr>
         <tr>
@@ -419,20 +418,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga9cb19113d025303d39b1544291d85be8"></a>
+<a class="anchor" id="gac81b156780f38d56cefd06f3fa6eaf5a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> quaternion_angle_between_EXP </td>
           <td>(</td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>qT</em>&#160;</td>
         </tr>
         <tr>
@@ -450,26 +449,26 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga1cfa8bb0a3ceaa3cb5b82d55bb939259"></a>
+<a class="anchor" id="ga7010327cb0f9c37cbae9d76ff3373db6"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">HYPAPI void quaternion_axis_between_EXP </td>
           <td>(</td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>qT</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">quaternion *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>qR</em>&#160;</td>
         </tr>
         <tr>
@@ -480,24 +479,24 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>This code is suspect. Treats two quaternions sort of like 2 vector4's and then computes the cross-product between them. </p>
+<p>This code is suspect. Treats two quaternions sort of like 2 <a class="el" href="structvector4.html">vector4</a>'s and then computes the cross-product between them. </p>
 
 </div>
 </div>
-<a class="anchor" id="ga69458a807ebe0d386404c1462e589029"></a>
+<a class="anchor" id="gaa1aeed3eb3ecef174c18b820ad4173fc"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI quaternion quaternion_cross_product_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a> quaternion_cross_product_EXP </td>
           <td>(</td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>vT</em>&#160;</td>
         </tr>
         <tr>
@@ -512,20 +511,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga7f89bef69d34d26669be0e7f21f3cd23"></a>
+<a class="anchor" id="ga466e72d7cda6761798f3c8068b4a981a"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">HYPAPI <a class="el" href="hypatia_8h.html#a4b9b1af6bdc56700a192381625089b39">HYP_FLOAT</a> quaternion_difference_EXP </td>
           <td>(</td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>q1</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>q2</em>&#160;</td>
         </tr>
         <tr>
@@ -540,20 +539,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga20e91b464b7d4c7beb53a2f18911dd8f"></a>
+<a class="anchor" id="ga43182b7560a1c06626686708d6d39383"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI quaternion* quaternion_rotate_by_axis_angle_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a>* quaternion_rotate_by_axis_angle_EXP </td>
           <td>(</td>
-          <td class="paramtype">quaternion *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const vector3 *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structvector3.html">vector3</a> *&#160;</td>
           <td class="paramname"><em>axis</em>, </td>
         </tr>
         <tr>
@@ -582,14 +581,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ga5625b57af464064e37f556014018bbef"></a>
+<a class="anchor" id="ga8f921a5bc9d8cc72c7598262cd0ddc68"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI quaternion* quaternion_rotate_by_euler_angles_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a>* quaternion_rotate_by_euler_angles_EXP </td>
           <td>(</td>
-          <td class="paramtype">quaternion *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
@@ -631,20 +630,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gabb0684091adceee0dcfc518b510ba780"></a>
+<a class="anchor" id="gaaccabcc416e2c8760db27febd8e77d44"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI quaternion* quaternion_rotate_by_quaternion_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a>* quaternion_rotate_by_quaternion_EXP </td>
           <td>(</td>
-          <td class="paramtype">quaternion *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const quaternion *&#160;</td>
+          <td class="paramtype">const struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>qT</em>&#160;</td>
         </tr>
         <tr>
@@ -666,14 +665,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="gab46757956e9d276900d7872dd0a36d55"></a>
+<a class="anchor" id="ga27aa153e8411bda2a5a02726ccf30426"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">HYPAPI quaternion* quaternion_set_from_euler_anglesf3_EXP </td>
+          <td class="memname">HYPAPI struct <a class="el" href="structquaternion.html">quaternion</a>* quaternion_set_from_euler_anglesf3_ZYX_EXP </td>
           <td>(</td>
-          <td class="paramtype">quaternion *&#160;</td>
+          <td class="paramtype">struct <a class="el" href="structquaternion.html">quaternion</a> *&#160;</td>
           <td class="paramname"><em>self</em>, </td>
         </tr>
         <tr>
@@ -718,7 +717,7 @@ Functions</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 26 2016 22:01:42 for Hypatia by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Nov 7 2016 22:29:30 for Hypatia by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.11
 </small></address>
