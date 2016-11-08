@@ -11,6 +11,35 @@ Hypatia is a pure-C math library.  It is almost 100% C89/C90 compliant.  This li
 
 A word about naming convention:  Hypatia uses verbose names. In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (gracefully allows for ambiguous names).  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".  As an experiment, some \#defines have been added to alias the verbose names.  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
+How to Use
+----------
+```
+#include <stdio.h>
+#include <assert.h>
+#include <hypatia/hypatia.h>
+
+int main(int argc, char *argv)
+{
+	struct vector3 a;
+	struct vector3 b;
+	struct vector3 r;
+
+	printf("Using Hypatia Version:%s\n", HYPATIA_VERSION);
+
+	vector3_setf3(&a, 3.0f, -3.0f, 1.0f);
+	vector3_setf3(&b, 4.0f, 9.0f, 2.0f);
+
+	vector3_cross_product(&r, &a, &b);
+
+	assert(scalar_equalsf(r.x, -15.0f));
+	assert(scalar_equalsf(r.y, -2.0f));
+	assert(scalar_equalsf(r.z, 39.0f));
+
+	return 0;
+}
+
+```
+
 Building
 --------
 

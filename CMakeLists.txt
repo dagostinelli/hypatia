@@ -1,12 +1,13 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
-PROJECT(hypatia C)
+PROJECT(hypatia
+	LANGUAGES C
+	VERSION 1.0.0.0)
 
 enable_testing()
-INCLUDE(CPack)
 
-SET(HYPATIA_VERSION 1.0)
-SET(HYPATIA_SOVERSION 1) # Increment this if/when we break backwards compatibility.
+INCLUDE(${CMAKE_SOURCE_DIR}/CPackConfig.cmake)
+INCLUDE(CPack)
 
 ADD_SUBDIRECTORY("src")
 
