@@ -6,7 +6,7 @@ PROJECT(hypatia
 
 enable_testing()
 
-INCLUDE(${CMAKE_SOURCE_DIR}/CPackConfig.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/cmake/CPackConfig.cmake)
 INCLUDE(CPack)
 
 ADD_SUBDIRECTORY("src")
