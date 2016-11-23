@@ -1,0 +1,4 @@
+var searchData=
+[
+  ['configure_5ffile',['CONFIGURE_FILE',['../doc_2_c_make_lists_8txt.html#ad32fb292ca035bb2e8ccf0eb25815874',1,'CONFIGURE_FILE(&quot;${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in&quot;&quot;${HYPATIA_OUTPUT_DOXYFILE}&quot;) CONFIGURE_FILE(&quot;$:&#160;CMakeLists.txt'],['../src_2_c_make_lists_8txt.html#a16df3a14be99deda99eb92a04209310f',1,'configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/config.h) SET(HYPATIA_HEADERS hypatia.hpp hypatia.h config.h vector2.h vector3.h vector4.h matrix3.h matrix4.h quaternion.h experimental.h) SET(Hypatia_SRCS scalar.c vector2.c vector3.c vector4.c matrix3.c matrix4.c quaternion.c experimental.c) SET(Hypatia_Tests_SRCS tests/main.c) if(CMAKE_COMPILER_IS_GNUC) endif() list(APPEND HYPATIA_LIB_TARGET hypatia_static) list(APPEND HYPATIA_LIB_TARGET hypatia) INSTALL(TARGETS $:&#160;CMakeLists.txt']]]
+];
