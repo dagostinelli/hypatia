@@ -1,7 +1,7 @@
 
 asm.js
 -----------
-This library can be compiled for asm.js. But it is experimental.  You'll have
+Hypaita can be compiled for asm.js. But it is experimental.  You'll have
 to specify all of the .c files manually because there is not yet a CMake
 target for this yet.
 
