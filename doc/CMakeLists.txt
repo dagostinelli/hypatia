@@ -6,6 +6,10 @@ IF(DOXYGEN_FOUND)
 		"${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in"
 		"${HYPATIA_OUTPUT_DOXYFILE}"
 	)
+	CONFIGURE_FILE(
+		"${CMAKE_CURRENT_SOURCE_DIR}/footer.html"
+		"${CMAKE_CURRENT_BINARY_DIR}/footer.html"
+	)
 	ADD_CUSTOM_TARGET(
 		hypatia_docs
 		ALL
