@@ -55,7 +55,7 @@ int main(int argc, char *argv)
 
 3. Compile and run
 ```
-gcc -lhypatia mine_app.c && ./a.out
+gcc -lhypatia my_app.c && ./a.out
 ```
 
 Building
