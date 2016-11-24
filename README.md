@@ -11,8 +11,21 @@ Hypatia is a pure-C math library.  It is almost 100% C89/C90 compliant.  This li
 
 A word about naming convention:  Hypatia uses verbose names. In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (gracefully allows for ambiguous names).  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".  As an experiment, some \#defines have been added to alias the verbose names.  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
-How to Use
+Quick Start
 ----------
+NOTE: This will install in /usr.  You probably don't want that.  But this is a quick start.
+The best thing to do is to combine this library with your other code into a larger CMake project/solution.
+
+1. Download, build and install
+```
+git clone https://github.com/dagostinelli/hypatia
+mkdir build
+cd build
+cmake ..
+make && make install
+```
+
+2. Write some code
 ```
 #include <stdio.h>
 #include <assert.h>
@@ -40,8 +53,21 @@ int main(int argc, char *argv)
 
 ```
 
+3. Compile and run
+gcc -lhypatia mine_app.c && ./a.out
+
+
 Building
 --------
+
+**Windows (Visual Studio)**
+```
+git clone https://github.com/dagostinelli/hypatia
+mkdir build
+cd build
+cmake ..
+make
+```
 
 **Linux**
 ```
@@ -52,51 +78,72 @@ cmake ..
 make
 ```
 
-You can also build using single-precision floating point values instead of
-double (default) by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
+**Mac OSX**
+The steps are the same as Linux.  Be sure to have at least version 3.0 of cmake installed
+```
+git clone https://github.com/dagostinelli/hypatia
+mkdir build
+cd build
+cmake ..
+make
+```
+
+**Additional Build Options**
+
+- HYPATIA_SINGLE_PRECISION_FLOATS: (Default Off)
+Enable single-precision floating point values instead of double (default)
+by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
 
 ```
 cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
+cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
 ```
 
-There are additional build variables available:
 - HYPATIA_BUILD_SHARED: (Default ON) Controls if the shared library is built
+```
+cmake .. -DHYPATIA_BUILD_SHARED=ON
+cmake .. -DHYPATIA_BUILD_SHARED=OFF
+```
 - HYPATIA_BUILD_STATIC: (Default ON) Controls if the static library is built
+```
+cmake .. -DHYPATIA_BUILD_STATIC=ON
+cmake .. -DHYPATIA_BUILD_STATIC=OFF
+```
+
 - HYPATIA_BUILD_DOCS: (Default ON) Build the help documents
+```
+cmake .. -DHYPATIA_BUILD_DOCS=ON
+cmake .. -DHYPATIA_BUILD_DOCS=OFF
+```
+
 - HYPATIA_BUILD_TESTS: (Default ON) Build the unit tests
-- HYPATIA_SINGLE_PRECISION_FLOATS: (Default OFF) Use single-precision
-floating point values.  This is experimental.
+```
+cmake .. -DHYPATIA_BUILD_TESTS=ON
+cmake .. -DHYPATIA_BUILD_TESTS=OFF
+```
+
 - CMAKE_BUILD_TYPE: (Default Release) Set this to 'Release' or 'Debug'
-- CMAKE_INSTALL_PREFIX: Allows you to specify `make install` sends the output.
-
-Unit tests can be executed as follows
 ```
-mkdir build
-cd build
-cmake ..
-make && ctest
+cmake .. -CMAKE_BUILD_TYPE=Release
+cmake .. -CMAKE_BUILD_TYPE=Debug
 ```
 
-There is a built in packager using cpack. To build a tar.gz file, do as
-follows.
-
-
+- CMAKE_INSTALL_PREFIX: (Default /usr) Allows you to specify where `make install` sends the output.
 ```
-mkdir build
-cd build
-cmake ..
-make && ctest && cpack -G "TGZ"
+cmake .. -DCMAKE_INSTALL_PREFIX=~/hypatia/
+cmake .. -DCMAKE_INSTALL_PREFIX=~/projects/myproject/
+cmake .. -DCMAKE_INSTALL_PREFIX=~/experiments
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
 ```
 
 
 Documentation
 -------------
+A great way to learn how to use the library is to review the
+[unit tests](https://github.com/dagostinelli/hypatia/tree/master/test "Unit Tests")
+and [documentation](http://dagostinelli.github.io/hypatia/)
+
 Help pages [have been published online here](http://dagostinelli.github.io/hypatia/ "Documentation")
-
-
-Quick Start
------------
-A great way to learn how to use the library is to review the unit tests.
 
 Can I trust this math library?
 ------------------------------
@@ -104,25 +151,5 @@ A goal of the unit tests is to test each function against HYP_EPSILON which
 is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet
 have unit tests proving 1E-5, but more are coming.
 
-asm.js
------------
-This library can be compiled for asm.js. But it is experimental.  You'll have
-to specify all of the .c files manually because there is not yet a CMake
-target for this yet.
 
-```
-cd /where/emsdk/is/stored
-source emsdk_env.sh
-cd /where/hypatia/is/stored/src
-emcc matrix4.c quaternion.c vector2.c scalar.c vector3.c ../test/main.c -I .
-```
-then run the unit tests
-```
-$> node a.out.js
-quaternion_all_tests
-matrix4_all_tests
-vector3_all_tests
-ALL TESTS PASSED
-Tests run: 36
-```
 
