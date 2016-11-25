@@ -19,6 +19,7 @@ The best thing to do is to combine this library with your other code into a larg
 1. Download, build and install
 ```
 git clone https://github.com/dagostinelli/hypatia
+cd hypatia
 mkdir build
 cd build
 cmake ..
