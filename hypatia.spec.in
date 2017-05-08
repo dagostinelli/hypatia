@@ -1,0 +1,81 @@
+
+Name:		@CPACK_PACKAGE_NAME@
+Version:	@CPACK_PACKAGE_VERSION@
+Release:	@CPACK_RPM_PACKAGE_RELEASE@%{dist}
+Summary:	C library for 2D/3D graphics (matrix, vector, quaternion)
+
+Vendor:         @CPACK_PACKAGE_VENDOR@
+Packager:	@CPACK_PACKAGE_VENDOR@ <@CPACK_PACKAGE_CONTACT@>
+
+License:        MIT
+URL:            @CPACK_PACKAGE_URL@
+#Source0:        https://github.com/dagostinelli/%{name}/archive/%{version}.tar.gz
+#Source0:        @CMAKE_SOURCE_DIR@
+Source0:	%{name}-%{version}.tar.gz
+
+BuildRequires:  cmake >= 3.0
+BuildRequires:	gcc, make
+BuildRequires:  doxygen, graphviz, doxygen-latex
+#Prefix: @CPACK_PACKAGING_INSTALL_PREFIX@
+
+%description
+%{name} is a pure-C math library. It is almost 100% C89/C90 compliant.
+This library is intended for use in 2d/3d graphics program (such as games).
+Since it is not a general purpose math library, but a library meant for 3D
+graphics, certain opinions have been expressed in its design. One of those
+design choices, intended to help with speed, is that all objects (matrix, 
+vector, quaternion) are mutable. (That means that the objects change their
+values.)
+
+%package        devel
+Summary:        Header files, libraries and development documentation for %{name}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+
+%description    devel
+This package contains the header files for %{name}.
+
+%package        doc
+Summary:        Development documentation for %{name}
+BuildArch:      noarch
+
+%description    doc
+This package contains the development documentation for %{name}.
+
+%prep
+%setup -q
+#%setup -q -n %{name}-%{version}
+
+%build
+%cmake . -DHYPATIA_BUILD_STATIC=OFF -DHYPATIA_SINGLE_PRECISION_FLOATS=ON && \
+ctest -V %{?_smp_mflags} && \
+make %{?_smp_mflags} all
+
+%install
+make install DESTDIR=$RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/%{_docdir}/%{name}/html
+
+%check
+ctest -V %{?_smp_mflags}
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%license %{_licensedir}/lib%{name}/LICENSE
+%{_libdir}/libhypatia*.so.*
+
+%files devel
+%{_includedir}/%{name}/
+%{_libdir}/libhypatia.so
+
+%files doc
+%{_docdir}/lib%{name}/README.md
+%{_docdir}/lib%{name}/html/
+
+%changelog
+* Tue Jan 31 2017 Darryl T. Agostinelli <dagostinelli@gmail.com> 1.0.0-1
+- Created the .spec file for version 1.0.0
+* Tue Jan 31 2017 Darryl T. Agostinelli <dagostinelli@gmail.com> 1.0.0-2
+- Adjusted the package summary and description
+- Adjusted paths for files in doc and devel subpackages

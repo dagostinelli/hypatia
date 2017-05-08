@@ -7,7 +7,11 @@ rm -rf build
 mkdir build
 cd build
 
-cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
-make && ctest && make install && cpack -G "TGZ"
+cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Release -DHYPATIA_SINGLE_PRECISION_FLOATS=ON && \
+	make && \
+	ctest && \
+	make install && \
+	make srpm && \
+	make rpm
 
 popd
