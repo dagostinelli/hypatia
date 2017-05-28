@@ -1,7 +1,6 @@
 #ifndef _INC_MATRIX4
 #define _INC_MATRIX4
 
-
 struct matrix4
 {
 	union
@@ -39,7 +38,6 @@ struct matrix4
 	};
 };
 
-
 HYPAPI int matrix4_equals(const struct matrix4 *self, const struct matrix4 *mT);
 
 HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self);
@@ -47,8 +45,13 @@ HYPAPI struct matrix4 *matrix4_identity(struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_set(struct matrix4 *self, const struct matrix4 *mT);
 HYPAPI struct matrix4 *matrix4_add(struct matrix4 *self, const struct matrix4 *mT);
 HYPAPI struct matrix4 *matrix4_subtract(struct matrix4 *self, const struct matrix4 *mT);
+
 HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matrix4 *mT);
 HYPAPI struct matrix4 *matrix4_multiplyf(struct matrix4 *self, HYP_FLOAT scalar);
+HYPAPI struct vector4 *matrix4_multiplyv4(struct matrix4 *self, const struct vector4 *vT, struct vector4 *vR);
+HYPAPI struct vector3 *matrix4_multiplyv3(struct matrix4 *self, const struct vector3 *vT, struct vector3 *vR);
+HYPAPI struct vector2 *matrix4_multiplyv2(struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR);
+
 HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self);
 
 HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation);

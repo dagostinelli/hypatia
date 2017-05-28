@@ -41,10 +41,10 @@ static char *test_matrix4_multiplym4(void)
 	m1.c02 = 9;  m1.c12 = 10;  m1.c22 = 11; m1.c32 = 12;
 	m1.c03 = 13; m1.c13 = 14;  m1.c23 = 15; m1.c33 = 16;
 
-	mR.c00 = 90;  mR.c10 = 100;   mR.c20 = 110;  mR.c30 = 120;
-	mR.c01 = 202;  mR.c11 = 228;   mR.c21 = 254;  mR.c31 = 280;
+	mR.c00 = 90;   mR.c10 = 100;  mR.c20 = 110; mR.c30 = 120;
+	mR.c01 = 202;  mR.c11 = 228;  mR.c21 = 254; mR.c31 = 280;
 	mR.c02 = 314;  mR.c12 = 356;  mR.c22 = 398; mR.c32 = 440;
-	mR.c03 = 426; mR.c13 = 484;  mR.c23 = 542; mR.c33 = 600;
+	mR.c03 = 426;  mR.c13 = 484;  mR.c23 = 542; mR.c33 = 600;
 
 	/* copy m1 -> m2 */
 	matrix4_set(&m2, &m1);
@@ -56,17 +56,52 @@ static char *test_matrix4_multiplym4(void)
 }
 
 
-static char *test_matrix4_identity_with_vector(void)
+static char *test_matrix4_identity_with_vector2(void)
+{
+	/* vector * identity_matrix = vector */
+	struct matrix4 m;
+	struct vector2 startingPosition = {4.3f, 1.4f};
+	struct vector2 expectedPosition = {4.3f, 1.4f};
+	struct vector2 r;
+
+	matrix4_identity(&m);
+
+	matrix4_multiplyv2(&m, &startingPosition, &r);
+	test_assert(vector2_equals(&r, &expectedPosition));
+
+	return 0;
+}
+
+
+static char *test_matrix4_identity_with_vector3(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix4 m;
 	struct vector3 startingPosition = {4.3f, 1.4f, 3.67f};
 	struct vector3 expectedPosition = {4.3f, 1.4f, 3.67f};
+	struct vector3 r;
 
 	matrix4_identity(&m);
 
-	vector3_multiplym4(&startingPosition, &m);
-	test_assert(vector3_equals(&startingPosition, &expectedPosition));
+	matrix4_multiplyv3(&m, &startingPosition, &r);
+	test_assert(vector3_equals(&r, &expectedPosition));
+
+	return 0;
+}
+
+
+static char *test_matrix4_identity_with_vector4(void)
+{
+	/* vector * identity_matrix = vector */
+	struct matrix4 m;
+	struct vector4 startingPosition = {4.3f, 1.4f, 3.67f, 2.4f};
+	struct vector4 expectedPosition = {4.3f, 1.4f, 3.67f, 2.4f};
+	struct vector4 r;
+
+	matrix4_identity(&m);
+
+	matrix4_multiplyv4(&m, &startingPosition, &r);
+	test_assert(vector4_equals(&r, &expectedPosition));
 
 	return 0;
 }
@@ -525,9 +560,12 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);
 	run_test(test_matrix4_multiplym4);
-	run_test(test_matrix4_identity_with_vector);
 	run_test(test_matrix4_columnrowcolumn);
 	run_test(test_matrix4_transpose);
+
+	run_test(test_matrix4_identity_with_vector2);
+	run_test(test_matrix4_identity_with_vector3);
+	run_test(test_matrix4_identity_with_vector4);
 
 	run_test(test_matrix4_transformation_translatev3);
 	run_test(test_matrix4_transformation_translatev3_negative);

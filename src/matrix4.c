@@ -185,6 +185,60 @@ HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matri
 
 /**
  * @ingroup matrix4
+ * @brief Multiply a matrix by a vector4, returns a vector4. Matrix is unchanged. vT is unchanged
+ *
+ * @param self the matrix being multiplied. Remains unchanged.
+ * @param vT The vector being multiplied. Remains unchanged.
+ * @param vR The resultant vector. It is set to the answer
+ *
+ * vR = vT * self
+ */
+HYPAPI struct vector4 *matrix4_multiplyv4(struct matrix4 *self, const struct vector4 *vT, struct vector4 *vR)
+{
+	vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + vT->w * self->r03;
+	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + vT->w * self->r13;
+	vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + vT->w * self->r23;
+	vR->w = vT->x * self->r30 + vT->y * self->r31 + vT->z * self->r32 + vT->w * self->r33;
+	
+	return vR;
+}
+
+
+/**
+ * @brief Multiply a vector by a matrix
+ *
+ * @param self The matrix used to do the multiplication
+ * @param vT The vector being multiplied
+ * @param vR The vector returned
+ */
+HYPAPI struct vector3 *matrix4_multiplyv3(struct matrix4 *self, const struct vector3 *vT, struct vector3 *vR)
+{
+        vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + self->r03;
+        vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + self->r13;
+        vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + self->r23;
+
+        return vR;
+}
+
+
+/**
+ * @brief Multiply a vector by a matrix
+ *
+ * @param self The matrix used to do the multiplication
+ * @param vT The vector being multiplied
+ * @param vR The vector returned
+ */
+HYPAPI struct vector2 *matrix4_multiplyv2(struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR)
+{
+        vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r02 + self->r03;
+        vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r12 + self->r13;
+
+        return vR;
+}
+
+
+/**
+ * @ingroup matrix4
  * @brief Transpose the matrix
  *
  * @param self The matrix being changed

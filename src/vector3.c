@@ -298,7 +298,7 @@ HYPAPI HYP_FLOAT vector3_distance(const struct vector3 *v1, const struct vector3
 
 
 /**
- * @brief Multiply a vector by a matrix, returns a vector
+ * @brief Multiply a vector by a matrix, mutates the vector and returns it
  *
  * @param self The vector being multiplied
  * @param mT The matrix used to do the multiplication

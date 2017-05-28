@@ -44,7 +44,6 @@ HYPAPI struct vector3 *vector3_cross_product(struct vector3 *vR, const struct ve
 HYPAPI HYP_FLOAT vector3_angle_between(const struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_find_normal_axis_between(struct vector3 *vR, const struct vector3 *vT1, const struct vector3 *vT2);
 
-HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct matrix4 *mT);
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT);
 HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const struct quaternion *qT);
 

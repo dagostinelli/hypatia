@@ -40,8 +40,6 @@ HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct ve
 HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2);
 
-HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct matrix3 *mT);
-
 /* the length is the same as "magnitude" */
 #define vector2_length(v) vector2_magnitude(v)
 
