@@ -10,8 +10,9 @@ cd build
 cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Debug -DHYPATIA_SINGLE_PRECISION_FLOATS=ON && \
 	make && \
 	ctest && \
-	make install && \
-	make srpm && \
-	make rpm
+	make install
+	#&& \
+	#make srpm && \
+	#make rpm
 
 popd

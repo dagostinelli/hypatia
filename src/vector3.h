@@ -31,6 +31,7 @@ HYPAPI struct vector3 *vector3_subtract(struct vector3 *self, const struct vecto
 HYPAPI struct vector3 *vector3_subtractf(struct vector3 *self, HYP_FLOAT fT);
 HYPAPI struct vector3 *vector3_multiply(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_multiplyf(struct vector3 *self, HYP_FLOAT fT);
+HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct matrix4 *mT);
 HYPAPI struct vector3 *vector3_divide(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_dividef(struct vector3 *self, HYP_FLOAT fT);
 

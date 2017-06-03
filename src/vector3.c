@@ -308,10 +308,8 @@ HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct mat
 	struct vector3 vR;
 
 	vector3_zero(&vR);
-
-	vR.x = self->x * mT->r00 + self->y * mT->r01 + self->z * mT->r02 + mT->r03;
-	vR.y = self->x * mT->r10 + self->y * mT->r11 + self->z * mT->r12 + mT->r13;
-	vR.z = self->x * mT->r20 + self->y * mT->r21 + self->z * mT->r22 + mT->r23;
+	
+	matrix4_multiplyv3(mT, self, &vR);
 
 	vector3_set(self, &vR);
 
