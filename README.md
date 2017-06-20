@@ -63,6 +63,7 @@ Building
 --------
 
 **Windows (Visual Studio)**
+Building for Visual Studio is not supported directly.  You have to use CMake to generate the Visual Studio project files and then go from there.  Since CMake's default generator is Visual Studio, when present, on windows, the steps are identical to Linux (provided you have cmake installed)
 ```
 git clone https://github.com/dagostinelli/hypatia
 mkdir build
