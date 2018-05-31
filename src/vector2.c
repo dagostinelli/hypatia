@@ -176,10 +176,7 @@ HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct 
 
 HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
 {
-	return
-		vector2_normalize(
-			vector2_cross_product(vR, vT1, vT2)
-		);
+	return vector2_normalize(vector2_cross_product(vR, vT1, vT2));
 }
 
 

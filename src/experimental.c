@@ -39,7 +39,7 @@
  * @param az the z axis
  *
  */
-HYPAPI struct quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	struct quaternion qx;
 	struct quaternion qy;
@@ -60,7 +60,7 @@ HYPAPI struct quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP(struct qua
 }
 
 
-HYPAPI struct quaternion * quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
 	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
@@ -98,7 +98,7 @@ HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self,
  * @param qT the other quaternion
  *
  */
-HYPAPI struct quaternion * quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT)
+HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT)
 {
 	/* self = self * qT */
 	quaternion_multiply(self, qT);
@@ -119,7 +119,7 @@ HYPAPI struct quaternion * quaternion_rotate_by_quaternion_EXP(struct quaternion
  * @param angle the transformed point
  *
  */
-HYPAPI struct quaternion * quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	struct quaternion qT;
 
@@ -162,7 +162,7 @@ HYPAPI HYP_FLOAT quaternion_difference_EXP(const struct quaternion *q1, const st
  * @param az roll
  *
  */
-HYPAPI struct quaternion * quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	struct quaternion qT;
 
@@ -269,9 +269,9 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4
  * @brief make an orthographic projection matrix with right handed coordinates
  */
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self,
-						HYP_FLOAT xmin, HYP_FLOAT xmax,
-						HYP_FLOAT ymin, HYP_FLOAT ymax,
-						HYP_FLOAT zNear, HYP_FLOAT zFar)
+							 HYP_FLOAT xmin, HYP_FLOAT xmax,
+							 HYP_FLOAT ymin, HYP_FLOAT ymax,
+							 HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
 	HYP_FLOAT width;
 	HYP_FLOAT height;

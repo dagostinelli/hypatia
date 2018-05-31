@@ -605,7 +605,7 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_transformation_scalingv3);
 	run_test(test_matrix4_transformation_scale_then_translatev3);
 	run_test(test_matrix4_transform_3d_scale_translate);
-	
+
 	run_test(test_matrix4_transformation_translatev3_with_vector2);
 	run_test(test_matrix4_transformation_translatev3_with_vector2_2);
 

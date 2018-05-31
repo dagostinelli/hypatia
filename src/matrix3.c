@@ -327,7 +327,7 @@ HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *m
  * @param translation the translation vector
  *
  */
-HYPAPI struct matrix3 *matrix3_translatev2(struct matrix3 *self, const struct vector2 * translation)
+HYPAPI struct matrix3 *matrix3_translatev2(struct matrix3 *self, const struct vector2 *translation)
 {
 	struct matrix3 translationMatrix;
 

@@ -308,7 +308,7 @@ HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct mat
 	struct vector3 vR;
 
 	vector3_zero(&vR);
-	
+
 	matrix4_multiplyv3(mT, self, &vR);
 
 	vector3_set(self, &vR);

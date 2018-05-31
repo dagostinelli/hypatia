@@ -1,7 +1,7 @@
 /**
  * @file hypatia.h
  *
-*/
+ */
 
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA

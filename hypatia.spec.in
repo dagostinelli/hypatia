@@ -23,7 +23,7 @@ BuildRequires:  doxygen, graphviz, doxygen-latex
 This library is intended for use in 2d/3d graphics program (such as games).
 Since it is not a general purpose math library, but a library meant for 3D
 graphics, certain opinions have been expressed in its design. One of those
-design choices, intended to help with speed, is that all objects (matrix, 
+design choices, intended to help with speed, is that all objects (matrix,
 vector, quaternion) are mutable. (That means that the objects change their
 values.)
 

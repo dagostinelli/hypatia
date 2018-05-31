@@ -185,7 +185,7 @@ HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matri
 
 /**
  * @ingroup matrix4
- * @brief Multiply a matrix by a vector4, returns a vector4. Matrix is unchanged. vT is unchanged
+ * @brief Multiply a matrix by a vector4, returns a vector4.
  *
  * @param self the matrix being multiplied. Remains unchanged.
  * @param vT The vector being multiplied. Remains unchanged.
@@ -199,7 +199,7 @@ HYPAPI struct vector4 *matrix4_multiplyv4(struct matrix4 *self, const struct vec
 	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + vT->w * self->r13;
 	vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + vT->w * self->r23;
 	vR->w = vT->x * self->r30 + vT->y * self->r31 + vT->z * self->r32 + vT->w * self->r33;
-	
+
 	return vR;
 }
 
@@ -213,11 +213,11 @@ HYPAPI struct vector4 *matrix4_multiplyv4(struct matrix4 *self, const struct vec
  */
 HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const struct vector3 *vT, struct vector3 *vR)
 {
-        vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + self->r03;
-        vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + self->r13;
-        vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + self->r23;
+	vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + self->r03;
+	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + self->r13;
+	vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + self->r23;
 
-        return vR;
+	return vR;
 }
 
 
@@ -230,10 +230,10 @@ HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const stru
  */
 HYPAPI struct vector2 *matrix4_multiplyv2(struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR)
 {
-        vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r02 + self->r03;
-        vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r12 + self->r13;
+	vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r02 + self->r03;
+	vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r12 + self->r13;
 
-        return vR;
+	return vR;
 }
 
 
@@ -370,7 +370,7 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *sel
  * @brief creates a translation matrix.  It's opinionated about what that means.
  *
  */
-HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 * translation)
+HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation)
 {
 	matrix4_identity(self);
 
@@ -479,7 +479,7 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_z(struct matrix4 *m
  * @param translation the translation vector
  *
  */
-HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct vector3 * translation)
+HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct vector3 *translation)
 {
 	struct matrix4 translationMatrix;
 
@@ -498,7 +498,7 @@ HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct ve
  * @param angle the angle of rotation in radians
  *
  */
-HYPAPI struct matrix4 *matrix4_rotatev3(struct matrix4 *self, const struct vector3 * axis, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_rotatev3(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	struct matrix4 rotationMatrix;
 	struct quaternion q;

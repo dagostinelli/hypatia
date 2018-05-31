@@ -50,7 +50,7 @@ HYPAPI struct quaternion *quaternion_setf4(struct quaternion *self, HYP_FLOAT x,
  * @brief initializes the quaternion by copying the data from qT.  This is
  * effectively a copy function.
  */
-HYPAPI struct quaternion *quaternion_set(struct quaternion * self, const struct quaternion *qT)
+HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct quaternion *qT)
 {
 	return quaternion_setf4(self, qT->x, qT->y, qT->z, qT->w);
 }
