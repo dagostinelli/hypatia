@@ -40,5 +40,6 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 #define _SWAP(x, y) do { tmp = x; x = y; y = tmp; } while (0)
 
+#include "inline.h"
 
 #endif /* _INC_HYPATIA_INTERNAL */
