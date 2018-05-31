@@ -73,6 +73,39 @@ static char *test_matrix4_identity_with_vector2(void)
 }
 
 
+static char *test_matrix4_transformation_translatev3_with_vector2(void)
+{
+	struct matrix4 m;
+	struct vector2 r;
+
+	struct vector2 startingPosition = {4.3f, 7.4f};
+	struct vector3 translation = {0.1f, 0.1f, 0.0f};
+	struct vector2 expectedPosition = {4.4f, 7.5f};
+
+	matrix4_make_transformation_translationv3(&m, &translation);
+	matrix4_multiplyv2(&m, &startingPosition, &r);
+	test_assert(vector2_equals(&r, &expectedPosition));
+
+	return 0;
+}
+
+static char *test_matrix4_transformation_translatev3_with_vector2_2(void)
+{
+	struct matrix4 m;
+	struct vector2 r;
+
+	struct vector2 startingPosition = {4.3f, 7.4f};
+	struct vector3 translation = {0.1f, 0.1f, 1.0f};
+	struct vector2 expectedPosition = {4.4f, 7.5f};
+
+	matrix4_make_transformation_translationv3(&m, &translation);
+	matrix4_multiplyv2(&m, &startingPosition, &r);
+	test_assert(vector2_equals(&r, &expectedPosition));
+
+	return 0;
+}
+
+
 static char *test_matrix4_identity_with_vector3(void)
 {
 	/* vector * identity_matrix = vector */
@@ -572,6 +605,9 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_transformation_scalingv3);
 	run_test(test_matrix4_transformation_scale_then_translatev3);
 	run_test(test_matrix4_transform_3d_scale_translate);
+	
+	run_test(test_matrix4_transformation_translatev3_with_vector2);
+	run_test(test_matrix4_transformation_translatev3_with_vector2_2);
 
 	run_test(test_vector3_rotate_by_matrix_xy_quarter_turn);
 	run_test(test_vector3_rotate_by_matrix_yx_quarter_turn);
