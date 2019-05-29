@@ -193,7 +193,7 @@ HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matri
  *
  * vR = vT * self
  */
-HYPAPI struct vector4 *matrix4_multiplyv4(struct matrix4 *self, const struct vector4 *vT, struct vector4 *vR)
+HYPAPI struct vector4 *matrix4_multiplyv4(const struct matrix4 *self, const struct vector4 *vT, struct vector4 *vR)
 {
 	vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + vT->w * self->r03;
 	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + vT->w * self->r13;
@@ -228,7 +228,7 @@ HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const stru
  * @param vT The vector being multiplied
  * @param vR The vector returned
  */
-HYPAPI struct vector2 *matrix4_multiplyv2(struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR)
+HYPAPI struct vector2 *matrix4_multiplyv2(const struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR)
 {
 	vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r02 + self->r03;
 	vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r12 + self->r13;
