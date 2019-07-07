@@ -13,6 +13,7 @@
 #include "test_quaternion.c"
 #include "test_matrix3.c"
 #include "test_matrix4.c"
+#include "test_experimental.c"
 
 int tests_run;
 char *test_message;
@@ -27,6 +28,8 @@ static char *all_testsuites(void)
 	run_test(matrix4_all_tests);
 	printf("vector3_all_tests\n");
 	run_test(vector3_all_tests);
+	printf("experimental_all_tests\n");
+	run_test(experimental_all_tests);
 
 	return 0;
 }
