@@ -517,7 +517,7 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4
 }
 
 
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *position)
+HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *translation)
 {
 	struct matrix4 scaleM, rotateM;
 
@@ -530,9 +530,9 @@ HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, 
 	matrix4_multiply(self, matrix4_make_transformation_rotationq(&rotateM, orientation));
 
 	/* translate */
-	self->c30 = position->x;
-	self->c31 = position->y;
-	self->c32 = position->z;
+	self->c30 = translation->x;
+	self->c31 = translation->y;
+	self->c32 = translation->z;
 
 	return self;
 }

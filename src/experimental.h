@@ -23,7 +23,7 @@ HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self,
 HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, struct vector3 *vT);
 HYPAPI struct matrix4 *matrix4_invert_EXP(struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4 *self, const struct vector3 *vR);
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *position);
-HYPAPI struct matrix4 *matrix4_transformation_decompose_EXP(const struct matrix4 *self, struct vector3 *scale, struct quaternion *orientation, struct vector3 *position);
+HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *translation);
+HYPAPI struct matrix4 *matrix4_transformation_decompose_EXP(const struct matrix4 *self, struct vector3 *scale, struct quaternion *orientation, struct vector3 *translation);
 
 #endif /* _INC_EXPERIMENTAL */
