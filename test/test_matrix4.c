@@ -555,6 +555,42 @@ static char *test_matrix4_transform_3d_scale_translate(void)
 }
 
 
+static char *test_matrix4_determinant_row_is_zero(void)
+{
+	struct matrix4 m;
+	HYP_FLOAT det;
+
+	/* identity is not zero */
+	matrix4_identity(&m);
+	det = matrix4_determinant(&m);
+	test_assert(!scalar_equals(det, 0));
+	test_assert(scalar_equals(det, 1));
+
+	/* when any row is zero, the determinant is zero */
+	matrix4_identity(&m);
+	m.r00 = 0.0; m.r01 = 0.0; m.r02 = 0.0; m.r03 = 0.0;
+	det = matrix4_determinant(&m);
+	test_assert(scalar_equals(det, 0));
+
+	matrix4_identity(&m);
+	m.r10 = 0.0; m.r11 = 0.0; m.r12 = 0.0; m.r13 = 0.0;
+	det = matrix4_determinant(&m);
+	test_assert(scalar_equals(det, 0));
+
+	matrix4_identity(&m);
+	m.r20 = 0.0; m.r21 = 0.0; m.r22 = 0.0; m.r23 = 0.0;
+	det = matrix4_determinant(&m);
+	test_assert(scalar_equals(det, 0));
+
+	matrix4_identity(&m);
+	m.r30 = 0.0; m.r31 = 0.0; m.r32 = 0.0; m.r33 = 0.0;
+	det = matrix4_determinant(&m);
+	test_assert(scalar_equals(det, 0));
+
+	return 0;
+}
+
+
 static char *test_matrix4_inverse(void)
 {
 	struct matrix4 originalMatrix;
@@ -629,6 +665,7 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_transform_3d_combined);
 
 	run_test(test_matrix4_inverse);
+	run_test(test_matrix4_determinant_row_is_zero);
 
 	return 0;
 }

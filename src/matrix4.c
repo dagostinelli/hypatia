@@ -525,3 +525,29 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
 	return matrix4_multiply(self,
 		matrix4_make_transformation_scalingv3(&scalingMatrix, scale));
 }
+
+
+/**
+ * @ingroup matrix4
+ * @brief Finds the determinant of a matrix
+ *
+ * @param self The transformation matrix being questioned
+ *
+ */
+HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
+{
+	HYP_FLOAT determinant;
+
+	determinant =
+	  A4(11, 22, 33, 44) + A4(11, 23, 34, 42) + A4(11, 24, 32, 43)
+	+ A4(12, 21, 34, 43) + A4(12, 23, 31, 44) + A4(12, 24, 33, 41)
+	+ A4(13, 21, 32, 44) + A4(13, 22, 34, 41) + A4(13, 24, 31, 42)
+	+ A4(14, 21, 33, 42) + A4(14, 22, 31, 43) + A4(14, 23, 32, 41)
+	- A4(11, 22, 34, 43) - A4(11, 23, 32, 44) - A4(11, 24, 33, 42)
+	- A4(12, 21, 33, 44) - A4(12, 23, 34, 41) - A4(12, 24, 31, 43)
+	- A4(13, 21, 34, 42) - A4(13, 22, 31, 44) - A4(13, 24, 32, 41)
+	- A4(14, 21, 32, 43) - A4(14, 22, 33, 41) - A4(14, 23, 31, 42)
+	;
+
+	return determinant;
+}

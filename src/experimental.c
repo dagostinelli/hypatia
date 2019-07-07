@@ -418,7 +418,7 @@ HYPAPI struct matrix4 *matrix4_invert_EXP(struct matrix4 *self)
 	HYP_FLOAT determinant;
 	uint8_t i;
 
-	determinant = matrix4_determinant_EXP(self);
+	determinant = matrix4_determinant(self);
 
 	if (scalar_equalsf(determinant, 0.0f))
 	{
@@ -450,25 +450,6 @@ HYPAPI struct matrix4 *matrix4_invert_EXP(struct matrix4 *self)
 	}
 
 	return self;
-}
-
-
-HYPAPI HYP_FLOAT matrix4_determinant_EXP(const struct matrix4 *self)
-{
-	HYP_FLOAT determinant;
-
-	determinant =
-	  A4(11, 22, 33, 44) + A4(11, 23, 34, 42) + A4(11, 24, 32, 43)
-	+ A4(12, 21, 34, 43) + A4(12, 23, 31, 44) + A4(12, 24, 33, 41)
-	+ A4(13, 21, 32, 44) + A4(13, 22, 34, 41) + A4(13, 24, 31, 42)
-	+ A4(14, 21, 33, 42) + A4(14, 22, 31, 43) + A4(14, 23, 32, 41)
-	- A4(11, 22, 34, 43) - A4(11, 23, 32, 44) - A4(11, 24, 33, 42)
-	- A4(12, 21, 33, 44) - A4(12, 23, 34, 41) - A4(12, 24, 31, 43)
-	- A4(13, 21, 34, 42) - A4(13, 22, 31, 44) - A4(13, 24, 32, 41)
-	- A4(14, 21, 32, 43) - A4(14, 22, 33, 41) - A4(14, 23, 31, 42)
-	;
-
-	return determinant;
 }
 
 
@@ -541,9 +522,14 @@ HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, 
 	struct matrix4 scaleM, rotateM;
 
 	matrix4_identity(self);
+
+	/* scale */
 	matrix4_multiply(self, matrix4_make_transformation_scalingv3(&scaleM, scale));
+
+	/* rotate */
 	matrix4_multiply(self, matrix4_make_transformation_rotationq(&rotateM, orientation));
 
+	/* translate */
 	self->c30 = position->x;
 	self->c31 = position->y;
 	self->c32 = position->z;

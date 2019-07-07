@@ -53,6 +53,7 @@ HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const stru
 HYPAPI struct vector2 *matrix4_multiplyv2(const struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR);
 
 HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self);
+HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self);
 
 HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation);
 HYPAPI struct matrix4 *matrix4_make_transformation_scalingv3(struct matrix4 *self, const struct vector3 *scale);
