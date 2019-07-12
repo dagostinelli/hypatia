@@ -598,7 +598,7 @@ static char *test_matrix4_inverse(void)
 	struct matrix4 inverted;
 	struct vector3 scratchVector;
 	struct matrix4 scratchMatrix;
-	void *hasInverse = 0;
+	void *hasInverse = NULL;
 
 	matrix4_identity(&identity);
 
@@ -607,12 +607,9 @@ static char *test_matrix4_inverse(void)
 	matrix4_multiply(&originalMatrix, matrix4_make_transformation_translationv3(&scratchMatrix, vector3_setf3(&scratchVector, 1.0f, 0.8f, 0.3f)));
 	matrix4_multiply(&originalMatrix, matrix4_set_from_euler_anglesf3_EXP(&scratchMatrix, HYP_TAU / 4.0f, HYP_TAU / 4.0f, HYP_TAU / 4.0f));
 
-	hasInverse = matrix4_invert_EXP(matrix4_set(&inverted, &originalMatrix));
+	hasInverse = matrix4_invert(matrix4_set(&inverted, &originalMatrix));
 
-	if (hasInverse == 0)
-	{
-		printf("matrix has no inverse\n");
-	}
+	test_assert(hasInverse != NULL);
 
 	matrix4_identity(&scratchMatrix);
 	matrix4_multiply(&scratchMatrix, &inverted);

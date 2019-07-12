@@ -6,6 +6,29 @@
  * @file matrix4.c
  */
 
+#define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
+#define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+#define DEC(x) PRIMITIVE_CAT(DEC_, x)
+#define DEC_11 00
+#define DEC_12 01
+#define DEC_13 02
+#define DEC_14 03
+#define DEC_21 10
+#define DEC_22 11
+#define DEC_23 12
+#define DEC_24 13
+#define DEC_31 20
+#define DEC_32 21
+#define DEC_33 22
+#define DEC_34 23
+#define DEC_41 30
+#define DEC_42 31
+#define DEC_43 32
+#define DEC_44 33
+#define A(x) CAT(self->r,  DEC(x))
+#define B(x) CAT(inverse.r, DEC(x))
+#define A4(x1, x2, x3, x4) (A(x1) * A(x2) * A(x3) * A(x4))
+#define A3(x1, x2, x3) (A(x1) * A(x2) * A(x3))
 
 /**
  * @ingroup matrix4
@@ -550,4 +573,79 @@ HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 	;
 
 	return determinant;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Invert a matrix
+ *
+ * @param self The transformation matrix being inverted
+ *
+ */
+HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
+{
+	struct matrix4 inverse;
+	uint8_t i;
+
+	if (matrix4_inverse(self, &inverse) != NULL)
+	{
+		for (i = 0; i < 16; i++)
+		{
+			self->m[i] = inverse.m[i];
+		}
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Find the inverse of the matrix
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix4 *matrix4_inverse(struct matrix4 *self, struct matrix4 *mR)
+{
+	struct matrix4 inverse;
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	determinant = matrix4_determinant(self);
+
+	if (scalar_equalsf(determinant, 0.0f))
+	{
+		return NULL;
+	}
+
+	determinant = 1.0f / determinant;
+
+	matrix4_identity(&inverse);
+
+	B(11) = A3(22, 33, 44) + A3(23, 34, 42) + A3(24, 32, 43) - A3(22, 34, 43) - A3(23, 32, 44) - A3(24, 33, 42);
+	B(12) = A3(12, 34, 43) + A3(13, 32, 44) + A3(14, 33, 42) - A3(12, 33, 44) - A3(13, 34, 42) - A3(14, 32, 43);
+	B(13) = A3(12, 23, 44) + A3(13, 24, 42) + A3(14, 22, 43) - A3(12, 24, 43) - A3(13, 22, 44) - A3(14, 23, 42);
+	B(14) = A3(12, 24, 33) + A3(13, 22, 34) + A3(14, 23, 32) - A3(12, 23, 34) - A3(13, 24, 32) - A3(14, 22, 33);
+	B(21) = A3(21, 34, 43) + A3(23, 31, 44) + A3(24, 33, 41) - A3(21, 33, 44) - A3(23, 34, 41) - A3(24, 31, 43);
+	B(22) = A3(11, 33, 44) + A3(13, 34, 41) + A3(14, 31, 43) - A3(11, 34, 43) - A3(13, 31, 44) - A3(14, 33, 41);
+	B(23) = A3(11, 24, 43) + A3(13, 21, 44) + A3(14, 23, 41) - A3(11, 23, 44) - A3(13, 24, 41) - A3(14, 21, 43);
+	B(24) = A3(11, 23, 34) + A3(13, 24, 31) + A3(14, 21, 33) - A3(11, 24, 33) - A3(13, 21, 34) - A3(14, 23, 31);
+	B(31) = A3(21, 32, 44) + A3(22, 34, 41) + A3(24, 31, 42) - A3(21, 34, 42) - A3(22, 31, 44) - A3(24, 32, 41);
+	B(32) = A3(11, 34, 42) + A3(12, 31, 44) + A3(14, 32, 41) - A3(11, 32, 44) - A3(12, 34, 41) - A3(14, 31, 42);
+	B(33) = A3(11, 22, 44) + A3(12, 24, 41) + A3(14, 21, 42) - A3(11, 24, 42) - A3(12, 21, 44) - A3(14, 22, 41);
+	B(34) = A3(11, 24, 32) + A3(12, 21, 34) + A3(14, 22, 31) - A3(11, 22, 34) - A3(12, 24, 31) - A3(14, 21, 32);
+	B(41) = A3(21, 33, 42) + A3(22, 31, 43) + A3(23, 32, 41) - A3(21, 32, 43) - A3(22, 33, 41) - A3(23, 31, 42);
+	B(42) = A3(11, 32, 43) + A3(12, 33, 41) + A3(13, 31, 42) - A3(11, 33, 42) - A3(12, 31, 43) - A3(13, 32, 41);
+	B(43) = A3(11, 23, 42) + A3(12, 21, 43) + A3(13, 22, 41) - A3(11, 22, 43) - A3(12, 23, 41) - A3(13, 21, 42);
+	B(44) = A3(11, 22, 33) + A3(12, 23, 31) + A3(13, 21, 32) - A3(11, 23, 32) - A3(12, 21, 33) - A3(13, 22, 31);
+
+	for (i = 0; i < 16; i++)
+	{
+		mR->m[i] = inverse.m[i] * determinant;
+	}
+
+	return mR;
 }
