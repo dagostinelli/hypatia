@@ -32,12 +32,10 @@ HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quat
 	quaternion_multiply(&qz, &qx);
 	quaternion_set(self, &qz);
 
-	quaternion_normalize(self);
-
-	return self;
+	return quaternion_normalize(self);
 }
 
-
+/*
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
@@ -45,11 +43,10 @@ HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct qua
 	self->y = HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f);
 	self->z = HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) - HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
 
-	/* normalize */
 	quaternion_normalize(self);
 
 	return self;
-}
+}*/
 
 
 HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
@@ -61,9 +58,9 @@ HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self,
 	qy = self->y;
 	qz = self->z;
 
-	*az = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
+	*ax = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
 	*ay = HYP_ASIN(-2.0f * ((qx * qz) - (qw * qy)));
-	*ax = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
+	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
 }
 
 

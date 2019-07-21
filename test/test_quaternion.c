@@ -1,4 +1,4 @@
-
+/*#include <stdio.h>*/
 
 /** [quaternion identity example] */
 static char *test_quaternion_identity(void)
@@ -320,7 +320,9 @@ static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 	HYP_FLOAT in_anglex, in_angley, in_anglez;
 	HYP_FLOAT out_anglex, out_angley, out_anglez;
 
-	in_anglex = in_angley = in_anglez = 0.8f;
+	in_anglex = 0.8f;
+	in_angley = 0.7f;
+	in_anglez = 0.432f;
 
 	/* make a quaternion out of some arbitrary euler angles */
 	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q1, in_anglex, in_angley, in_anglez);
