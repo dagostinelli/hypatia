@@ -1,26 +1,55 @@
-static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
+
+
+static char *test_matrix4_transformation_decompose_translation(void)
 {
-	struct quaternion q1, q2;
-	HYP_FLOAT anglex, angley, anglez;
+	struct vector3 in_translation;
+	struct vector3 out_translation;
+	struct vector3 out_scale;
+	struct quaternion out_rotation;
+	struct matrix4 t;
 
-	/* make a quaternion out of some arbitrary euler angles */
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q1, 0.8f, 0.8f, 0.8f);
+	/* make a translation matrix */
+	in_translation.x = 1.0;
+	in_translation.y = 2.0;
+	in_translation.z = 3.0;
+	matrix4_make_transformation_translationv3(&t, &in_translation);
 
-	/* get the angles */
-	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &anglex, &angley, &anglez);
-
-	/* compose new quaternions with the eulers */
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q2, anglex, angley, anglez);
+	/* decompose */
+	matrix4_transformation_decompose_EXP(&t, &out_scale, &out_rotation, &out_translation);
 
 	/* same */
-	test_assert(quaternion_equals(&q1, &q2));
+	test_assert(vector3_equals(&in_translation, &out_translation));
+
+	return 0;
+}
+
+static char *test_matrix4_transformation_decompose_scaling(void)
+{
+	struct vector3 in_scale;
+	struct vector3 out_translation;
+	struct vector3 out_scale;
+	struct quaternion out_rotation;
+	struct matrix4 t;
+
+	/* make a scaling matrix */
+	in_scale.x = 1.0;
+	in_scale.y = 2.0;
+	in_scale.z = 3.0;
+	matrix4_make_transformation_scalingv3(&t, &in_scale);
+
+	/* decompose */
+	matrix4_transformation_decompose_EXP(&t, &out_scale, &out_rotation, &out_translation);
+
+	/* same */
+	test_assert(vector3_equals(&in_scale, &out_scale));
 
 	return 0;
 }
 
 static char *experimental_all_tests(void)
 {
-	run_test(test_quaternion_get_eulers_create_quaternion_ZYX);
+	run_test(test_matrix4_transformation_decompose_translation);
+	run_test(test_matrix4_transformation_decompose_scaling);
 
 	return 0;
 }

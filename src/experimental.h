@@ -1,6 +1,7 @@
 #ifndef _INC_EXPERIMENTAL
 #define _INC_EXPERIMENTAL
 
+#include <stdint.h>
 
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
@@ -22,7 +23,6 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, H
 HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z);
 HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, struct vector3 *vT);
 HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4 *self, const struct vector3 *vR);
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *translation);
-HYPAPI struct matrix4 *matrix4_transformation_decompose_EXP(const struct matrix4 *self, struct vector3 *scale, struct quaternion *orientation, struct vector3 *translation);
-
+HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
+HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
 #endif /* _INC_EXPERIMENTAL */

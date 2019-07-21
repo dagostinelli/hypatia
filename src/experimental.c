@@ -454,7 +454,7 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4
 }
 
 
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *orientation, const struct vector3 *translation)
+HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation)
 {
 	struct matrix4 scaleM, rotateM;
 
@@ -464,7 +464,7 @@ HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, 
 	matrix4_multiply(self, matrix4_make_transformation_scalingv3(&scaleM, scale));
 
 	/* rotate */
-	matrix4_multiply(self, matrix4_make_transformation_rotationq(&rotateM, orientation));
+	matrix4_multiply(self, matrix4_make_transformation_rotationq(&rotateM, rotation));
 
 	/* translate */
 	self->c30 = translation->x;
@@ -472,4 +472,33 @@ HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, 
 	self->c32 = translation->z;
 
 	return self;
+}
+
+HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation)
+{
+	HYP_FLOAT signx, signy, signz;
+
+	/* translation */
+	translation->x = self->c30;
+	translation->y = self->c31;
+	translation->z = self->c32;
+
+	/*self->c00 = scale->x;
+	self->c11 = scale->y;
+	self->c22 = scale->z;*/
+
+	/* sign */
+	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -1 : 1;
+	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -1 : 1;
+	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -1 : 1;
+
+	/* scale */
+	scale->x = signx * HYP_SQRT(self->c00 * self->c00 + self->c01 * self->c01 + self->c02 * self->c02);
+	scale->y = signy * HYP_SQRT(self->c10 * self->c10 + self->c11 * self->c11 + self->c12 * self->c12);
+	scale->z = signz * HYP_SQRT(self->c20 * self->c20 + self->c21 * self->c21 + self->c22 * self->c22);
+
+	/* todo */
+	quaternion_identity(rotation);
+
+	return 1;
 }
