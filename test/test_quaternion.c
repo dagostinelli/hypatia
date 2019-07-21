@@ -369,6 +369,21 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 	test_assert(scalar_equals(in_angley, out_angley));
 	test_assert(scalar_equals(in_anglez, out_anglez));
 
+
+	quaternion_identity(&q1);
+	quaternion_rotate_by_quaternion_EXP(
+	    &q1,
+	    quaternion_set_from_euler_anglesf3_ZYX_EXP(
+		    &scratchQuaternion, in_anglex, in_angley, in_anglez));
+
+	/* get the angles */
+	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &out_anglex, &out_angley, &out_anglez);
+
+	/* test */
+	test_assert(scalar_equals(in_anglex, out_anglex));
+	test_assert(scalar_equals(in_angley, out_angley));
+	test_assert(scalar_equals(in_anglez, out_anglez));
+
 	return 0;
 }
 
