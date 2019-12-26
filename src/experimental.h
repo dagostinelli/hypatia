@@ -1,6 +1,8 @@
 #ifndef _INC_EXPERIMENTAL
 #define _INC_EXPERIMENTAL
 
+#include "hypatia.h"
+
 #include <stdint.h>
 
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);

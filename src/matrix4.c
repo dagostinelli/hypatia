@@ -281,12 +281,12 @@ HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
 {
 	HYP_FLOAT tmp;
 
-	_SWAP(self->r01, self->r10);
-	_SWAP(self->r02, self->r20);
-	_SWAP(self->r03, self->r30);
-	_SWAP(self->r12, self->r21);
-	_SWAP(self->r13, self->r31);
-	_SWAP(self->r23, self->r32);
+	_HYP_SWAP(self->r01, self->r10);
+	_HYP_SWAP(self->r02, self->r20);
+	_HYP_SWAP(self->r03, self->r30);
+	_HYP_SWAP(self->r12, self->r21);
+	_HYP_SWAP(self->r13, self->r31);
+	_HYP_SWAP(self->r23, self->r32);
 
 	return self;
 }
@@ -301,12 +301,12 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
 {
 	HYP_FLOAT tmp;
 
-	_SWAP(self->c01, self->c10);
-	_SWAP(self->c02, self->c20);
-	_SWAP(self->c03, self->c30);
-	_SWAP(self->c12, self->c21);
-	_SWAP(self->c13, self->c31);
-	_SWAP(self->c23, self->c32);
+	_HYP_SWAP(self->c01, self->c10);
+	_HYP_SWAP(self->c02, self->c20);
+	_HYP_SWAP(self->c03, self->c30);
+	_HYP_SWAP(self->c12, self->c21);
+	_HYP_SWAP(self->c13, self->c31);
+	_HYP_SWAP(self->c23, self->c32);
 
 	return self;
 }

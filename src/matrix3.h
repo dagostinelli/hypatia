@@ -1,6 +1,7 @@
 #ifndef _INC_MATRIX3
 #define _INC_MATRIX3
 
+#include "hypatia.h"
 
 struct matrix3
 {

@@ -1,6 +1,7 @@
 #ifndef _INC_QUATERNION
 #define _INC_QUATERNION
 
+#include "hypatia.h"
 
 struct quaternion
 {

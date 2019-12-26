@@ -1,6 +1,8 @@
 #ifndef _INC_MATRIX4
 #define _INC_MATRIX4
 
+#include "hypatia.h"
+
 struct matrix4
 {
 	union

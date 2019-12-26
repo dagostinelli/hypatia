@@ -6,11 +6,6 @@
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
 
-/* start with HYPAPI being off */
-#ifndef HYPAPI
-#	define HYPAPI
-#endif
-
 
 #include "config.h"
 
@@ -114,18 +109,6 @@ struct matrix3;
 struct matrix4;
 struct quaternion;
 
-#endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#include "vector2.h"
-#include "vector3.h"
-#include "vector4.h"
-#include "matrix3.h"
-#include "matrix4.h"
-#include "quaternion.h"
-#include "experimental.h"
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 #define HYP_REF_VECTOR2_ZERO 0
 #define HYP_REF_VECTOR2_UNIT_X 1
 #define HYP_REF_VECTOR2_UNIT_Y 2
@@ -224,5 +207,22 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #define scalar_equalsf scalar_equals
 
+#define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
+#define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
+#define HYP_COT(a) (1.0f / HYP_TAN(a))
+
+#include "vector2.h"
+#include "vector3.h"
+#include "vector4.h"
+#include "matrix3.h"
+#include "matrix4.h"
+#include "quaternion.h"
+#include "experimental.h"
+
+#define _HYP_SWAP(x, y) do { tmp = x; x = y; y = tmp; } while (0)
 
 #endif /* _INC_HYPATIA */

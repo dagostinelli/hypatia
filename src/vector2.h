@@ -1,6 +1,7 @@
 #ifndef _INC_VECTOR2
 #define _INC_VECTOR2
 
+#include "hypatia.h"
 
 struct vector2
 {

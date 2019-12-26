@@ -194,9 +194,9 @@ HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
 {
 	HYP_FLOAT tmp;
 
-	_SWAP(self->r01, self->r10);
-	_SWAP(self->r02, self->r20);
-	_SWAP(self->r12, self->r21);
+	_HYP_SWAP(self->r01, self->r10);
+	_HYP_SWAP(self->r02, self->r20);
+	_HYP_SWAP(self->r12, self->r21);
 
 	return self;
 }
@@ -211,9 +211,9 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
 {
 	HYP_FLOAT tmp;
 
-	_SWAP(self->c01, self->c10);
-	_SWAP(self->c02, self->c20);
-	_SWAP(self->c12, self->c21);
+	_HYP_SWAP(self->c01, self->c10);
+	_HYP_SWAP(self->c02, self->c20);
+	_HYP_SWAP(self->c12, self->c21);
 
 	return self;
 }
