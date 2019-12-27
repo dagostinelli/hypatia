@@ -89,6 +89,7 @@ Additional Build Options
 ------------------------
 
 - HYPATIA_SINGLE_PRECISION_FLOATS: (Default Off)
+
 Enable single-precision floating point values instead of double (default)
 by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
 
@@ -97,36 +98,54 @@ cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
 cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
 ```
 
-- HYPATIA_BUILD_SHARED: (Default ON) Controls if the shared library is built
+- HYPATIA_BUILD_SHARED: (Default ON) 
+
+Controls if the shared library is built
+
 ```
 cmake .. -DHYPATIA_BUILD_SHARED=ON
 cmake .. -DHYPATIA_BUILD_SHARED=OFF
 ```
-- HYPATIA_BUILD_STATIC: (Default ON) Controls if the static library is built
+- HYPATIA_BUILD_STATIC: (Default ON) 
+
+Controls if the static library is built
+
 ```
 cmake .. -DHYPATIA_BUILD_STATIC=ON
 cmake .. -DHYPATIA_BUILD_STATIC=OFF
 ```
 
-- HYPATIA_BUILD_DOCS: (Default ON) Build the help documents
+- HYPATIA_BUILD_DOCS: (Default ON)
+
+Build the help documents
+
 ```
 cmake .. -DHYPATIA_BUILD_DOCS=ON
 cmake .. -DHYPATIA_BUILD_DOCS=OFF
 ```
 
-- HYPATIA_BUILD_TESTS: (Default ON) Build the unit tests
+- HYPATIA_BUILD_TESTS: (Default ON)
+
+Build the unit tests
+
 ```
 cmake .. -DHYPATIA_BUILD_TESTS=ON
 cmake .. -DHYPATIA_BUILD_TESTS=OFF
 ```
 
-- CMAKE_BUILD_TYPE: (Default Release) Set this to 'Release' or 'Debug'
+- CMAKE_BUILD_TYPE: (Default Release)
+
+Set this to 'Release' or 'Debug'
+
 ```
 cmake .. -CMAKE_BUILD_TYPE=Release
 cmake .. -CMAKE_BUILD_TYPE=Debug
 ```
 
-- CMAKE_INSTALL_PREFIX: (Default /usr) Allows you to specify where `make install` sends the output.
+- CMAKE_INSTALL_PREFIX: (Default /usr)
+
+Allows you to specify where `make install` sends the output.
+
 ```
 cmake .. -DCMAKE_INSTALL_PREFIX=~/hypatia/
 cmake .. -DCMAKE_INSTALL_PREFIX=~/projects/myproject/
