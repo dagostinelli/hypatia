@@ -3,6 +3,30 @@
  *
  */
 
+/*
+Hypatia
+
+Copyright (c) 2015 Darryl T. Agostinelli
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
 
@@ -32,6 +56,9 @@
 #include <math.h> /* sin, cos, acos */
 #include <stdlib.h> /* RAND_MAX, rand */
 #include <float.h> /*FLT_EPSILON, DBL_EPSILON*/
+#include <stdint.h>
+#include <stdio.h> /* printf (in the _print* functions) */
+#include <memory.h> /* memset */
 
 /**
  * @ingroup _constants
@@ -224,5 +251,25 @@ HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #include "experimental.h"
 
 #define _HYP_SWAP(x, y) do { tmp = x; x = y; y = tmp; } while (0)
+
+HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self);
+HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
+HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self);
+
+HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self);
+HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self);
+HYPAPI struct matrix4 *_matrix4_set_random(struct matrix4 *self);
+
+HYPAPI void _quaternion_print(const struct quaternion *self);
+HYPAPI struct quaternion *_quaternion_set_random(struct quaternion *self);
+
+HYPAPI void _vector3_print(const struct vector3 *self);
+HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self);
+
+HYPAPI void _vector2_print(const struct vector2 *self);
+HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self);
+
+HYPAPI void _vector4_print(const struct vector4 *self);
+HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 #endif /* _INC_HYPATIA */

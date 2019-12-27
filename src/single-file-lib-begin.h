@@ -1,9 +1,9 @@
-#ifndef _HYPATIA_SINGLE_FILE_H_
-#define _HYPATIA_SINGLE_FILE_H_
+#ifndef _HYPATIA_H_
+#define _HYPATIA_H_
 
-#include <stdio.h>
-#include <memory.h>
-#include <math.h>
+#include <math.h> /* sin, cos, acos */
+#include <stdlib.h> /* RAND_MAX, rand */
+#include <float.h> /*FLT_EPSILON, DBL_EPSILON*/
 #include <stdint.h>
-#include <stdlib.h>
-#include <float.h>
+#include <stdio.h> /* printf (in the _print* functions) */
+#include <memory.h> /* memset */

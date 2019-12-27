@@ -22,3 +22,8 @@ IF(HYPATIA_BUILD_STATIC)
 	ADD_TEST(NAME test_hypatia_static COMMAND test_hypatia_static)
 ENDIF()
 
+IF(HYPATIA_BUILD_TWOFILE_DISTRIBUTION)
+	ADD_EXECUTABLE(test_hypatia_twofile main.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	TARGET_LINK_LIBRARIES(test_hypatia_twofile ${LIBM})
+	ADD_TEST(NAME test_hypatia_twofile COMMAND test_hypatia_twofile)
+ENDIF()

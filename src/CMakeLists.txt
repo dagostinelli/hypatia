@@ -53,6 +53,7 @@ IF(CMAKE_COMPILER_IS_WINDOWS)
 ENDIF()
 
 INCLUDE(../cmake/CMakeBuildFlags.cmake)
+INCLUDE(../cmake/CMakeFunctions.cmake)
 
 # unit tests do not use strict-prototypes, so this is here
 IF(CMAKE_COMPILER_IS_GNUC OR CMAKE_COMPILER_IS_CLANG)
@@ -95,6 +96,55 @@ IF(HYPATIA_BUILD_SHARED)
 	#IF(CMAKE_COMPILER_IS_WINDOWS)
 	#	SET_TARGET_PROPERTIES(hypatia PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 	#ENDIF()
+ENDIF()
+
+
+OPTION(HYPATIA_BUILD_TWOFILE_DISTRIBUTION "Build two file source distribution" ON)
+IF(HYPATIA_BUILD_TWOFILE_DISTRIBUTION)
+	# Compose the .h file
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "")
+	cat(config.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(hypatia.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(vector2.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(vector3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(vector4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(matrix3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(matrix4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(quaternion.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	cat(experimental.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "#include [<\"][^>\"]+[>\"]")
+
+	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h CONTENTS)
+	file(READ single-file-lib-begin.h CONTENTS_BEGIN)
+	file(READ single-file-lib-end.h CONTENTS_END)
+
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS_BEGIN}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS_END}")
+
+	# Compose the .c file
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "")
+	cat(scalar.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(vector2.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(vector3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(vector4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(matrix3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(matrix4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(quaternion.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	cat(experimental.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "#include [<\"][^>\"]+[>\"]")
+
+	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c CONTENTS)
+	file(READ single-file-lib-begin.c CONTENTS_BEGIN)
+	file(READ single-file-lib-end.c CONTENTS_END)
+
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS_BEGIN}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS_END}")
 ENDIF()
 
 
