@@ -15,6 +15,10 @@ Quick Start
 ----------
 The fastest way to get started is to grab the (2) file distribution.  It's in the `/dist` folder.  There, you will find two files: `hypatia.c` and `hypatia.h`.  Drop them into your project and off you go!
 
+Documentation
+-------------
+View the [offical Hypatia documentation here](http://dagostinelli.github.io/hypatia/doc/)
+
 CMake Build
 -----------
 CMake is used because a lot of folks are cross-platform developers.  There are only so many truly cross-platform project file generators out there.  Cmake tends to be what we find in most of the gamedev libraries, so that's what Hypatia uses.
