@@ -1,4 +1,5 @@
 #include "hypatia.h"
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -16,6 +17,7 @@ HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2)
 
 	return 1;
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -249,6 +251,7 @@ HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self)
 	self->y = HYP_RANDOM_FLOAT;
 	return self;
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -647,6 +650,7 @@ HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self)
 	self->z = HYP_RANDOM_FLOAT;
 	return self;
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -952,6 +956,7 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
 	self->w = HYP_RANDOM_FLOAT;
 	return self;
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -1325,6 +1330,7 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 	return matrix3_multiply(self,
 		matrix3_make_transformation_scalingv2(&scalingMatrix, scale));
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -1976,6 +1982,7 @@ HYPAPI struct matrix4 *matrix4_inverse(struct matrix4 *self, struct matrix4 *mR)
 
 	return mR;
 }
+/* SPDX-License-Identifier: MIT */
 
 
 
@@ -2610,9 +2617,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 	return qR;
 }
-
-
-
+/* SPDX-License-Identifier: MIT */
 
 
 

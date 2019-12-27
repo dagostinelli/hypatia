@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdio.h> /* printf (in the _print* functions) */
 #include <memory.h> /* memset */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _HYPATIA_CONFIG_H_
 #define _HYPATIA_CONFIG_H_
 
@@ -15,43 +17,15 @@
 #	define HYPAPI
 #endif
 
-/* #undef HYPATIA_SINGLE_PRECISION_FLOATS */
+#define HYPATIA_SINGLE_PRECISION_FLOATS
 
 #define HYPATIA_VERSION "1.0.0.0"
 
 #endif /* _HYPATIA_CONFIG_H_ */
-/**
- * @file hypatia.h
- *
- */
-
-/*
-Hypatia
-
-Copyright (c) 2015 Darryl T. Agostinelli
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+/* SPDX-License-Identifier: MIT */
 
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
-
 
 
 
@@ -295,6 +269,8 @@ HYPAPI void _vector4_print(const struct vector4 *self);
 HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 #endif /* _INC_HYPATIA */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_VECTOR2
 #define _INC_VECTOR2
 
@@ -350,6 +326,8 @@ HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, cons
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_VECTOR2 */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_VECTOR3
 #define _INC_VECTOR3
 
@@ -412,6 +390,8 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 #endif /*DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /*_INC_VECTOR3 */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_VECTOR4
 #define _INC_VECTOR4
 
@@ -463,6 +443,8 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_VECTOR4 */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_MATRIX3
 #define _INC_MATRIX3
 
@@ -563,6 +545,8 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self);
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_MATRIX3 */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_MATRIX4
 #define _INC_MATRIX4
 
@@ -676,6 +660,8 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self);
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_MATRIX4 */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_QUATERNION
 #define _INC_QUATERNION
 
@@ -744,6 +730,8 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 #endif /* _INC_QUATERNION */
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_EXPERIMENTAL
 #define _INC_EXPERIMENTAL
 
