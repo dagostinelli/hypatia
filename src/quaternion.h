@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_QUATERNION
 #define _INC_QUATERNION
 

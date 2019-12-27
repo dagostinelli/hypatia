@@ -1,4 +1,4 @@
-/*#include <stdio.h>*/
+/* SPDX-License-Identifier: MIT */
 
 /** [quaternion identity example] */
 static char *test_quaternion_identity(void)
@@ -354,11 +354,10 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 
 	in_anglex = in_angley = in_anglez = 0.8f;
 
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(
-		    &q1, in_anglex, in_angley, in_anglez);
+	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q1,
+		in_anglex, in_angley, in_anglez);
 
-	quaternion_rotate_by_quaternion_EXP(
-	    &q1,
+	quaternion_rotate_by_quaternion_EXP(&q1,
 	    quaternion_identity(&scratchQuaternion));
 
 	/* get the angles */
@@ -371,10 +370,9 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 
 
 	quaternion_identity(&q1);
-	quaternion_rotate_by_quaternion_EXP(
-	    &q1,
-	    quaternion_set_from_euler_anglesf3_ZYX_EXP(
-		    &scratchQuaternion, in_anglex, in_angley, in_anglez));
+	quaternion_rotate_by_quaternion_EXP(&q1,
+		quaternion_set_from_euler_anglesf3_ZYX_EXP(&scratchQuaternion,
+			in_anglex, in_angley, in_anglez));
 
 	/* get the angles */
 	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &out_anglex, &out_angley, &out_anglez);

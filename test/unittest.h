@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 
 /* Modified from:
  * http://www.jera.com/techinfo/jtns/jtn002.html

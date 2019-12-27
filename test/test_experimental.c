@@ -1,4 +1,4 @@
-
+/* SPDX-License-Identifier: MIT */
 
 static char *test_matrix4_transformation_decompose_translation(void)
 {
@@ -86,6 +86,6 @@ static char *experimental_all_tests(void)
 	run_test(test_matrix4_transformation_decompose_translation);
 	run_test(test_matrix4_transformation_decompose_scaling);
 	run_test(test_quaternion_get_eulers_from_axis_angle);
-	
+
 	return 0;
 }

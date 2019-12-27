@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _INC_VECTOR2
 #define _INC_VECTOR2
 

@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 #ifndef _HYPATIA_CONFIG_H_
 #define _HYPATIA_CONFIG_H_
 

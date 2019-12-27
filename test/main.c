@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 #include <stdio.h>
 #include <math.h>
 #include <hypatia.h>

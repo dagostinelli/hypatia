@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 
 static char *test_vector3_cross_product(void)
 {

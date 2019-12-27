@@ -98,7 +98,7 @@ cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
 cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
 ```
 
-- HYPATIA_BUILD_SHARED: (Default ON) 
+- HYPATIA_BUILD_SHARED: (Default ON)
 
 Controls if the shared library is built
 
@@ -106,7 +106,7 @@ Controls if the shared library is built
 cmake .. -DHYPATIA_BUILD_SHARED=ON
 cmake .. -DHYPATIA_BUILD_SHARED=OFF
 ```
-- HYPATIA_BUILD_STATIC: (Default ON) 
+- HYPATIA_BUILD_STATIC: (Default ON)
 
 Controls if the static library is built
 

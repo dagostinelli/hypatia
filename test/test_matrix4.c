@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 
 static char *test_matrix4_zero(void)
 {
@@ -609,7 +610,7 @@ static char *test_matrix4_inverse(void)
 
 	hasInverse = matrix4_invert(matrix4_set(&inverted, &originalMatrix));
 
-	test_assert(hasInverse != NULL);
+	test_assert(hasInverse);
 
 	matrix4_identity(&scratchMatrix);
 	matrix4_multiply(&scratchMatrix, &inverted);

@@ -1,3 +1,4 @@
+/* SPDX-License-Identifier: MIT */
 
 static char *test_matrix3_zero(void)
 {

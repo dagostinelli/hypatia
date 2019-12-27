@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: MIT */
+
 #include "hypatia.h"
 #include "internal.h"
 
