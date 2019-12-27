@@ -13,10 +13,15 @@ A word about naming convention:  Hypatia uses verbose names. In pure-C code, mat
 
 Quick Start
 ----------
+The fastest way to get started is to grab the (2) file distribution.  It's in the `/dist` folder.  There, you will find two files: `hypatia.c` and `hypatia.h`.  Drop them into your project and off you go!
+
+CMake Build
+-----------
+CMake is used because a lot of folks are cross-platform developers.  There are only so many truly cross-platform project file generators out there.  Cmake tends to be what we find in most of the gamedev libraries, so that's what Hypatia uses.
+
 NOTE: This will install in /usr.  You probably don't want that.  But this is a quick start.
 The best thing to do is to combine this library with your other code into a larger CMake project/solution.
 
-1. Download, build and install
 ```
 git clone https://github.com/dagostinelli/hypatia
 cd hypatia
@@ -26,11 +31,12 @@ cmake ..
 make && make install
 ```
 
-2. Write some code
+Basic Usage
+-----------
 ```
 #include <stdio.h>
 #include <assert.h>
-#include <hypatia/hypatia.h>
+#include <hypatia/hypatia.h> /* or #include "hypatia.h" depending on how you installed it */
 
 int main(int argc, char *argv)
 {
@@ -54,40 +60,21 @@ int main(int argc, char *argv)
 
 ```
 
-3. Compile and run
+Compile and run (depending on how you installed it)
+```
+gcc hypatia.c my_app.c && ./a.out
+```
+
+or
+
 ```
 gcc -lhypatia my_app.c && ./a.out
 ```
 
-Building
---------
-
-**Windows (Visual Studio)**
+Windows (Visual Studio)
+-----------------------
 
 Building for Visual Studio is not supported directly.  You have to use CMake to generate the Visual Studio project files and then go from there.  Since CMake's default generator is Visual Studio, when present, on windows, the steps are identical to Linux (provided you have cmake installed)
-
-```
-git clone https://github.com/dagostinelli/hypatia
-cd hypatia
-mkdir build
-cd build
-cmake ..
-make
-```
-
-**Linux**
-```
-git clone https://github.com/dagostinelli/hypatia
-cd hypatia
-mkdir build
-cd build
-cmake ..
-make
-```
-
-**Mac OSX**
-
-The steps are the same as Linux.  Be sure to have at least version 3.0 of cmake installed
 
 ```
 git clone https://github.com/dagostinelli/hypatia
@@ -157,9 +144,4 @@ Help pages [have been published online here](http://dagostinelli.github.io/hypat
 
 Can I trust this math library?
 ------------------------------
-A goal of the unit tests is to test each function against HYP_EPSILON which
-is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet
-have unit tests proving 1E-5, but more are coming.
-
-
-
+A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-7 (1E-5 when using single precision floats.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
