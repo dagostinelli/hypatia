@@ -8,8 +8,6 @@
 
 #include "unittest.h"
 
-#include "../src/internal.h"
-
 #include "test_vector2.c"
 #include "test_vector3.c"
 #include "test_quaternion.c"
