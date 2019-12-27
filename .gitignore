@@ -37,7 +37,6 @@
 
 src/config.h
 build
-dist/
 install
 *.plist
 *.checkpatch*
