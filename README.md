@@ -85,7 +85,8 @@ cmake ..
 make
 ```
 
-**Additional Build Options**
+Additional Build Options
+------------------------
 
 - HYPATIA_SINGLE_PRECISION_FLOATS: (Default Off)
 Enable single-precision floating point values instead of double (default)
