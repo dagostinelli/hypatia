@@ -1,7 +1,7 @@
 var searchData=
 [
   ['v',['v',['../structvector2.html#a84f1ca36bade445be60a890ef11407b2',1,'vector2::v()'],['../structvector3.html#a7f6f5bf7466d03c5ebd8cdc85db38f5b',1,'vector3::v()'],['../structvector4.html#ad9078451cf154cb1053587dc052efa51',1,'vector4::v()']]],
-  ['vector2',['vector2',['../structvector2.html',1,'']]],
+  ['vector2',['vector2',['../structvector2.html',1,'vector2'],['../group__vector2.html',1,'(Global Namespace)']]],
   ['vector2_2ec',['vector2.c',['../vector2_8c.html',1,'']]],
   ['vector2_2eh',['vector2.h',['../vector2_8h.html',1,'']]],
   ['vector2_5fadd',['vector2_add',['../vector2_8c.html#af6074fc44c65ce890c61590e2bb57747',1,'vector2_add(struct vector2 *self, const struct vector2 *vT):&#160;vector2.c'],['../vector2_8h.html#af6074fc44c65ce890c61590e2bb57747',1,'vector2_add(struct vector2 *self, const struct vector2 *vT):&#160;vector2.c']]],

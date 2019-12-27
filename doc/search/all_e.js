@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['reference_20vectors',['Reference Vectors',['../group____reference__vectors2.html',1,'']]],
-  ['reference_20vectors',['Reference Vectors',['../group____reference__vectors3.html',1,'']]],
   ['r00',['r00',['../structmatrix3.html#ae09539b0d0b676f29c6ebc2f71eb9953',1,'matrix3::r00()'],['../structmatrix4.html#a68f6ba7067570cf71cc174687f169396',1,'matrix4::r00()']]],
   ['r01',['r01',['../structmatrix3.html#a6f2e9974bfd2327a44f154395c27aab3',1,'matrix3::r01()'],['../structmatrix4.html#a0650ec346d20bed202071001a14ba8a9',1,'matrix4::r01()']]],
   ['r02',['r02',['../structmatrix3.html#a01cb2e386876c7f2a8f78b36e36c6764',1,'matrix3::r02()'],['../structmatrix4.html#ac18f186164675054522d63121a78b9e5',1,'matrix4::r02()']]],
@@ -19,5 +17,6 @@ var searchData=
   ['r32',['r32',['../structmatrix4.html#a657c21e4d33e874a87465e1d50a66d03',1,'matrix4']]],
   ['r33',['r33',['../structmatrix4.html#a128597dab3fec077c7ed23760437e7d5',1,'matrix4']]],
   ['readme_2emd',['README.md',['../_r_e_a_d_m_e_8md.html',1,'']]],
+  ['reference_20vectors',['Reference Vectors',['../group__reference__vectors.html',1,'']]],
   ['roll',['roll',['../structvector3.html#a67934067245ccd56d6d909ef10daac5c',1,'vector3']]]
 ];
