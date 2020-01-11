@@ -2090,6 +2090,58 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *se
 
 /**
  * @ingroup quaternion
+ * @brief Sets the quaterion using euler angles.  This is an opinionated method
+ * (opinionated about which axis is yaw, pitch, roll and
+ * what is left/right/up/down)
+ *
+ * @param self the quaternion
+ * @param ax the x axis
+ * @param ay the y axis
+ * @param az the z axis
+ *
+ */
+HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+{
+	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
+	self->y = HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+	self->z = HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) - HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+
+	quaternion_normalize(self);
+
+	return self;
+}
+
+
+/**
+ * @ingroup quaternion
+ * @brief Gets the euler angles from the quaternion.  This is an opinionated method
+ * (opinionated about which axis is yaw, pitch, roll and
+ * what is left/right/up/down)
+ *
+ * @param self the quaternion
+ * @param ax the x axis
+ * @param ay the y axis
+ * @param az the z axis
+ *
+ */
+HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
+{
+	HYP_FLOAT qx, qy, qz, qw;
+
+	qw = self->w;
+	qx = self->x;
+	qy = self->y;
+	qz = self->z;
+
+	*ax = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
+	*ay = HYP_ASIN(-2.0f * ((qx * qz) - (qw * qy)));
+	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
+}
+
+
+/**
+ * @ingroup quaternion
  * @brief Checks for mathematical equality within EPSILON.
  *
  */
@@ -2541,9 +2593,20 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 	/* scale is not same as magnitude */
 	HYP_FLOAT scale = HYP_SQRT(1.0f - self->w * self->w);
 
-	vR->x = self->x / scale;
-	vR->y = self->y / scale;
-	vR->z = self->z / scale;
+	/* avoid divide by zero */
+	if (scalar_equalsf(scale, 0.0f))
+	{
+		vR->x = self->x;
+		vR->y = self->y;
+		vR->z = self->z;
+	}
+	else
+	{
+		vR->x = self->x / scale;
+		vR->y = self->y / scale;
+		vR->z = self->z / scale;
+	}
+
 	*angle = 2.0f * HYP_ACOS(self->w);
 }
 
@@ -2624,65 +2687,6 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 /**
  * @ingroup experimental
- * @brief this is an opinionated method
- * (opinionated about what axis is yaw, pitch, roll and
- * what is left/right/up/down)
- *
- * @param self the quaternion
- * @param ax the x axis
- * @param ay the y axis
- * @param az the z axis
- *
- */
-HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
-{
-	struct quaternion qx;
-	struct quaternion qy;
-	struct quaternion qz;
-
-	quaternion_set_from_axis_anglev3(&qx, HYP_VECTOR3_UNIT_X, ax);
-	quaternion_set_from_axis_anglev3(&qy, HYP_VECTOR3_UNIT_Y, ay);
-	quaternion_set_from_axis_anglev3(&qz, HYP_VECTOR3_UNIT_Z, az);
-
-	/* self = qz * qy * qx */
-	quaternion_multiply(&qz, &qy);
-	quaternion_multiply(&qz, &qx);
-	quaternion_set(self, &qz);
-
-	return quaternion_normalize(self);
-}
-
-/*
-HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
-{
-	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
-	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
-	self->y = HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f);
-	self->z = HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) - HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
-
-	quaternion_normalize(self);
-
-	return self;
-}*/
-
-
-HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
-{
-	HYP_FLOAT qx, qy, qz, qw;
-
-	qw = self->w;
-	qx = self->x;
-	qy = self->y;
-	qz = self->z;
-
-	*ax = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
-	*ay = HYP_ASIN(-2.0f * ((qx * qz) - (qw * qy)));
-	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
-}
-
-
-/**
- * @ingroup experimental
  * @brief rotate a quaternion by a quaternion
  * (basically, multiply and then normalize)
  *
@@ -2759,7 +2763,7 @@ HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternio
 	struct quaternion qT;
 
 	/* make a quaternion from the eulers */
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&qT, ax, ay, az);
+	quaternion_set_from_euler_anglesf3(&qT, ax, ay, az);
 
 	/* rotate the quaternion by it */
 	quaternion_rotate_by_quaternion_EXP(self, &qT);

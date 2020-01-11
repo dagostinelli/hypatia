@@ -165,63 +165,49 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-/**
- * @defgroup _reference_vectors3 Reference Vectors
- * @ingroup _vector3
- * These are the reference vectors.
- *
- * They can be used like so:
- * @code
- * vector3 x_axis;
- * vector3_set(&x_axis, HYP_VECTOR3_UNIT_X);
- * @endcode
- *
- * @{
- */
-
+/** @ingroup reference_vectors */
 /** @brief {0,0,0} */
 #define HYP_VECTOR3_ZERO vector3_get_reference_vector3(HYP_REF_VECTOR3_ZERO)
+/** @ingroup reference_vectors */
 /** @brief {1,0,0} */
 #define HYP_VECTOR3_UNIT_X vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_X)
+/** @ingroup reference_vectors */
 /** @brief {0,1,0} */
 #define HYP_VECTOR3_UNIT_Y vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_Y)
+/** @ingroup reference_vectors */
 /** @brief {0,0,1} */
 #define HYP_VECTOR3_UNIT_Z vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_Z)
+/** @ingroup reference_vectors */
 /** @brief {-1,0,0} */
 #define HYP_VECTOR3_UNIT_X_NEGATIVE vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_X_NEGATIVE)
+/** @ingroup reference_vectors */
 /** @brief {0,-1,0} */
 #define HYP_VECTOR3_UNIT_Y_NEGATIVE vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_Y_NEGATIVE)
+/** @ingroup reference_vectors */
 /** @brief {0,0,-1} */
 #define HYP_VECTOR3_UNIT_Z_NEGATIVE vector3_get_reference_vector3(HYP_REF_VECTOR3_UNIT_Z_NEGATIVE)
+/** @ingroup reference_vectors */
 /** @brief {1,1,1} */
 #define HYP_VECTOR3_ONE vector3_get_reference_vector3(HYP_REF_VECTOR3_ONE)
 /* @} */
 
 
-/**
- * @defgroup _reference_vectors2 Reference Vectors
- * @ingroup _vector2
- * These are the reference vectors.
- *
- * They can be used like so:
- * @code
- * vector2 x_axis;
- * vector2_set(&x_axis, HYP_VECTOR2_UNIT_X);
- * @endcode
- *
- * @{
- */
-
+/** @ingroup reference_vectors */
 /** @brief {0,0} */
 #define HYP_VECTOR2_ZERO vector2_get_reference_vector2(HYP_REF_VECTOR2_ZERO)
+/** @ingroup reference_vectors */
 /** @brief {1,0} */
 #define HYP_VECTOR2_UNIT_X vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_X)
+/** @ingroup reference_vectors */
 /** @brief {0,1} */
 #define HYP_VECTOR2_UNIT_Y vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_Y)
+/** @ingroup reference_vectors */
 /** @brief {-1,0} */
 #define HYP_VECTOR2_UNIT_X_NEGATIVE vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_X_NEGATIVE)
+/** @ingroup reference_vectors */
 /** @brief {0,-1} */
 #define HYP_VECTOR2_UNIT_Y_NEGATIVE vector2_get_reference_vector2(HYP_REF_VECTOR2_UNIT_Y_NEGATIVE)
+/** @ingroup reference_vectors */
 /** @brief {1,1} */
 #define HYP_VECTOR2_ONE vector2_get_reference_vector2(HYP_REF_VECTOR2_ONE)
 /* @} */
@@ -229,6 +215,11 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 
 HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #define scalar_equalsf scalar_equals
+
+/**
+ * @ingroup trig
+ * @{
+ */
 
 #define HYP_SIN(x) ((HYP_FLOAT)sin(x))
 #define HYP_COS(x) ((HYP_FLOAT)cos(x))
@@ -238,6 +229,7 @@ HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 #define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
 #define HYP_COT(a) (1.0f / HYP_TAN(a))
 
+/* @} */
 
 
 
@@ -245,6 +237,12 @@ HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
 
 
 
+
+
+/**
+ * @ingroup experimental
+ * @{
+ */
 
 #define _HYP_SWAP(x, y) do { tmp = x; x = y; y = tmp; } while (0)
 
@@ -267,6 +265,8 @@ HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self);
 
 HYPAPI void _vector4_print(const struct vector4 *self);
 HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
+
+/* @} */
 
 #endif /* _INC_HYPATIA */
 /* SPDX-License-Identifier: MIT */
@@ -714,6 +714,9 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle);
 
+HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az);
+
 HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -739,9 +742,6 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 
 
-HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
-HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3_ZYX_EXP2(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
-HYPAPI void quaternion_get_euler_anglesf3_ZYX_EXP(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az);
 HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT);
 HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
