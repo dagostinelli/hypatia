@@ -325,10 +325,10 @@ static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 	in_anglez = 0.432f;
 
 	/* make a quaternion out of some arbitrary euler angles */
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q1, in_anglex, in_angley, in_anglez);
+	quaternion_set_from_euler_anglesf3(&q1, in_anglex, in_angley, in_anglez);
 
 	/* get the angles */
-	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &out_anglex, &out_angley, &out_anglez);
+	quaternion_get_euler_anglesf3(&q1, &out_anglex, &out_angley, &out_anglez);
 
 	/* test */
 	test_assert(scalar_equals(in_anglex, out_anglex));
@@ -336,7 +336,7 @@ static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 	test_assert(scalar_equals(in_anglez, out_anglez));
 
 	/* compose new quaternions with the eulers */
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q2, out_anglex, out_angley, out_anglez);
+	quaternion_set_from_euler_anglesf3(&q2, out_anglex, out_angley, out_anglez);
 
 	/* same */
 	test_assert(quaternion_equals(&q1, &q2));
@@ -354,14 +354,14 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 
 	in_anglex = in_angley = in_anglez = 0.8f;
 
-	quaternion_set_from_euler_anglesf3_ZYX_EXP(&q1,
+	quaternion_set_from_euler_anglesf3(&q1,
 		in_anglex, in_angley, in_anglez);
 
 	quaternion_rotate_by_quaternion_EXP(&q1,
 	    quaternion_identity(&scratchQuaternion));
 
 	/* get the angles */
-	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &out_anglex, &out_angley, &out_anglez);
+	quaternion_get_euler_anglesf3(&q1, &out_anglex, &out_angley, &out_anglez);
 
 	/* test */
 	test_assert(scalar_equals(in_anglex, out_anglex));
@@ -371,16 +371,46 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 
 	quaternion_identity(&q1);
 	quaternion_rotate_by_quaternion_EXP(&q1,
-		quaternion_set_from_euler_anglesf3_ZYX_EXP(&scratchQuaternion,
+		quaternion_set_from_euler_anglesf3(&scratchQuaternion,
 			in_anglex, in_angley, in_anglez));
 
 	/* get the angles */
-	quaternion_get_euler_anglesf3_ZYX_EXP(&q1, &out_anglex, &out_angley, &out_anglez);
+	quaternion_get_euler_anglesf3(&q1, &out_anglex, &out_angley, &out_anglez);
 
 	/* test */
 	test_assert(scalar_equals(in_anglex, out_anglex));
 	test_assert(scalar_equals(in_angley, out_angley));
 	test_assert(scalar_equals(in_anglez, out_anglez));
+
+	return 0;
+}
+
+
+static char *test_quaternion_get_eulers_from_axis_angle(void)
+{
+	struct quaternion q1, q2;
+	HYP_FLOAT in_anglex, in_angley, in_anglez;
+	HYP_FLOAT out_anglex, out_angley, out_anglez;
+
+	/* making the original quaternion out of an arbitrary axis angle */
+	quaternion_set_from_axis_anglef3(&q1, 0.4f, 0.232f, 0.543f, HYP_TAU * 0.45f);
+
+	/* get the angles */
+	quaternion_get_euler_anglesf3(&q1, &in_anglex, &in_angley, &in_anglez);
+
+	/* compose new quaternions with the eulers */
+	quaternion_set_from_euler_anglesf3(&q2, in_anglex, in_angley, in_anglez);
+
+	/* get the angles */
+	quaternion_get_euler_anglesf3(&q2, &out_anglex, &out_angley, &out_anglez);
+
+	/* test */
+	test_assert(scalar_equals(in_anglex, out_anglex));
+	test_assert(scalar_equals(in_angley, out_angley));
+	test_assert(scalar_equals(in_anglez, out_anglez));
+
+	/* same */
+	test_assert(quaternion_equals(&q1, &q2));
 
 	return 0;
 }
@@ -406,6 +436,7 @@ static char *quaternion_all_tests(void)
 	run_test(test_quaternion_slerp);
 	run_test(test_quaternion_get_eulers_create_quaternion_ZYX);
 	run_test(test_quaternion_rotate_by_quaternion_identity);
+	run_test(test_quaternion_get_eulers_from_axis_angle);
 
 	return 0;
 }
