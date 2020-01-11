@@ -557,9 +557,20 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 	/* scale is not same as magnitude */
 	HYP_FLOAT scale = HYP_SQRT(1.0f - self->w * self->w);
 
-	vR->x = self->x / scale;
-	vR->y = self->y / scale;
-	vR->z = self->z / scale;
+	/* avoid divide by zero */
+	if (scalar_equalsf(scale, 0.0f))
+	{
+		vR->x = self->x;
+		vR->y = self->y;
+		vR->z = self->z;
+	}
+	else
+	{
+		vR->x = self->x / scale;
+		vR->y = self->y / scale;
+		vR->z = self->z / scale;
+	}
+
 	*angle = 2.0f * HYP_ACOS(self->w);
 }
 
