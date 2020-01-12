@@ -83,7 +83,7 @@
  * rounding error is tolerated.
  */
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#	define HYP_EPSILON 1E-5
+#	define HYP_EPSILON 1E-5f
 #else
 #	define HYP_EPSILON 1E-7
 #endif
@@ -213,8 +213,11 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 /* @} */
 
 
-HYPAPI short scalar_equals(const HYP_FLOAT f1, const HYP_FLOAT f2);
-#define scalar_equalsf scalar_equals
+HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2);
+HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon);
+
+#define scalar_equals scalar_equalsf
+
 
 /**
  * @ingroup trig
