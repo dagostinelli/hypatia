@@ -59,7 +59,7 @@
  * rounding error is tolerated.
  */
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#	define HYP_EPSILON 1E-5
+#	define HYP_EPSILON 1E-5f
 #else
 #	define HYP_EPSILON 1E-7
 #endif
