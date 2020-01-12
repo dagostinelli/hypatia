@@ -5,15 +5,13 @@ pushd `pwd`
 cd $(dirname $(realpath -s "$BASH_SOURCE"))
 
 cd ..
-rm -rf build
-mkdir build
-cd build
 
-cmake -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=1 -DHYPATIA_BUILD_SHARED=1 && \
-	make && \
-	ctest && \
-	make install && \
-	make srpm && \
-	make rpm
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Debug -DHYPATIA_SINGLE_PRECISION_FLOATS=ON && \
+	cmake --build build --clean-first -- -j8
+	cd build && ctest && cpack && cd ..
+
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX=../install -DCMAKE_BUILD_TYPE=Debug -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF && \
+	cmake --build build --clean-first -- -j8
+	cd build && ctest && cpack && cd ..
 
 popd
