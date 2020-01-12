@@ -4,12 +4,21 @@
 
 
 /**
- * @brief This checks for mathematical equality within EPSILON.
+ * @brief This checks for mathematical equality within HYP_EPSILON.
  *
  */
 HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2)
 {
-	if ((HYP_ABS(f1 - f2) < HYP_EPSILON) == 0)
+	return scalar_equals_epsilonf(f1, f2, HYP_EPSILON);
+}
+
+/**
+ * @brief This checks for mathematical equality within a custom epsilon.
+ *
+ */
+HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon)
+{
+	if ((HYP_ABS(f1 - f2) < epsilon) == 0)
 	{
 		return 0;
 	}
