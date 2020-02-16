@@ -1,7 +1,7 @@
 language: c
 
+# https://github.com/LunarG/VulkanSamples/blob/master/.travis.yml
 # https://riptutorial.com/cmake/example/4723/configure-travis-ci-with-newest-cmake
-# the install step will take care of deploying a newer cmake version
 install:
   - set -e
   - CMAKE_VERSION=3.16.4
@@ -18,7 +18,7 @@ install:
 
 os:
   - linux
-#  - osx
+  - osx
 
 compiler:
 #  - clang
