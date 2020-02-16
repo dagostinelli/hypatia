@@ -2,6 +2,8 @@ language: c
 
 sudo: false
 
+dist: bionic
+
 os:
   - linux
   - osx
@@ -18,18 +20,15 @@ env:
 
 script:
   - cmake --version
-  - cmake -Bbuild -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE .
+  - cmake -B build -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE .
   - cmake --build build
   - cd build && ctest && cpack -G "TGZ"
 
 addons:
   apt:
     packages:
-    - cmake
-    - cmake-data
     - doxygen
     - doxygen-latex
     - graphviz
     sources:
-    - kalakris-cmake
-    - george-edison55-precise-backports
+     - george-edison55-precise-backports
