@@ -134,16 +134,6 @@
 #endif
 
 /** @brief A macro that returns the absolute value */
-/*
-#ifndef HYP_ABS
-#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#		define HYP_ABS(value) (((value) < 0.0f) ? (-1.0f * value) : (value))
-#	else
-#		define HYP_ABS(value) (((value) < 0.0) ? (-1.0 * value) : (value))
-#	endif
-#endif
-*/
-
 #ifndef HYP_ABS
 #	define HYP_ABS(value) (((value) < 0.0f) ? -(value) : (value))
 #endif
