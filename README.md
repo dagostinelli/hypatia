@@ -13,7 +13,14 @@ A word about naming convention:  Hypatia uses verbose names. In pure-C code, mat
 
 Quick Start
 ----------
-The fastest way to get started is to grab the (2) file distribution.  It's in the `/dist` folder.  There, you will find two files: `hypatia.c` and `hypatia.h`.  Drop them into your project and off you go!
+The fastest way to get started is to grab the (2) file distribution.  It's in the `/dist/twofile` folder.  There, you will find two files: `hypatia.c` and `hypatia.h`.  Drop them into your project and off you go!
+
+There is also a single file header distribution. The entire library is self-contained in this one single header.  It's in the `/dist/single` folder. The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simple `#include` this file all around your program.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to use implmentation mode.  The implementation mode requires the macro HYPATIA_IMPLEMENTATION exist in one .c/.cpp file in your project before `#include <hypatia.h>`. Like so:
+
+```
+#define HYPATIA_IMPLEMENTATION
+#include <hypatia.h>
+```
 
 Documentation
 -------------
