@@ -1,8 +1,27 @@
 language: c
 
-sudo: false
-
-dist: bionic
+# https://riptutorial.com/cmake/example/4723/configure-travis-ci-with-newest-cmake
+# the install step will take care of deploying a newer cmake version
+install:    
+  # first we create a directory for the CMake binaries
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  # we use wget to fetch the cmake binaries
+  - travis_retry wget --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4-Linux-x86_64.tar.gz
+  # this is optional, but useful:
+  # do a quick md5 check to ensure that the archive we downloaded did not get compromised
+  - echo "8456a10ac2fd0dc97d13aa4753431a232cf32aecb0976541f7bf867a3f90ec57 *cmake-3.16.4-Linux-x86_64.tar.gz" > cmake_hash.txt
+  - sha256sum -c cmake_hash.txt
+  # extract the binaries; the output here is quite lengthy,
+  # so we swallow it to not clutter up the travis console
+  - tar -xvf cmake-3.16.4-Linux-x86_64.tar.gz > /dev/null
+  - mv cmake-3.16.4-Linux-x86_64.tar.gz cmake-install
+  # add both the top-level directory and the bin directory from the archive
+  # to the system PATH. By adding it to the front of the path we hide the
+  # preinstalled CMake with our own.
+  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  # don't forget to switch back to the main build directory once you are done
+  - cd ${TRAVIS_BUILD_DIR}
 
 os:
   - linux
@@ -20,7 +39,7 @@ env:
 
 script:
   - cmake --version
-  - cmake -B build -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE .
+  - cmake -B build $FLAGS $VARYSINGLE .
   - cmake --build build
   - cd build && ctest && cpack -G "TGZ"
 
