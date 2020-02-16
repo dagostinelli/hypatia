@@ -18,7 +18,7 @@ env:
 
 script:
   - cmake --version
-  - cmake -Bbuild -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE
+  - cmake -Bbuild -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE .
   - cmake --build build
   - cd build && ctest && cpack -G "TGZ"
 
