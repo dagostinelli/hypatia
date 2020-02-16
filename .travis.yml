@@ -11,12 +11,14 @@ install:
       export PATH=${PWD}/cmake-${CMAKE_VERSION}/bin:${PATH}
     else
       brew upgrade cmake
+      brew unlink python@2
       brew install doxygen graphviz
     fi
     cmake --version
 
 os:
-  - linux
+#  - linux
+  - osx
 
 compiler:
 #  - clang
