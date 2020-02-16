@@ -2,8 +2,6 @@ language: c
 
 sudo: false
 
-dist: bionic
-
 os:
   - linux
   - osx
@@ -19,16 +17,20 @@ env:
   - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=OFF"
 
 script:
+  - mkdir build
+  - cd build
   - cmake --version
-  - cmake -B build -trace --warn-uninitialized --warn-unused_vars -Wdev $FLAGS $VARYSINGLE .
-  - cmake --build build
-  - cd build && ctest && cpack -G "TGZ"
+  - cmake -trace --warn-uninitialized --warn-unused_vars -Wdev -G "Unix Makefiles" .. -DCMAKE_INSTALL_PREFIX=../install -DHYPATIA_BUILD_STATIC=ON -DHYPATIA_BUILD_SHARED=ON $FLAGS $VARYSINGLE
+  - make && ctest && make install && cpack -G "TGZ"
 
 addons:
   apt:
     packages:
+    - cmake
+    - cmake-data
     - doxygen
     - doxygen-latex
     - graphviz
     sources:
-     - george-edison55-precise-backports
+    - kalakris-cmake
+    - george-edison55-precise-backports
