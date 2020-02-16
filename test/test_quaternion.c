@@ -421,7 +421,7 @@ static char *test_quaternion_get_eulers_from_axis_angle(void)
 static char *test_quaternion_360_degree_eulers(void)
 {
 	struct quaternion q1;
-	HYP_FLOAT out_anglex, out_angley, out_anglez;
+	HYP_FLOAT out_anglex, out_angley, out_anglez, tmp;
 
 	/* set the original quaternions with the eulers */
 	quaternion_set_from_euler_anglesf3(&q1, 0.0f, HYP_DEG_TO_RAD(365.0f), 0.0f);
@@ -432,7 +432,9 @@ static char *test_quaternion_360_degree_eulers(void)
 	test_assert(scalar_equals(0.0f, out_anglex));
 
 	/* should be 5 degrees, quaternion will normalize the value */
-	test_assert(scalar_equals(5.0f, HYP_RAD_TO_DEG(out_angley)));
+	tmp = HYP_RAD_TO_DEG(out_angley);
+	printf("%f\n",tmp);
+	test_assert(scalar_equals(5.0f, tmp));
 
 	test_assert(scalar_equals(0.0f, out_anglez));
 

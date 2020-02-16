@@ -1,4 +1,7 @@
+#define HYPATIA_IMPLEMENTATION
 #include "hypatia.h"
+
+#ifdef HYPATIA_IMPLEMENTATION
 /* SPDX-License-Identifier: MIT */
 
 
@@ -981,7 +984,7 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
  */
 HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self)
 {
-	memset(self, 0, sizeof(struct matrix3));
+	HYP_MEMSET(self, 0, sizeof(struct matrix3));
 	return self;
 }
 
@@ -1378,7 +1381,7 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
  */
 HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self)
 {
-	memset(self, 0, sizeof(struct matrix4));
+	HYP_MEMSET(self, 0, sizeof(struct matrix4));
 	return self;
 }
 
@@ -3129,3 +3132,4 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 
 	return 1;
 }
+#endif /* HYPATIA_IMPLEMENTATION */

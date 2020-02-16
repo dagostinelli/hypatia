@@ -7,15 +7,9 @@ ELSE()
 	MESSAGE(STATUS "Using double-precision floating point values")
 ENDIF()
 
-configure_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
-	${CMAKE_CURRENT_SOURCE_DIR}/config.h
-)
-
 SET( HYPATIA_HEADERS
 	hypatia.hpp
 	hypatia.h
-	config.h
 	vector2.h
 	vector3.h
 	vector4.h
@@ -76,6 +70,9 @@ IF(HYPATIA_BUILD_STATIC)
 	IF(APPLE)
 		SET_TARGET_PROPERTIES(hypatia_static PROPERTIES MACOSX_RPATH ON)
 	ENDIF()
+	IF(HYPATIA_SINGLE_PRECISION_FLOATS)
+		target_compile_definitions(hypatia_static PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS)
+	ENDIF()
 ENDIF()
 
 
@@ -100,6 +97,55 @@ IF(HYPATIA_BUILD_SHARED)
 	#IF(CMAKE_COMPILER_IS_WINDOWS)
 	#	SET_TARGET_PROPERTIES(hypatia PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 	#ENDIF()
+	IF(HYPATIA_SINGLE_PRECISION_FLOATS)
+		target_compile_definitions(hypatia PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS)
+	ENDIF()
+ENDIF()
+
+
+OPTION(HYPATIA_BUILD_SINGLE_FILE_HEADER "Build single file header distribution" ON)
+IF(HYPATIA_BUILD_SINGLE_FILE_HEADER)
+	MESSAGE(STATUS "Building single file header distribution")
+
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "")
+
+	# Compose the .h file portion
+	cat(hypatia.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector2.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(matrix3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(matrix4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(quaternion.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(experimental.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+
+	# Compose the .c file portion
+	file(READ single-file-lib-begin.c CONTENTS_BEGIN)
+	file(READ single-file-lib-end.c CONTENTS_END)
+
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "${CONTENTS_BEGIN}")
+
+	cat(scalar.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector2.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(vector4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(matrix3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(matrix4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(quaternion.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+	cat(experimental.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h)
+
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "${CONTENTS_END}")
+
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"hypatia.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"config.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"vector2.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"vector3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"vector4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"matrix3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"matrix4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"quaternion.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/single/hypatia.h "#include \"experimental.h\"")
+
 ENDIF()
 
 
@@ -108,49 +154,57 @@ IF(HYPATIA_BUILD_TWOFILE_DISTRIBUTION)
 	MESSAGE(STATUS "Building two file source distribution")
 
 	# Compose the .h file
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "")
-	cat(config.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(hypatia.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(vector2.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(vector3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(vector4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(matrix3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(matrix4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(quaternion.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
-	cat(experimental.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h)
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "")
 
-	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "#include [<\"][^>\"]+[>\"]")
+	cat(hypatia.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(vector2.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(vector3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(vector4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(matrix3.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(matrix4.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(quaternion.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
+	cat(experimental.h ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h)
 
-	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h CONTENTS)
-	file(READ single-file-lib-begin.h CONTENTS_BEGIN)
-	file(READ single-file-lib-end.h CONTENTS_END)
-
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS_BEGIN}")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS}")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.h "${CONTENTS_END}")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"hypatia.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"config.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"vector2.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"vector3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"vector4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"matrix3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"matrix4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"quaternion.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.h "#include \"experimental.h\"")
 
 	# Compose the .c file
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "")
-	cat(scalar.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(vector2.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(vector3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(vector4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(matrix3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(matrix4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(quaternion.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
-	cat(experimental.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c)
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "")
+	cat(scalar.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(vector2.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(vector3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(vector4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(matrix3.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(matrix4.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(quaternion.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
+	cat(experimental.c ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c)
 
-	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "#include [<\"][^>\"]+[>\"]")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"hypatia.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"config.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"vector2.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"vector3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"vector4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"matrix3.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"matrix4.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"quaternion.h\"")
+	deleteinplace(${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#include \"experimental.h\"")
 
-	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c CONTENTS)
+	file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c CONTENTS)
 	file(READ single-file-lib-begin.c CONTENTS_BEGIN)
 	file(READ single-file-lib-end.c CONTENTS_END)
 
-	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS_BEGIN}")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS}")
-	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/hypatia.c "${CONTENTS_END}")
+	file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "#define HYPATIA_IMPLEMENTATION")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "${CONTENTS_BEGIN}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "${CONTENTS}")
+	file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/../dist/twofile/hypatia.c "${CONTENTS_END}")
 ENDIF()
 
 

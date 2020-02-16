@@ -14,7 +14,7 @@
  */
 HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self)
 {
-	memset(self, 0, sizeof(struct matrix3));
+	HYP_MEMSET(self, 0, sizeof(struct matrix3));
 	return self;
 }
 

@@ -1,60 +1,37 @@
-#ifndef _HYPATIA_H_
-#define _HYPATIA_H_
-
-#include <math.h> /* sin, cos, acos */
-#include <stdlib.h> /* RAND_MAX, rand */
-#include <float.h> /*FLT_EPSILON, DBL_EPSILON*/
-#include <stdint.h>
-#include <stdio.h> /* printf (in the _print* functions) */
-#include <memory.h> /* memset */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _HYPATIA_CONFIG_H_
-#define _HYPATIA_CONFIG_H_
-
-/* start with HYPAPI being off */
-#ifndef HYPAPI
-#	define HYPAPI
-#endif
-
-#define HYPATIA_SINGLE_PRECISION_FLOATS
-
-#define HYPATIA_VERSION "1.0.0.0"
-
-#endif /* _HYPATIA_CONFIG_H_ */
 /* SPDX-License-Identifier: MIT */
 
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
 
+#define HYPATIA_VERSION "1.0.0.0"
 
-
-
-#if defined(_WIN32) || defined(_WIN64) || defined(_MSC_VER) || defined(WIN32)
-#	undef HYPAPI
-#	define HYPAPI __declspec(dllexport)
-	/* #ifndef HYP_EXPORTS_ON
-	 * #else
-	 *	#define HYPAPI __declspec(dllimport)
-	 * #endif
-	 */
-#else
-#	undef HYPAPI
-#	define HYPAPI
+#ifndef HYPAPI
+#	ifdef HYP_STATIC
+#		define HYPAPI static
+#	else
+#		define HYPAPI extern
+#	endif
 #endif
 
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#	define HYP_FLOAT float
-#else
-#	define HYP_FLOAT double
+#ifndef HYP_DEF
+#	define HYPDEF HYPAPI
 #endif
 
- /* sin, cos, acos */
- /* RAND_MAX, rand */
- /*FLT_EPSILON, DBL_EPSILON*/
+#ifndef HYP_FLOAT
+#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#		define HYP_FLOAT float
+#	else
+#		define HYP_FLOAT double
+#	endif
+#endif
 
- /* printf (in the _print* functions) */
- /* memset */
+#ifndef HYP_NO_C_MATH
+#	include <math.h> /* sin, cos, acos, fmod */
+#endif
+
+#ifndef HYP_NO_STDIO
+#	include <stdio.h> /* printf */
+#endif
 
 /**
  * @ingroup _constants
@@ -62,65 +39,124 @@
  */
 
 /** @brief PI to 100 digits (gets rounded off by the compiler) */
-#define HYP_PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679f
+#ifndef HYP_PI
+#	define HYP_PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679f
+#endif
 /** @brief Tau to 100 digits, which is 2 * PI */
-#define HYP_TAU 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359f
+#ifndef HYP_TAU
+#	define HYP_TAU 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359f
+#endif
 /** @brief Half of PI */
-#define HYP_PI_HALF 1.5707963267948966f
+#ifndef HYP_PI_HALF
+#	define HYP_PI_HALF 1.5707963267948966f
+#endif
 /** @brief PI * PI */
-#define HYP_PI_SQUARED 9.8696044010893586f
+#ifndef HYP_PI_SQUARED
+#	define HYP_PI_SQUARED 9.8696044010893586f
+#endif
 /** @brief Log e is the Natural Logarithm in base 10 */
-#define HYP_E 2.71828182845904523536028747135266249775724709369995f
+#ifndef HYP_E
+#	define HYP_E 2.71828182845904523536028747135266249775724709369995f
+#endif
 /** @brief Radians per Degree = PI/180 */
-#define HYP_RAD_PER_DEG 0.0174532925199432957692369076848861f
+#ifndef HYP_RAD_PER_DEG
+#	define HYP_RAD_PER_DEG 0.0174532925199432957692369076848861f
+#endif
 /** @brief Degrees per Radian = 180/PI */
-#define HYP_DEG_PER_RAD 57.2957795130823208767981548141052f
+#ifndef HYP_DEG_PER_RAD
+#	define HYP_DEG_PER_RAD 57.2957795130823208767981548141052f
+#endif
 /** @brief PI/180 */
-#define HYP_PIOVER180  HYP_RAD_PER_DEG
+#ifndef HYP_PIOVER180
+#	define HYP_PIOVER180  HYP_RAD_PER_DEG
+#endif
 /** @brief 180/PI */
-#define HYP_PIUNDER180 HYP_DEG_PER_RAD
+#ifndef HYP_PIUNDER180
+#	define HYP_PIUNDER180 HYP_DEG_PER_RAD
+#endif
 /** @brief Epsilon.  This is the value that is used to determine how much
  * rounding error is tolerated.
  */
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#	define HYP_EPSILON 1E-5f
-#else
-#	define HYP_EPSILON 1E-7
+#ifndef HYP_EPSILON
+#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#		define HYP_EPSILON 1E-4f
+#	else
+#		define HYP_EPSILON 1E-4
+#	endif
 #endif
 /*@}*/
 
+/** @brief A macro that enabled you to override memset */
+#ifndef HYP_MEMSET
+#	include <memory.h> /* memset */
+#	define HYP_MEMSET(a, b, c)  memset(a, b, c)
+#endif
+
 /** @brief A macro that returns the minimum of \a a and \a b */
-#define HYP_MIN(a, b)  (((a) < (b)) ? (a) : (b))
+#ifndef HYP_MIN
+#	define HYP_MIN(a, b)  (((a) < (b)) ? (a) : (b))
+#endif
 
 /** @brief A macro that returns the maximum of \a a and \a b */
-#define HYP_MAX(a, b)  (((a) > (b)) ? (b) : (a))
+#ifndef HYP_MAX
+#	define HYP_MAX(a, b)  (((a) > (b)) ? (b) : (a))
+#endif
 
 /** @brief A macro that swaps \a a and \a b */
-#define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
+#ifndef HYP_SWAP
+#	define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
+#endif
 
 /** @brief A macro that returns a random float point number up to RAND_MAX */
-#define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#ifndef HYP_RANDOM_FLOAT
+#	include <stdlib.h> /* RAND_MAX, rand */
+#	define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#endif
 
 /** @brief A macro that converts an angle in degress to an angle in radians */
-#define HYP_DEG_TO_RAD(angle)  ((angle) * HYP_RAD_PER_DEG)
+#ifndef HYP_DEG_TO_RAD
+#	define HYP_DEG_TO_RAD(angle)  ((angle) * HYP_RAD_PER_DEG)
+#endif
 
 /** @brief A macro that converts an angle in radians to an angle in degrees */
-#define HYP_RAD_TO_DEG(radians) ((radians) * HYP_DEG_PER_RAD)
+#ifndef HYP_RAD_TO_DEG
+#	define HYP_RAD_TO_DEG(radians) ((radians) * HYP_DEG_PER_RAD)
+#endif
 
 /** @brief A macro that squares a value squared */
-#define HYP_SQUARE(number) (number * number)
+#ifndef HYP_SQUARE
+#	define HYP_SQUARE(number) (number * number)
+#endif
 
 /** @brief A macro that finds the square root of a value */
-#define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
+#ifndef HYP_SQRT
+#	define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
+#endif
 
 /** @brief A macro that returns the absolute value */
-#define HYP_ABS(value) (((value) < 0) ? -(value) : (value))
+/*
+#ifndef HYP_ABS
+#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#		define HYP_ABS(value) (((value) < 0.0f) ? (-1.0f * value) : (value))
+#	else
+#		define HYP_ABS(value) (((value) < 0.0) ? (-1.0 * value) : (value))
+#	endif
+#endif
+*/
+
+#ifndef HYP_ABS
+#	define HYP_ABS(value) (((value) < 0.0f) ? -(value) : (value))
+#endif
 
 /** @brief A macro that wraps a value around and around in a range */
-#define HYP_WRAP(value, start, limit) (value = fmod(start + (value - start), (limit - start)))
+#ifndef HYP_WRAP
+#	define HYP_WRAP(value, start, limit) (value = fmod(start + (value - start), (limit - start)))
+#endif
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
-#define HYP_CLAMP(value, start, limit) (value = ((value < start) ? start : (value > limit) ? limit : value))
+#ifndef HYP_CLAMP
+#	define HYP_CLAMP(value, start, limit) (value = ((value < start) ? start : (value > limit) ? limit : value))
+#endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -743,7 +779,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 
 
-
+#include <stdint.h>
 
 HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT);
 HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
@@ -765,5 +801,3 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4
 HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
 HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
 #endif /* _INC_EXPERIMENTAL */
-
-#endif /* _HYPATIA_H_ */
