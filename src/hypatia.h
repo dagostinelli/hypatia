@@ -79,9 +79,9 @@
  */
 #ifndef HYP_EPSILON
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
-#		define HYP_EPSILON 1E-4f
+#		define HYP_EPSILON 1E-5f
 #	else
-#		define HYP_EPSILON 1E-4
+#		define HYP_EPSILON 1E-5
 #	endif
 #endif
 /*@}*/
