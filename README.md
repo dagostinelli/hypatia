@@ -13,33 +13,13 @@ A word about naming convention:  Hypatia uses verbose names. In pure-C code, mat
 
 Quick Start
 ----------
-The fastest way to get started is to grab the (2) file distribution.  It's in the `/dist/twofile` folder.  There, you will find two files: `hypatia.c` and `hypatia.h`.  Drop them into your project and off you go!
+The fastest way to get started is to grab the single file header distribution. It's in the `/dist/single` folder.
 
-There is also a single file header distribution. The entire library is self-contained in this one single header.  It's in the `/dist/single` folder. The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simple `#include` this file all around your program.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to use implmentation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before `#include <hypatia.h>`. Like so:
+The entire library is self-contained in this one single header.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simple `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to use implmentation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before `#include <hypatia.h>`. Like so:
 
 ```
 #define HYPATIA_IMPLEMENTATION
 #include <hypatia.h>
-```
-
-Documentation
--------------
-View the [offical Hypatia documentation here](http://dagostinelli.github.io/hypatia/doc/)
-
-CMake Build
------------
-CMake is used because a lot of folks are cross-platform developers.  There are only so many truly cross-platform project file generators out there.  Cmake tends to be what we find in most of the gamedev libraries, so that's what Hypatia uses.
-
-NOTE: This will install in /usr.  You probably don't want that.  But this is a quick start.
-The best thing to do is to combine this library with your other code into a larger CMake project/solution.
-
-```
-git clone https://github.com/dagostinelli/hypatia
-cd hypatia
-mkdir build
-cd build
-cmake ..
-make && make install
 ```
 
 Basic Usage
@@ -71,108 +51,13 @@ int main(int argc, char *argv)
 
 ```
 
-Compile and run (depending on how you installed it)
-```
-gcc hypatia.c my_app.c && ./a.out
-```
-
-or
-
-```
-gcc -lhypatia my_app.c && ./a.out
-```
-
-Windows (Visual Studio)
------------------------
-
-Building for Visual Studio is not supported directly.  You have to use CMake to generate the Visual Studio project files and then go from there.  Since CMake's default generator is Visual Studio, when present, on windows, the steps are identical to Linux (provided you have cmake installed)
-
-```
-git clone https://github.com/dagostinelli/hypatia
-cd hypatia
-mkdir build
-cd build
-cmake ..
-make
-```
-
-Additional Build Options
-------------------------
-
-- HYPATIA_SINGLE_PRECISION_FLOATS: (Default Off)
-
-Enable single-precision floating point values instead of double (default)
-by setting the `HYPATIA_SINGLE_PRECISION_FLOATS` to ON.
-
-```
-cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=ON
-cmake .. -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
-```
-
-- HYPATIA_BUILD_SHARED: (Default ON)
-
-Controls if the shared library is built
-
-```
-cmake .. -DHYPATIA_BUILD_SHARED=ON
-cmake .. -DHYPATIA_BUILD_SHARED=OFF
-```
-- HYPATIA_BUILD_STATIC: (Default ON)
-
-Controls if the static library is built
-
-```
-cmake .. -DHYPATIA_BUILD_STATIC=ON
-cmake .. -DHYPATIA_BUILD_STATIC=OFF
-```
-
-- HYPATIA_BUILD_DOCS: (Default ON)
-
-Build the help documents
-
-```
-cmake .. -DHYPATIA_BUILD_DOCS=ON
-cmake .. -DHYPATIA_BUILD_DOCS=OFF
-```
-
-- HYPATIA_BUILD_TESTS: (Default ON)
-
-Build the unit tests
-
-```
-cmake .. -DHYPATIA_BUILD_TESTS=ON
-cmake .. -DHYPATIA_BUILD_TESTS=OFF
-```
-
-- CMAKE_BUILD_TYPE: (Default Release)
-
-Set this to 'Release' or 'Debug'
-
-```
-cmake .. -CMAKE_BUILD_TYPE=Release
-cmake .. -CMAKE_BUILD_TYPE=Debug
-```
-
-- CMAKE_INSTALL_PREFIX: (Default /usr)
-
-Allows you to specify where `make install` sends the output.
-
-```
-cmake .. -DCMAKE_INSTALL_PREFIX=~/hypatia/
-cmake .. -DCMAKE_INSTALL_PREFIX=~/projects/myproject/
-cmake .. -DCMAKE_INSTALL_PREFIX=~/experiments
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
-```
-
-
 Documentation
 -------------
 A great way to learn how to use the library is to review the
-[unit tests](https://github.com/dagostinelli/hypatia/tree/master/test "Unit Tests")
-and [documentation](http://dagostinelli.github.io/hypatia/)
+[unit tests](https://github.com/dagostinelli/hypatia/tree/master/test "Unit Tests").
 
-Help pages [have been published online here](http://dagostinelli.github.io/hypatia/ "Documentation")
+View the official [documentation](http://dagostinelli.github.io/hypatia/) here.
 
 Can I trust this math library?
 ------------------------------
-A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-7 (1E-5 when using single precision floats.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
+A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
