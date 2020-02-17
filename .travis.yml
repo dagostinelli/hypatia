@@ -16,7 +16,7 @@ install:
     cmake --version
 
 os:
-#  - linux
+  - linux
   - osx
 
 compiler:
