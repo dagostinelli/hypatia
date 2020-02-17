@@ -17,8 +17,8 @@ install:
     cmake --version
 
 os:
-  - linux
-# - osx
+#  - linux
+  - osx
 
 compiler:
   - clang
