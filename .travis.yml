@@ -1,7 +1,6 @@
 language: c
 
 install:
-  - set -e
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       CMAKE_VERSION=3.16.4
@@ -17,8 +16,8 @@ install:
     cmake --version
 
 os:
-  - linux
-# - osx
+#  - linux
+  - osx
 
 compiler:
   - clang
@@ -32,7 +31,7 @@ env:
 
 script:
   - cmake --version
-  - cmake -B build $FLAGS $VARYSINGLE .
+  - cmake -B build -DHYPATIA_BUILD_DOCS=OFF $FLAGS $VARYSINGLE .
   - cmake --build build
   - cd build && ctest && cpack -G "TGZ"
 
