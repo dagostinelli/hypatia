@@ -1,7 +1,6 @@
 language: c
 
 install:
-  - set -e
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       CMAKE_VERSION=3.16.4
