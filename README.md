@@ -100,9 +100,8 @@ As I went a long, I also found that I needed help from people willing to talk to
  - Jason Hughes
  - The librarians at the Austin Community College - Cedar Park, Texas
 
-Author
-------
+**Author**
 
 The hypatia math library is primarily the work of one author:
 
-* Darryl T. Agostinelli <http://www.darrylagostinelli.com>
+ - Darryl T. Agostinelli <http://www.darrylagostinelli.com>
