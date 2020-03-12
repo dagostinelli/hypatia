@@ -76,7 +76,7 @@ Hypatia uses verbose names. In pure-C code, math-related function names seem to 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
 Credits
-=======
+-------
 
 The Matrix-Quaternion FAQ was extremely helpful as far as teaching me the math. I originally came upon that document a long time ago as a student (late 1990's) and had forgotten about it until a friend reintroduced me to it.  I got the feeling at that reintroduction that this document was in danger of being lost at the bottom of the Internet.  I decided to "save it" by including it in this library in the "docs" folder.  If the original authors do not appreciate this, I am happy to remove it.  Keep in mind however that the doc does say: "Feel free to distribute or copy this FAQ as you please." I credit it as a source for some of the routines used in Hypatia and I hereby thank its authors for their hardwork in its creation.
 
@@ -86,8 +86,7 @@ When I read through the Mat-Quat FAQ, I found the notes about corrections that w
 
 As I went a long, I also found that I needed help from people willing to talk to me about this. I credit those below here as well (see below).
 
-Web Sites
----------
+**Web Sites**
 - Euclidean Space - http://www.euclideanspace.com
 - Math Works - http://www.mathworks.com
 - Wolfram Alpha Website http://www.wolframalpha.com
@@ -97,15 +96,13 @@ Web Sites
 - Endo Digital - http://www.endodigital.com
 - Paul Berner, et.al. - http://www.sedris.org/wg8home/Documents/WG80485.pdf
 
-People
-------
-Jason Hughes
-The librarians at the Austin Community College - Cedar Park, Texas
+**People**
+ - Jason Hughes
+ - The librarians at the Austin Community College - Cedar Park, Texas
 
-Authors
-=======
+Author
+------
 
 The hypatia math library is primarily the work of one author:
 
 * Darryl T. Agostinelli <http://www.darrylagostinelli.com>
-
