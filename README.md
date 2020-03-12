@@ -82,7 +82,6 @@ Along the way, I found that some of the terminology used concerning quaternions 
 
 **Matrix and Quaternion FAQ**
 
-
 The Matrix-Quaternion FAQ was extremely helpful as far as teaching me the math. I originally came upon that document a long time ago as a student (late 1990's) and had forgotten about it until a friend (Jason Hughes) reintroduced me to it.  At that reintroduction, I got the feeling  hat this document was in danger of being lost at the bottom of the Internet.  At the time, it was rather hard to find.  I decided to "save it" by including it in this library in the "docs" folder.  If the original authors do not appreciate this, I am happy to remove it.  Keep in mind however that the doc does say: "Feel free to distribute or copy this FAQ as you please." I credit it as a source for some of the routines used in Hypatia and I hereby thank its authors for their hardwork in its creation.
 
 **Web Sites**
