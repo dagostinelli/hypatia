@@ -104,4 +104,4 @@ As I went a long, I also found that I needed help from people willing to talk to
 
 The hypatia math library is primarily the work of one author:
 
- - Darryl T. Agostinelli <http://www.darrylagostinelli.com>
+ - Darryl T. Agostinelli - <http://www.darrylagostinelli.com>
