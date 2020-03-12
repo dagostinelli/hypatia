@@ -80,13 +80,14 @@ Credits
 
 The Matrix-Quaternion FAQ was extremely helpful as far as teaching me the math. I originally came upon that document a long time ago as a student (late 1990's) and had forgotten about it until a friend reintroduced me to it.  I got the feeling at that reintroduction that this document was in danger of being lost at the bottom of the Internet.  I decided to "save it" by including it in this library in the "docs" folder.  If the original authors do not appreciate this, I am happy to remove it.  Keep in mind however that the doc does say: "Feel free to distribute or copy this FAQ as you please." I credit it as a source for some of the routines used in Hypatia and I hereby thank its authors for their hardwork in its creation.
 
+**Matrix and Quaternion FAQ**
 Along the way, I found that some of the terminology used on the Internet concerning quaternions was not consistent.  For example, there is confusion about the difference between a quaternion's "norm", "normalizing a quaternion" and the quaternion's "magnitude".  Not having a formal background in linear algebra, I found things like this very confusing. Part of the reason that I wanted to build this library was to finally learn all of this material for myself; once having done that, share it with others.
 
-When I read through the Mat-Quat FAQ, I found the notes about corrections that were made, but I still found that there were differences between what the doc says, various pages around the Internet say and some math books that I assumed were reliable texts.  I would like to credit some of those other sources (see below).
-
-As I went a long, I also found that I needed help from people willing to talk to me about this. I credit those below here as well (see below).
 
 **Web Sites**
+
+When I read through the Mat-Quat FAQ, I found the notes about corrections that were made, but I still found that there were differences between what the doc says, various pages around the Internet say and some math books that I assumed were reliable texts.  I would like to credit some of those reliable sources here:
+
 - Euclidean Space - http://www.euclideanspace.com
 - Math Works - http://www.mathworks.com
 - Wolfram Alpha Website http://www.wolframalpha.com
@@ -97,6 +98,9 @@ As I went a long, I also found that I needed help from people willing to talk to
 - Paul Berner, et.al. - http://www.sedris.org/wg8home/Documents/WG80485.pdf
 
 **People**
+
+As I went a long, I also found that I needed help from people willing to talk to me about this. I credit those kind people here:
+
  - Jason Hughes
  - The librarians at the Austin Community College - Cedar Park, Texas
 
