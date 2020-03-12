@@ -78,11 +78,12 @@ As an experiment, some \#defines have been added to alias the verbose names. (ma
 Credits
 -------
 
-The Matrix-Quaternion FAQ was extremely helpful as far as teaching me the math. I originally came upon that document a long time ago as a student (late 1990's) and had forgotten about it until a friend reintroduced me to it.  I got the feeling at that reintroduction that this document was in danger of being lost at the bottom of the Internet.  I decided to "save it" by including it in this library in the "docs" folder.  If the original authors do not appreciate this, I am happy to remove it.  Keep in mind however that the doc does say: "Feel free to distribute or copy this FAQ as you please." I credit it as a source for some of the routines used in Hypatia and I hereby thank its authors for their hardwork in its creation.
+Along the way, I found that some of the terminology used concerning quaternions was not consistent.  For example, there is confusion about the difference between a quaternion's "norm", "normalizing a quaternion" and the quaternion's "magnitude".  Not having a formal background in linear algebra, I found things like this very confusing. Part of the reason that I wanted to build this library was to finally learn all of this material for myself; once having done that, share it with others.
 
 **Matrix and Quaternion FAQ**
-Along the way, I found that some of the terminology used on the Internet concerning quaternions was not consistent.  For example, there is confusion about the difference between a quaternion's "norm", "normalizing a quaternion" and the quaternion's "magnitude".  Not having a formal background in linear algebra, I found things like this very confusing. Part of the reason that I wanted to build this library was to finally learn all of this material for myself; once having done that, share it with others.
 
+
+The Matrix-Quaternion FAQ was extremely helpful as far as teaching me the math. I originally came upon that document a long time ago as a student (late 1990's) and had forgotten about it until a friend (Jason Hughes) reintroduced me to it.  At that reintroduction, I got the feeling  hat this document was in danger of being lost at the bottom of the Internet.  At the time, it was rather hard to find.  I decided to "save it" by including it in this library in the "docs" folder.  If the original authors do not appreciate this, I am happy to remove it.  Keep in mind however that the doc does say: "Feel free to distribute or copy this FAQ as you please." I credit it as a source for some of the routines used in Hypatia and I hereby thank its authors for their hardwork in its creation.
 
 **Web Sites**
 
