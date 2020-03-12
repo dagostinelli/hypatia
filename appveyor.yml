@@ -1,38 +1,15 @@
-shallow_clone: true
-
-configuration:
- - Debug
- - Release
 
 environment:
   matrix:
    - vstudio: Visual Studio 14 2015
-   - vstudio: Visual Studio 12 2013
-   - vstudio: Visual Studio 11 2012
    - vstudio: Visual Studio 10 2010
    - vstudio: Visual Studio 14 2015 Win64
-   - vstudio: Visual Studio 12 2013 Win64
-   - vstudio: Visual Studio 11 2012 Win64
    - vstudio: Visual Studio 10 2010 Win64
 
 build_script:
- - mkdir build
- - cd build
- - cmake -G "%vstudio%" -trace --warn-uninitialized --warn-unused_vars -Wdev
-   --config %configuration%
-   -DCMAKE_BUILD_TYPE=%configuration%
-   -DCMAKE_INSTALL_PREFIX=../install
-   -DHYPATIA_BUILD_STATIC=ON
-   -DHYPATIA_BUILD_SHARED=ON
-   -DHYPATIA_BUILD_DOCS=OFF
-   -DHYPATIA_SINGLE_PRECISION_FLOATS=OFF
-   ..
- - cmake --build "%cd%" --config %configuration%
- - cmd: '"c:\Program Files (x86)\CMake\bin\cpack.exe" -G "ZIP" -C %configuration%'
+ - cmake --version
+ - cmake -B build -G "%vstudio%" .
+ - cmake --build build
 
 test_script:
  - ctest --output-on-failure
-   -C %configuration%
-
-artifacts:
- - path: 'build\*.zip'
