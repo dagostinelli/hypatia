@@ -1,1 +1,0 @@
-#endif /* HYPATIA_IMPLEMENTATION */
