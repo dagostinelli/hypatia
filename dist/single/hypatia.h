@@ -3,7 +3,7 @@
 #ifndef _INC_HYPATIA
 #define _INC_HYPATIA
 
-#define HYPATIA_VERSION "1.0.0.0"
+#define HYPATIA_VERSION "1.1.0"
 
 #ifndef HYPAPI
 #	ifdef HYP_STATIC
