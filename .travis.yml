@@ -24,16 +24,14 @@ compiler:
   - gcc
 
 env:
-  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=ON"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Debug" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=OFF"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=ON"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Release" VARYSINGLE="-DHYPATIA_SINGLE_PRECISION_FLOATS=OFF"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Debug"
+  - FLAGS="-DCMAKE_BUILD_TYPE=Release"
 
 script:
   - cmake --version
-  - cmake -B build -DHYPATIA_BUILD_DOCS=OFF $FLAGS $VARYSINGLE .
+  - cmake -B build -DHYPATIA_BUILD_DOCS=OFF $FLAGS .
   - cmake --build build
-  - cd build && ctest && cpack -G "TGZ"
+  - cd build && ctest
 
 addons:
   apt:

@@ -17,8 +17,6 @@ IF(DOXYGEN_FOUND)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		COMMENT "Building documentation in 'doc' directory..."
 	)
-	INSTALL(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/html" DESTINATION share/doc/libhypatia/)
-ELSE(DOXYGEN_FOUND)
+ELSEIF()
 	MESSAGE(STATUS "Doxygen not found. You won't be able to build documentation.")
 ENDIF(DOXYGEN_FOUND)
-
