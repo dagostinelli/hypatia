@@ -23,13 +23,9 @@ compiler:
   - clang
   - gcc
 
-env:
-  - FLAGS="-DCMAKE_BUILD_TYPE=Debug"
-  - FLAGS="-DCMAKE_BUILD_TYPE=Release"
-
 script:
   - cmake --version
-  - cmake -B build -DHYPATIA_BUILD_DOCS=OFF $FLAGS .
+  - cmake -B build .
   - cmake --build build
   - cd build && ctest
 
