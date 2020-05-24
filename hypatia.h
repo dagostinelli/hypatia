@@ -1038,10 +1038,12 @@ HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct mat
 }
 
 
+#ifndef HYP_NO_STDIO
 HYPAPI void _vector2_print(const struct vector2 *self)
 {
 	printf("x:%10f, y:%10f\r\n", self->x, self->y);
 }
+#endif
 
 
 /**
@@ -1375,10 +1377,12 @@ HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct mat
 }
 
 
+#ifndef HYP_NO_STDIO
 HYPAPI void _vector3_print(const struct vector3 *self)
 {
 	printf("x:%10f, y:%10f, z:%10f\r\n", self->x, self->y, self->z);
 }
+#endif
 
 
 /**
@@ -1741,10 +1745,12 @@ HYPAPI HYP_FLOAT vector4_distance(const struct vector4 *v1, const struct vector4
 }
 
 
+#ifndef HYP_NO_STDIO
 HYPAPI void _vector4_print(const struct vector4 *self)
 {
 	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
 }
+#endif
 
 
 /**
@@ -1982,6 +1988,7 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
 }
 
 
+#ifndef HYP_NO_STDIO
 /**
  * @ingroup matrix3
  * @brief Prints out the matrix using column and row notation
@@ -1993,8 +2000,10 @@ HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 	printf("%10f, %10f, %10f\r\n", self->c01, self->c11, self->c21);
 	printf("%10f, %10f, %10f\r\n", self->c02, self->c12, self->c22);
 }
+#endif
 
 
+#ifndef HYP_NO_STDIO
 /**
  * @ingroup matrix3
  * @brief Prints out the matrix using row and column notation
@@ -2006,7 +2015,7 @@ HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 	printf("%10f, %10f, %10f\r\n", self->r10, self->r11, self->r12);
 	printf("%10f, %10f, %10f\r\n", self->r20, self->r21, self->r22);
 }
-
+#endif
 
 /**
  * @ingroup matrix3
@@ -2449,6 +2458,7 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
 }
 
 
+#ifndef HYP_NO_STDIO
 /**
  * @ingroup matrix4
  * @brief Prints out the matrix using column and row notation
@@ -2475,6 +2485,7 @@ HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 	printf("%10f, %10f, %10f, %10f\r\n", self->r20, self->r21, self->r22, self->r23);
 	printf("%10f, %10f, %10f, %10f\r\n", self->r30, self->r31, self->r32, self->r33);
 }
+#endif
 
 
 /**
@@ -3432,6 +3443,7 @@ HYPAPI struct quaternion *_quaternion_set_random(struct quaternion *self)
 }
 
 
+#ifndef HYP_NO_STDIO
 /**
  * @ingroup quaternion
  * @brief prints out the elements of the quaternion to stdout
@@ -3440,6 +3452,7 @@ HYPAPI void _quaternion_print(const struct quaternion *self)
 {
 	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
 }
+#endif
 
 
 /**
