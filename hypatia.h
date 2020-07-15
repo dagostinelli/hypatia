@@ -261,13 +261,6 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 /* @} */
 
 
-
-
-
-
-
-
-
 /**
  * @ingroup experimental
  * @{
@@ -296,13 +289,6 @@ HYPAPI void _vector4_print(const struct vector4 *self);
 HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 /* @} */
-
-#endif /* _INC_HYPATIA */
-
-#ifndef _INC_VECTOR2
-#define _INC_VECTOR2
-
-
 
 struct vector2
 {
@@ -352,13 +338,6 @@ HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, cons
 #define vec2 struct vector2
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#endif /* _INC_VECTOR2 */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_VECTOR3
-#define _INC_VECTOR3
-
 
 
 struct vector3
@@ -417,13 +396,6 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 
 #endif /*DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif /*_INC_VECTOR3 */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_VECTOR4
-#define _INC_VECTOR4
-
-
 
 struct vector4
 {
@@ -469,13 +441,6 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 #define vec4 struct vector4
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#endif /* _INC_VECTOR4 */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_MATRIX3
-#define _INC_MATRIX3
-
 
 
 struct matrix3
@@ -571,13 +536,6 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self);
 #define m3_scalev2 matrix3_scalev2
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-#endif /* _INC_MATRIX3 */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_MATRIX4
-#define _INC_MATRIX4
-
 
 
 struct matrix4
@@ -687,13 +645,6 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self);
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif /* _INC_MATRIX4 */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_QUATERNION
-#define _INC_QUATERNION
-
-
 
 struct quaternion
 {
@@ -760,13 +711,6 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
-#endif /* _INC_QUATERNION */
-/* SPDX-License-Identifier: MIT */
-
-#ifndef _INC_EXPERIMENTAL
-#define _INC_EXPERIMENTAL
-
-
 
 #include <stdint.h>
 
@@ -794,9 +738,6 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 
 
 #ifdef HYPATIA_IMPLEMENTATION
-/* SPDX-License-Identifier: MIT */
-
-
 
 
 /**
@@ -821,14 +762,6 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 
 	return 1;
 }
-/* SPDX-License-Identifier: MIT */
-
-
-
-
-/**
- * @file vector2.c
- */
 
 
 static struct vector2 _vector2_zero = { { {0.0f, 0.0f} } };
@@ -1057,14 +990,6 @@ HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self)
 	self->y = HYP_RANDOM_FLOAT;
 	return self;
 }
-/* SPDX-License-Identifier: MIT */
-
-
-
-
-/**
- * @file vector3.c
- */
 
 
 static struct vector3 _vector3_zero = { { {0.0f, 0.0f, 0.0f} } };
@@ -1458,14 +1383,6 @@ HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self)
 	self->z = HYP_RANDOM_FLOAT;
 	return self;
 }
-/* SPDX-License-Identifier: MIT */
-
-
-
-
-/**
- * @file vector4.c
- */
 
 
 static struct vector4 _vector4_zero = { { {0.0f, 0.0f, 0.0f, 0.0f} } };
@@ -1766,14 +1683,6 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
 	self->w = HYP_RANDOM_FLOAT;
 	return self;
 }
-/* SPDX-License-Identifier: MIT */
-
-
-
-
-/**
- * @file matrix3.c
- */
 
 
 /**
@@ -2143,14 +2052,7 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 	return matrix3_multiply(self,
 		matrix3_make_transformation_scalingv2(&scalingMatrix, scale));
 }
-/* SPDX-License-Identifier: MIT */
 
-
-
-
-/**
- * @file matrix4.c
- */
 
 #define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
 #define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
@@ -2797,13 +2699,6 @@ HYPAPI struct matrix4 *matrix4_inverse(struct matrix4 *self, struct matrix4 *mR)
 
 	return mR;
 }
-/* SPDX-License-Identifier: MIT */
-
-
-
-/**
- * @file quaternion.c
- */
 
 
 /**
@@ -3497,8 +3392,6 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 	return qR;
 }
-/* SPDX-License-Identifier: MIT */
-
 
 
 
