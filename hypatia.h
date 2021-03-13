@@ -2593,7 +2593,7 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
 	struct matrix4 inverse;
 	uint8_t i;
 
-	if (matrix4_inverse(self, &inverse) != NULL) {
+	if (matrix4_inverse(self, &inverse)) {
 		for (i = 0; i < 16; i++) {
 			self->m[i] = inverse.m[i];
 		}
