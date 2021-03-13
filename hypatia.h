@@ -17,6 +17,10 @@
 #	define HYPDEF HYPAPI
 #endif
 
+#ifndef HYP_INLINE
+#	define HYP_INLINE __inline__
+#endif
+
 #ifndef HYP_FLOAT
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #		define HYP_FLOAT float
@@ -92,20 +96,23 @@
 #	define HYP_MEMSET(a, b, c)  memset(a, b, c)
 #endif
 
-/** @brief A macro that returns the minimum of \a a and \a b */
-#ifndef HYP_MIN
-#	define HYP_MIN(a, b)  (((a) < (b)) ? (a) : (b))
-#endif
+/** @brief A function that returns the minimum of \a a and \a b */
+static HYP_INLINE HYP_FLOAT HYP_MIN(HYP_FLOAT a, HYP_FLOAT b)
+{
+	return (a < b) ? a : b;
+}
 
 /** @brief A macro that returns the maximum of \a a and \a b */
-#ifndef HYP_MAX
-#	define HYP_MAX(a, b)  (((a) > (b)) ? (b) : (a))
-#endif
+static HYP_INLINE HYP_FLOAT HYP_MAX(HYP_FLOAT a, HYP_FLOAT b)
+{
+	return (a > b) ? b : a;
+}
 
 /** @brief A macro that swaps \a a and \a b */
-#ifndef HYP_SWAP
-#	define HYP_SWAP(a, b) { HYP_FLOAT f = a; a = b; b = f; }
-#endif
+static HYP_INLINE void HYP_SWAP(HYP_FLOAT *a, HYP_FLOAT *b)
+{
+	HYP_FLOAT f = *a; *a = *b; *b = f;
+}
 
 /** @brief A macro that returns a random float point number up to RAND_MAX */
 #ifndef HYP_RANDOM_FLOAT
@@ -124,9 +131,10 @@
 #endif
 
 /** @brief A macro that squares a value squared */
-#ifndef HYP_SQUARE
-#	define HYP_SQUARE(number) ((number) * (number))
-#endif
+static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
+{
+	return number * number;
+}
 
 /** @brief A macro that finds the square root of a value */
 #ifndef HYP_SQRT
@@ -134,19 +142,22 @@
 #endif
 
 /** @brief A macro that returns the absolute value */
-#ifndef HYP_ABS
-#	define HYP_ABS(value) (((value) < 0.0f) ? -(value) : (value))
-#endif
+static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
+{
+	return (value < 0.0f) ? -value : value;
+}
 
 /** @brief A macro that wraps a value around and around in a range */
-#ifndef HYP_WRAP
-#	define HYP_WRAP(value, start, limit) ((value) = fmod((start) + ((value) - (start)), ((limit) - (start))))
-#endif
+static HYP_INLINE HYP_FLOAT HYP_WRAP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOAT limit)
+{
+	return (HYP_FLOAT)fmod(start + (value - start), (limit - start));
+}
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
-#ifndef HYP_CLAMP
-#	define HYP_CLAMP(value, start, limit) (value = (((value) < (start)) ? (start) : ((value) > (limit)) ? (limit) : (value)))
-#endif
+static HYP_INLINE HYP_FLOAT HYP_CLAMP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOAT limit)
+{
+	return ((value < start) ? start : (value > limit) ? limit : value);
+}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -265,8 +276,6 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @ingroup experimental
  * @{
  */
-
-#define _HYP_SWAP(x, y) do { tmp = x; x = y; y = tmp; } while (0)
 
 HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self);
 HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
@@ -1832,11 +1841,9 @@ HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self)
  */
 HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
 {
-	HYP_FLOAT tmp;
-
-	_HYP_SWAP(self->r01, self->r10);
-	_HYP_SWAP(self->r02, self->r20);
-	_HYP_SWAP(self->r12, self->r21);
+	HYP_SWAP(&self->r01, &self->r10);
+	HYP_SWAP(&self->r02, &self->r20);
+	HYP_SWAP(&self->r12, &self->r21);
 
 	return self;
 }
@@ -1849,11 +1856,9 @@ HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
  */
 HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
 {
-	HYP_FLOAT tmp;
-
-	_HYP_SWAP(self->c01, self->c10);
-	_HYP_SWAP(self->c02, self->c20);
-	_HYP_SWAP(self->c12, self->c21);
+	HYP_SWAP(&self->c01, &self->c10);
+	HYP_SWAP(&self->c02, &self->c20);
+	HYP_SWAP(&self->c12, &self->c21);
 
 	return self;
 }
@@ -2282,14 +2287,12 @@ HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
 {
-	HYP_FLOAT tmp;
-
-	_HYP_SWAP(self->r01, self->r10);
-	_HYP_SWAP(self->r02, self->r20);
-	_HYP_SWAP(self->r03, self->r30);
-	_HYP_SWAP(self->r12, self->r21);
-	_HYP_SWAP(self->r13, self->r31);
-	_HYP_SWAP(self->r23, self->r32);
+	HYP_SWAP(&self->r01, &self->r10);
+	HYP_SWAP(&self->r02, &self->r20);
+	HYP_SWAP(&self->r03, &self->r30);
+	HYP_SWAP(&self->r12, &self->r21);
+	HYP_SWAP(&self->r13, &self->r31);
+	HYP_SWAP(&self->r23, &self->r32);
 
 	return self;
 }
@@ -2302,14 +2305,12 @@ HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
 {
-	HYP_FLOAT tmp;
-
-	_HYP_SWAP(self->c01, self->c10);
-	_HYP_SWAP(self->c02, self->c20);
-	_HYP_SWAP(self->c03, self->c30);
-	_HYP_SWAP(self->c12, self->c21);
-	_HYP_SWAP(self->c13, self->c31);
-	_HYP_SWAP(self->c23, self->c32);
+	HYP_SWAP(&self->c01, &self->c10);
+	HYP_SWAP(&self->c02, &self->c20);
+	HYP_SWAP(&self->c03, &self->c30);
+	HYP_SWAP(&self->c12, &self->c21);
+	HYP_SWAP(&self->c13, &self->c31);
+	HYP_SWAP(&self->c23, &self->c32);
 
 	return self;
 }
