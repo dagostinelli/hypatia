@@ -22,12 +22,12 @@ static char *test_vector3_cross_product(void)
 	test_assert(!scalar_equalsf(r.y, -2.0f));
 	test_assert(!scalar_equalsf(r.z, 39.0f));
 
-	return 0;
+	return NULL;
 }
 
 static char *vector3_all_tests(void)
 {
 	run_test(test_vector3_cross_product);
 
-	return 0;
+	return NULL;
 }
