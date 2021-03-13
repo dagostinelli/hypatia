@@ -145,7 +145,7 @@
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
 #ifndef HYP_CLAMP
-#	define HYP_CLAMP(value, start, limit) (value = ((value < start) ? start : (value > limit) ? limit : value))
+#	define HYP_CLAMP(value, start, limit) (value = ((value < (start)) ? (start) : (value > (limit)) ? (limit) : value))
 #endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
