@@ -15,7 +15,7 @@ static char *test_quaternion_identity(void)
 	test_assert(quaternion_is_unit(&q));
 	test_assert(!quaternion_is_pure(&q));
 
-	return 0;
+	return NULL;
 }
 /** [quaternion identity example] */
 
@@ -31,7 +31,7 @@ static char *test_quaternion_conjugate(void)
 	quaternion_conjugate(&qB);
 	test_assert(quaternion_equals(&qA, &qB));
 
-	return 0;
+	return NULL;
 }
 /** [quaternion conjugate example] */
 
@@ -51,7 +51,7 @@ static char *test_quaternion_inverse(void)
 	quaternion_identity(&qIdentity);
 	test_assert(quaternion_equals(&qA, &qIdentity));
 
-	return 0;
+	return NULL;
 }
 /** [quaternion inverse example] */
 
@@ -80,7 +80,7 @@ static char *test_quaternion_axis_anglev3(void)
 
 	test_assert(quaternion_equals(&q, &q1));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -99,7 +99,7 @@ static char *test_quaternion_get_set_axis_anglev3(void)
 	test_assert(vector3_equals(&axis, &axis1));
 	test_assert(scalar_equalsf(angle, angle1));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -115,7 +115,7 @@ static char *test_quaternion_multiply(void)
 
 	test_assert(quaternion_equals(&qA, &qB));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -135,7 +135,7 @@ static char *test_quaternion_multiply_identity(void)
 
 	test_assert(quaternion_equals(&q, &qA));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -148,7 +148,7 @@ static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -161,7 +161,7 @@ static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -174,7 +174,7 @@ static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -187,7 +187,7 @@ static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -200,7 +200,7 @@ static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -213,7 +213,7 @@ static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -226,7 +226,7 @@ static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -239,7 +239,7 @@ static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 	vector3_rotate_by_quaternion(vector3_set(&r, HYP_VECTOR3_UNIT_X), &q);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -310,7 +310,7 @@ static char *test_quaternion_slerp(void)
 	quaternion_slerp(&q3, &q1, 1.0f, &q);
 	test_assert(quaternion_equals(&q, &q1));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -341,7 +341,7 @@ static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 	/* same */
 	test_assert(quaternion_equals(&q1, &q2));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -384,7 +384,7 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 	test_assert(scalar_equals(in_angley, out_angley));
 	test_assert(scalar_equals(in_anglez, out_anglez));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -414,7 +414,7 @@ static char *test_quaternion_get_eulers_from_axis_angle(void)
 	/* same */
 	test_assert(quaternion_equals(&q1, &q2));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -436,7 +436,7 @@ static char *test_quaternion_360_degree_eulers(void)
 
 	test_assert(scalar_equals(0.0f, out_anglez));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -463,5 +463,5 @@ static char *quaternion_all_tests(void)
 	run_test(test_quaternion_get_eulers_from_axis_angle);
 	run_test(test_quaternion_360_degree_eulers);
 
-	return 0;
+	return NULL;
 }
