@@ -17,15 +17,15 @@ checksparse:
 
 checksyntax:
 	@echo checksyntax
-	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion hypatia.h
-	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/implementation.c
-	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/main.c
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion hypatia.h
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/implementation.c
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/main.c
 
 checkpatch:
 	@echo checkpatch
 	@/usr/src/kernels/`uname -r`/scripts/checkpatch.pl \
 	-f --no-tree --no-summary --terse --show-types --subjective \
-	--ignore LONG_LINE_COMMENT,BRACES,COMPARISON_TO_NULL,LONG_LINE,\
+	--ignore INLINE,LONG_LINE_COMMENT,BRACES,COMPARISON_TO_NULL,LONG_LINE,\
 	MACRO_WITH_FLOW_CONTROL,CAMELCASE,SPACING,PREFER_KERNEL_TYPES,\
 	SPDX_LICENSE_TAG,UNNECESSARY_PARENTHESES,LONG_LINE_STRING,\
 	BLOCK_COMMENT_STYLE,AVOID_EXTERNS,UNNECESSARY_ELSE,MULTISTATEMENT_MACRO_USE_DO_WHILE,\
