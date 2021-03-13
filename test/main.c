@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <hypatia.h>
 
-#define UNUSED_VARIABLE(x) (void)(x)
+#define UNUSED_VARIABLE(x) ((void)(x))
 
 #include "unittest.h"
 
@@ -30,7 +30,7 @@ static char *all_testsuites(void)
 	printf("experimental_all_tests\n");
 	run_test(experimental_all_tests);
 
-	return 0;
+	return NULL;
 }
 
 int main(int argc, char *argv[])
@@ -44,12 +44,9 @@ int main(int argc, char *argv[])
 	test_message = 0;
 
 	result = all_testsuites();
-	if (result != 0)
-	{
+	if (result != 0) {
 		printf("%s\n", result);
-	}
-	else
-	{
+	} else {
 		printf("ALL TESTS PASSED\n");
 	}
 	printf("Tests run: %d\n", tests_run);
