@@ -290,16 +290,13 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 /* @} */
 
-struct vector2
-{
-	union
-		{
+struct vector2 {
+	union {
 		HYP_FLOAT v[2];
-		struct
-			{
+		struct {
 			HYP_FLOAT x, y;
-			};
 		};
+	};
 };
 
 
@@ -340,20 +337,16 @@ HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, cons
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-struct vector3
-{
-	union
-		{
+struct vector3 {
+	union {
 		HYP_FLOAT v[3];
-		struct
-			{
+		struct {
 			HYP_FLOAT x, y, z;
-			};
-		struct
-			{
-			HYP_FLOAT yaw, pitch, roll;
-			};
 		};
+		struct {
+			HYP_FLOAT yaw, pitch, roll;
+		};
+	};
 };
 
 
@@ -397,13 +390,10 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 #endif /*DOXYGEN_SHOULD_SKIP_THIS */
 
 
-struct vector4
-{
-	union
-	{
+struct vector4 {
+	union {
 		HYP_FLOAT v[4];
-		struct
-		{
+		struct {
 			HYP_FLOAT x, y, z, w;
 		};
 	};
@@ -443,32 +433,26 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-struct matrix3
-{
-	union
-	{
+struct matrix3 {
+	union {
 		HYP_FLOAT m[9]; /* row-major numbering */
-		struct
-		{
+		struct {
 			/* reference the matrix [row][column] */
 			HYP_FLOAT m33[3][3];
 		};
-		struct
-		{
+		struct {
 			/* indexed (column-major numbering) */
 			HYP_FLOAT i00, i03, i06;
 			HYP_FLOAT i01, i04, i07;
 			HYP_FLOAT i02, i05, i08;
 		};
-		struct
-		{
+		struct {
 			/* col-row */
 			HYP_FLOAT c00, c10, c20;
 			HYP_FLOAT c01, c11, c21;
 			HYP_FLOAT c02, c12, c22;
 		};
-		struct
-		{
+		struct {
 			/* row-col */
 			HYP_FLOAT r00, r01, r02;
 			HYP_FLOAT r10, r11, r12;
@@ -538,34 +522,28 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self);
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-struct matrix4
-{
-	union
-	{
+struct matrix4 {
+	union {
 		HYP_FLOAT m[16]; /* row-major numbering */
-		struct
-		{
+		struct {
 			/* reference the matrix [row][column] */
 			HYP_FLOAT m44[4][4];
 		};
-		struct
-		{
+		struct {
 			/* indexed (column-major numbering) */
 			HYP_FLOAT i00, i04, i08, i12;
 			HYP_FLOAT i01, i05, i09, i13;
 			HYP_FLOAT i02, i06, i10, i14;
 			HYP_FLOAT i03, i07, i11, i15;
 		};
-		struct
-		{
+		struct {
 			/* col-row */
 			HYP_FLOAT c00, c10, c20, c30;
 			HYP_FLOAT c01, c11, c21, c31;
 			HYP_FLOAT c02, c12, c22, c32;
 			HYP_FLOAT c03, c13, c23, c33;
 		};
-		struct
-		{
+		struct {
 			/* row-col */
 			HYP_FLOAT r00, r01, r02, r03;
 			HYP_FLOAT r10, r11, r12, r13;
@@ -646,20 +624,16 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self);
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-struct quaternion
-{
-	union
-		{
+struct quaternion {
+	union {
 		HYP_FLOAT q[4];
-		struct
-			{
+		struct {
 			HYP_FLOAT x, y, z, w;
-			};
-		struct
-			{
-			HYP_FLOAT i, j, k, a;
-			};
 		};
+		struct {
+			HYP_FLOAT i, j, k, a;
+		};
+	};
 };
 
 
