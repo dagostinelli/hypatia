@@ -125,7 +125,7 @@
 
 /** @brief A macro that squares a value squared */
 #ifndef HYP_SQUARE
-#	define HYP_SQUARE(number) (number * number)
+#	define HYP_SQUARE(number) ((number) * (number))
 #endif
 
 /** @brief A macro that finds the square root of a value */
@@ -140,12 +140,12 @@
 
 /** @brief A macro that wraps a value around and around in a range */
 #ifndef HYP_WRAP
-#	define HYP_WRAP(value, start, limit) (value = fmod(start + (value - start), (limit - start)))
+#	define HYP_WRAP(value, start, limit) ((value) = fmod((start) + ((value) - (start)), ((limit) - (start))))
 #endif
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
 #ifndef HYP_CLAMP
-#	define HYP_CLAMP(value, start, limit) (value = ((value < (start)) ? (start) : (value > (limit)) ? (limit) : value))
+#	define HYP_CLAMP(value, start, limit) (value = (((value) < (start)) ? (start) : ((value) > (limit)) ? (limit) : (value)))
 #endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
