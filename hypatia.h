@@ -3058,15 +3058,13 @@ HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const 
 	HYP_FLOAT f1, f2;
 
 	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, 0.0f))
-	{
+	if (scalar_equalsf(percent, 0.0f)) {
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, 1.0f))
-	{
+	if (scalar_equalsf(percent, 1.0f)) {
 		quaternion_set(qR, end);
 		return qR;
 	}
@@ -3111,15 +3109,13 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	struct quaternion qneg;
 
 	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, 0.0f))
-	{
+	if (scalar_equalsf(percent, 0.0f)) {
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, 1.0f))
-	{
+	if (scalar_equalsf(percent, 1.0f)) {
 		quaternion_set(qR, end);
 		return qR;
 	}
@@ -3132,8 +3128,7 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	 *	- At small angles, the slerp and lerp are the same
 	 */
 
-	if (scalar_equalsf(dot, 1.0f))
-	{
+	if (scalar_equalsf(dot, 1.0f)) {
 		quaternion_lerp(start, end, percent, qR);
 		return qR;
 	}
@@ -3144,8 +3139,7 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	 * the sphere beginning with "end" and going the other way around
 	 * the sphere
 	 */
-	if (dot < 0.0f)
-	{
+	if (dot < 0.0f) {
 		quaternion_set(&qneg, end);
 		/*quaternion_conjugate(&qneg);*/
 		quaternion_negate(&qneg);
@@ -3304,14 +3298,11 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 	HYP_FLOAT scale = HYP_SQRT(1.0f - self->w * self->w);
 
 	/* avoid divide by zero */
-	if (scalar_equalsf(scale, 0.0f))
-	{
+	if (scalar_equalsf(scale, 0.0f)) {
 		vR->x = self->x;
 		vR->y = self->y;
 		vR->z = self->z;
-	}
-	else
-	{
+	} else {
 		vR->x = self->x / scale;
 		vR->y = self->y / scale;
 		vR->z = self->z / scale;
@@ -3382,8 +3373,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 	/* normalization with avoidance of div/0 and reusing the norm */
 	/* (already calculated above) */
-	if (!scalar_equalsf(norm, 0.0f))
-	{
+	if (!scalar_equalsf(norm, 0.0f)) {
 		qR->x /= norm;
 		qR->y /= norm;
 		qR->z /= norm;
