@@ -7,12 +7,11 @@ static char *test_matrix4_zero(void)
 
 	matrix4_zero(&zero);
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		test_assert(scalar_equalsf(zero.m[i], 0.0f));
 	}
 
-	return 0;
+	return NULL;
 }
 
 
@@ -29,7 +28,7 @@ static char *test_matrix4_equals(void)
 	/* not-equal */
 	test_assert(matrix4_equals(&identity, &m) == 0);
 
-	return 0;
+	return NULL;
 }
 
 
@@ -53,7 +52,7 @@ static char *test_matrix4_multiplym4(void)
 	matrix4_multiply(&m2, &m1);
 	test_assert(matrix4_equals(&mR, &m2));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -70,7 +69,7 @@ static char *test_matrix4_identity_with_vector2(void)
 	matrix4_multiplyv2(&m, &startingPosition, &r);
 	test_assert(vector2_equals(&r, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -87,7 +86,7 @@ static char *test_matrix4_transformation_translatev3_with_vector2(void)
 	matrix4_multiplyv2(&m, &startingPosition, &r);
 	test_assert(vector2_equals(&r, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 static char *test_matrix4_transformation_translatev3_with_vector2_2(void)
@@ -103,7 +102,7 @@ static char *test_matrix4_transformation_translatev3_with_vector2_2(void)
 	matrix4_multiplyv2(&m, &startingPosition, &r);
 	test_assert(vector2_equals(&r, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -120,7 +119,7 @@ static char *test_matrix4_identity_with_vector3(void)
 	matrix4_multiplyv3(&m, &startingPosition, &r);
 	test_assert(vector3_equals(&r, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -137,7 +136,7 @@ static char *test_matrix4_identity_with_vector4(void)
 	matrix4_multiplyv4(&m, &startingPosition, &r);
 	test_assert(vector4_equals(&r, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -148,7 +147,8 @@ static char *test_matrix4_transpose(void)
 
 	matrix4_transpose(&m);
 	test_assert(matrix4_equals(&m, &e));
-	return 0;
+
+	return NULL;
 }
 
 
@@ -184,7 +184,7 @@ static char *test_matrix4_columnrowcolumn(void)
 	test_assert(matrix4_equals(&c, &m));
 	test_assert(matrix4_equals(&m, &r));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -200,7 +200,7 @@ static char *test_matrix4_transformation_translatev3(void)
 	vector3_multiplym4(&startingPosition, &transform);
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -216,7 +216,7 @@ static char *test_matrix4_transformation_translatev3_negative(void)
 	vector3_multiplym4(&startingPosition, &transform);
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -232,7 +232,7 @@ static char *test_matrix4_transformation_scalingv3(void)
 	vector3_multiplym4(&startingPosition, &transform);
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -252,7 +252,7 @@ static char *test_matrix4_transformation_scale_then_translatev3(void)
 	vector3_multiplym4(&startingPosition, &transform);
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -267,7 +267,7 @@ static char *test_vector3_rotate_by_matrix_xy_quarter_turn(void)
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
 
-	return 0;
+	return NULL;
 }
 
 
@@ -281,7 +281,7 @@ static char *test_vector3_rotate_by_matrix_yx_quarter_turn(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -295,7 +295,7 @@ static char *test_vector3_rotate_by_matrix_zx_quarter_turn(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -310,7 +310,7 @@ static char *test_matrix4_rotatev3_xz_quarter_turn(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -325,7 +325,7 @@ static char *test_matrix4_rotatev3_xz_quarter_turn_opposite(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -340,7 +340,7 @@ static char *test_matrix4_rotatev3_xy_quarter_turn(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -355,7 +355,7 @@ static char *test_matrix4_rotatev3_xy_quarter_turn_opposite(void)
 	vector3_multiplym4(&r, &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -369,7 +369,7 @@ static char *test_matrix4_set_from_quaternion_xy_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -383,7 +383,7 @@ static char *test_matrix4_set_from_quaternion_xz_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -397,7 +397,7 @@ static char *test_matrix4_set_from_quaternion_yx_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -411,7 +411,7 @@ static char *test_matrix4_set_from_quaternion_yz_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -425,7 +425,7 @@ static char *test_matrix4_set_from_quaternion_zx_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -439,7 +439,7 @@ static char *test_matrix4_set_from_quaternion_zy_quarter_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -453,7 +453,7 @@ static char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -474,7 +474,7 @@ static char *test_matrix4_match_transformation_matrix_quaternion(void)
 
 	test_assert(vector3_equals(&vQ, &vM));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -506,7 +506,7 @@ static char *test_matrix4_transform_3d(void)
 
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -531,7 +531,7 @@ static char *test_matrix4_transform_3d_combined(void)
 
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -552,7 +552,7 @@ static char *test_matrix4_transform_3d_scale_translate(void)
 
 	test_assert(vector3_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -588,7 +588,7 @@ static char *test_matrix4_determinant_row_is_zero(void)
 	det = matrix4_determinant(&m);
 	test_assert(scalar_equals(det, 0));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -618,7 +618,7 @@ static char *test_matrix4_inverse(void)
 
 	test_assert(matrix4_equals(&identity, &scratchMatrix));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -665,5 +665,5 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_inverse);
 	run_test(test_matrix4_determinant_row_is_zero);
 
-	return 0;
+	return NULL;
 }

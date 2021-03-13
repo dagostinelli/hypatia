@@ -20,7 +20,7 @@ static char *test_matrix4_transformation_decompose_translation(void)
 	/* same */
 	test_assert(vector3_equals(&in_translation, &out_translation));
 
-	return 0;
+	return NULL;
 }
 
 static char *test_matrix4_transformation_decompose_scaling(void)
@@ -43,7 +43,7 @@ static char *test_matrix4_transformation_decompose_scaling(void)
 	/* same */
 	test_assert(vector3_equals(&in_scale, &out_scale));
 
-	return 0;
+	return NULL;
 }
 
 static char *experimental_all_tests(void)
@@ -51,5 +51,5 @@ static char *experimental_all_tests(void)
 	run_test(test_matrix4_transformation_decompose_translation);
 	run_test(test_matrix4_transformation_decompose_scaling);
 
-	return 0;
+	return NULL;
 }

@@ -7,12 +7,11 @@ static char *test_matrix3_zero(void)
 
 	matrix3_zero(&zero);
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		test_assert(scalar_equalsf(zero.m[i], 0.0f));
 	}
 
-	return 0;
+	return NULL;
 }
 
 
@@ -29,7 +28,7 @@ static char *test_matrix3_equals(void)
 	/* not-equal */
 	test_assert(matrix3_equals(&identity, &m) == 0);
 
-	return 0;
+	return NULL;
 }
 
 
@@ -51,7 +50,7 @@ static char *test_matrix3_multiplym3(void)
 	matrix3_multiply(&m2, &m1);
 	test_assert(matrix3_equals(&mR, &m2));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -67,7 +66,7 @@ static char *test_matrix3_identity_with_vector(void)
 	vector2_multiplym3(&startingPosition, &m);
 	test_assert(vector2_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -78,7 +77,7 @@ static char *test_matrix3_transpose(void)
 
 	matrix3_transpose(&m);
 	test_assert(matrix3_equals(&m, &e));
-	return 0;
+	return NULL;
 }
 
 
@@ -114,7 +113,7 @@ static char *test_matrix3_columnrowcolumn(void)
 	test_assert(matrix3_equals(&c, &m));
 	test_assert(matrix3_equals(&m, &r));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -130,7 +129,7 @@ static char *test_matrix3_transformation_translatev2(void)
 	vector2_multiplym3(&startingPosition, &transform);
 	test_assert(vector2_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -146,7 +145,7 @@ static char *test_matrix3_transformation_translatev2_negative(void)
 	vector2_multiplym3(&startingPosition, &transform);
 	test_assert(vector2_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -162,7 +161,7 @@ static char *test_matrix3_transformation_scalingv2(void)
 	vector2_multiplym3(&startingPosition, &transform);
 	test_assert(vector2_equals(&startingPosition, &expectedPosition));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -176,7 +175,7 @@ static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 	vector2_multiplym3(&r, &m);
 	test_assert(vector2_equals(&r, HYP_VECTOR2_UNIT_Y));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -191,7 +190,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn(void)
 	vector2_multiplym3(&r, &m);
 	test_assert(vector2_equals(&r, HYP_VECTOR2_UNIT_Y));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -206,7 +205,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 	vector2_multiplym3(&r, &m);
 	test_assert(vector2_equals(&r, HYP_VECTOR2_UNIT_Y_NEGATIVE));
 
-	return 0;
+	return NULL;
 }
 
 
@@ -226,5 +225,5 @@ static char *matrix3_all_tests(void)
 	run_test(test_matrix3_rotatev3_xz_quarter_turn);
 	run_test(test_matrix3_rotatev3_xz_quarter_turn_opposite);
 
-	return 0;
+	return NULL;
 }
