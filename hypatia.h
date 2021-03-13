@@ -774,21 +774,21 @@ static struct vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
 HYPAPI const struct vector2 *vector2_get_reference_vector2(int id)
 {
 	switch (id) {
-		case HYP_REF_VECTOR2_ZERO:
-			return &_vector2_zero;
-		case HYP_REF_VECTOR2_ONE:
-			return &_vector2_one;
-		case HYP_REF_VECTOR2_UNIT_X:
-			return &_vector2_unit_x;
-		case HYP_REF_VECTOR2_UNIT_Y:
-			return &_vector2_unit_y;
-		case HYP_REF_VECTOR2_UNIT_X_NEGATIVE:
-			return &_vector2_unit_x_negative;
-		case HYP_REF_VECTOR2_UNIT_Y_NEGATIVE:
-			return &_vector2_unit_y_negative;
-		default:
-			/* undefined case */
-			return &_vector2_zero;
+	case HYP_REF_VECTOR2_ZERO:
+		return &_vector2_zero;
+	case HYP_REF_VECTOR2_ONE:
+		return &_vector2_one;
+	case HYP_REF_VECTOR2_UNIT_X:
+		return &_vector2_unit_x;
+	case HYP_REF_VECTOR2_UNIT_Y:
+		return &_vector2_unit_y;
+	case HYP_REF_VECTOR2_UNIT_X_NEGATIVE:
+		return &_vector2_unit_x_negative;
+	case HYP_REF_VECTOR2_UNIT_Y_NEGATIVE:
+		return &_vector2_unit_y_negative;
+	default:
+		/* undefined case */
+		return &_vector2_zero;
 	}
 }
 
@@ -1003,25 +1003,25 @@ static struct vector3 _vector3_unit_z_negative = { { {0.0f,  0.0f, -1.0f} } };
 HYPAPI const struct vector3 *vector3_get_reference_vector3(int id)
 {
 	switch (id) {
-		case HYP_REF_VECTOR3_ZERO:
-			return &_vector3_zero;
-		case HYP_REF_VECTOR3_ONE:
-			return &_vector3_one;
-		case HYP_REF_VECTOR3_UNIT_X:
-			return &_vector3_unit_x;
-		case HYP_REF_VECTOR3_UNIT_Y:
-			return &_vector3_unit_y;
-		case HYP_REF_VECTOR3_UNIT_Z:
-			return &_vector3_unit_z;
-		case HYP_REF_VECTOR3_UNIT_X_NEGATIVE:
-			return &_vector3_unit_x_negative;
-		case HYP_REF_VECTOR3_UNIT_Y_NEGATIVE:
-			return &_vector3_unit_y_negative;
-		case HYP_REF_VECTOR3_UNIT_Z_NEGATIVE:
-			return &_vector3_unit_z_negative;
-		default:
-			/* undefined case */
-			return &_vector3_zero;
+	case HYP_REF_VECTOR3_ZERO:
+		return &_vector3_zero;
+	case HYP_REF_VECTOR3_ONE:
+		return &_vector3_one;
+	case HYP_REF_VECTOR3_UNIT_X:
+		return &_vector3_unit_x;
+	case HYP_REF_VECTOR3_UNIT_Y:
+		return &_vector3_unit_y;
+	case HYP_REF_VECTOR3_UNIT_Z:
+		return &_vector3_unit_z;
+	case HYP_REF_VECTOR3_UNIT_X_NEGATIVE:
+		return &_vector3_unit_x_negative;
+	case HYP_REF_VECTOR3_UNIT_Y_NEGATIVE:
+		return &_vector3_unit_y_negative;
+	case HYP_REF_VECTOR3_UNIT_Z_NEGATIVE:
+		return &_vector3_unit_z_negative;
+	default:
+		/* undefined case */
+		return &_vector3_zero;
 	}
 }
 
@@ -1394,25 +1394,25 @@ static struct vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} 
 HYPAPI const struct vector4 *vector4_get_reference_vector4(int id)
 {
 	switch (id) {
-		case HYP_REF_VECTOR4_ZERO:
-			return &_vector4_zero;
-		case HYP_REF_VECTOR4_ONE:
-			return &_vector4_one;
-		case HYP_REF_VECTOR4_UNIT_X:
-			return &_vector4_unit_x;
-		case HYP_REF_VECTOR4_UNIT_Y:
-			return &_vector4_unit_y;
-		case HYP_REF_VECTOR4_UNIT_Z:
-			return &_vector4_unit_z;
-		case HYP_REF_VECTOR4_UNIT_X_NEGATIVE:
-			return &_vector4_unit_x_negative;
-		case HYP_REF_VECTOR4_UNIT_Y_NEGATIVE:
-			return &_vector4_unit_y_negative;
-		case HYP_REF_VECTOR4_UNIT_Z_NEGATIVE:
-			return &_vector4_unit_z_negative;
-		default:
-			/* undefined case */
-			return &_vector4_zero;
+	case HYP_REF_VECTOR4_ZERO:
+		return &_vector4_zero;
+	case HYP_REF_VECTOR4_ONE:
+		return &_vector4_one;
+	case HYP_REF_VECTOR4_UNIT_X:
+		return &_vector4_unit_x;
+	case HYP_REF_VECTOR4_UNIT_Y:
+		return &_vector4_unit_y;
+	case HYP_REF_VECTOR4_UNIT_Z:
+		return &_vector4_unit_z;
+	case HYP_REF_VECTOR4_UNIT_X_NEGATIVE:
+		return &_vector4_unit_x_negative;
+	case HYP_REF_VECTOR4_UNIT_Y_NEGATIVE:
+		return &_vector4_unit_y_negative;
+	case HYP_REF_VECTOR4_UNIT_Z_NEGATIVE:
+		return &_vector4_unit_z_negative;
+	default:
+		/* undefined case */
+		return &_vector4_zero;
 	}
 }
 
