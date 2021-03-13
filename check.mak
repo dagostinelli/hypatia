@@ -4,19 +4,22 @@ clean:
 	@rm -rf build/
 
 check:
-	@$(MAKE) -f check.mak checksyntax
-	@$(MAKE) -f check.mak checksparse
-	@$(MAKE) -f check.mak checkpatch
+	@echo try:
+	@echo  make -f check.mak checksyntax
+	@echo  make -f check.mak checksparse
+	@echo  make -f check.mak checkpatch
 
 checksparse:
 	@echo checksparse
 	@sparse hypatia.h
-	@sparse -I. test/main.c -Wno-missing-braces
+	@sparse -I. test/implementation.c
+	@sparse -I. test/main.c
 
 checksyntax:
 	@echo checksyntax
-	@gcc -fsyntax-only hypatia.h
-	@gcc -fsyntax-only -I. test/main.c
+	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion hypatia.h
+	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/implementation.c
+	@gcc -fsyntax-only -std=c99 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -I. test/main.c
 
 checkpatch:
 	@echo checkpatch
@@ -27,4 +30,4 @@ checkpatch:
 	SPDX_LICENSE_TAG,UNNECESSARY_PARENTHESES,LONG_LINE_STRING,\
 	BLOCK_COMMENT_STYLE,AVOID_EXTERNS,UNNECESSARY_ELSE,MULTISTATEMENT_MACRO_USE_DO_WHILE,\
 	DEEP_INDENTATION,GLOBAL_INITIALISERS,PARENTHESIS_ALIGNMENT,LINE_SPACING \
-	test/*.c hypatia.h
+	test/*.c hypatia.h test/implementation.c
