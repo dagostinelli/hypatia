@@ -755,8 +755,7 @@ HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2)
  */
 HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon)
 {
-	if ((HYP_ABS(f1 - f2) < epsilon) == 0)
-	{
+	if ((HYP_ABS(f1 - f2) < epsilon) == 0) {
 		return 0;
 	}
 
@@ -774,8 +773,7 @@ static struct vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
 
 HYPAPI const struct vector2 *vector2_get_reference_vector2(int id)
 {
-	switch (id)
-	{
+	switch (id) {
 		case HYP_REF_VECTOR2_ZERO:
 			return &_vector2_zero;
 		case HYP_REF_VECTOR2_ONE:
@@ -1004,8 +1002,7 @@ static struct vector3 _vector3_unit_z_negative = { { {0.0f,  0.0f, -1.0f} } };
 
 HYPAPI const struct vector3 *vector3_get_reference_vector3(int id)
 {
-	switch (id)
-	{
+	switch (id) {
 		case HYP_REF_VECTOR3_ZERO:
 			return &_vector3_zero;
 		case HYP_REF_VECTOR3_ONE:
@@ -1202,8 +1199,7 @@ HYPAPI struct vector3 *vector3_normalize(struct vector3 *self)
 
 	mag = vector3_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0f))
-	{
+	if (scalar_equalsf(mag, 0.0f)) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
@@ -1397,8 +1393,7 @@ static struct vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} 
 
 HYPAPI const struct vector4 *vector4_get_reference_vector4(int id)
 {
-	switch (id)
-	{
+	switch (id) {
 		case HYP_REF_VECTOR4_ZERO:
 			return &_vector4_zero;
 		case HYP_REF_VECTOR4_ONE:
@@ -1605,8 +1600,7 @@ HYPAPI struct vector4 *vector4_normalize(struct vector4 *self)
 
 	mag = vector4_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0))
-	{
+	if (scalar_equalsf(mag, 0.0)) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
@@ -1721,8 +1715,7 @@ HYPAPI struct matrix3 *matrix3_set(struct matrix3 *self, const struct matrix3 *m
 {
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		self->m[i] = mT->m[i];
 	}
 
@@ -1739,10 +1732,8 @@ HYPAPI int matrix3_equals(const struct matrix3 *self, const struct matrix3 *mT)
 {
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
-		if (scalar_equalsf(self->m[i], mT->m[i]) == 0)
-		{
+	for (i = 0; i < 9; i++) {
+		if (scalar_equalsf(self->m[i], mT->m[i]) == 0) {
 			return 0;
 		}
 	}
@@ -1763,8 +1754,7 @@ HYPAPI struct matrix3 *matrix3_add(struct matrix3 *self, const struct matrix3 *m
 	/* "add row and column to row and column" */
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		self->m[i] += mT->m[i];
 	}
 
@@ -1784,8 +1774,7 @@ HYPAPI struct matrix3 *matrix3_subtract(struct matrix3 *self, const struct matri
 	/* "subtract row and column from row and column" */
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		self->m[i] -= mT->m[i];
 	}
 
@@ -1804,8 +1793,7 @@ HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar)
 {
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		self->m[i] *= scalar;
 	}
 
@@ -1935,8 +1923,7 @@ HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self)
 {
 	uint8_t i;
 
-	for (i = 0; i < 9; i++)
-	{
+	for (i = 0; i < 9; i++) {
 		self->m[i] = HYP_RANDOM_FLOAT;
 	}
 
@@ -2115,8 +2102,7 @@ HYPAPI struct matrix4 *matrix4_set(struct matrix4 *self, const struct matrix4 *m
 {
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		self->m[i] = mT->m[i];
 	}
 
@@ -2133,10 +2119,8 @@ HYPAPI int matrix4_equals(const struct matrix4 *self, const struct matrix4 *mT)
 {
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
-		if (scalar_equalsf(self->m[i], mT->m[i]) == 0)
-		{
+	for (i = 0; i < 16; i++) {
+		if (scalar_equalsf(self->m[i], mT->m[i]) == 0) {
 			return 0;
 		}
 	}
@@ -2157,8 +2141,7 @@ HYPAPI struct matrix4 *matrix4_add(struct matrix4 *self, const struct matrix4 *m
 	/* "add row and column to row and column" */
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		self->m[i] += mT->m[i];
 	}
 
@@ -2178,8 +2161,7 @@ HYPAPI struct matrix4 *matrix4_subtract(struct matrix4 *self, const struct matri
 	/* "subtract row and column from row and column" */
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		self->m[i] -= mT->m[i];
 	}
 
@@ -2198,8 +2180,7 @@ HYPAPI struct matrix4 *matrix4_multiplyf(struct matrix4 *self, HYP_FLOAT scalar)
 {
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		self->m[i] *= scalar;
 	}
 
@@ -2399,8 +2380,7 @@ HYPAPI struct matrix4 *_matrix4_set_random(struct matrix4 *self)
 {
 	uint8_t i;
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		self->m[i] = HYP_RANDOM_FLOAT;
 	}
 
@@ -2638,10 +2618,8 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
 	struct matrix4 inverse;
 	uint8_t i;
 
-	if (matrix4_inverse(self, &inverse) != NULL)
-	{
-		for (i = 0; i < 16; i++)
-		{
+	if (matrix4_inverse(self, &inverse) != NULL) {
+		for (i = 0; i < 16; i++) {
 			self->m[i] = inverse.m[i];
 		}
 	}
@@ -2666,8 +2644,7 @@ HYPAPI struct matrix4 *matrix4_inverse(struct matrix4 *self, struct matrix4 *mR)
 
 	determinant = matrix4_determinant(self);
 
-	if (scalar_equalsf(determinant, 0.0f))
-	{
+	if (scalar_equalsf(determinant, 0.0f)) {
 		return NULL;
 	}
 
@@ -2692,8 +2669,7 @@ HYPAPI struct matrix4 *matrix4_inverse(struct matrix4 *self, struct matrix4 *mR)
 	B(43) = A3(11, 23, 42) + A3(12, 21, 43) + A3(13, 22, 41) - A3(11, 22, 43) - A3(12, 23, 41) - A3(13, 21, 42);
 	B(44) = A3(11, 22, 33) + A3(12, 23, 31) + A3(13, 21, 32) - A3(11, 23, 32) - A3(12, 21, 33) - A3(13, 22, 31);
 
-	for (i = 0; i < 16; i++)
-	{
+	for (i = 0; i < 16; i++) {
 		mR->m[i] = inverse.m[i] * determinant;
 	}
 
@@ -2945,16 +2921,14 @@ HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
 
 	norm = quaternion_norm(self);
 
-	if (scalar_equalsf(norm, 0.0f))
-	{
+	if (scalar_equalsf(norm, 0.0f)) {
 		/* avoid divide by zero */
 		return self;
 	}
 
 	quaternion_conjugate(self);
 
-	if (scalar_equalsf(norm, 1.0f))
-	{
+	if (scalar_equalsf(norm, 1.0f)) {
 		/* we're done */
 		return self;
 	}
@@ -2981,8 +2955,7 @@ HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self)
 
 	mag = quaternion_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0f))
-	{
+	if (scalar_equalsf(mag, 0.0f)) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
