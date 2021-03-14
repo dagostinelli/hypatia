@@ -18,7 +18,11 @@
 #endif
 
 #ifndef HYP_INLINE
-#	define HYP_INLINE __inline__
+#	ifdef _MSC_VER
+#		define HYP_INLINE inline
+#	else
+#		define HYP_INLINE __inline__
+#	endif
 #endif
 
 #ifndef HYP_FLOAT
@@ -3756,9 +3760,9 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 	 */
 
 	/* sign */
-	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -1 : 1;
-	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -1 : 1;
-	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -1 : 1;
+	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -1.0f : 1.0f;
+	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -1.0f : 1.0f;
+	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -1.0f : 1.0f;
 
 	/* scale */
 	scale->x = signx * HYP_SQRT(self->c00 * self->c00 + self->c01 * self->c01 + self->c02 * self->c02);
