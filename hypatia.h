@@ -878,7 +878,7 @@ HYPAPI struct vector2 *vector2_dividef(struct vector2 *self, HYP_FLOAT fT)
 
 HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self)
 {
-	return HYP_SQRT((self->x*self->x) + (self->y*self->y));
+	return HYP_SQRT((self->x * self->x) + (self->y * self->y));
 }
 
 
@@ -1168,7 +1168,7 @@ HYPAPI struct vector3 *vector3_divide(struct vector3 *self, const struct vector3
  */
 HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self)
 {
-	return HYP_SQRT((self->x*self->x) + (self->y*self->y) + (self->z*self->z));
+	return HYP_SQRT((self->x * self->x) + (self->y * self->y) + (self->z * self->z));
 }
 
 
@@ -1569,7 +1569,7 @@ HYPAPI struct vector4 *vector4_divide(struct vector4 *self, const struct vector4
  */
 HYPAPI HYP_FLOAT vector4_magnitude(const struct vector4 *self)
 {
-	return HYP_SQRT((self->x*self->x) + (self->y*self->y) + (self->z*self->z) + (self->w*self->w));
+	return HYP_SQRT((self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w));
 }
 
 
@@ -3219,10 +3219,10 @@ HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const s
 
 	struct quaternion r;
 
-	r.x = self->w*vT->x + self->y*vT->z - self->z*vT->y;
-	r.y = self->w*vT->y - self->x*vT->z + self->z*vT->x;
-	r.z = self->w*vT->z + self->x*vT->y - self->y*vT->x;
-	r.w = self->x*vT->x - self->y*vT->y - self->z*vT->z;
+	r.x = self->w * vT->x + self->y * vT->z - self->z * vT->y;
+	r.y = self->w * vT->y - self->x * vT->z + self->z * vT->x;
+	r.z = self->w * vT->z + self->x * vT->y - self->y * vT->x;
+	r.w = self->x * vT->x - self->y * vT->y - self->z * vT->z;
 
 	quaternion_set(self, &r); /* overwrite/save it */
 
