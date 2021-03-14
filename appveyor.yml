@@ -1,8 +1,8 @@
 
 environment:
   matrix:
-   - vstudio: Visual Studio 14 2019
-   - vstudio: Visual Studio 14 2017
+   - vstudio: Visual Studio 16 2019
+   - vstudio: Visual Studio 15 2017
    - vstudio: Visual Studio 14 2015
    - vstudio: Visual Studio 10 2010
    - vstudio: Visual Studio 14 2015 Win64
