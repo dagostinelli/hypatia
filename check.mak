@@ -25,9 +25,7 @@ checkpatch:
 	@echo checkpatch
 	@/usr/src/kernels/`uname -r`/scripts/checkpatch.pl \
 	-f --no-tree --no-summary --terse --show-types --subjective \
-	--ignore INLINE,LONG_LINE_COMMENT,BRACES,LONG_LINE,\
-	CAMELCASE,SPACING,PREFER_KERNEL_TYPES,\
-	SPDX_LICENSE_TAG,LONG_LINE_STRING,\
-	BLOCK_COMMENT_STYLE,UNNECESSARY_ELSE,\
-	DEEP_INDENTATION,GLOBAL_INITIALISERS,PARENTHESIS_ALIGNMENT,LINE_SPACING \
+	--ignore INLINE,BRACES,LONG_LINE,CAMELCASE,SPACING,\
+	PREFER_KERNEL_TYPES,SPDX_LICENSE_TAG,\
+	PARENTHESIS_ALIGNMENT,LINE_SPACING \
 	test/*.c hypatia.h test/implementation.c
