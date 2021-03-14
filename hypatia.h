@@ -3749,9 +3749,11 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 	translation->y = self->c31;
 	translation->z = self->c32;
 
-	/*self->c00 = scale->x;
-	self->c11 = scale->y;
-	self->c22 = scale->z;*/
+	/*
+	 * self->c00 = scale->x;
+	 * self->c11 = scale->y;
+	 * self->c22 = scale->z;
+	 */
 
 	/* sign */
 	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -1 : 1;
