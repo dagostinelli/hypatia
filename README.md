@@ -139,7 +139,7 @@ By making a contribution to this project, I certify that:
 	Signed-off-by: Random J Developer <random@developer.example.org>
 ```
 
-3) You must use your real name. 
+You must use your real name. 
 
 This will be done for you automatically if you use `git commit -s`.
 
