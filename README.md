@@ -75,6 +75,71 @@ Hypatia uses verbose names. In pure-C code, math-related function names seem to 
 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
+Coding Standard
+---------------
+
+* Ensure C89/C90 compatibility
+* Check that the coding style is consistent with the rest of the codebase.
+	- curly brace placement
+	- indent with tabs
+	- lower case function names for public-facing functions
+	- all CAPS for public constants.  HYP is the prefix for public constants
+	- use 'self' for describing the function context
+	- math entities are mutable
+	- blank line at the end of every file
+* Run the checks in check.mak `make -f check.mak`
+
+Unit Tests
+--------------------------------
+Mathematical bug fixes should have a unit test with 1 or more test cases indicating
+what the problem was and now ensuring that it is fixed.
+
+
+Contributions
+-------------
+
+This project accepts and welcomes contributions.
+
+The rules are pretty simple:
+
+1) if you can certify the below:
+
+Developer's Certificate of Origin 1.1 (Borrowed from the Linux Kernel Project)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By making a contribution to this project, I certify that:
+
+        (a) The contribution was created in whole or in part by me and I
+            have the right to submit it under the open source license
+            indicated in the file; or
+
+        (b) The contribution is based upon previous work that, to the best
+            of my knowledge, is covered under an appropriate open source
+            license and I have the right under that license to submit that
+            work with modifications, whether created in whole or in part
+            by me, under the same open source license (unless I am
+            permitted to submit under a different license), as indicated
+            in the file; or
+
+        (c) The contribution was provided directly to me by some other
+            person who certified (a), (b) or (c) and I have not modified
+            it.
+
+        (d) I understand and agree that this project and the contribution
+            are public and that a record of the contribution (including all
+            personal information I submit with it, including my sign-off) is
+            maintained indefinitely and may be redistributed consistent with
+            this project or the open source license(s) involved.
+
+2) then you just add a line saying:
+
+	Signed-off-by: Random J Developer <random@developer.example.org>
+
+3) You must use your real name. 
+
+This will be done for you automatically if you use `git commit -s`.
+
+
 Credits
 -------
 
