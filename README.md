@@ -135,7 +135,9 @@ By making a contribution to this project, I certify that:
 
 2) then you just add a line saying:
 
+```
 	Signed-off-by: Random J Developer <random@developer.example.org>
+```
 
 3) You must use your real name. 
 
