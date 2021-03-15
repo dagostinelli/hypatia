@@ -19,8 +19,7 @@
 
 #ifndef HYP_INLINE
 #	ifdef _MSC_VER
-#		define inline __inline
-#		define HYP_INLINE inline
+#		define HYP_INLINE __inline
 #	else
 #		define HYP_INLINE __inline__
 #	endif
@@ -722,15 +721,6 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4
 HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
 HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
 #endif /* _INC_HYPATIA */
-
-/* remove inline declaration in this file */
-#ifdef HYP_INLINE
-#	ifdef _MSC_VER
-#		ifdef inline
-#			undef inline
-#		endif
-#	endif
-#endif
 
 
 #ifdef HYPATIA_IMPLEMENTATION
