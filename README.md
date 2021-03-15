@@ -103,9 +103,10 @@ This project accepts and welcomes contributions.
 The rules are pretty simple:
 
 1) if you can certify the below:
+(Borrowed from the Linux Kernel Project)
 
-Developer's Certificate of Origin 1.1 (Borrowed from the Linux Kernel Project)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+Developer's Certificate of Origin 1.1
 
 By making a contribution to this project, I certify that:
 
@@ -130,6 +131,7 @@ By making a contribution to this project, I certify that:
             personal information I submit with it, including my sign-off) is
             maintained indefinitely and may be redistributed consistent with
             this project or the open source license(s) involved.
+```
 
 2) then you just add a line saying:
 
