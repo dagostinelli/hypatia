@@ -30,7 +30,6 @@ Basic Usage
 -----------
 ```
 #include <stdio.h>
-#include <assert.h>
 
 #define HYPATIA_IMPLEMENTATION
 #include "hypatia.h"
