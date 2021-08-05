@@ -81,6 +81,55 @@ static char *test_matrix3_determinant_trial3(void)
 }
 
 
+static char *test_matrix3_inverse(void)
+{
+	struct matrix3 originalMatrix = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 identity;
+	struct matrix3 inverted;
+	struct matrix3 scratchMatrix;
+	void *hasInverse = NULL;
+
+	matrix3_identity(&identity);
+
+	matrix3_identity(&originalMatrix);
+
+	hasInverse = matrix3_invert(matrix3_set(&inverted, &originalMatrix));
+
+	test_assert(hasInverse);
+
+	matrix3_identity(&scratchMatrix);
+	matrix3_multiply(&scratchMatrix, &inverted);
+	matrix3_multiply(&scratchMatrix, &originalMatrix);
+
+	test_assert(matrix3_equals(&identity, &scratchMatrix));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_invert(void)
+{
+	struct matrix3 m = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 expected = {-1, -1, 0, -14, 7, -7, 5, -2, 0};
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	/* manually finish setting up expected */
+	determinant = matrix3_determinant(&m);
+	test_assert(scalar_equals(determinant, -7));
+	for (i = 0; i < 9; i++) {
+		expected.m[i] = expected.m[i] / determinant;
+	}
+
+	matrix3_invert(&m);
+	for (i = 0; i < 9; i++) {
+		test_assert(scalar_equals(m.m[i], expected.m[i]));
+	}
+
+	return NULL;
+}
+
+
 static char *test_matrix3_columnrowcolumn(void)
 {
 	struct matrix3 c;
@@ -247,6 +296,8 @@ static char *matrix3_all_tests(void)
 	run_test(test_matrix3_determinant_trial1);
 	run_test(test_matrix3_determinant_trial2);
 	run_test(test_matrix3_determinant_trial3);
+	run_test(test_matrix3_inverse);
+	run_test(test_matrix3_invert);
 
 	run_test(test_matrix3_transformation_translatev2);
 	run_test(test_matrix3_transformation_translatev2_negative);
