@@ -1,16 +1,17 @@
-
-environment:
-  matrix:
-   - vstudio: Visual Studio 14 2015
-   - vstudio: Visual Studio 10 2010
-   - vstudio: Visual Studio 14 2015 Win64
-   - vstudio: Visual Studio 10 2010 Win64
+image:
+  - Visual Studio 2019
+  - Visual Studio 2017
+  - Visual Studio 2015
+  - Visual Studio 2013
+  - macos
+  - macos-mojave
+  - Ubuntu
 
 build_script:
  - cmake --version
- - cmake -B build -G "%vstudio%" .
  - cmake --build build
 
 test_script:
  - cd build
- - ctest -C Debug
+ - ctest
+
