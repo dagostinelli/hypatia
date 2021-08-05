@@ -9,6 +9,7 @@ image:
 
 build_script:
  - cmake --version
+ - cmake -Bbuild
  - cmake --build build
 
 test_script:
