@@ -2239,6 +2239,7 @@ HYPAPI struct vector4 *matrix4_multiplyv4(const struct matrix4 *self, const stru
 
 
 /**
+ * @ingroup matrix4
  * @brief Multiply a vector by a matrix
  *
  * @param self The matrix used to do the multiplication
@@ -2256,6 +2257,7 @@ HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const stru
 
 
 /**
+ * @ingroup matrix4
  * @brief Multiply a vector by a matrix
  *
  * @param self The matrix used to do the multiplication
