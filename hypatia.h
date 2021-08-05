@@ -489,6 +489,8 @@ HYPAPI struct vector2 *matrix3_multiplyv2(const struct matrix3 *self, const stru
 
 HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self);
 HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self);
+HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self);
+HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR);
 
 HYPAPI struct matrix3 *matrix3_make_transformation_translationv2(struct matrix3 *self, const struct vector2 *translation);
 HYPAPI struct matrix3 *matrix3_make_transformation_scalingv2(struct matrix3 *self, const struct vector2 *scale);
@@ -2087,6 +2089,75 @@ HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self)
 	;
 
 	return determinant;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Invert a matrix
+ *
+ * @param self The transformation matrix being inverted
+ *
+ */
+HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
+{
+	struct matrix3 inverse;
+	uint8_t i;
+
+	if (matrix3_inverse(self, &inverse)) {
+		for (i = 0; i < 9; i++) {
+			self->m[i] = inverse.m[i];
+		}
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Find the inverse of the matrix
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+{
+	struct matrix3 inverse;
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	determinant = matrix3_determinant(self);
+
+	/* calculated early for a quick exit if no determinant exists */
+	if (scalar_equalsf(determinant, 0.0f)) {
+		return NULL;
+	}
+
+	determinant = 1.0f / determinant;
+
+	matrix3_identity(&inverse);
+
+	/* find the adjugate of self */
+	B(11) = A2(22, 33) - A2(32, 23);
+	B(12) = A2(32, 13) - A2(12, 33);
+	B(13) = A2(12, 23) - A2(22, 13);
+
+	B(21) = A2(23, 31) - A2(33, 21);
+	B(22) = A2(33, 11) - A2(13, 31);
+	B(23) = A2(13, 21) - A2(23, 11);
+
+	B(31) = A2(21, 32) - A2(31, 22);
+	B(32) = A2(31, 12) - A2(11, 32);
+	B(33) = A2(11, 22) - A2(21, 12);
+
+	/* divide the determinant */
+	for (i = 0; i < 9; i++) {
+		mR->m[i] = inverse.m[i] * determinant;
+	}
+
+	return mR;
 }
 
 
