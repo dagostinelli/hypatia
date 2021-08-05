@@ -2667,6 +2667,7 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 
 	determinant = matrix4_determinant(self);
 
+	/* calculated early for a quick exit if no determinant exists */
 	if (scalar_equalsf(determinant, 0.0f)) {
 		return NULL;
 	}
@@ -2692,6 +2693,7 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	B(43) = A3(11, 23, 42) + A3(12, 21, 43) + A3(13, 22, 41) - A3(11, 22, 43) - A3(12, 23, 41) - A3(13, 21, 42);
 	B(44) = A3(11, 22, 33) + A3(12, 23, 31) + A3(13, 21, 32) - A3(11, 23, 32) - A3(12, 21, 33) - A3(13, 22, 31);
 
+	/* divide the determinant */
 	for (i = 0; i < 16; i++) {
 		mR->m[i] = inverse.m[i] * determinant;
 	}
