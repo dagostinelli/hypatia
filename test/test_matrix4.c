@@ -152,6 +152,33 @@ static char *test_matrix4_transpose(void)
 }
 
 
+static char *test_matrix4_determinant_trial1(void)
+{
+	struct matrix4 m = {4, 3, 2, 2, 0, 1, -3, 3, 0, -1, 3, 3, 0, 3, 1, 1};
+
+	test_assert(scalar_equals(matrix4_determinant(&m), -240));
+	return NULL;
+}
+
+
+static char *test_matrix4_determinant_trial2(void)
+{
+	struct matrix4 m = {-1, 1, 4, 2, 2, -1, 2, 5, 1, 2, 3, 4, 3, 4, -1, 2};
+
+	test_assert(scalar_equals(matrix4_determinant(&m), -26));
+	return NULL;
+}
+
+
+static char *test_matrix4_determinant_trial3(void)
+{
+	struct matrix4 m = {1, 3, -2, 1, 5, 1, 0, -1, 0, 1, 0, -2, 2, -1, 0, 3};
+
+	test_assert(scalar_equals(matrix4_determinant(&m), -6));
+	return NULL;
+}
+
+
 static char *test_matrix4_columnrowcolumn(void)
 {
 	struct matrix4 c;
@@ -629,6 +656,9 @@ static char *matrix4_all_tests(void)
 	run_test(test_matrix4_multiplym4);
 	run_test(test_matrix4_columnrowcolumn);
 	run_test(test_matrix4_transpose);
+	run_test(test_matrix4_determinant_trial1);
+	run_test(test_matrix4_determinant_trial2);
+	run_test(test_matrix4_determinant_trial3);
 
 	run_test(test_matrix4_identity_with_vector2);
 	run_test(test_matrix4_identity_with_vector3);
