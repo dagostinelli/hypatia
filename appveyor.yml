@@ -14,5 +14,5 @@ build_script:
 
 test_script:
  - cd build
- - ctest
+ - ctest -C Debug
 
