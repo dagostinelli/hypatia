@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dagostinelli/hypatia.svg?branch=master)](https://travis-ci.com/dagostinelli/hypatia)  [![Build status](https://ci.appveyor.com/api/projects/status/f86hqjfhmsq70a11/branch/master?svg=true)](https://ci.appveyor.com/project/dagostinelli/hypatia/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/f86hqjfhmsq70a11/branch/master?svg=true)](https://ci.appveyor.com/project/dagostinelli/hypatia/branch/master)
 
 
 
