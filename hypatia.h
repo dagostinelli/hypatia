@@ -485,6 +485,7 @@ HYPAPI struct matrix3 *matrix3_subtract(struct matrix3 *self, const struct matri
 
 HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matrix3 *mT);
 HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar);
+HYPAPI struct vector2 *matrix3_multiplyv2(const struct matrix3 *self, const struct vector2 *vT, struct vector2 *vR);
 
 HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self);
 HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self);
@@ -949,8 +950,7 @@ HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct mat
 
 	vector2_zero(&vR);
 
-	vR.x = self->x * mT->c00 + self->y * mT->c01 + mT->c20;
-	vR.y = self->x * mT->c10 + self->y * mT->c11 + mT->c21;
+	matrix3_multiplyv2(mT, self, &vR);
 
 	vector2_set(self, &vR);
 
@@ -1825,6 +1825,23 @@ HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matri
 	matrix3_set(self, &r); /* overwrite/save it */
 
 	return self;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Multiply a vector by a matrix
+ *
+ * @param self The matrix used to do the multiplication
+ * @param vT The vector being multiplied
+ * @param vR The vector returned
+ */
+HYPAPI struct vector2 *matrix3_multiplyv2(const struct matrix3 *self, const struct vector2 *vT, struct vector2 *vR)
+{
+	vR->x = vT->x * self->c00 + vT->y * self->c01 + self->c20;
+	vR->y = vT->x * self->c10 + vT->y * self->c11 + self->c21;
+
+	return vR;
 }
 
 
