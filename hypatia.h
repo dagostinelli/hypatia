@@ -482,9 +482,12 @@ HYPAPI struct matrix3 *matrix3_identity(struct matrix3 *self);
 HYPAPI struct matrix3 *matrix3_set(struct matrix3 *self, const struct matrix3 *mT);
 HYPAPI struct matrix3 *matrix3_add(struct matrix3 *self, const struct matrix3 *mT);
 HYPAPI struct matrix3 *matrix3_subtract(struct matrix3 *self, const struct matrix3 *mT);
+
 HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matrix3 *mT);
 HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar);
+
 HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self);
+HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self);
 
 HYPAPI struct matrix3 *matrix3_make_transformation_translationv2(struct matrix3 *self, const struct vector2 *translation);
 HYPAPI struct matrix3 *matrix3_make_transformation_scalingv2(struct matrix3 *self, const struct vector2 *scale);
@@ -2046,6 +2049,29 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 #define B(x) CAT(inverse.r, DEC(x))
 #define A4(x1, x2, x3, x4) (A(x1) * A(x2) * A(x3) * A(x4))
 #define A3(x1, x2, x3) (A(x1) * A(x2) * A(x3))
+#define A2(x1, x2) (A(x1) * A(x2))
+
+
+/**
+ * @ingroup matrix3
+ * @brief Finds the determinant of a matrix
+ *
+ * @param self The transformation matrix being questioned
+ *
+ */
+HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self)
+{
+	HYP_FLOAT determinant;
+
+	determinant =
+	  (A(11) * (A2(22, 33) - A2(32, 23)))
+	- (A(12) * (A2(21, 33) - A2(31, 23)))
+	+ (A(13) * (A2(21, 32) - A2(31, 22)))
+	;
+
+	return determinant;
+}
+
 
 /**
  * @ingroup matrix4

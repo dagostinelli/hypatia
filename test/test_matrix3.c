@@ -54,29 +54,29 @@ static char *test_matrix3_multiplym3(void)
 }
 
 
-static char *test_matrix3_identity_with_vector(void)
+static char *test_matrix3_determinant_trial1(void)
 {
-	/* vector * identity_matrix = vector */
-	struct matrix3 m;
-	struct vector2 startingPosition = {4.3f, 1.4f};
-	struct vector2 expectedPosition = {4.3f, 1.4f};
+	struct matrix3 m = {5, 3, 7, 2, -5, 8, -6, 4, 9};
 
-	matrix3_identity(&m);
-
-	vector2_multiplym3(&startingPosition, &m);
-	test_assert(vector2_equals(&startingPosition, &expectedPosition));
-
+	test_assert(scalar_equals(matrix3_determinant(&m), -737));
 	return NULL;
 }
 
 
-static char *test_matrix3_transpose(void)
+static char *test_matrix3_determinant_trial2(void)
 {
-	struct matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-	struct matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
+	struct matrix3 m = {8, 4, 3, -5, 6, -2, 7, 9, -8};
 
-	matrix3_transpose(&m);
-	test_assert(matrix3_equals(&m, &e));
+	test_assert(scalar_equals(matrix3_determinant(&m), -717));
+	return NULL;
+}
+
+
+static char *test_matrix3_determinant_trial3(void)
+{
+	struct matrix3 m = {2, -3, 1, 2, 0, -1, 1, 4, 5};
+
+	test_assert(scalar_equals(matrix3_determinant(&m), 49));
 	return NULL;
 }
 
@@ -112,6 +112,33 @@ static char *test_matrix3_columnrowcolumn(void)
 
 	test_assert(matrix3_equals(&c, &m));
 	test_assert(matrix3_equals(&m, &r));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_transpose(void)
+{
+	struct matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+	struct matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
+
+	matrix3_transpose(&m);
+	test_assert(matrix3_equals(&m, &e));
+	return NULL;
+}
+
+
+static char *test_matrix3_identity_with_vector(void)
+{
+	/* vector * identity_matrix = vector */
+	struct matrix3 m;
+	struct vector2 startingPosition = {4.3f, 1.4f};
+	struct vector2 expectedPosition = {4.3f, 1.4f};
+
+	matrix3_identity(&m);
+
+	vector2_multiplym3(&startingPosition, &m);
+	test_assert(vector2_equals(&startingPosition, &expectedPosition));
 
 	return NULL;
 }
@@ -217,6 +244,10 @@ static char *matrix3_all_tests(void)
 	run_test(test_matrix3_identity_with_vector);
 	run_test(test_matrix3_columnrowcolumn);
 	run_test(test_matrix3_transpose);
+	run_test(test_matrix3_determinant_trial1);
+	run_test(test_matrix3_determinant_trial2);
+	run_test(test_matrix3_determinant_trial3);
+
 	run_test(test_matrix3_transformation_translatev2);
 	run_test(test_matrix3_transformation_translatev2_negative);
 	run_test(test_matrix3_transformation_scalingv2);
