@@ -81,6 +81,16 @@ static char *test_matrix3_determinant_trial3(void)
 }
 
 
+static char *test_matrix3_determinant_trial4(void)
+{
+	struct matrix3 m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123, (HYP_FLOAT)0.982764, (HYP_FLOAT)0.726415, (HYP_FLOAT)0.266338, (HYP_FLOAT)0.861622, (HYP_FLOAT)0.904272};
+
+	test_assert(scalar_equals(matrix3_determinant(&m), (HYP_FLOAT)0.0198033));
+	return NULL;
+}
+
+
+
 static char *test_matrix3_inverse(void)
 {
 	struct matrix3 originalMatrix = {2, 0, -1, 5, 0, 1, 1, 1, 3};
@@ -296,6 +306,7 @@ static char *matrix3_all_tests(void)
 	run_test(test_matrix3_determinant_trial1);
 	run_test(test_matrix3_determinant_trial2);
 	run_test(test_matrix3_determinant_trial3);
+	run_test(test_matrix3_determinant_trial4);
 	run_test(test_matrix3_inverse);
 	run_test(test_matrix3_invert);
 
