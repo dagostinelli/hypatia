@@ -2684,6 +2684,9 @@ HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 {
 	HYP_FLOAT determinant;
 
+	/* using the Leibniz formula */
+	/* avoids temporary structures */
+
 	determinant =
 	  A4(11, 22, 33, 44) + A4(11, 23, 34, 42) + A4(11, 24, 32, 43)
 	+ A4(12, 21, 34, 43) + A4(12, 23, 31, 44) + A4(12, 24, 33, 41)
