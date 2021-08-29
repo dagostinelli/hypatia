@@ -2044,9 +2044,9 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 }
 
 
-#define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
-#define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
-#define DEC(x) PRIMITIVE_CAT(DEC_, x)
+#define _HYP_CAT(a, ...) _HYP_PRIMITIVE_CAT(a, __VA_ARGS__)
+#define _HYP_PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+#define _HYP_DEC(x) _HYP_PRIMITIVE_CAT(DEC_, x)
 #define DEC_11 00
 #define DEC_12 01
 #define DEC_13 02
@@ -2063,8 +2063,8 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 #define DEC_42 31
 #define DEC_43 32
 #define DEC_44 33
-#define A(x) CAT(self->r,  DEC(x))
-#define B(x) CAT(inverse.r, DEC(x))
+#define A(x) _HYP_CAT(self->r,  _HYP_DEC(x))
+#define B(x) _HYP_CAT(inverse.r, _HYP_DEC(x))
 #define A4(x1, x2, x3, x4) (A(x1) * A(x2) * A(x3) * A(x4))
 #define A3(x1, x2, x3) (A(x1) * A(x2) * A(x3))
 #define A2(x1, x2) (A(x1) * A(x2))
@@ -3893,6 +3893,32 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 
 	return 1;
 }
+
+#undef _HYP_CAT
+#undef _HYP_PRIMITIVE_CAT
+#undef _HYP_DEC
+#undef DEC_11
+#undef DEC_12
+#undef DEC_13
+#undef DEC_14
+#undef DEC_21
+#undef DEC_22
+#undef DEC_23
+#undef DEC_24
+#undef DEC_31
+#undef DEC_32
+#undef DEC_33
+#undef DEC_34
+#undef DEC_41
+#undef DEC_42
+#undef DEC_43
+#undef DEC_44
+#undef A
+#undef B
+#undef A4
+#undef A3
+#undef A2
+
 #endif /* HYPATIA_IMPLEMENTATION */
 
 #endif /* _INC_HYPATIA */
