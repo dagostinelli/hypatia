@@ -32,6 +32,26 @@ static char *test_matrix3_equals(void)
 }
 
 
+static char *test_matrix3_multiply_identity(void)
+{
+	struct matrix3 m1, m2, identity;
+
+	matrix3_identity(&identity);
+	_matrix3_set_random(&m1);
+
+	/* copy m1 -> m2 */
+	matrix3_set(&m2, &m1);
+
+	/* m2 = m2 * I */
+	matrix3_multiply(&m2, &identity);
+
+	/* equal */
+	test_assert(matrix3_equals(&m2, &m1));
+
+	return NULL;
+}
+
+
 static char *test_matrix3_multiplym3(void)
 {
 	struct matrix3 m1, m2, mR;
@@ -299,6 +319,7 @@ static char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_zero);
 	run_test(test_matrix3_equals);
+	run_test(test_matrix3_multiply_identity);
 	run_test(test_matrix3_multiplym3);
 	run_test(test_matrix3_identity_with_vector);
 	run_test(test_matrix3_columnrowcolumn);
