@@ -173,52 +173,52 @@ HYPAPI struct matrix6 *matrix6_multiply(struct matrix6 *self, const struct matri
 	matrix6_identity(&r);
 
 	/* first row */
-	r.r00 = self->c00 * mT->c00 + self->c01 * mT->c10 + self->c02 * mT->c20 + self->c03 * mT->c30 + self->c03 * mT->c40 + self->c03 * mT->c50;
-	r.r01 = self->c10 * mT->c00 + self->c11 * mT->c10 + self->c12 * mT->c20 + self->c13 * mT->c30 + self->c13 * mT->c40 + self->c13 * mT->c50;
-	r.r02 = self->c20 * mT->c00 + self->c21 * mT->c10 + self->c22 * mT->c20 + self->c23 * mT->c30 + self->c23 * mT->c40 + self->c23 * mT->c50;
-	r.r03 = self->c30 * mT->c00 + self->c31 * mT->c10 + self->c32 * mT->c20 + self->c33 * mT->c30 + self->c33 * mT->c40 + self->c33 * mT->c50;
-	r.r04 = self->c40 * mT->c00 + self->c41 * mT->c10 + self->c42 * mT->c20 + self->c43 * mT->c30 + self->c43 * mT->c40 + self->c43 * mT->c50;
-	r.r05 = self->c50 * mT->c00 + self->c51 * mT->c10 + self->c52 * mT->c20 + self->c53 * mT->c30 + self->c53 * mT->c40 + self->c53 * mT->c50;
+	r.r00 = self->c00 * mT->c00 + self->c01 * mT->c10 + self->c02 * mT->c20 + self->c03 * mT->c30 + self->c04 * mT->c40 + self->c05 * mT->c50;
+	r.r01 = self->c10 * mT->c00 + self->c11 * mT->c10 + self->c12 * mT->c20 + self->c13 * mT->c30 + self->c14 * mT->c40 + self->c15 * mT->c50;
+	r.r02 = self->c20 * mT->c00 + self->c21 * mT->c10 + self->c22 * mT->c20 + self->c23 * mT->c30 + self->c24 * mT->c40 + self->c25 * mT->c50;
+	r.r03 = self->c30 * mT->c00 + self->c31 * mT->c10 + self->c32 * mT->c20 + self->c33 * mT->c30 + self->c34 * mT->c40 + self->c35 * mT->c50;
+	r.r04 = self->c40 * mT->c00 + self->c41 * mT->c10 + self->c42 * mT->c20 + self->c43 * mT->c30 + self->c44 * mT->c40 + self->c45 * mT->c50;
+	r.r05 = self->c50 * mT->c00 + self->c51 * mT->c10 + self->c52 * mT->c20 + self->c53 * mT->c30 + self->c54 * mT->c40 + self->c55 * mT->c50;
 
 	/* second row */
-	r.r10 = self->c00 * mT->c01 + self->c01 * mT->c11 + self->c02 * mT->c21 + self->c03 * mT->c31 + self->c03 * mT->c41 + self->c03 * mT->c51;
-	r.r11 = self->c10 * mT->c01 + self->c11 * mT->c11 + self->c12 * mT->c21 + self->c13 * mT->c31 + self->c13 * mT->c41 + self->c13 * mT->c51;
-	r.r12 = self->c20 * mT->c01 + self->c21 * mT->c11 + self->c22 * mT->c21 + self->c23 * mT->c31 + self->c23 * mT->c41 + self->c23 * mT->c51;
-	r.r13 = self->c30 * mT->c01 + self->c31 * mT->c11 + self->c32 * mT->c21 + self->c33 * mT->c31 + self->c33 * mT->c41 + self->c33 * mT->c51;
-	r.r14 = self->c40 * mT->c01 + self->c41 * mT->c11 + self->c42 * mT->c21 + self->c43 * mT->c31 + self->c43 * mT->c41 + self->c43 * mT->c51;
-	r.r15 = self->c50 * mT->c01 + self->c51 * mT->c11 + self->c52 * mT->c21 + self->c53 * mT->c31 + self->c53 * mT->c41 + self->c53 * mT->c51;
+	r.r10 = self->c00 * mT->c01 + self->c01 * mT->c11 + self->c02 * mT->c21 + self->c03 * mT->c31 + self->c04 * mT->c41 + self->c05 * mT->c51;
+	r.r11 = self->c10 * mT->c01 + self->c11 * mT->c11 + self->c12 * mT->c21 + self->c13 * mT->c31 + self->c14 * mT->c41 + self->c15 * mT->c51;
+	r.r12 = self->c20 * mT->c01 + self->c21 * mT->c11 + self->c22 * mT->c21 + self->c23 * mT->c31 + self->c24 * mT->c41 + self->c25 * mT->c51;
+	r.r13 = self->c30 * mT->c01 + self->c31 * mT->c11 + self->c32 * mT->c21 + self->c33 * mT->c31 + self->c34 * mT->c41 + self->c35 * mT->c51;
+	r.r14 = self->c40 * mT->c01 + self->c41 * mT->c11 + self->c42 * mT->c21 + self->c43 * mT->c31 + self->c44 * mT->c41 + self->c45 * mT->c51;
+	r.r15 = self->c50 * mT->c01 + self->c51 * mT->c11 + self->c52 * mT->c21 + self->c53 * mT->c31 + self->c54 * mT->c41 + self->c55 * mT->c51;
 
 	/* third row */
-	r.r20 = self->c00 * mT->c02 + self->c01 * mT->c12 + self->c02 * mT->c22 + self->c03 * mT->c32 + self->c03 * mT->c42 + self->c03 * mT->c52;
-	r.r21 = self->c10 * mT->c02 + self->c11 * mT->c12 + self->c12 * mT->c22 + self->c13 * mT->c32 + self->c13 * mT->c42 + self->c13 * mT->c52;
-	r.r22 = self->c20 * mT->c02 + self->c21 * mT->c12 + self->c22 * mT->c22 + self->c23 * mT->c32 + self->c23 * mT->c42 + self->c23 * mT->c52;
-	r.r23 = self->c30 * mT->c02 + self->c31 * mT->c12 + self->c32 * mT->c22 + self->c33 * mT->c32 + self->c33 * mT->c42 + self->c33 * mT->c52;
-	r.r24 = self->c40 * mT->c02 + self->c41 * mT->c12 + self->c42 * mT->c22 + self->c43 * mT->c32 + self->c43 * mT->c42 + self->c43 * mT->c52;
-	r.r25 = self->c50 * mT->c02 + self->c51 * mT->c12 + self->c52 * mT->c22 + self->c53 * mT->c32 + self->c53 * mT->c42 + self->c53 * mT->c52;
+	r.r20 = self->c00 * mT->c02 + self->c01 * mT->c12 + self->c02 * mT->c22 + self->c03 * mT->c32 + self->c04 * mT->c42 + self->c05 * mT->c52;
+	r.r21 = self->c10 * mT->c02 + self->c11 * mT->c12 + self->c12 * mT->c22 + self->c13 * mT->c32 + self->c14 * mT->c42 + self->c15 * mT->c52;
+	r.r22 = self->c20 * mT->c02 + self->c21 * mT->c12 + self->c22 * mT->c22 + self->c23 * mT->c32 + self->c24 * mT->c42 + self->c25 * mT->c52;
+	r.r23 = self->c30 * mT->c02 + self->c31 * mT->c12 + self->c32 * mT->c22 + self->c33 * mT->c32 + self->c34 * mT->c42 + self->c35 * mT->c52;
+	r.r24 = self->c40 * mT->c02 + self->c41 * mT->c12 + self->c42 * mT->c22 + self->c43 * mT->c32 + self->c44 * mT->c42 + self->c45 * mT->c52;
+	r.r25 = self->c50 * mT->c02 + self->c51 * mT->c12 + self->c52 * mT->c22 + self->c53 * mT->c32 + self->c54 * mT->c42 + self->c55 * mT->c52;
 
 	/* fourth row */
-	r.r30 = self->c00 * mT->c03 + self->c01 * mT->c13 + self->c02 * mT->c23 + self->c03 * mT->c33 + self->c03 * mT->c43 + self->c03 * mT->c53;
-	r.r31 = self->c10 * mT->c03 + self->c11 * mT->c13 + self->c12 * mT->c23 + self->c13 * mT->c33 + self->c13 * mT->c43 + self->c13 * mT->c53;
-	r.r32 = self->c20 * mT->c03 + self->c21 * mT->c13 + self->c22 * mT->c23 + self->c23 * mT->c33 + self->c23 * mT->c43 + self->c23 * mT->c53;
-	r.r33 = self->c30 * mT->c03 + self->c31 * mT->c13 + self->c32 * mT->c23 + self->c33 * mT->c33 + self->c33 * mT->c43 + self->c33 * mT->c53;
-	r.r34 = self->c40 * mT->c03 + self->c41 * mT->c13 + self->c42 * mT->c23 + self->c43 * mT->c33 + self->c43 * mT->c43 + self->c43 * mT->c53;
-	r.r35 = self->c50 * mT->c03 + self->c51 * mT->c13 + self->c52 * mT->c23 + self->c53 * mT->c33 + self->c53 * mT->c43 + self->c53 * mT->c53;
+	r.r30 = self->c00 * mT->c03 + self->c01 * mT->c13 + self->c02 * mT->c23 + self->c03 * mT->c33 + self->c04 * mT->c43 + self->c05 * mT->c53;
+	r.r31 = self->c10 * mT->c03 + self->c11 * mT->c13 + self->c12 * mT->c23 + self->c13 * mT->c33 + self->c14 * mT->c43 + self->c15 * mT->c53;
+	r.r32 = self->c20 * mT->c03 + self->c21 * mT->c13 + self->c22 * mT->c23 + self->c23 * mT->c33 + self->c24 * mT->c43 + self->c25 * mT->c53;
+	r.r33 = self->c30 * mT->c03 + self->c31 * mT->c13 + self->c32 * mT->c23 + self->c33 * mT->c33 + self->c34 * mT->c43 + self->c35 * mT->c53;
+	r.r34 = self->c40 * mT->c03 + self->c41 * mT->c13 + self->c42 * mT->c23 + self->c43 * mT->c33 + self->c44 * mT->c43 + self->c45 * mT->c53;
+	r.r35 = self->c50 * mT->c03 + self->c51 * mT->c13 + self->c52 * mT->c23 + self->c53 * mT->c33 + self->c54 * mT->c43 + self->c55 * mT->c53;
 
 	/* fifth row */
-	r.r40 = self->c00 * mT->c04 + self->c01 * mT->c14 + self->c02 * mT->c24 + self->c03 * mT->c34 + self->c03 * mT->c44 + self->c03 * mT->c54;
-	r.r41 = self->c10 * mT->c04 + self->c11 * mT->c14 + self->c12 * mT->c24 + self->c13 * mT->c34 + self->c13 * mT->c44 + self->c13 * mT->c54;
-	r.r42 = self->c20 * mT->c04 + self->c21 * mT->c14 + self->c22 * mT->c24 + self->c23 * mT->c34 + self->c23 * mT->c44 + self->c23 * mT->c54;
-	r.r43 = self->c30 * mT->c04 + self->c31 * mT->c14 + self->c32 * mT->c24 + self->c33 * mT->c34 + self->c33 * mT->c44 + self->c33 * mT->c54;
-	r.r44 = self->c40 * mT->c04 + self->c41 * mT->c14 + self->c42 * mT->c24 + self->c43 * mT->c34 + self->c43 * mT->c44 + self->c43 * mT->c54;
-	r.r45 = self->c50 * mT->c04 + self->c51 * mT->c14 + self->c52 * mT->c24 + self->c53 * mT->c34 + self->c53 * mT->c44 + self->c53 * mT->c54;
+	r.r40 = self->c00 * mT->c04 + self->c01 * mT->c14 + self->c02 * mT->c24 + self->c03 * mT->c34 + self->c04 * mT->c44 + self->c05 * mT->c54;
+	r.r41 = self->c10 * mT->c04 + self->c11 * mT->c14 + self->c12 * mT->c24 + self->c13 * mT->c34 + self->c14 * mT->c44 + self->c15 * mT->c54;
+	r.r42 = self->c20 * mT->c04 + self->c21 * mT->c14 + self->c22 * mT->c24 + self->c23 * mT->c34 + self->c24 * mT->c44 + self->c25 * mT->c54;
+	r.r43 = self->c30 * mT->c04 + self->c31 * mT->c14 + self->c32 * mT->c24 + self->c33 * mT->c34 + self->c34 * mT->c44 + self->c35 * mT->c54;
+	r.r44 = self->c40 * mT->c04 + self->c41 * mT->c14 + self->c42 * mT->c24 + self->c43 * mT->c34 + self->c44 * mT->c44 + self->c45 * mT->c54;
+	r.r45 = self->c50 * mT->c04 + self->c51 * mT->c14 + self->c52 * mT->c24 + self->c53 * mT->c34 + self->c54 * mT->c44 + self->c55 * mT->c54;
 
 	/* sixth row */
-	r.r50 = self->c00 * mT->c05 + self->c01 * mT->c15 + self->c02 * mT->c25 + self->c03 * mT->c35 + self->c03 * mT->c45 + self->c03 * mT->c55;
-	r.r51 = self->c10 * mT->c05 + self->c11 * mT->c15 + self->c12 * mT->c25 + self->c13 * mT->c35 + self->c13 * mT->c45 + self->c13 * mT->c55;
-	r.r52 = self->c20 * mT->c05 + self->c21 * mT->c15 + self->c22 * mT->c25 + self->c23 * mT->c35 + self->c23 * mT->c45 + self->c23 * mT->c55;
-	r.r53 = self->c30 * mT->c05 + self->c31 * mT->c15 + self->c32 * mT->c25 + self->c33 * mT->c35 + self->c33 * mT->c45 + self->c33 * mT->c55;
-	r.r54 = self->c40 * mT->c05 + self->c41 * mT->c15 + self->c42 * mT->c25 + self->c43 * mT->c35 + self->c43 * mT->c45 + self->c43 * mT->c55;
-	r.r55 = self->c50 * mT->c05 + self->c51 * mT->c15 + self->c52 * mT->c25 + self->c53 * mT->c35 + self->c53 * mT->c45 + self->c53 * mT->c55;
+	r.r50 = self->c00 * mT->c05 + self->c01 * mT->c15 + self->c02 * mT->c25 + self->c03 * mT->c35 + self->c04 * mT->c45 + self->c05 * mT->c55;
+	r.r51 = self->c10 * mT->c05 + self->c11 * mT->c15 + self->c12 * mT->c25 + self->c13 * mT->c35 + self->c14 * mT->c45 + self->c15 * mT->c55;
+	r.r52 = self->c20 * mT->c05 + self->c21 * mT->c15 + self->c22 * mT->c25 + self->c23 * mT->c35 + self->c24 * mT->c45 + self->c25 * mT->c55;
+	r.r53 = self->c30 * mT->c05 + self->c31 * mT->c15 + self->c32 * mT->c25 + self->c33 * mT->c35 + self->c34 * mT->c45 + self->c35 * mT->c55;
+	r.r54 = self->c40 * mT->c05 + self->c41 * mT->c15 + self->c42 * mT->c25 + self->c43 * mT->c35 + self->c44 * mT->c45 + self->c45 * mT->c55;
+	r.r55 = self->c50 * mT->c05 + self->c51 * mT->c15 + self->c52 * mT->c25 + self->c53 * mT->c35 + self->c54 * mT->c45 + self->c55 * mT->c55;
 
 	matrix6_set(self, &r); /* overwrite/save it */
 

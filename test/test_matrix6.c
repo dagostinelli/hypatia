@@ -39,9 +39,7 @@ static char *test_matrix6_multiply_identity(void)
 	struct matrix6 m1, m2, identity;
 
 	matrix6_identity(&identity);
-	_matrix6_print_with_columnrow_indexer(&identity);printf("\n");
 	_matrix6_set_random(&m1);
-	_matrix6_print_with_columnrow_indexer(&m1);printf("\n");
 
 	/* copy m1 -> m2 */
 	matrix6_set(&m2, &m1);
@@ -51,8 +49,6 @@ static char *test_matrix6_multiply_identity(void)
 
 	/* m2 = m2 * I */
 	matrix6_multiply(&m2, &identity);
-
-	_matrix6_print_with_columnrow_indexer(&m2);printf("\n");
 
 	/* equal */
 	test_assert(matrix6_equals(&m2, &m1));
@@ -69,29 +65,24 @@ static char *test_matrix6_multiplym6(void)
 	matrix6_identity(&m2);
 
 	m1.c00 = 1;  m1.c10 = 2;   m1.c20 = 3;  m1.c30 = 4; m1.c40 = 5; m1.c50 = 6;
-	m1.c01 = 7;  m1.c11 = 8;   m1.c21 = 9;  m1.c31 = 10;  m1.c41 = 11;  m1.c41 = 12;
+	m1.c01 = 7;  m1.c11 = 8;   m1.c21 = 9;  m1.c31 = 10;  m1.c41 = 11;  m1.c51 = 12;
 	m1.c02 = 13;  m1.c12 = 14;  m1.c22 = 15; m1.c32 = 16; m1.c42 = 17; m1.c52 = 18;
 	m1.c03 = 19; m1.c13 = 20;  m1.c23 = 21; m1.c33 = 22; m1.c43 = 23; m1.c53 = 24;
 	m1.c04 = 25; m1.c14 = 26;  m1.c24 = 27; m1.c34 = 28; m1.c44 = 29; m1.c54 = 30;
 	m1.c05 = 31; m1.c15 = 32;  m1.c25 = 33; m1.c35 = 34; m1.c45 = 35; m1.c55 = 36;
 
-	mR.c00 = 178;   mR.c10 = 184;  mR.c20 = 194; mR.c30 = 202; mR.c40 = 210; mR.c50 = 219;
-	mR.c01 = 339;  mR.c11 = 358;  mR.c21 = 377; mR.c31 = 396; mR.c41 = 415; mR.c51 = 441;
-	mR.c02 = 531;  mR.c12 = 562;  mR.c22 = 593; mR.c32 = 624; mR.c42 = 655; mR.c52 = 699;
-	mR.c03 = 723;  mR.c13 = 766;  mR.c23 = 809; mR.c33 = 852; mR.c43 = 895; mR.c53 = 957;
-	mR.c04 = 915;  mR.c14 = 970;  mR.c24 = 1025; mR.c34 = 1080; mR.c44 = 1135; mR.c54 = 1215;
-	mR.c05 = 1107;  mR.c15 = 1174;  mR.c25 = 1241; mR.c35 = 1308; mR.c45 = 1375; mR.c55 = 1473;
+	mR.c00 = 147;   mR.c10 = 154;  mR.c20 = 161; mR.c30 = 168; mR.c40 = 175; mR.c50 = 182;
+	mR.c01 = 339;  mR.c11 = 358;  mR.c21 = 377; mR.c31 = 396; mR.c41 = 415; mR.c51 = 434;
+	mR.c02 = 531;  mR.c12 = 562;  mR.c22 = 593; mR.c32 = 624; mR.c42 = 655; mR.c52 = 686;
+	mR.c03 = 723;  mR.c13 = 766;  mR.c23 = 809; mR.c33 = 852; mR.c43 = 895; mR.c53 = 938;
+	mR.c04 = 915;  mR.c14 = 970;  mR.c24 = 1025; mR.c34 = 1080; mR.c44 = 1135; mR.c54 = 1190;
+	mR.c05 = 1107;  mR.c15 = 1174;  mR.c25 = 1241; mR.c35 = 1308; mR.c45 = 1375; mR.c55 = 1442;
 	matrix6_multiplyf(&mR, 3.0f);
-
-	/*matrix6_print_with_columnrow_indexer(&mR);*/
-
-	printf("\n");
 
 	/* copy m1 -> m2 */
 	matrix6_set(&m2, &m1);
 
 	matrix6_multiply(&m2, &m1);
-	/*matrix6_print_with_columnrow_indexer(&m2);*/
 
 	test_assert(matrix6_equals(&mR, &m2));
 
@@ -152,8 +143,8 @@ static char *test_matrix6_identity_with_vector4(void)
 
 static char *test_matrix6_transpose(void)
 {
-	struct matrix6 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	struct matrix6 e = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
+	struct matrix6 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35};
+	struct matrix6 e = {0, 6, 12, 18, 24, 30, 1, 7, 13, 19, 25, 31, 2, 8, 14, 20, 26, 32, 3, 9, 15, 21, 27, 33, 4, 10, 16, 22, 28, 34, 5, 11, 17, 23, 29, 35};
 
 	matrix6_transpose(&m);
 	test_assert(matrix6_equals(&m, &e));
