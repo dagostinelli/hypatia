@@ -32,6 +32,26 @@ static char *test_matrix4_equals(void)
 }
 
 
+static char *test_matrix4_multiply_identity(void)
+{
+	struct matrix4 m1, m2, identity;
+
+	matrix4_identity(&identity);
+	_matrix4_set_random(&m1);
+
+	/* copy m1 -> m2 */
+	matrix4_set(&m2, &m1);
+
+	/* m2 = m2 * I */
+	matrix4_multiply(&m2, &identity);
+
+	/* equal */
+	test_assert(matrix4_equals(&m2, &m1));
+
+	return NULL;
+}
+
+
 static char *test_matrix4_multiplym4(void)
 {
 	struct matrix4 m1, m2, mR;
@@ -653,6 +673,7 @@ static char *matrix4_all_tests(void)
 {
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);
+	run_test(test_matrix4_multiply_identity);
 	run_test(test_matrix4_multiplym4);
 	run_test(test_matrix4_columnrowcolumn);
 	run_test(test_matrix4_transpose);
