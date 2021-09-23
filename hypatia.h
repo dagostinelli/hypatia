@@ -2655,8 +2655,6 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 		return NULL;
 	}
 
-	determinant = 1.0f / determinant;
-
 	matrix3_identity(&inverse);
 
 	/* find the adjugate of self */
@@ -2673,6 +2671,8 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	B(33) = A2(11, 22) - A2(21, 12);
 
 	/* divide the determinant */
+	determinant = 1.0f / determinant;
+
 	for (i = 0; i < 9; i++) {
 		mR->m[i] = inverse.m[i] * determinant;
 	}
@@ -3209,14 +3209,30 @@ HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 	/* avoids temporary structures */
 
 	determinant =
-	  A4(11, 22, 33, 44) + A4(11, 23, 34, 42) + A4(11, 24, 32, 43)
-	+ A4(12, 21, 34, 43) + A4(12, 23, 31, 44) + A4(12, 24, 33, 41)
-	+ A4(13, 21, 32, 44) + A4(13, 22, 34, 41) + A4(13, 24, 31, 42)
-	+ A4(14, 21, 33, 42) + A4(14, 22, 31, 43) + A4(14, 23, 32, 41)
-	- A4(11, 22, 34, 43) - A4(11, 23, 32, 44) - A4(11, 24, 33, 42)
-	- A4(12, 21, 33, 44) - A4(12, 23, 34, 41) - A4(12, 24, 31, 43)
-	- A4(13, 21, 34, 42) - A4(13, 22, 31, 44) - A4(13, 24, 32, 41)
-	- A4(14, 21, 32, 43) - A4(14, 22, 33, 41) - A4(14, 23, 31, 42)
+	  (self->r00 * self->r11 * self->r22 * self->r33)
+	- (self->r00 * self->r11 * self->r23 * self->r32)
+	- (self->r00 * self->r12 * self->r21 * self->r33)
+	+ (self->r00 * self->r12 * self->r23 * self->r31)
+	+ (self->r00 * self->r13 * self->r21 * self->r32)
+	- (self->r00 * self->r13 * self->r22 * self->r31)
+	- (self->r01 * self->r10 * self->r22 * self->r33)
+	+ (self->r01 * self->r10 * self->r23 * self->r32)
+	+ (self->r01 * self->r12 * self->r20 * self->r33)
+	- (self->r01 * self->r12 * self->r23 * self->r30)
+	- (self->r01 * self->r13 * self->r20 * self->r32)
+	+ (self->r01 * self->r13 * self->r22 * self->r30)
+	+ (self->r02 * self->r10 * self->r21 * self->r33)
+	- (self->r02 * self->r10 * self->r23 * self->r31)
+	- (self->r02 * self->r11 * self->r20 * self->r33)
+	+ (self->r02 * self->r11 * self->r23 * self->r30)
+	+ (self->r02 * self->r13 * self->r20 * self->r31)
+	- (self->r02 * self->r13 * self->r21 * self->r30)
+	- (self->r03 * self->r10 * self->r21 * self->r32)
+	+ (self->r03 * self->r10 * self->r22 * self->r31)
+	+ (self->r03 * self->r11 * self->r20 * self->r32)
+	- (self->r03 * self->r11 * self->r22 * self->r30)
+	- (self->r03 * self->r12 * self->r20 * self->r31)
+	+ (self->r03 * self->r12 * self->r21 * self->r30)
 	;
 
 	return determinant;
@@ -3266,8 +3282,6 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 		return NULL;
 	}
 
-	determinant = 1.0f / determinant;
-
 	matrix4_identity(&inverse);
 
 	B(11) = A3(22, 33, 44) + A3(23, 34, 42) + A3(24, 32, 43) - A3(22, 34, 43) - A3(23, 32, 44) - A3(24, 33, 42);
@@ -3287,7 +3301,9 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	B(43) = A3(11, 23, 42) + A3(12, 21, 43) + A3(13, 22, 41) - A3(11, 22, 43) - A3(12, 23, 41) - A3(13, 21, 42);
 	B(44) = A3(11, 22, 33) + A3(12, 23, 31) + A3(13, 21, 32) - A3(11, 23, 32) - A3(12, 21, 33) - A3(13, 22, 31);
 
-	/* divide the determinant */
+	/* divide by the determinant */
+	determinant = 1.0f / determinant;
+
 	for (i = 0; i < 16; i++) {
 		mR->m[i] = inverse.m[i] * determinant;
 	}

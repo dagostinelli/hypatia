@@ -153,31 +153,33 @@ static char *test_matrix6_transpose(void)
 }
 
 
-/*static char *test_matrix6_determinant_trial1(void)
+static char *test_matrix6_determinant_trial1(void)
 {
-	struct matrix6 m = {4, 3, 2, 2, 0, 1, -3, 3, 0, -1, 3, 3, 0, 3, 1, 1};
+	struct matrix6 m = {1, 2, 3, 4, 5, 9, 7, 8, 7, 5, 8, 4, 7, 8, 2, 6, 4, 5, 2, 1, 5, 1, 5, 7, 5, 8, 9, 7, 3, 5, 6, 9, 8, 7, 1, 3};
 
-	test_assert(scalar_equals(matrix6_determinant(&m), -240));
+	test_assert(scalar_equals(matrix6_determinant(&m), -503));
 	return NULL;
 }
 
 
 static char *test_matrix6_determinant_trial2(void)
 {
-	struct matrix6 m = {-1, 1, 4, 2, 2, -1, 2, 5, 1, 2, 3, 4, 3, 4, -1, 2};
+	struct matrix6 m = {1, 2, 2, 8, 5, 2, -4, 5, 7, 7, 4, 3, 4, 1, 1, 8, 3, 5, 1, 2, 3, 1, 4, 4, 7, 8, 9, 1, 2, 7, 2, 4, 5, 8, 9, 8};
 
-	test_assert(scalar_equals(matrix6_determinant(&m), -26));
+	test_assert(scalar_equals(matrix6_determinant(&m), 4621));
 	return NULL;
 }
 
 
 static char *test_matrix6_determinant_trial3(void)
 {
-	struct matrix6 m = {1, 3, -2, 1, 5, 1, 0, -1, 0, 1, 0, -2, 2, -1, 0, 3};
+	struct matrix6 m = {-1, -2, -2, 5, 7, 7, 1, 4, -1, 2, -4, 5, -4, 5, 7, 1, -4, -5, 4, 2, 5, 1, 1, 5, 5, 5, 9, 8, 7, 8, -2, -7, -8, 8, 9, 9};
 
-	test_assert(scalar_equals(matrix6_determinant(&m), -6));
+	printf("%lf\n", matrix6_determinant(&m));
+
+	test_assert(scalar_equals(matrix6_determinant(&m), 66240));
 	return NULL;
-}*/
+}
 
 
 static char *test_matrix6_columnrowcolumn(void)
@@ -216,19 +218,19 @@ static char *test_matrix6_columnrowcolumn(void)
 }
 
 
-/*static char *test_matrix6_determinant_row_is_zero(void)
+static char *test_matrix6_determinant_row_is_zero(void)
 {
 	struct matrix6 m;
 	HYP_FLOAT det;
-*/
+
 	/* identity is not zero */
-/*	matrix6_identity(&m);
+	matrix6_identity(&m);
 	det = matrix6_determinant(&m);
 	test_assert(!scalar_equals(det, 0));
 	test_assert(scalar_equals(det, 1));
-*/
+
 	/* when any row is zero, the determinant is zero */
-/*	matrix6_identity(&m);
+	matrix6_identity(&m);
 	m.r00 = 0.0; m.r01 = 0.0; m.r02 = 0.0; m.r03 = 0.0;
 	det = matrix6_determinant(&m);
 	test_assert(scalar_equals(det, 0));
@@ -249,7 +251,7 @@ static char *test_matrix6_columnrowcolumn(void)
 	test_assert(scalar_equals(det, 0));
 
 	return NULL;
-}*/
+}
 
 
 /*static char *test_matrix6_inverse(void)
@@ -291,16 +293,16 @@ static char *matrix6_all_tests(void)
 	run_test(test_matrix6_multiplym6);
 	run_test(test_matrix6_columnrowcolumn);
 	run_test(test_matrix6_transpose);
-	/*run_test(test_matrix6_determinant_trial1);
+	run_test(test_matrix6_determinant_trial1);
 	run_test(test_matrix6_determinant_trial2);
-	run_test(test_matrix6_determinant_trial3);*/
+	run_test(test_matrix6_determinant_trial3);
 
 	run_test(test_matrix6_identity_with_vector2);
 	run_test(test_matrix6_identity_with_vector3);
 	run_test(test_matrix6_identity_with_vector4);
 
 	/*run_test(test_matrix6_inverse);*/
-	/*run_test(test_matrix6_determinant_row_is_zero);*/
+	run_test(test_matrix6_determinant_row_is_zero);
 
 	return NULL;
 }
