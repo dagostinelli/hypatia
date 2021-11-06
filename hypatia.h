@@ -169,6 +169,7 @@ static HYP_INLINE HYP_FLOAT HYP_CLAMP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOA
 struct vector2;
 struct vector3;
 struct vector4;
+struct matrix2;
 struct matrix3;
 struct matrix4;
 struct quaternion;
@@ -281,6 +282,10 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @{
  */
 
+HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self);
+HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self);
+HYPAPI struct matrix2 *_matrix2_set_random(struct matrix2 *self);
+
 HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self);
 HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
 HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self);
@@ -325,6 +330,7 @@ HYPAPI struct vector2 *vector2_subtract(struct vector2 *self, const struct vecto
 HYPAPI struct vector2 *vector2_subtractf(struct vector2 *self, HYP_FLOAT fT);
 HYPAPI struct vector2 *vector2_multiply(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_multiplyf(struct vector2 *self, HYP_FLOAT fT);
+HYPAPI struct vector2 *vector2_multiplym2(struct vector2 *self, const struct matrix2 *mT);
 HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct matrix3 *mT);
 HYPAPI struct vector2 *vector2_divide(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_dividef(struct vector2 *self, HYP_FLOAT fT);
@@ -442,6 +448,94 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 
 /* BETA aliases */
 #define vec4 struct vector4
+
+#endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+
+struct matrix2 {
+	union {
+		HYP_FLOAT m[4]; /* row-major numbering */
+		struct {
+			/* reference the matrix [row][column] */
+			HYP_FLOAT m22[2][2];
+		};
+		struct {
+			/* indexed (column-major numbering) */
+			HYP_FLOAT i00, i02;
+			HYP_FLOAT i01, i03;
+		};
+		struct {
+			/* col-row */
+			HYP_FLOAT c00, c10;
+			HYP_FLOAT c01, c11;
+		};
+		struct {
+			/* row-col */
+			HYP_FLOAT r00, r01;
+			HYP_FLOAT r10, r11;
+		};
+	};
+};
+
+
+HYPAPI int matrix2_equals(const struct matrix2 *self, const struct matrix2 *mT);
+
+HYPAPI struct matrix2 *matrix2_zero(struct matrix2 *self);
+HYPAPI struct matrix2 *matrix2_identity(struct matrix2 *self);
+HYPAPI struct matrix2 *matrix2_set(struct matrix2 *self, const struct matrix2 *mT);
+HYPAPI struct matrix2 *matrix2_add(struct matrix2 *self, const struct matrix2 *mT);
+HYPAPI struct matrix2 *matrix2_subtract(struct matrix2 *self, const struct matrix2 *mT);
+
+HYPAPI struct matrix2 *matrix2_multiply(struct matrix2 *self, const struct matrix2 *mT);
+HYPAPI struct matrix2 *matrix2_multiplyf(struct matrix2 *self, HYP_FLOAT scalar);
+HYPAPI struct vector2 *matrix2_multiplyv2(const struct matrix2 *self, const struct vector2 *vT, struct vector2 *vR);
+
+HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self);
+HYPAPI HYP_FLOAT matrix2_determinant(const struct matrix2 *self);
+HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self);
+HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR);
+
+HYPAPI struct matrix2 *matrix2_make_transformation_scalingv2(struct matrix2 *self, const struct vector2 *scale);
+HYPAPI struct matrix2 *matrix2_make_transformation_rotationf_z(struct matrix2 *self, HYP_FLOAT angle);
+
+HYPAPI struct matrix2 *matrix2_rotate(struct matrix2 *self, HYP_FLOAT angle);
+HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector2 *scale);
+
+HYPAPI struct matrix2 *_matrix2_transpose_rowcolumn(struct matrix2 *self);
+HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self);
+
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+
+/* BETA aliases */
+#define mat2 struct matrix2
+
+#define mat2_equals matrix2_equals
+#define mat2_zero matrix2_zero
+#define mat2_identity matrix2_identity
+#define mat2_set matrix2_setm2
+#define mat2_add matrix2_add
+#define mat2_sub matrix2_subtract
+#define mat2_mul matrix2_multiply
+#define mat2_transpose matrix2_transpose
+
+#define mat2_rotate matrix2_rotate
+#define mat2_scalev2 matrix2_scalev2
+
+
+/*#define m2 struct matrix2*/
+
+#define m2_equals matrix2_equals
+#define m2_zero matrix2_zero
+#define m2_identity matrix2_identity
+#define m2_set matrix2_set
+#define m2_add matrix2_add
+#define m2_sub matrix2_subtract
+#define m2_mul matrix2_multiply
+#define m2_transpose matrix2_transpose
+
+#define m2_rotate matrix2_rotate
+#define m2_scalev2 matrix2_scalev2
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -936,6 +1030,26 @@ HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, cons
 HYPAPI HYP_FLOAT vector2_distance(const struct vector2 *v1, const struct vector2 *v2)
 {
 	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
+}
+
+
+/**
+ * @brief Multiply a vector by a matrix, returns a vector
+ *
+ * @param self The vector being multiplied
+ * @param mT The matrix used to do the multiplication
+ */
+HYPAPI struct vector2 *vector2_multiplym2(struct vector2 *self, const struct matrix2 *mT)
+{
+	struct vector2 vR;
+
+	vector2_zero(&vR);
+
+	matrix2_multiplyv2(mT, self, &vR);
+
+	vector2_set(self, &vR);
+
+	return self;
 }
 
 
@@ -1666,6 +1780,413 @@ HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
 	self->z = HYP_RANDOM_FLOAT;
 	self->w = HYP_RANDOM_FLOAT;
 	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Initializes the matrix with 0.0 in every element.
+ */
+HYPAPI struct matrix2 *matrix2_zero(struct matrix2 *self)
+{
+	HYP_MEMSET(self, 0, sizeof(struct matrix2));
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Initializes the matrix as an identity matrix.
+ */
+HYPAPI struct matrix2 *matrix2_identity(struct matrix2 *m)
+{
+	m->c00 = 1.0f, m->c10 = 0.0f;
+	m->c01 = 0.0f, m->c11 = 1.0f;
+
+	return m;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Initializes the matrix by copying mT
+ *
+ * @param self The matrix to initialize
+ * @param mT The matrix to copy
+ */
+HYPAPI struct matrix2 *matrix2_set(struct matrix2 *self, const struct matrix2 *mT)
+{
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		self->m[i] = mT->m[i];
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Compares every element of the matrix.  Uses HYP_EPSILON for precision.
+ * returns 1 if equal, 0 if different
+ */
+HYPAPI int matrix2_equals(const struct matrix2 *self, const struct matrix2 *mT)
+{
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		if (scalar_equalsf(self->m[i], mT->m[i]) == 0) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief "add row and column to row and column"
+ *
+ * @param self The matrix being changed
+ * @param mT The matrix to add
+ */
+HYPAPI struct matrix2 *matrix2_add(struct matrix2 *self, const struct matrix2 *mT)
+{
+	/* "add row and column to row and column" */
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		self->m[i] += mT->m[i];
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief "subtract row and column from row and column"
+ *
+ * @param self The matrix being changed
+ * @param mT The matrix to subtract from self (self = self - mT)
+ */
+HYPAPI struct matrix2 *matrix2_subtract(struct matrix2 *self, const struct matrix2 *mT)
+{
+	/* "subtract row and column from row and column" */
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		self->m[i] -= mT->m[i];
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Multiply a matrix by a scalar, returns the matrix changed
+ *
+ * @param self The matrix being changed
+ * @param scalar The scalar factor being multiplied in
+ */
+HYPAPI struct matrix2 *matrix2_multiplyf(struct matrix2 *self, HYP_FLOAT scalar)
+{
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		self->m[i] *= scalar;
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Multiply a matrix by a matrix, returns the matrix changed
+ *
+ * @param self the matrix being changed
+ * @param mT The matrix being multiplied into self
+ *
+ * self = self * mT
+ */
+HYPAPI struct matrix2 *matrix2_multiply(struct matrix2 *self, const struct matrix2 *mT)
+{
+	/* mT is the multiplicand */
+
+	struct matrix2 r;
+
+	matrix2_identity(&r);
+
+	/* first row */
+	r.r00 = self->c00 * mT->c00 + self->c01 * mT->c10;
+	r.r01 = self->c10 * mT->c00 + self->c11 * mT->c10;
+
+	/* second row */
+	r.r10 = self->c00 * mT->c01 + self->c01 * mT->c11;
+	r.r11 = self->c10 * mT->c01 + self->c11 * mT->c11;
+
+	matrix2_set(self, &r); /* overwrite/save it */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Multiply a vector by a matrix
+ *
+ * @param self The matrix used to do the multiplication
+ * @param vT The vector being multiplied
+ * @param vR The vector returned
+ */
+HYPAPI struct vector2 *matrix2_multiplyv2(const struct matrix2 *self, const struct vector2 *vT, struct vector2 *vR)
+{
+	vR->x = vT->x * self->c00 + vT->y * self->c01;
+	vR->y = vT->x * self->c10 + vT->y * self->c11;
+
+	return vR;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Transpose the matrix
+ *
+ * @param self The matrix being changed
+ */
+HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self)
+{
+	return _matrix2_transpose_columnrow(self);
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Swaps the row and column
+ *
+ */
+HYPAPI struct matrix2 *_matrix2_transpose_rowcolumn(struct matrix2 *self)
+{
+	HYP_SWAP(&self->r01, &self->r10);
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Swaps the columns and row
+ *
+ */
+HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self)
+{
+	HYP_SWAP(&self->c01, &self->c10);
+
+	return self;
+}
+
+
+#ifndef HYP_NO_STDIO
+/**
+ * @ingroup matrix2
+ * @brief Prints out the matrix using column and row notation
+ *
+ */
+HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self)
+{
+	printf("%10f, %10f\r\n", self->c00, self->c10);
+	printf("%10f, %10f\r\n", self->c01, self->c11);
+}
+#endif
+
+
+#ifndef HYP_NO_STDIO
+/**
+ * @ingroup matrix2
+ * @brief Prints out the matrix using row and column notation
+ *
+ */
+HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
+{
+	printf("%10f, %10f\r\n", self->r00, self->r01);
+	printf("%10f, %10f\r\n", self->r10, self->r11);
+}
+#endif
+
+/**
+ * @ingroup matrix2
+ * @brief Randomly fills the matrix with values. Good for testing.
+ *
+ */
+HYPAPI struct matrix2 *_matrix2_set_random(struct matrix2 *self)
+{
+	uint8_t i;
+
+	for (i = 0; i < 4; i++) {
+		self->m[i] = HYP_RANDOM_FLOAT;
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix
+ * @brief creates a scaling matrix.  It's opinionated about what that means.
+ *
+ */
+HYPAPI struct matrix2 *matrix2_make_transformation_scalingv2(struct matrix2 *self, const struct vector2 *scale)
+{
+	matrix2_identity(self);
+
+	self->r00 = scale->x;
+	self->r11 = scale->y;
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief creates a rotation matrix about the z.  It's opinionated about what
+ * that means.
+ *
+ * multiply this matrix by another matrix to rotate the other matrix
+ */
+HYPAPI struct matrix2 *matrix2_make_transformation_rotationf_z(struct matrix2 *m, HYP_FLOAT angle)
+{
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
+
+	matrix2_identity(m);
+
+	m->r00 = c;
+	m->r01 = s;
+	m->r10 = -s;
+	m->r11 = c;
+
+	return m;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Creates a temporary rotation matrix and then multiplies self by that.
+ * Opinionated function about what rotation means.  It always rotates about
+ * the z which it assumes is coming out of the screen.
+ *
+ * @param self The transformation matrix being rotated
+ * @param angle the angle of rotation in radians
+ *
+ */
+HYPAPI struct matrix2 *matrix2_rotate(struct matrix2 *self, HYP_FLOAT angle)
+{
+	struct matrix2 rotationMatrix;
+
+	return matrix2_multiply(self,
+		matrix2_make_transformation_rotationf_z(&rotationMatrix, angle));
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Creates a temporary scaling matrix and then multiplies self by that.
+ * Opinionated function about what scaling means.
+ *
+ * @param self The transformation matrix being scaled
+ * @param scale the scaling vector
+ *
+ */
+HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector2 *scale)
+{
+	struct matrix2 scalingMatrix;
+
+	return matrix2_multiply(self,
+		matrix2_make_transformation_scalingv2(&scalingMatrix, scale));
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Finds the determinant of a matrix
+ *
+ * @param self The transformation matrix being questioned
+ *
+ */
+HYPAPI HYP_FLOAT matrix2_determinant(const struct matrix2 *self)
+{
+	HYP_FLOAT determinant;
+
+	determinant =
+	  self->r00 * self->r11
+	- self->r10 * self->r01
+	;
+
+	return determinant;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Invert a matrix
+ *
+ * @param self The transformation matrix being inverted
+ *
+ */
+HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
+{
+	struct matrix2 inverse;
+	uint8_t i;
+
+	if (matrix2_inverse(self, &inverse)) {
+		for (i = 0; i < 4; i++) {
+			self->m[i] = inverse.m[i];
+		}
+	}
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Find the inverse of the matrix
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
+{
+	struct matrix2 inverse;
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	determinant = matrix2_determinant(self);
+
+	/* calculated early for a quick exit if no determinant exists */
+	if (scalar_equalsf(determinant, 0.0f)) {
+		return NULL;
+	}
+
+	determinant = 1.0f / determinant;
+
+	/* find the adjugate of self */
+	inverse.c00 = self->c11;
+	inverse.c01 = -self->c01;
+	inverse.c10 = -self->c10;
+	inverse.c11 = self->c00;
+
+	/* divide the determinant */
+	for (i = 0; i < 4; i++) {
+		mR->m[i] = inverse.m[i] * determinant;
+	}
+
+	return mR;
 }
 
 
