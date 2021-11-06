@@ -1,5 +1,0 @@
-# aargh -- "param1" is a meaningless parameter intentionally passed in to appease EXECUTE_PROCESS
-EXECUTE_PROCESS(COMMAND ${CMAKE_CURRENT_BINARY_DIR}/test_hypatia param1 RESULT_VARIABLE res_var)
-IF(NOT "${res_var}" STREQUAL "0")
-	message(FATAL_ERROR "test_hypatia failed. Return value is '${res_var}'")
-ENDIF()
