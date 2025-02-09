@@ -4135,7 +4135,7 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4
 	HYP_FLOAT q;
 
 	h = HYP_COT(fovy) / 2.0f;
-	w = h * aspect;
+	w = h / aspect;
 
 	p = zFar / (zNear - zFar);
 	q = zNear * p;
