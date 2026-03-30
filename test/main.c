@@ -30,6 +30,8 @@ static char *all_testsuites(void)
 	run_test(matrix3_all_tests);
 	printf("matrix4_all_tests\n");
 	run_test(matrix4_all_tests);
+	printf("vector2_all_tests\n");
+	run_test(vector2_all_tests);
 	printf("vector3_all_tests\n");
 	run_test(vector3_all_tests);
 	printf("vector4_all_tests\n");
