@@ -2522,7 +2522,7 @@ HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *m
 	m->r00 = c;
 	m->r01 = s;
 	m->r10 = -s;
-	m->r12 = c;
+	m->r11 = c;
 
 	return m;
 }

@@ -469,6 +469,64 @@ static char *test_matrix3_translatev2(void)
 }
 
 
+static char *test_matrix3_rotationf_z_components(void)
+{
+	/*
+	 * Regression test for bug where matrix3_make_transformation_rotationf_z
+	 * set r12 = cos(angle) instead of r11 = cos(angle).
+	 *
+	 * A 2D rotation matrix around Z should be:
+	 *   | cos  sin  0 |
+	 *   | -sin cos  0 |
+	 *   | 0    0    1 |
+	 *
+	 * The bug produced:
+	 *   | cos  sin  0 |
+	 *   | -sin 1    cos |    <-- r11 wrong (1 from identity), r12 wrong (cos leaked here)
+	 *   | 0    0    1 |
+	 */
+	struct matrix3 m;
+	HYP_FLOAT angle = HYP_PI / 4.0f; /* 45 degrees */
+	HYP_FLOAT c = HYP_COS(angle);
+	HYP_FLOAT s = HYP_SIN(angle);
+
+	matrix3_make_transformation_rotationf_z(&m, angle);
+
+	/* row 0: cos, sin, 0 */
+	test_assert(scalar_equalsf(m.r00, c));
+	test_assert(scalar_equalsf(m.r01, s));
+	test_assert(scalar_equalsf(m.r02, 0.0f));
+
+	/* row 1: -sin, cos, 0   (bug had: -sin, 1, cos) */
+	test_assert(scalar_equalsf(m.r10, -s));
+	test_assert(scalar_equalsf(m.r11, c));
+	test_assert(scalar_equalsf(m.r12, 0.0f));
+
+	/* row 2: 0, 0, 1 */
+	test_assert(scalar_equalsf(m.r20, 0.0f));
+	test_assert(scalar_equalsf(m.r21, 0.0f));
+	test_assert(scalar_equalsf(m.r22, 1.0f));
+
+	return NULL;
+}
+
+static char *test_matrix3_rotate_diagonal_vector(void)
+{
+	struct matrix3 m;
+	struct vector2 v;
+	HYP_FLOAT angle = HYP_PI_HALF; /* 90 degrees */
+
+	/* rotate (1,1) by 90 degrees -> (-1,1) */
+	vector2_setf2(&v, 1.0f, 1.0f);
+	matrix3_identity(&m);
+	matrix3_make_transformation_rotationf_z(&m, angle);
+	vector2_multiplym3(&v, &m);
+	test_assert(scalar_equalsf(v.x, -1.0f));
+	test_assert(scalar_equalsf(v.y, 1.0f));
+
+	return NULL;
+}
+
 static char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_zero);
@@ -503,6 +561,8 @@ static char *matrix3_all_tests(void)
 	run_test(test_matrix3_multiplyv2_translation);
 	run_test(test_matrix3_scalev2);
 	run_test(test_matrix3_translatev2);
+	run_test(test_matrix3_rotationf_z_components);
+	run_test(test_matrix3_rotate_diagonal_vector);
 
 	return NULL;
 }
