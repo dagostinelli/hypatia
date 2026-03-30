@@ -677,6 +677,67 @@ static char *test_quaternion_get_rotation_tov3(void)
 }
 
 
+static char *test_quaternion_slerp_nearly_identical(void)
+{
+	struct quaternion q1, q2, qR;
+
+	/* identity quaternion and a tiny rotation around X */
+	quaternion_identity(&q1);
+	quaternion_set_from_axis_anglev3(&q2, HYP_VECTOR3_UNIT_X, 0.0001f);
+
+	/* SLERP at t=0.5 should produce something very close to start */
+	quaternion_slerp(&q1, &q2, 0.5f, &qR);
+
+	/* result should be very close to identity (tiny rotation) */
+	test_assert(scalar_equalsf(qR.w, q1.w));
+	test_assert(scalar_equalsf(qR.y, 0.0f));
+	test_assert(scalar_equalsf(qR.z, 0.0f));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_slerp_opposite(void)
+{
+	struct quaternion q1, q2, qR;
+
+	/* q and -q represent the same rotation */
+	quaternion_set_from_axis_anglev3(&q1, HYP_VECTOR3_UNIT_X, HYP_TAU / 4.0f);
+	quaternion_set(&q2, &q1);
+	quaternion_negate(&q2);
+
+	/* SLERP between q and -q should not produce NaN */
+	quaternion_slerp(&q1, &q2, 0.5f, &qR);
+
+	/* result should be a valid quaternion (not NaN) */
+	test_assert(scalar_equalsf(qR.w, qR.w)); /* NaN != NaN */
+	test_assert(scalar_equalsf(qR.x, qR.x));
+	test_assert(scalar_equalsf(qR.y, qR.y));
+	test_assert(scalar_equalsf(qR.z, qR.z));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_slerp_at_endpoints(void)
+{
+	struct quaternion q1, q2, qR;
+
+	quaternion_set_from_axis_anglev3(&q1, HYP_VECTOR3_UNIT_Y, HYP_TAU / 6.0f);
+	quaternion_set_from_axis_anglev3(&q2, HYP_VECTOR3_UNIT_Z, HYP_TAU / 3.0f);
+
+	/* t=0 should return start */
+	quaternion_slerp(&q1, &q2, 0.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q1));
+
+	/* t=1 should return end */
+	quaternion_slerp(&q1, &q2, 1.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q2));
+
+	return NULL;
+}
+
+
 static char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_identity);
@@ -709,6 +770,9 @@ static char *quaternion_all_tests(void)
 	run_test(test_quaternion_lerp);
 	run_test(test_quaternion_nlerp);
 	run_test(test_quaternion_get_rotation_tov3);
+	run_test(test_quaternion_slerp_nearly_identical);
+	run_test(test_quaternion_slerp_opposite);
+	run_test(test_quaternion_slerp_at_endpoints);
 
 	return NULL;
 }
