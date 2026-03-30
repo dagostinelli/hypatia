@@ -219,6 +219,31 @@ static char *test_vector2_cross_product(void)
 	return NULL;
 }
 
+static char *test_vector2_normalize_zero(void)
+{
+	struct vector2 v = {{0.0f, 0.0f}};
+
+	/* vector2_normalize does not guard against zero magnitude,
+	 * so this produces NaN via 0/0. Verify it does not crash.
+	 */
+	vector2_normalize(&v);
+
+	/* Result is NaN (0/0 in IEEE 754), so scalar_equalsf with 0 is false */
+	test_assert(!scalar_equalsf(v.x, 0.0f));
+	test_assert(!scalar_equalsf(v.y, 0.0f));
+
+	return NULL;
+}
+
+static char *test_vector2_magnitude_zero(void)
+{
+	struct vector2 v = {{0.0f, 0.0f}};
+
+	test_assert(scalar_equalsf(vector2_magnitude(&v), 0.0f));
+
+	return NULL;
+}
+
 static char *test_vector2_angle_between_perpendicular(void)
 {
 	struct vector2 v1 = {{1.0f, 0.0f}};
@@ -263,6 +288,8 @@ static char *vector2_all_tests(void)
 	run_test(test_vector2_dividef);
 	run_test(test_vector2_magnitude);
 	run_test(test_vector2_normalize);
+	run_test(test_vector2_normalize_zero);
+	run_test(test_vector2_magnitude_zero);
 	run_test(test_vector2_distance);
 	run_test(test_vector2_dot_product);
 	run_test(test_vector2_dot_product_perpendicular);

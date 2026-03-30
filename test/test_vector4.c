@@ -460,6 +460,48 @@ static char *test_vector4_cross_product(void)
 	return NULL;
 }
 
+static char *test_vector4_dot_product_perpendicular(void)
+{
+	/* All four pairs of standard basis vectors are perpendicular */
+	struct vector4 vx = {{{1.0f, 0.0f, 0.0f, 0.0f}}};
+	struct vector4 vy = {{{0.0f, 1.0f, 0.0f, 0.0f}}};
+	struct vector4 vz = {{{0.0f, 0.0f, 1.0f, 0.0f}}};
+	struct vector4 vw = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+
+	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vy), 0.0f));
+	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vz), 0.0f));
+	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vw), 0.0f));
+	test_assert(scalar_equalsf(vector4_dot_product(&vy, &vz), 0.0f));
+	test_assert(scalar_equalsf(vector4_dot_product(&vy, &vw), 0.0f));
+	test_assert(scalar_equalsf(vector4_dot_product(&vz, &vw), 0.0f));
+
+	return NULL;
+}
+
+static char *test_vector4_normalize_zero(void)
+{
+	struct vector4 v = {{{0.0f, 0.0f, 0.0f, 0.0f}}};
+
+	vector4_normalize(&v);
+
+	/* Zero vector should remain zero (implementation guards against divide by zero) */
+	test_assert(scalar_equalsf(v.x, 0.0f));
+	test_assert(scalar_equalsf(v.y, 0.0f));
+	test_assert(scalar_equalsf(v.z, 0.0f));
+	test_assert(scalar_equalsf(v.w, 0.0f));
+
+	return NULL;
+}
+
+static char *test_vector4_magnitude_zero(void)
+{
+	struct vector4 v = {{{0.0f, 0.0f, 0.0f, 0.0f}}};
+
+	test_assert(scalar_equalsf(vector4_magnitude(&v), 0.0f));
+
+	return NULL;
+}
+
 static char *test_vector4_equals(void)
 {
 	struct vector4 a = {{{1.0f, 2.0f, 3.0f, 4.0f}}};
@@ -493,6 +535,9 @@ static char *vector4_all_tests(void)
 	run_test(test_vector4_distance);
 	run_test(test_vector4_dot_product);
 	run_test(test_vector4_cross_product);
+	run_test(test_vector4_dot_product_perpendicular);
+	run_test(test_vector4_normalize_zero);
+	run_test(test_vector4_magnitude_zero);
 	run_test(test_vector4_equals);
 
 	return NULL;

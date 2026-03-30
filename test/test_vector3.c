@@ -394,6 +394,32 @@ static char *test_vector3_reflect_by_quaternion(void)
 	return NULL;
 }
 
+static char *test_vector3_normalize_large(void)
+{
+	struct vector3 v = {{{1e15f, 1e15f, 1e15f}}};
+
+	vector3_normalize(&v);
+	test_assert(scalar_equalsf(vector3_magnitude(&v), 1.0f));
+
+	return NULL;
+}
+
+static char *test_vector3_normalize_small(void)
+{
+	struct vector3 v = {{{1e-15f, 1e-15f, 1e-15f}}};
+
+	/* NOTE: vector3_normalize treats very small magnitudes as zero
+	 * (via scalar_equalsf), so the vector is returned unchanged.
+	 * Verify it does not crash and the vector remains as-is.
+	 */
+	vector3_normalize(&v);
+	test_assert(scalar_equalsf(v.x, 0.0f));
+	test_assert(scalar_equalsf(v.y, 0.0f));
+	test_assert(scalar_equalsf(v.z, 0.0f));
+
+	return NULL;
+}
+
 static char *vector3_all_tests(void)
 {
 	run_test(test_vector3_set);
@@ -425,6 +451,8 @@ static char *vector3_all_tests(void)
 	run_test(test_vector3_rotate_by_quaternion);
 	run_test(test_vector3_rotate_by_quaternion_180);
 	run_test(test_vector3_reflect_by_quaternion);
+	run_test(test_vector3_normalize_large);
+	run_test(test_vector3_normalize_small);
 
 	return NULL;
 }
