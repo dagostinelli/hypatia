@@ -440,6 +440,243 @@ static char *test_quaternion_360_degree_eulers(void)
 }
 
 
+static char *test_quaternion_setf4(void)
+{
+	struct quaternion q;
+
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	test_assert(scalar_equalsf(q.x, 1.0f));
+	test_assert(scalar_equalsf(q.y, 2.0f));
+	test_assert(scalar_equalsf(q.z, 3.0f));
+	test_assert(scalar_equalsf(q.w, 4.0f));
+
+	quaternion_setf4(&q, -0.5f, 0.0f, 0.5f, 1.0f);
+	test_assert(scalar_equalsf(q.x, -0.5f));
+	test_assert(scalar_equalsf(q.y, 0.0f));
+	test_assert(scalar_equalsf(q.z, 0.5f));
+	test_assert(scalar_equalsf(q.w, 1.0f));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_add(void)
+{
+	struct quaternion q, qT, qExpected;
+
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_setf4(&qT, 0.5f, 1.5f, 2.5f, 3.5f);
+	quaternion_add(&q, &qT);
+
+	quaternion_setf4(&qExpected, 1.5f, 3.5f, 5.5f, 7.5f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	/* adding zero quaternion should not change anything */
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_setf4(&qT, 0.0f, 0.0f, 0.0f, 0.0f);
+	quaternion_add(&q, &qT);
+	quaternion_setf4(&qExpected, 1.0f, 2.0f, 3.0f, 4.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_subtract(void)
+{
+	struct quaternion q, qT, qExpected;
+
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_setf4(&qT, 0.5f, 1.0f, 1.5f, 2.0f);
+	quaternion_subtract(&q, &qT);
+
+	quaternion_setf4(&qExpected, 0.5f, 1.0f, 1.5f, 2.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	/* subtracting from itself should yield zero */
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_subtract(&q, &q);
+	quaternion_setf4(&qExpected, 0.0f, 0.0f, 0.0f, 0.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_negate(void)
+{
+	struct quaternion q, qExpected;
+
+	quaternion_setf4(&q, 1.0f, -2.0f, 3.0f, -4.0f);
+	quaternion_negate(&q);
+	quaternion_setf4(&qExpected, -1.0f, 2.0f, -3.0f, 4.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	/* double negate should return to original */
+	quaternion_setf4(&q, 0.5f, 0.5f, 0.5f, 0.5f);
+	quaternion_negate(&q);
+	quaternion_negate(&q);
+	quaternion_setf4(&qExpected, 0.5f, 0.5f, 0.5f, 0.5f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_multiplyf(void)
+{
+	struct quaternion q, qExpected;
+
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_multiplyf(&q, 2.0f);
+	quaternion_setf4(&qExpected, 2.0f, 4.0f, 6.0f, 8.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	/* multiply by zero */
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_multiplyf(&q, 0.0f);
+	quaternion_setf4(&qExpected, 0.0f, 0.0f, 0.0f, 0.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	/* multiply by one (no change) */
+	quaternion_setf4(&q, 1.0f, 2.0f, 3.0f, 4.0f);
+	quaternion_multiplyf(&q, 1.0f);
+	quaternion_setf4(&qExpected, 1.0f, 2.0f, 3.0f, 4.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_multiplyv3(void)
+{
+	struct quaternion q, qExpected;
+	struct vector3 v;
+
+	/* identity quaternion multiplied by unit x vector */
+	quaternion_identity(&q);
+	vector3_set(&v, HYP_VECTOR3_UNIT_X);
+	quaternion_multiplyv3(&q, &v);
+
+	/* manually compute: q=(0,0,0,1), v=(1,0,0)
+	 * r.x = w*vx + y*vz - z*vy = 1*1 + 0*0 - 0*0 = 1
+	 * r.y = w*vy - x*vz + z*vx = 1*0 - 0*0 + 0*1 = 0
+	 * r.z = w*vz + x*vy - y*vx = 1*0 + 0*0 - 0*1 = 0
+	 * r.w = x*vx - y*vy - z*vz = 0*1 - 0*0 - 0*0 = 0  (actually: +x*vx)
+	 * Wait, let me re-read: r.w = self->x * vT->x - self->y * vT->y - self->z * vT->z
+	 * = 0*1 - 0*0 - 0*0 = 0
+	 */
+	quaternion_setf4(&qExpected, 1.0f, 0.0f, 0.0f, 0.0f);
+	test_assert(quaternion_equals(&q, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_dot_product(void)
+{
+	struct quaternion q1, q2;
+	HYP_FLOAT dot;
+
+	/* dot product with itself */
+	quaternion_setf4(&q1, 1.0f, 2.0f, 3.0f, 4.0f);
+	dot = quaternion_dot_product(&q1, &q1);
+	/* 1+4+9+16 = 30 */
+	test_assert(scalar_equalsf(dot, 30.0f));
+
+	/* dot product of orthogonal-ish quaternions */
+	quaternion_setf4(&q1, 1.0f, 0.0f, 0.0f, 0.0f);
+	quaternion_setf4(&q2, 0.0f, 1.0f, 0.0f, 0.0f);
+	dot = quaternion_dot_product(&q1, &q2);
+	test_assert(scalar_equalsf(dot, 0.0f));
+
+	/* dot product of identity with itself should be 1 */
+	quaternion_identity(&q1);
+	dot = quaternion_dot_product(&q1, &q1);
+	test_assert(scalar_equalsf(dot, 1.0f));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_lerp(void)
+{
+	struct quaternion q1, q2, qR, qExpected;
+
+	quaternion_setf4(&q1, 0.0f, 0.0f, 0.0f, 1.0f);
+	quaternion_setf4(&q2, 1.0f, 0.0f, 0.0f, 0.0f);
+
+	/* at t=0, should return start */
+	quaternion_lerp(&q1, &q2, 0.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q1));
+
+	/* at t=1, should return end */
+	quaternion_lerp(&q1, &q2, 1.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q2));
+
+	/* at t=0.5, should be midpoint */
+	quaternion_lerp(&q1, &q2, 0.5f, &qR);
+	quaternion_setf4(&qExpected, 0.5f, 0.0f, 0.0f, 0.5f);
+	test_assert(quaternion_equals(&qR, &qExpected));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_nlerp(void)
+{
+	struct quaternion q1, q2, qR;
+
+	quaternion_setf4(&q1, 0.0f, 0.0f, 0.0f, 1.0f);
+	quaternion_setf4(&q2, 1.0f, 0.0f, 0.0f, 0.0f);
+
+	/* at t=0, should return start */
+	quaternion_nlerp(&q1, &q2, 0.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q1));
+
+	/* at t=1, should return end */
+	quaternion_nlerp(&q1, &q2, 1.0f, &qR);
+	test_assert(quaternion_equals(&qR, &q2));
+
+	/* at t=0.5, should be normalized midpoint */
+	quaternion_nlerp(&q1, &q2, 0.5f, &qR);
+	/* lerp gives (0.5, 0, 0, 0.5), normalized magnitude = sqrt(0.5) */
+	test_assert(scalar_equalsf(1.0f, quaternion_norm(&qR)));
+
+	return NULL;
+}
+
+
+static char *test_quaternion_get_rotation_tov3(void)
+{
+	struct quaternion qR;
+	struct vector3 r;
+
+	/* rotation from unit X to unit Y should rotate X to Y */
+	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_Y, &qR);
+	quaternion_normalize(&qR);
+	vector3_set(&r, HYP_VECTOR3_UNIT_X);
+	vector3_rotate_by_quaternion(&r, &qR);
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
+
+	/* rotation from unit X to unit Z should rotate X to Z */
+	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_Z, &qR);
+	quaternion_normalize(&qR);
+	vector3_set(&r, HYP_VECTOR3_UNIT_X);
+	vector3_rotate_by_quaternion(&r, &qR);
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
+
+	/* rotation from a vector to itself should be identity-like (no rotation) */
+	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_X, &qR);
+	quaternion_normalize(&qR);
+	vector3_set(&r, HYP_VECTOR3_UNIT_X);
+	vector3_rotate_by_quaternion(&r, &qR);
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
+
+	return NULL;
+}
+
+
 static char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_identity);
@@ -462,6 +699,16 @@ static char *quaternion_all_tests(void)
 	run_test(test_quaternion_rotate_by_quaternion_identity);
 	run_test(test_quaternion_get_eulers_from_axis_angle);
 	run_test(test_quaternion_360_degree_eulers);
+	run_test(test_quaternion_setf4);
+	run_test(test_quaternion_add);
+	run_test(test_quaternion_subtract);
+	run_test(test_quaternion_negate);
+	run_test(test_quaternion_multiplyf);
+	run_test(test_quaternion_multiplyv3);
+	run_test(test_quaternion_dot_product);
+	run_test(test_quaternion_lerp);
+	run_test(test_quaternion_nlerp);
+	run_test(test_quaternion_get_rotation_tov3);
 
 	return NULL;
 }

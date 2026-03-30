@@ -1285,6 +1285,19 @@ HYPAPI struct vector3 *vector3_divide(struct vector3 *self, const struct vector3
 
 /**
  * @ingroup vector3
+ * @brief divides each component of the vector by a scalar
+ */
+HYPAPI struct vector3 *vector3_dividef(struct vector3 *self, HYP_FLOAT fT)
+{
+	self->v[0] /= fT;
+	self->v[1] /= fT;
+	self->v[2] /= fT;
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
  * @brief calculates the magnitude of the vector
  */
 HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self)
@@ -1352,7 +1365,7 @@ HYPAPI HYP_FLOAT vector3_angle_between(const struct vector3 *vT1, const struct v
 
 	c = vector3_dot_product(vT1, vT2) / (vector3_magnitude(vT1) * vector3_magnitude(vT2));
 
-	return 2.0f * HYP_ACOS(c);
+	return HYP_ACOS(c);
 }
 
 
@@ -1459,9 +1472,6 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 	quaternion_set(&q, qT);
 	quaternion_multiplyv3(&q, self);
 	quaternion_multiply(&q, qT);
-
-	/* this seems to be necessary */
-	quaternion_normalize(&q);
 
 	self->x = q.x;
 	self->y = q.y;
@@ -1681,6 +1691,20 @@ HYPAPI struct vector4 *vector4_divide(struct vector4 *self, const struct vector4
 	self->v[1] /= vT->v[1];
 	self->v[2] /= vT->v[2];
 	self->v[3] /= vT->v[3];
+	return self;
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief divides each component of the vector by a scalar
+ */
+HYPAPI struct vector4 *vector4_dividef(struct vector4 *self, HYP_FLOAT fT)
+{
+	self->v[0] /= fT;
+	self->v[1] /= fT;
+	self->v[2] /= fT;
+	self->v[3] /= fT;
 	return self;
 }
 

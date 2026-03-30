@@ -315,6 +315,160 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 }
 
 
+static char *test_matrix3_add(void)
+{
+	struct matrix3 m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 m2 = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+	struct matrix3 expected = {10, 10, 10, 10, 10, 10, 10, 10, 10};
+
+	matrix3_add(&m1, &m2);
+	test_assert(matrix3_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_subtract(void)
+{
+	struct matrix3 m1 = {10, 9, 8, 7, 6, 5, 4, 3, 2};
+	struct matrix3 m2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 expected = {9, 7, 5, 3, 1, -1, -3, -5, -7};
+
+	matrix3_subtract(&m1, &m2);
+	test_assert(matrix3_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_multiplyf(void)
+{
+	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 expected = {3, 6, 9, 12, 15, 18, 21, 24, 27};
+
+	matrix3_multiplyf(&m, 3.0f);
+	test_assert(matrix3_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_multiplyf_zero(void)
+{
+	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 expected;
+
+	matrix3_zero(&expected);
+
+	matrix3_multiplyf(&m, 0.0f);
+	test_assert(matrix3_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_inverse_nonmutating(void)
+{
+	struct matrix3 original = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 originalCopy = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 inv;
+	struct matrix3 product;
+	struct matrix3 identity;
+	void *result;
+
+	matrix3_identity(&identity);
+
+	result = matrix3_inverse(&original, &inv);
+	test_assert(result);
+
+	/* original should not be modified */
+	test_assert(matrix3_equals(&original, &originalCopy));
+
+	/* original * inv should be identity */
+	matrix3_set(&product, &original);
+	matrix3_multiply(&product, &inv);
+	test_assert(matrix3_equals(&product, &identity));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_inverse_singular(void)
+{
+	struct matrix3 singular = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 result;
+	void *ret;
+
+	ret = matrix3_inverse(&singular, &result);
+	test_assert(ret == NULL);
+
+	return NULL;
+}
+
+
+static char *test_matrix3_multiplyv2(void)
+{
+	/* multiply by identity should return same vector */
+	struct matrix3 m;
+	struct vector2 v = {3.5f, -2.1f};
+	struct vector2 r;
+
+	matrix3_identity(&m);
+	matrix3_multiplyv2(&m, &v, &r);
+	test_assert(vector2_equals(&r, &v));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_multiplyv2_translation(void)
+{
+	struct matrix3 m;
+	struct vector2 v = {1.0f, 2.0f};
+	struct vector2 translation = {3.0f, 4.0f};
+	struct vector2 r;
+	struct vector2 expected = {4.0f, 6.0f};
+
+	matrix3_make_transformation_translationv2(&m, &translation);
+	matrix3_multiplyv2(&m, &v, &r);
+	test_assert(vector2_equals(&r, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_scalev2(void)
+{
+	struct matrix3 m;
+	struct vector2 scale = {2.0f, 3.0f};
+	struct vector2 v = {4.0f, 5.0f};
+	struct vector2 expected = {8.0f, 15.0f};
+
+	matrix3_identity(&m);
+	matrix3_scalev2(&m, &scale);
+	vector2_multiplym3(&v, &m);
+	test_assert(vector2_equals(&v, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix3_translatev2(void)
+{
+	struct matrix3 m;
+	struct vector2 translation = {1.0f, 2.0f};
+	struct vector2 v = {3.0f, 4.0f};
+	struct vector2 expected = {4.0f, 6.0f};
+
+	matrix3_identity(&m);
+	matrix3_translatev2(&m, &translation);
+	vector2_multiplym3(&v, &m);
+	test_assert(vector2_equals(&v, &expected));
+
+	return NULL;
+}
+
+
 static char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_zero);
@@ -338,6 +492,17 @@ static char *matrix3_all_tests(void)
 
 	run_test(test_matrix3_rotatev3_xz_quarter_turn);
 	run_test(test_matrix3_rotatev3_xz_quarter_turn_opposite);
+
+	run_test(test_matrix3_add);
+	run_test(test_matrix3_subtract);
+	run_test(test_matrix3_multiplyf);
+	run_test(test_matrix3_multiplyf_zero);
+	run_test(test_matrix3_inverse_nonmutating);
+	run_test(test_matrix3_inverse_singular);
+	run_test(test_matrix3_multiplyv2);
+	run_test(test_matrix3_multiplyv2_translation);
+	run_test(test_matrix3_scalev2);
+	run_test(test_matrix3_translatev2);
 
 	return NULL;
 }
