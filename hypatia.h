@@ -340,10 +340,9 @@ HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self);
 HYPAPI HYP_FLOAT vector2_distance(const struct vector2 *v1, const struct vector2 *v2);
 
 HYPAPI HYP_FLOAT vector2_dot_product(const struct vector2 *self, const struct vector2 *vT);
-HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2);
+HYPAPI HYP_FLOAT vector2_cross_product(const struct vector2 *vT1, const struct vector2 *vT2);
 
 HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT);
-HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2);
 
 /* the length is the same as "magnitude" */
 #define vector2_length(v) vector2_magnitude(v)
@@ -1000,11 +999,9 @@ HYPAPI HYP_FLOAT vector2_dot_product(const struct vector2 *self, const struct ve
 }
 
 
-HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
+HYPAPI HYP_FLOAT vector2_cross_product(const struct vector2 *vT1, const struct vector2 *vT2)
 {
-	vR->x = (vT1->x * vT2->y) - (vT1->y * vT2->x);
-	vR->y = (vT1->y * vT2->x) - (vT1->x * vT2->y);
-	return vR;
+	return (vT1->x * vT2->y) - (vT1->y * vT2->x);
 }
 
 
@@ -1014,10 +1011,6 @@ HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct 
 }
 
 
-HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
-{
-	return vector2_normalize(vector2_cross_product(vR, vT1, vT2));
-}
 
 
 /**
@@ -1764,7 +1757,7 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 	vR->x = (vT1->y * vT2->z) - (vT1->z * vT2->y);
 	vR->y = (vT1->z * vT2->x) - (vT1->x * vT2->z);
 	vR->z = (vT1->x * vT2->y) - (vT1->y * vT2->x);
-	vR->w = (vT1->w * vT2->w) - (vT1->w * vT2->w);
+	vR->w = 0;
 	return vR;
 }
 

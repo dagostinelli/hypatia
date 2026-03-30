@@ -206,11 +206,15 @@ static char *test_vector2_cross_product(void)
 {
 	struct vector2 v1 = {{1.0f, 0.0f}};
 	struct vector2 v2 = {{0.0f, 1.0f}};
-	struct vector2 vR;
 
-	vector2_cross_product(&vR, &v1, &v2);
-	/* 2D cross product: x*y' - y*x' = 1*1 - 0*0 = 1 */
-	test_assert(scalar_equalsf(vR.x, 1.0f));
+	/* 1*1 - 0*0 = 1 */
+	test_assert(scalar_equalsf(vector2_cross_product(&v1, &v2), 1.0f));
+
+	/* reversed: 0*0 - 1*1 = -1 (anti-commutative) */
+	test_assert(scalar_equalsf(vector2_cross_product(&v2, &v1), -1.0f));
+
+	/* parallel vectors: 1*0 - 0*1 = 0 */
+	test_assert(scalar_equalsf(vector2_cross_product(&v1, &v1), 0.0f));
 
 	return NULL;
 }
