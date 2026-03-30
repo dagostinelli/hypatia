@@ -15,6 +15,7 @@
 #include "test_matrix3.c"
 #include "test_matrix4.c"
 #include "test_experimental.c"
+#include "test_utility.c"
 
 int tests_run;
 char *test_message;
@@ -35,6 +36,8 @@ static char *all_testsuites(void)
 	run_test(vector4_all_tests);
 	printf("experimental_all_tests\n");
 	run_test(experimental_all_tests);
+	printf("utility_all_tests\n");
+	run_test(utility_all_tests);
 
 	return NULL;
 }

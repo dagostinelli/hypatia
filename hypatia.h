@@ -109,7 +109,7 @@ static HYP_INLINE HYP_FLOAT HYP_MIN(HYP_FLOAT a, HYP_FLOAT b)
 /** @brief A macro that returns the maximum of \a a and \a b */
 static HYP_INLINE HYP_FLOAT HYP_MAX(HYP_FLOAT a, HYP_FLOAT b)
 {
-	return (a > b) ? b : a;
+	return (a > b) ? a : b;
 }
 
 /** @brief A macro that swaps \a a and \a b */
