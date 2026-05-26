@@ -145,6 +145,11 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 #	define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
 #endif
 
+/** @brief A macro that computes the floating-point remainder */
+#ifndef HYP_FMOD
+#	define HYP_FMOD(x, y) ((HYP_FLOAT)fmod(x, y))
+#endif
+
 /** @brief A macro that returns the absolute value */
 static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 {
@@ -154,7 +159,7 @@ static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 /** @brief A macro that wraps a value around and around in a range */
 static HYP_INLINE HYP_FLOAT HYP_WRAP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOAT limit)
 {
-	return (HYP_FLOAT)fmod(start + (value - start), (limit - start));
+	return HYP_FMOD(start + (value - start), (limit - start));
 }
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
@@ -266,13 +271,27 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @{
  */
 
-#define HYP_SIN(x) ((HYP_FLOAT)sin(x))
-#define HYP_COS(x) ((HYP_FLOAT)cos(x))
-#define HYP_TAN(x) ((HYP_FLOAT)tan(x))
-#define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
-#define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
-#define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
-#define HYP_COT(a) (1.0f / HYP_TAN(a))
+#ifndef HYP_SIN
+#	define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#endif
+#ifndef HYP_COS
+#	define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#endif
+#ifndef HYP_TAN
+#	define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#endif
+#ifndef HYP_ASIN
+#	define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
+#endif
+#ifndef HYP_ACOS
+#	define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#endif
+#ifndef HYP_ATAN2
+#	define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
+#endif
+#ifndef HYP_COT
+#	define HYP_COT(a) (1.0f / HYP_TAN(a))
+#endif
 
 /* @} */
 
