@@ -315,27 +315,20 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 
 HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self);
 HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self);
-HYPAPI struct matrix2 *_matrix2_set_random(struct matrix2 *self);
 
 HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self);
 HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
-HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self);
 
 HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self);
 HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self);
-HYPAPI struct matrix4 *_matrix4_set_random(struct matrix4 *self);
 
 HYPAPI void _quaternion_print(const struct quaternion *self);
-HYPAPI struct quaternion *_quaternion_set_random(struct quaternion *self);
 
 HYPAPI void _vector3_print(const struct vector3 *self);
-HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self);
 
 HYPAPI void _vector2_print(const struct vector2 *self);
-HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self);
 
 HYPAPI void _vector4_print(const struct vector4 *self);
-HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self);
 
 /* @} */
 
@@ -1105,19 +1098,6 @@ HYPAPI void _vector2_print(const struct vector2 *self)
 #endif
 
 
-/**
- * @ingroup vector2
- * @brief Randomly fills the vector with values. Good for testing.
- *
- */
-HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self)
-{
-	self->x = HYP_RANDOM_FLOAT;
-	self->y = HYP_RANDOM_FLOAT;
-	return self;
-}
-
-
 static struct vector3 _vector3_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
 static struct vector3 _vector3_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
 static struct vector3 _vector3_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
@@ -1505,20 +1485,6 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 }
 
 
-/**
- * @ingroup vector3
- * @brief Randomly fills the vector with values. Good for testing.
- *
- */
-HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self)
-{
-	self->x = HYP_RANDOM_FLOAT;
-	self->y = HYP_RANDOM_FLOAT;
-	self->z = HYP_RANDOM_FLOAT;
-	return self;
-}
-
-
 static struct vector4 _vector4_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
 static struct vector4 _vector4_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
 static struct vector4 _vector4_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
@@ -1818,21 +1784,6 @@ HYPAPI void _vector4_print(const struct vector4 *self)
 
 
 /**
- * @ingroup vector4
- * @brief Randomly fills the vector with values. Good for testing.
- *
- */
-HYPAPI struct vector4 *_vector4_set_random(struct vector4 *self)
-{
-	self->x = HYP_RANDOM_FLOAT;
-	self->y = HYP_RANDOM_FLOAT;
-	self->z = HYP_RANDOM_FLOAT;
-	self->w = HYP_RANDOM_FLOAT;
-	return self;
-}
-
-
-/**
  * @ingroup matrix2
  * @brief Initializes the matrix with 0.0 in every element.
  */
@@ -2065,23 +2016,6 @@ HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
 	printf("%10f, %10f\r\n", self->r10, self->r11);
 }
 #endif
-
-/**
- * @ingroup matrix2
- * @brief Randomly fills the matrix with values. Good for testing.
- *
- */
-HYPAPI struct matrix2 *_matrix2_set_random(struct matrix2 *self)
-{
-	uint8_t i;
-
-	for (i = 0; i < 4; i++) {
-		self->m[i] = HYP_RANDOM_FLOAT;
-	}
-
-	return self;
-}
-
 
 /**
  * @ingroup matrix
@@ -2486,23 +2420,6 @@ HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 	printf("%10f, %10f, %10f\r\n", self->r20, self->r21, self->r22);
 }
 #endif
-
-/**
- * @ingroup matrix3
- * @brief Randomly fills the matrix with values. Good for testing.
- *
- */
-HYPAPI struct matrix3 *_matrix3_set_random(struct matrix3 *self)
-{
-	uint8_t i;
-
-	for (i = 0; i < 9; i++) {
-		self->m[i] = HYP_RANDOM_FLOAT;
-	}
-
-	return self;
-}
-
 
 /**
  * @ingroup matrix3
@@ -3032,23 +2949,6 @@ HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 	printf("%10f, %10f, %10f, %10f\r\n", self->r30, self->r31, self->r32, self->r33);
 }
 #endif
-
-
-/**
- * @ingroup matrix4
- * @brief Randomly fills the matrix with values. Good for testing.
- *
- */
-HYPAPI struct matrix4 *_matrix4_set_random(struct matrix4 *self)
-{
-	uint8_t i;
-
-	for (i = 0; i < 16; i++) {
-		self->m[i] = HYP_RANDOM_FLOAT;
-	}
-
-	return self;
-}
 
 
 /**
@@ -3950,23 +3850,6 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 	}
 
 	*angle = HYP_FLOAT_C(2.0) * HYP_ACOS(self->w);
-}
-
-
-/**
- * @ingroup quaternion
- * @brief initializes the quaternion with random values, then normalizes it
- */
-HYPAPI struct quaternion *_quaternion_set_random(struct quaternion *self)
-{
-	self->x = HYP_RANDOM_FLOAT;
-	self->y = HYP_RANDOM_FLOAT;
-	self->z = HYP_RANDOM_FLOAT;
-	self->w = HYP_RANDOM_FLOAT;
-
-	quaternion_normalize(self);
-
-	return self;
 }
 
 
