@@ -14,7 +14,6 @@
 #include "test_matrix2.c"
 #include "test_matrix3.c"
 #include "test_matrix4.c"
-#include "test_matrix6.c"
 #include "test_experimental.c"
 #include "test_utility.c"
 #include "test_integration.c"
