@@ -1132,7 +1132,7 @@ HYPAPI struct matrix6 *matrix6_inverse(const struct matrix6 *self, struct matrix
 	for (col = 0; col < 6; col++) {
 		/* choose the row with the largest magnitude in this column */
 		best = col;
-		for (row = (uint8_t)(col + 1); row < 6; row++) {
+		for (row = col; row < 6; row++) {
 			if (HYP_ABS(a.m66[row][col]) > HYP_ABS(a.m66[best][col])) {
 				best = row;
 			}
