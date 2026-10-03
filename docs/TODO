@@ -28,4 +28,55 @@ Remaining Work:
 - TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
+Correctness and API safety:
+- matrix2/3/4_invert silently leave the matrix unchanged when it is singular (see matrix4_invert);
+  return a status the caller can check, or document the behavior clearly
+- Answer the SLERP shortest-arc question above with a test, then fix if needed
+- Test quaternion inverse with non-unit quaternions (see above) and fix if needed
+- HYP_EPSILON is a fixed absolute 1E-5 for both float and double builds; consider a
+  precision-specific value and/or relative / ULP-based comparisons for large magnitudes
+
+C89 compliance:
+- `gcc -std=c89 -pedantic` reports 34 warnings: 25 unnamed structs/unions, 7 structs with
+  no named members, 2 anonymous variadic macros
+- <stdint.h> / uint8_t are C99
+- Either provide a strict-C89 path (feature macro for the anonymous unions, replace uint8_t)
+  or change the README to say "C99, C89-friendly style"
+
+Experimental (_EXP) functions:
+- Add reference-value tests (e.g. against GLM output) for projection_perspective_fovy_rh,
+  projection_ortho3d_rh, view_lookat_rh, rotate_by_euler_angles, transformation_decompose,
+  quaternion_angle_between
+- Add left-handed variants of the projection / view functions
+- Add a depth-range option: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
+- Once tested, promote them and drop the _EXP suffix
+
+API gaps:
+- vector2/3/4_lerp
+- vector2/3/4 clamp, component-wise min / max
+- vector projection (project a onto b)
+- matrix4 TRS constructor (translation + rotation + scale in one call)
+- normal matrix helper (inverse-transpose of the upper 3x3)
+- quaternion <-> matrix3 conversions
+- consider optional by-value inline variants for small types for expression-style code
+
+Tests:
+- Randomized / property-based round trips: quaternion vs axis-angle vs matrix rotations,
+  invert(invert(M)) ~= M, M * invert(M) ~= I
+- Make sure every test runs under both single and double precision builds
+
+Build and CI:
+- Retire appveyor.yml (stale images: VS2015-2019, macOS Mojave) once GitHub Actions has
+  proven itself
+- Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
+- cmake/CMakeBuildFlags.cmake includes CheckCXXCompilerFlag in a C-only project; use
+  CheckCCompilerFlag (or drop it)
+- help/CMakeLists.txt uses ELSEIF() where ELSE() is intended, so the "Doxygen not found"
+  message never prints
+
+Docs:
+- Publish the Doxygen output (e.g. GitHub Pages)
+- Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
+  objects are mutated in place
+
 // end of TODO.txt ...
