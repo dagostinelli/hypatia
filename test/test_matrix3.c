@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: MIT */
 
+/* non-symmetric, not the identity, and invertible */
+static const struct matrix3 test_matrix3_fixed = {1, 2, 3, 0, 1, 4, 5, 6, 0};
+
 static char *test_matrix3_zero(void)
 {
 	struct matrix3 zero;
@@ -20,7 +23,7 @@ static char *test_matrix3_equals(void)
 	struct matrix3 m, identity;
 
 	matrix3_identity(&identity);
-	_matrix3_set_random(&m);
+	matrix3_set(&m, &test_matrix3_fixed);
 
 	/* equal */
 	test_assert(matrix3_equals(&identity, &identity));
@@ -37,7 +40,7 @@ static char *test_matrix3_multiply_identity(void)
 	struct matrix3 m1, m2, identity;
 
 	matrix3_identity(&identity);
-	_matrix3_set_random(&m1);
+	matrix3_set(&m1, &test_matrix3_fixed);
 
 	/* copy m1 -> m2 */
 	matrix3_set(&m2, &m1);
@@ -170,7 +173,7 @@ static char *test_matrix3_columnrowcolumn(void)
 	matrix3_zero(&r);
 	matrix3_zero(&m);
 
-	_matrix3_set_random(&m);
+	matrix3_set(&m, &test_matrix3_fixed);
 
 	matrix3_set(&c, &m);
 	matrix3_set(&r, &m);
