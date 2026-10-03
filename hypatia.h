@@ -2243,6 +2243,10 @@ HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
  * @ingroup matrix2
  * @brief Find the inverse of the matrix
  *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values.
+ *
  * @param self The transformation matrix being examined
  * @param mR the inverse of the matrix is returned here
  *
@@ -2255,8 +2259,10 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 
 	determinant = matrix2_determinant(self);
 
-	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -2727,6 +2733,10 @@ HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
  * @ingroup matrix3
  * @brief Find the inverse of the matrix
  *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values.
+ *
  * @param self The transformation matrix being examined
  * @param mR the inverse of the matrix is returned here
  *
@@ -2739,8 +2749,10 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 
 	determinant = matrix3_determinant(self);
 
-	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -3354,6 +3366,10 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
  * @ingroup matrix4
  * @brief Find the inverse of the matrix
  *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values.
+ *
  * @param self The transformation matrix being examined
  * @param mR the inverse of the matrix is returned here
  *
@@ -3366,8 +3382,10 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 
 	determinant = matrix4_determinant(self);
 
-	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
