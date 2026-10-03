@@ -109,7 +109,7 @@ static HYP_INLINE HYP_FLOAT HYP_MIN(HYP_FLOAT a, HYP_FLOAT b)
 /** @brief A macro that returns the maximum of \a a and \a b */
 static HYP_INLINE HYP_FLOAT HYP_MAX(HYP_FLOAT a, HYP_FLOAT b)
 {
-	return (a > b) ? b : a;
+	return (a > b) ? a : b;
 }
 
 /** @brief A macro that swaps \a a and \a b */
@@ -145,6 +145,11 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 #	define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
 #endif
 
+/** @brief A macro that computes the floating-point remainder */
+#ifndef HYP_FMOD
+#	define HYP_FMOD(x, y) ((HYP_FLOAT)fmod(x, y))
+#endif
+
 /** @brief A macro that returns the absolute value */
 static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 {
@@ -154,7 +159,7 @@ static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 /** @brief A macro that wraps a value around and around in a range */
 static HYP_INLINE HYP_FLOAT HYP_WRAP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOAT limit)
 {
-	return (HYP_FLOAT)fmod(start + (value - start), (limit - start));
+	return HYP_FMOD(start + (value - start), (limit - start));
 }
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
@@ -266,13 +271,27 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @{
  */
 
-#define HYP_SIN(x) ((HYP_FLOAT)sin(x))
-#define HYP_COS(x) ((HYP_FLOAT)cos(x))
-#define HYP_TAN(x) ((HYP_FLOAT)tan(x))
-#define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
-#define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
-#define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
-#define HYP_COT(a) (1.0f / HYP_TAN(a))
+#ifndef HYP_SIN
+#	define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#endif
+#ifndef HYP_COS
+#	define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#endif
+#ifndef HYP_TAN
+#	define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#endif
+#ifndef HYP_ASIN
+#	define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
+#endif
+#ifndef HYP_ACOS
+#	define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#endif
+#ifndef HYP_ATAN2
+#	define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
+#endif
+#ifndef HYP_COT
+#	define HYP_COT(a) (1.0f / HYP_TAN(a))
+#endif
 
 /* @} */
 
@@ -340,10 +359,9 @@ HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self);
 HYPAPI HYP_FLOAT vector2_distance(const struct vector2 *v1, const struct vector2 *v2);
 
 HYPAPI HYP_FLOAT vector2_dot_product(const struct vector2 *self, const struct vector2 *vT);
-HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2);
+HYPAPI HYP_FLOAT vector2_cross_product(const struct vector2 *vT1, const struct vector2 *vT2);
 
 HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT);
-HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2);
 
 /* the length is the same as "magnitude" */
 #define vector2_length(v) vector2_magnitude(v)
@@ -1000,24 +1018,18 @@ HYPAPI HYP_FLOAT vector2_dot_product(const struct vector2 *self, const struct ve
 }
 
 
-HYPAPI struct vector2 *vector2_cross_product(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
+HYPAPI HYP_FLOAT vector2_cross_product(const struct vector2 *vT1, const struct vector2 *vT2)
 {
-	vR->x = (vT1->x * vT2->y) - (vT1->y * vT2->x);
-	vR->y = (vT1->y * vT2->x) - (vT1->x * vT2->y);
-	return vR;
+	return (vT1->x * vT2->y) - (vT1->y * vT2->x);
 }
 
 
 HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT)
 {
-	return vector2_dot_product(self, vT) / (vector2_magnitude(self) * vector2_magnitude(vT));
+	return HYP_ACOS(vector2_dot_product(self, vT) / (vector2_magnitude(self) * vector2_magnitude(vT)));
 }
 
 
-HYPAPI struct vector2 *vector2_find_normal_axis_between(struct vector2 *vR, const struct vector2 *vT1, const struct vector2 *vT2)
-{
-	return vector2_normalize(vector2_cross_product(vR, vT1, vT2));
-}
 
 
 /**
@@ -1285,6 +1297,19 @@ HYPAPI struct vector3 *vector3_divide(struct vector3 *self, const struct vector3
 
 /**
  * @ingroup vector3
+ * @brief divides each component of the vector by a scalar
+ */
+HYPAPI struct vector3 *vector3_dividef(struct vector3 *self, HYP_FLOAT fT)
+{
+	self->v[0] /= fT;
+	self->v[1] /= fT;
+	self->v[2] /= fT;
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
  * @brief calculates the magnitude of the vector
  */
 HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self)
@@ -1352,7 +1377,7 @@ HYPAPI HYP_FLOAT vector3_angle_between(const struct vector3 *vT1, const struct v
 
 	c = vector3_dot_product(vT1, vT2) / (vector3_magnitude(vT1) * vector3_magnitude(vT2));
 
-	return 2.0f * HYP_ACOS(c);
+	return HYP_ACOS(c);
 }
 
 
@@ -1460,9 +1485,6 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 	quaternion_multiplyv3(&q, self);
 	quaternion_multiply(&q, qT);
 
-	/* this seems to be necessary */
-	quaternion_normalize(&q);
-
 	self->x = q.x;
 	self->y = q.y;
 	self->z = q.z;
@@ -1544,6 +1566,7 @@ HYPAPI struct vector4 *vector4_set(struct vector4 *self, const struct vector4 *v
 	self->x = vT->x;
 	self->y = vT->y;
 	self->z = vT->z;
+	self->w = vT->w;
 	return self;
 }
 
@@ -1686,6 +1709,20 @@ HYPAPI struct vector4 *vector4_divide(struct vector4 *self, const struct vector4
 
 /**
  * @ingroup vector4
+ * @brief divides each component of the vector by a scalar
+ */
+HYPAPI struct vector4 *vector4_dividef(struct vector4 *self, HYP_FLOAT fT)
+{
+	self->v[0] /= fT;
+	self->v[1] /= fT;
+	self->v[2] /= fT;
+	self->v[3] /= fT;
+	return self;
+}
+
+
+/**
+ * @ingroup vector4
  * @brief calculates the magnitude of the vector
  */
 HYPAPI HYP_FLOAT vector4_magnitude(const struct vector4 *self)
@@ -1739,7 +1776,7 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
 	vR->x = (vT1->y * vT2->z) - (vT1->z * vT2->y);
 	vR->y = (vT1->z * vT2->x) - (vT1->x * vT2->z);
 	vR->z = (vT1->x * vT2->y) - (vT1->y * vT2->x);
-	vR->w = (vT1->w * vT2->w) - (vT1->w * vT2->w);
+	vR->w = 0;
 	return vR;
 }
 
@@ -2504,7 +2541,7 @@ HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *m
 	m->r00 = c;
 	m->r01 = s;
 	m->r10 = -s;
-	m->r12 = c;
+	m->r11 = c;
 
 	return m;
 }
@@ -4151,7 +4188,7 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4
 	HYP_FLOAT q;
 
 	h = HYP_COT(fovy) / 2.0f;
-	w = h * aspect;
+	w = h / aspect;
 
 	p = zFar / (zNear - zFar);
 	q = zNear * p;

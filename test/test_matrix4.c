@@ -669,6 +669,139 @@ static char *test_matrix4_inverse(void)
 }
 
 
+static char *test_matrix4_add(void)
+{
+	struct matrix4 m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	struct matrix4 m2 = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	struct matrix4 expected = {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17};
+
+	matrix4_add(&m1, &m2);
+	test_assert(matrix4_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_subtract(void)
+{
+	struct matrix4 m1 = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+	struct matrix4 m2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	struct matrix4 expected = {15, 13, 11, 9, 7, 5, 3, 1, -1, -3, -5, -7, -9, -11, -13, -15};
+
+	matrix4_subtract(&m1, &m2);
+	test_assert(matrix4_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_multiplyf(void)
+{
+	struct matrix4 m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	struct matrix4 expected = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32};
+
+	matrix4_multiplyf(&m, 2.0f);
+	test_assert(matrix4_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_multiplyf_zero(void)
+{
+	struct matrix4 m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	struct matrix4 expected;
+
+	matrix4_zero(&expected);
+
+	matrix4_multiplyf(&m, 0.0f);
+	test_assert(matrix4_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_inverse_nonmutating(void)
+{
+	struct matrix4 original;
+	struct matrix4 originalCopy;
+	struct matrix4 inv;
+	struct matrix4 product;
+	struct matrix4 identity;
+	struct vector3 scratchVector;
+	struct matrix4 scratchMatrix;
+	void *result;
+
+	matrix4_identity(&identity);
+
+	matrix4_identity(&original);
+	matrix4_multiply(&original, matrix4_make_transformation_scalingv3(&scratchMatrix, vector3_setf3(&scratchVector, 0.5f, 0.5f, 0.5f)));
+	matrix4_multiply(&original, matrix4_make_transformation_translationv3(&scratchMatrix, vector3_setf3(&scratchVector, 1.0f, 0.8f, 0.3f)));
+
+	matrix4_set(&originalCopy, &original);
+
+	result = matrix4_inverse(&original, &inv);
+	test_assert(result);
+
+	/* original should not be modified */
+	test_assert(matrix4_equals(&original, &originalCopy));
+
+	/* original * inv should be identity */
+	matrix4_set(&product, &original);
+	matrix4_multiply(&product, &inv);
+	test_assert(matrix4_equals(&product, &identity));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_inverse_singular(void)
+{
+	struct matrix4 singular;
+	struct matrix4 result;
+	void *ret;
+
+	matrix4_zero(&singular);
+
+	ret = matrix4_inverse(&singular, &result);
+	test_assert(ret == NULL);
+
+	return NULL;
+}
+
+
+static char *test_matrix4_translatev3(void)
+{
+	struct matrix4 m;
+	struct vector3 translation = {1.0f, 2.0f, 3.0f};
+	struct vector3 v = {4.0f, 5.0f, 6.0f};
+	struct vector3 expected = {5.0f, 7.0f, 9.0f};
+
+	matrix4_identity(&m);
+	matrix4_translatev3(&m, &translation);
+	vector3_multiplym4(&v, &m);
+	test_assert(vector3_equals(&v, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix4_scalev3(void)
+{
+	struct matrix4 m;
+	struct vector3 scale = {2.0f, 3.0f, 4.0f};
+	struct vector3 v = {1.0f, 2.0f, 3.0f};
+	struct vector3 expected = {2.0f, 6.0f, 12.0f};
+
+	matrix4_identity(&m);
+	matrix4_scalev3(&m, &scale);
+	vector3_multiplym4(&v, &m);
+	test_assert(vector3_equals(&v, &expected));
+
+	return NULL;
+}
+
+
 static char *matrix4_all_tests(void)
 {
 	run_test(test_matrix4_zero);
@@ -715,6 +848,15 @@ static char *matrix4_all_tests(void)
 
 	run_test(test_matrix4_inverse);
 	run_test(test_matrix4_determinant_row_is_zero);
+
+	run_test(test_matrix4_add);
+	run_test(test_matrix4_subtract);
+	run_test(test_matrix4_multiplyf);
+	run_test(test_matrix4_multiplyf_zero);
+	run_test(test_matrix4_inverse_nonmutating);
+	run_test(test_matrix4_inverse_singular);
+	run_test(test_matrix4_translatev3);
+	run_test(test_matrix4_scalev3);
 
 	return NULL;
 }
