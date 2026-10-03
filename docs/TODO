@@ -68,7 +68,6 @@ Tests:
 Build and CI:
 - Retire appveyor.yml (stale images: VS2015-2019, macOS Mojave) once GitHub Actions has
   proven itself
-- Add an MSVC job and a macOS job to GitHub Actions if not already covered
 - Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
 - cmake/CMakeBuildFlags.cmake includes CheckCXXCompilerFlag in a C-only project; use
   CheckCCompilerFlag (or drop it)
