@@ -262,21 +262,6 @@ static char *test_matrix6_determinant_row_is_zero(void)
 }
 
 
-/* float rounding in a 6x6 elimination exceeds HYP_EPSILON, so allow more slack */
-static int matrix6_equals_tolerance(const struct matrix6 *a, const struct matrix6 *b)
-{
-	uint8_t i;
-
-	for (i = 0; i < 36; i++) {
-		if (scalar_equals_epsilonf(a->m[i], b->m[i], 1E-4f) == 0) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-
 static char *test_matrix6_inverse(void)
 {
 	struct matrix6 m = {1, 2, 3, 4, 5, 9, 7, 8, 7, 5, 8, 4, 7, 8, 2, 6, 4, 5, 2, 1, 5, 1, 5, 7, 5, 8, 9, 7, 3, 5, 6, 9, 8, 7, 1, 3};
@@ -291,12 +276,12 @@ static char *test_matrix6_inverse(void)
 	/* M * M^-1 = I */
 	matrix6_set(&product, &m);
 	matrix6_multiply(&product, &inverted);
-	test_assert(matrix6_equals_tolerance(&product, &identity));
+	test_assert(matrix6_equals(&product, &identity));
 
 	/* M^-1 * M = I */
 	matrix6_set(&product, &inverted);
 	matrix6_multiply(&product, &m);
-	test_assert(matrix6_equals_tolerance(&product, &identity));
+	test_assert(matrix6_equals(&product, &identity));
 
 	return NULL;
 }
