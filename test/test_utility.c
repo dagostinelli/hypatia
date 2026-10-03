@@ -161,7 +161,47 @@ static const char *test_hyp_wrap_above_limit(void)
 
 static const char *test_hyp_wrap_below_start(void)
 {
-	test_assert(scalar_equalsf(HYP_WRAP(-HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0)), -HYP_FLOAT_C(2.0)));
+	test_assert(scalar_equalsf(HYP_WRAP(-HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0)), HYP_FLOAT_C(8.0)));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_at_limit(void)
+{
+	test_assert(scalar_equalsf(HYP_WRAP(HYP_FLOAT_C(10.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0)), HYP_FLOAT_C(0.0)));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_nonzero_start_above_limit(void)
+{
+	test_assert(scalar_equalsf(HYP_WRAP(HYP_FLOAT_C(12.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(10.0)), HYP_FLOAT_C(7.0)));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_nonzero_start_below_start(void)
+{
+	test_assert(scalar_equalsf(HYP_WRAP(HYP_FLOAT_C(3.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(10.0)), HYP_FLOAT_C(8.0)));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_negative_start(void)
+{
+	test_assert(scalar_equalsf(HYP_WRAP(-HYP_FLOAT_C(370.0), -HYP_FLOAT_C(180.0), HYP_FLOAT_C(180.0)), -HYP_FLOAT_C(10.0)));
+	test_assert(scalar_equalsf(HYP_WRAP(HYP_FLOAT_C(190.0), -HYP_FLOAT_C(180.0), HYP_FLOAT_C(180.0)), -HYP_FLOAT_C(170.0)));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_just_below_start(void)
+{
+	/* -1e-16 + 10 rounds to exactly 10 in both precisions */
+	HYP_FLOAT r = HYP_WRAP(-HYP_FLOAT_C(1e-16), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0));
+
+	test_assert(r >= HYP_FLOAT_C(0.0) && r < HYP_FLOAT_C(10.0));
+	return NULL;
+}
+
+static const char *test_hyp_wrap_zero_range(void)
+{
+	test_assert(scalar_equalsf(HYP_WRAP(HYP_FLOAT_C(7.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(3.0)), HYP_FLOAT_C(3.0)));
 	return NULL;
 }
 
@@ -240,6 +280,12 @@ static const char *utility_all_tests(void)
 	run_test(test_hyp_wrap_in_range);
 	run_test(test_hyp_wrap_above_limit);
 	run_test(test_hyp_wrap_below_start);
+	run_test(test_hyp_wrap_at_limit);
+	run_test(test_hyp_wrap_nonzero_start_above_limit);
+	run_test(test_hyp_wrap_nonzero_start_below_start);
+	run_test(test_hyp_wrap_negative_start);
+	run_test(test_hyp_wrap_just_below_start);
+	run_test(test_hyp_wrap_zero_range);
 	run_test(test_hyp_deg_to_rad);
 	run_test(test_hyp_rad_to_deg);
 	run_test(test_hyp_deg_rad_roundtrip);

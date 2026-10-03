@@ -190,10 +190,39 @@ static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 	return (value < HYP_FLOAT_C(0.0)) ? -value : value;
 }
 
-/** @brief A macro that wraps a value around and around in a range */
+/** @brief A macro that wraps a value around and around in the range [start, limit).
+ * start must not be greater than limit; when they are equal the result is start.
+ */
 static HYP_INLINE HYP_FLOAT HYP_WRAP(HYP_FLOAT value, HYP_FLOAT start, HYP_FLOAT limit)
 {
-	return HYP_FMOD(start + (value - start), (limit - start));
+	HYP_FLOAT range = limit - start;
+	HYP_FLOAT offset;
+	HYP_FLOAT result;
+
+	/* a range of zero width holds only start (written without == for
+	 * -Wfloat-equal)
+	 */
+	if (!(range < HYP_FLOAT_C(0.0)) && !(range > HYP_FLOAT_C(0.0))) {
+		return start;
+	}
+
+	offset = HYP_FMOD(value - start, range);
+
+	/* fmod keeps the sign of its first argument */
+	if (offset < HYP_FLOAT_C(0.0)) {
+		offset += range;
+	}
+
+	result = start + offset;
+
+	/* rounding can carry a value just below a multiple of the range up to
+	 * limit, which is the same point as start
+	 */
+	if (result >= limit) {
+		result = start;
+	}
+
+	return result;
 }
 
 /** @brief A macro that constrains the value between two limits \a a and \a b */
