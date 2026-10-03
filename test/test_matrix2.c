@@ -104,9 +104,9 @@ static const char *test_matrix2_determinant_trial3(void)
 
 static const char *test_matrix2_determinant_trial4(void)
 {
-	struct matrix2 m = {.m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123}};
+	struct matrix2 m = {.m = {HYP_FLOAT_C(0.608088), HYP_FLOAT_C(0.742654), HYP_FLOAT_C(0.558388), HYP_FLOAT_C(0.722123)}};
 
-	test_assert(scalar_equals(matrix2_determinant(&m), (HYP_FLOAT)0.024425249));
+	test_assert(scalar_equals(matrix2_determinant(&m), HYP_FLOAT_C(0.024425249072)));
 	return NULL;
 }
 
