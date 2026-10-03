@@ -272,6 +272,145 @@ static char *test_matrix2_rotatev3_xz_quarter_turn_opposite(void)
 }
 
 
+static char *test_matrix2_add(void)
+{
+	struct matrix2 m1 = {1, 2, 3, 4};
+	struct matrix2 m2 = {5, 6, 7, 8};
+	struct matrix2 expected = {6, 8, 10, 12};
+
+	matrix2_add(&m1, &m2);
+	test_assert(matrix2_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_subtract(void)
+{
+	struct matrix2 m1 = {5, 6, 7, 8};
+	struct matrix2 m2 = {1, 2, 3, 4};
+	struct matrix2 expected = {4, 4, 4, 4};
+
+	matrix2_subtract(&m1, &m2);
+	test_assert(matrix2_equals(&m1, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_multiplyf(void)
+{
+	struct matrix2 m = {1, 2, 3, 4};
+	struct matrix2 expected = {2, 4, 6, 8};
+
+	matrix2_multiplyf(&m, 2.0f);
+	test_assert(matrix2_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_multiplyf_zero(void)
+{
+	struct matrix2 m = {1, 2, 3, 4};
+	struct matrix2 expected;
+
+	matrix2_zero(&expected);
+
+	matrix2_multiplyf(&m, 0.0f);
+	test_assert(matrix2_equals(&m, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_inverse_nonmutating(void)
+{
+	struct matrix2 original = {2, 0, -1, 5};
+	struct matrix2 originalCopy = {2, 0, -1, 5};
+	struct matrix2 inv;
+	struct matrix2 product;
+	struct matrix2 identity;
+	void *result;
+
+	matrix2_identity(&identity);
+
+	result = matrix2_inverse(&original, &inv);
+	test_assert(result);
+
+	/* original should not be modified */
+	test_assert(matrix2_equals(&original, &originalCopy));
+
+	/* original * inv should be identity */
+	matrix2_set(&product, &original);
+	matrix2_multiply(&product, &inv);
+	test_assert(matrix2_equals(&product, &identity));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_inverse_singular(void)
+{
+	struct matrix2 singular = {1, 2, 2, 4};
+	struct matrix2 result;
+	void *ret;
+
+	ret = matrix2_inverse(&singular, &result);
+	test_assert(ret == NULL);
+
+	return NULL;
+}
+
+
+static char *test_matrix2_multiplyv2(void)
+{
+	struct matrix2 m = {1, 2, 3, 4};
+	struct vector2 v = {2, 3};
+	struct vector2 r;
+	struct vector2 expected;
+
+	/* vR.x = vT.x * c00 + vT.y * c01, vR.y = vT.x * c10 + vT.y * c11 */
+	expected.x = 2 * 1 + 3 * 3;
+	expected.y = 2 * 2 + 3 * 4;
+
+	matrix2_multiplyv2(&m, &v, &r);
+	test_assert(vector2_equals(&r, &expected));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_multiplyv2_identity(void)
+{
+	struct matrix2 m;
+	struct vector2 v = {5.5f, -3.2f};
+	struct vector2 r;
+
+	matrix2_identity(&m);
+	matrix2_multiplyv2(&m, &v, &r);
+	test_assert(vector2_equals(&r, &v));
+
+	return NULL;
+}
+
+
+static char *test_matrix2_scalev2(void)
+{
+	struct matrix2 m;
+	struct vector2 scale = {2.0f, 3.0f};
+	struct vector2 v = {4.0f, 5.0f};
+	struct vector2 expected = {8.0f, 15.0f};
+
+	matrix2_identity(&m);
+	matrix2_scalev2(&m, &scale);
+	vector2_multiplym2(&v, &m);
+	test_assert(vector2_equals(&v, &expected));
+
+	return NULL;
+}
+
+
 static char *matrix2_all_tests(void)
 {
 	run_test(test_matrix2_zero);
@@ -293,6 +432,16 @@ static char *matrix2_all_tests(void)
 
 	run_test(test_matrix2_rotatev3_xz_quarter_turn);
 	run_test(test_matrix2_rotatev3_xz_quarter_turn_opposite);
+
+	run_test(test_matrix2_add);
+	run_test(test_matrix2_subtract);
+	run_test(test_matrix2_multiplyf);
+	run_test(test_matrix2_multiplyf_zero);
+	run_test(test_matrix2_inverse_nonmutating);
+	run_test(test_matrix2_inverse_singular);
+	run_test(test_matrix2_multiplyv2);
+	run_test(test_matrix2_multiplyv2_identity);
+	run_test(test_matrix2_scalev2);
 
 	return NULL;
 }

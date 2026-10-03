@@ -9,12 +9,15 @@
 
 #include "test_vector2.c"
 #include "test_vector3.c"
+#include "test_vector4.c"
 #include "test_quaternion.c"
 #include "test_matrix2.c"
 #include "test_matrix3.c"
 #include "test_matrix4.c"
 #include "test_matrix6.c"
 #include "test_experimental.c"
+#include "test_utility.c"
+#include "test_integration.c"
 
 int tests_run;
 char *test_message;
@@ -31,10 +34,18 @@ static char *all_testsuites(void)
 	run_test(matrix4_all_tests);
 	printf("matrix6_all_tests\n");
 	run_test(matrix6_all_tests);
+	printf("vector2_all_tests\n");
+	run_test(vector2_all_tests);
 	printf("vector3_all_tests\n");
 	run_test(vector3_all_tests);
+	printf("vector4_all_tests\n");
+	run_test(vector4_all_tests);
 	printf("experimental_all_tests\n");
 	run_test(experimental_all_tests);
+	printf("utility_all_tests\n");
+	run_test(utility_all_tests);
+	printf("integration_all_tests\n");
+	run_test(integration_all_tests);
 
 	return NULL;
 }
