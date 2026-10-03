@@ -679,17 +679,17 @@ static const char *test_quaternion_get_rotation_tov3(void)
 
 static const char *test_quaternion_slerp_nearly_identical(void)
 {
-	struct quaternion q1, q2, qR;
+	struct quaternion q1, q2, qR, expected;
 
 	/* identity quaternion and a tiny rotation around X */
 	quaternion_identity(&q1);
 	quaternion_set_from_axis_anglev3(&q2, HYP_VECTOR3_UNIT_X, HYP_FLOAT_C(0.0001));
 
-	/* SLERP at t=0.5 should produce something very close to start */
+	/* SLERP at t=0.5 should produce half of the tiny rotation */
 	quaternion_slerp(&q1, &q2, HYP_FLOAT_C(0.5), &qR);
 
-	/* result should be very close to identity (tiny rotation) */
-	test_assert(scalar_equalsf(qR.w, q1.w));
+	quaternion_set_from_axis_anglev3(&expected, HYP_VECTOR3_UNIT_X, HYP_FLOAT_C(0.00005));
+	test_assert(quaternion_equals(&qR, &expected));
 	test_assert(scalar_equalsf(qR.y, HYP_FLOAT_C(0.0)));
 	test_assert(scalar_equalsf(qR.z, HYP_FLOAT_C(0.0)));
 

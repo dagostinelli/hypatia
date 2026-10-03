@@ -1244,9 +1244,9 @@ HYPAPI struct vector3 *vector3_zero(struct vector3 *self)
  */
 HYPAPI int vector3_equals(const struct vector3 *self, const struct vector3 *vT)
 {
-	return  HYP_ABS(self->x - vT->x) < HYP_EPSILON &&
-		HYP_ABS(self->y - vT->y) < HYP_EPSILON &&
-		HYP_ABS(self->z - vT->z) < HYP_EPSILON;
+	return scalar_equalsf(self->x, vT->x) &&
+		scalar_equalsf(self->y, vT->y) &&
+		scalar_equalsf(self->z, vT->z);
 }
 
 
@@ -1636,10 +1636,10 @@ HYPAPI struct vector4 *vector4_zero(struct vector4 *self)
  */
 HYPAPI int vector4_equals(const struct vector4 *self, const struct vector4 *vT)
 {
-	return  HYP_ABS(self->x - vT->x) < HYP_EPSILON &&
-		HYP_ABS(self->y - vT->y) < HYP_EPSILON &&
-		HYP_ABS(self->z - vT->z) < HYP_EPSILON &&
-		HYP_ABS(self->w - vT->w) < HYP_EPSILON;
+	return scalar_equalsf(self->x, vT->x) &&
+		scalar_equalsf(self->y, vT->y) &&
+		scalar_equalsf(self->z, vT->z) &&
+		scalar_equalsf(self->w, vT->w);
 }
 
 
@@ -3537,10 +3537,10 @@ HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLO
  */
 HYPAPI int quaternion_equals(const struct quaternion *self, const struct quaternion *qT)
 {
-	return HYP_ABS(self->x - qT->x) < HYP_EPSILON &&
-		HYP_ABS(self->y - qT->y) < HYP_EPSILON &&
-		HYP_ABS(self->z - qT->z) < HYP_EPSILON &&
-		HYP_ABS(self->w - qT->w) < HYP_EPSILON;
+	return scalar_equalsf(self->x, qT->x) &&
+		scalar_equalsf(self->y, qT->y) &&
+		scalar_equalsf(self->z, qT->z) &&
+		scalar_equalsf(self->w, qT->w);
 }
 
 
