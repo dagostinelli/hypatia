@@ -83,7 +83,7 @@ Define these before including `hypatia.h`.  Except for `HYPATIA_IMPLEMENTATION` 
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all of `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS` and `HYP_ATAN2` yourself. |
 | `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | Replace the math functions (default: the C library's `sqrt`, `fmod`, ... converted to `HYP_FLOAT`). |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset` (default: `memset` from `<string.h>`). |
-| `HYP_EPSILON` | The tolerance for the `*_equals` functions (default 1E-5). |
+| `HYP_EPSILON` | The tolerance for the `*_equals` functions (default 1E-5 single, 1E-12 double). |
 | `HYP_INLINE` | The inline keyword for the small helper functions (default `__inline` for MSVC, `__inline__` otherwise). |
 | `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. |
 
@@ -96,7 +96,7 @@ View the official [documentation](http://dagostinelli.github.io/hypatia/) here.
 
 Can I trust this math library?
 ------------------------------
-A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
+A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5 for single precision and 1E-12 for double precision.  A number of functions do not yet have unit tests proving that, but more are coming.
 
 A word about convention
 -----------------------
