@@ -10,6 +10,10 @@ as a bug; details are in the sections named below.
    (See "Correctness and API safety".)
 3. The _EXP functions are not yet verified against reference values.
    (See "Experimental (_EXP) functions".)
+4. vector3_rotate_by_quaternion and the matrix built from the same quaternion
+   (matrix4_make_transformation_rotationq) rotate in opposite directions for the same
+   angle: quaternion Z TAU/4 sends X to +Y, the matrix sends it to -Y.
+   test/test_integration.c asserts this mismatch. To be investigated.
 
 Remaining Work:
 
