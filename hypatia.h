@@ -4138,6 +4138,12 @@ HYPAPI void hyp_quaternion_print(const struct quaternion *self)
  * @brief Given two vectors, find a quaternion that will get you from one to
  * the other
  *
+ * The result is the unit quaternion for the shortest rotation that turns the
+ * direction of from into the direction of to.  The vectors do not need to be
+ * unit length.  For opposite vectors it is a half turn about an axis
+ * perpendicular to from.  If either vector has zero length there is no
+ * direction to rotate, and the result is the identity.
+ *
  * @param from the starting vector
  * @param to the ending vector
  * @param qR the resulting quaternion that gets you from the starting vector
@@ -4145,32 +4151,67 @@ HYPAPI void hyp_quaternion_print(const struct quaternion *self)
  */
 HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR)
 {
-	/* this code avoids sqrt and cos and sin and would be nice to
-	 * avoid division
+	struct vector3 axis;
+	struct vector3 helper;
+	HYP_FLOAT lengths;
+	HYP_FLOAT along;
+	HYP_FLOAT magnitude;
+
+	/* (from x to, from . to) has length |from| |to|.  Adding that length to w
+	 * gives the half-way quaternion, which is the rotation once normalized.
 	 */
-	struct vector3 w;
-	HYP_FLOAT dot;
-	HYP_FLOAT norm;
+	vector3_cross_product(&axis, from, to);
+	qR->x = axis.x;
+	qR->y = axis.y;
+	qR->z = axis.z;
+	qR->w = vector3_dot_product(from, to);
 
-	vector3_cross_product(&w, from, to);
-	dot = vector3_dot_product(from, to);
+	lengths = quaternion_magnitude(qR);
 
-	qR->x = w.x;
-	qR->y = w.y;
-	qR->z = w.z;
-	qR->w = dot;
-
-	norm = quaternion_norm(qR);
-	qR->w += norm;
-
-	/* normalization with avoidance of div/0 and reusing the norm */
-	/* (already calculated above) */
-	if (!scalar_equalsf(norm, HYP_FLOAT_C(0.0))) {
-		qR->x /= norm;
-		qR->y /= norm;
-		qR->z /= norm;
-		qR->w /= norm;
+	/* a zero length vector has no direction (also catches NaN) */
+	if (!(lengths > HYP_FLOAT_C(0.0))) {
+		return quaternion_identity(qR);
 	}
+
+	qR->w += lengths;
+
+	/* opposite vectors give exactly zero: turn half a turn about an axis
+	 * perpendicular to from, using the coordinate axis least aligned with it
+	 */
+	if (!(quaternion_norm(qR) > HYP_FLOAT_C(0.0))) {
+		if (HYP_ABS(from->x) <= HYP_ABS(from->y) && HYP_ABS(from->x) <= HYP_ABS(from->z)) {
+			vector3_set(&helper, HYP_VECTOR3_UNIT_X);
+		} else if (HYP_ABS(from->y) <= HYP_ABS(from->z)) {
+			vector3_set(&helper, HYP_VECTOR3_UNIT_Y);
+		} else {
+			vector3_set(&helper, HYP_VECTOR3_UNIT_Z);
+		}
+
+		vector3_cross_product(&axis, from, &helper);
+		qR->x = axis.x;
+		qR->y = axis.y;
+		qR->z = axis.z;
+		qR->w = HYP_FLOAT_C(0.0);
+	}
+
+	/* the axis is perpendicular to from; remove the rounding error along
+	 * from.  It matters when the vectors are nearly opposite: then the cross
+	 * product is mostly rounding error, and a half turn about an axis that is
+	 * not perpendicular to from sends it to the wrong place.
+	 */
+	along = (qR->x * from->x + qR->y * from->y + qR->z * from->z) / vector3_dot_product(from, from);
+	qR->x -= along * from->x;
+	qR->y -= along * from->y;
+	qR->z -= along * from->z;
+
+	/* divide directly: quaternion_normalize skips magnitudes below
+	 * HYP_EPSILON, which short input vectors can produce
+	 */
+	magnitude = quaternion_magnitude(qR);
+	qR->x /= magnitude;
+	qR->y /= magnitude;
+	qR->z /= magnitude;
+	qR->w /= magnitude;
 
 	return qR;
 }

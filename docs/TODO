@@ -7,14 +7,41 @@ as a bug; details are in the sections named below.
    compare equal). (See "Correctness and API safety".)
 2. The same "within HYP_EPSILON of zero" guard is used in vector / quaternion
    normalize, quaternion inverse / is_pure and the SLERP shortcuts; to be reviewed.
+   Example: quaternion_normalize leaves a quaternion unchanged when its magnitude is
+   below HYP_EPSILON, so short inputs stay unnormalized.
    (See "Correctness and API safety".)
 3. The _EXP functions are not yet verified against reference values.
    (See "Experimental (_EXP) functions".)
 4. matrix4 rotations turn the opposite way from the right-hand rule, while the
    quaternion, matrix2 and matrix3 rotations follow it. See "Rotation direction
    audit". Not fixed yet: fixing it changes public behavior.
-5. quaternion_get_rotation_tov3 returns a quaternion that is not unit length. See
-   "Rotation direction audit".
+5. quaternion_get_rotation_tov3 loses accuracy for nearly opposite vectors and
+   returns the identity for very small vectors in single precision. See
+   "get_rotation_tov3 accuracy".
+
+get_rotation_tov3 accuracy:
+Measured over 2 million random vector pairs per precision: the rotated from compared
+with to (both normalized). No NaN, non-unit or non-shortest results.
+- General and nearly parallel pairs: largest error 1e-13 double, 3e-7 float.
+- Nearly opposite pairs: largest error 3e-8 double (fails the 1e-12 tolerance),
+  5e-5 to 1e-4 float (fails 1e-5 once the dot product is about -0.99997 or closer).
+- (1e-20, 0, 0) to (0, 1e-20, 0) in single precision: the products underflow and the
+  result is the identity instead of a quarter turn.
+Cause: w = from . to + |from| |to| subtracts nearly equal values when the vectors
+are nearly opposite, and the axis from the cross product is mostly rounding error.
+The projection onto the plane perpendicular to from reduces this but does not remove
+it (the axis stays about 1e-5 off perpendicular in float). Only exactly opposite
+vectors take the half turn branch.
+The tests miss it: the nearly opposite test checks only that the axis is
+perpendicular to from. On those inputs the rotated from is off by 2e-10 in double.
+Possible fix (prototyped, not decided): normalize both vectors first, then
+  w = |f + t| / 2 (cos of half the angle), s = |f - t| / 2 (sin of half the angle),
+  axis = f x (f + t), scaled to length s; a half turn about a perpendicular axis only
+  when that axis is exactly zero.
+f + t is small and accurate when the vectors are nearly opposite. On the same 2
+million pairs: no failures, largest error 1e-15 double, 9e-7 float; the 1e-20 case
+works. Tests: run the nearly opposite inputs through rotation_tov3_turns_from_onto_to
+(the double case fails today).
 
 Rotation direction audit:
 Measured with a +90 degree rotation about Z applied to X, through the library's own
@@ -49,10 +76,13 @@ Cause: the layouts disagree.
 
 Other findings from the audit:
 - matrix4_set_from_quaternion_EXP is declared but never defined (link error if used).
-- quaternion_get_rotation_tov3 adds the norm to w and then divides by the old norm,
-  so the result is not unit length: from X to Y it sends X to (0, 2, 0).
-  test_quaternion_get_rotation_tov3 normalizes the result before checking, which
-  hides this.
+- quaternion_get_rotation_tov3: fixed. It added the squared length (quaternion_norm)
+  to w and divided by it, so results were not unit length, non-unit inputs gave the
+  wrong direction, and opposite vectors gave a zero quaternion. Its test normalized
+  the result before checking, which hid this. Now: unit result, any input lengths,
+  opposite vectors give a half turn, zero length gives the identity, and the axis is
+  kept perpendicular to from (nearly opposite inputs in single precision were off by
+  up to 2; now at most ~8e-4, where the inputs are opposite to within ~1e-5).
 - matrix4_transformation_decompose_EXP does not extract the rotation (marked
   "todo"; always returns the identity quaternion).
 - matrix4_view_lookat_rh_EXP: eye at the origin looking at +X puts the target at
