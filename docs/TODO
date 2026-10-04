@@ -94,6 +94,11 @@ Remaining casts (README: prefer no casts):
   HYP_FLOAT). Accepted: the single precision build needs them for int -> float, and
   they are contained in that one function.
 
+Random number API:
+- Possible later: points inside a disk / ball (GLM diskRand / ballRand; Unity
+  insideUnitCircle / insideUnitSphere); a random direction within a cone (Unreal
+  VRandCone).
+
 Long double support (planned):
 - Add a HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
 - Math macros need sinl/cosl/sqrtl/etc. (C99, not C89) in that mode

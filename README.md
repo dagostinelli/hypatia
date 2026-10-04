@@ -83,7 +83,7 @@ Define these before including `hypatia.h`.  Except for `HYPATIA_IMPLEMENTATION` 
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all of `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS` and `HYP_ATAN2` yourself. |
 | `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | Replace the math functions (default: the C library's `sqrt`, `fmod`, ... converted to `HYP_FLOAT`). |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset` (default: `memset` from `<string.h>`). |
-| `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source used by `scalar_random_rangef`: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX` (default: `rand()` and `RAND_MAX`). |
+| `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source used by `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX` (default: `rand()` and `RAND_MAX`). |
 | `HYP_EPSILON` | The tolerance for the `*_equals` functions (default 1E-5 single, 1E-12 double). |
 | `HYP_INLINE` | The inline keyword for the small helper functions (default `__inline` for MSVC, `__inline__` otherwise). |
 | `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_RANDOM_FLOAT`, `HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. |
