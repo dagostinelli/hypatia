@@ -106,7 +106,7 @@ Hypatia uses verbose names. In pure-C code, math-related function names seem to 
 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
-Rotations follow the right-hand rule: a positive angle turns counterclockwise when the axis points toward the viewer.
+Rotations follow the right-hand rule: a positive angle turns counterclockwise when the axis points toward the viewer.  Functions that do not follow it yet are listed in docs/TODO under "Correctness".
 
 Coding Standard
 ---------------
