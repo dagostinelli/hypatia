@@ -140,10 +140,35 @@ static HYP_INLINE void HYP_SWAP(HYP_FLOAT *a, HYP_FLOAT *b)
 	HYP_FLOAT f = *a; *a = *b; *b = f;
 }
 
-/** @brief A macro that returns a random float point number up to RAND_MAX */
-#ifndef HYP_RANDOM_FLOAT
-#	include <stdlib.h> /* RAND_MAX, rand */
-#	define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#ifndef HYP_NO_DEPRECATED
+/** @brief A macro that returns a random number in the range [-1, 1].
+ * It is the difference of two rand() values divided by RAND_MAX, which gives
+ * a triangular distribution centered on 0.
+ *
+ * @deprecated Use scalar_random_rangef(-1, 1).  To supply your own generator,
+ * define HYP_RANDOM and HYP_RANDOM_MAX.  HYP_RANDOM_FLOAT will be removed in a
+ * later release; define HYP_NO_DEPRECATED to check that your code no longer
+ * uses it.
+ */
+#	ifndef HYP_RANDOM_FLOAT
+#		include <stdlib.h> /* RAND_MAX, rand */
+#		define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#	endif
+#endif
+
+/** @brief A macro that returns a random integer from 0 to HYP_RANDOM_MAX.
+ * It is the source for scalar_random_rangef.  Define HYP_RANDOM and HYP_RANDOM_MAX
+ * before including this header to use a different generator.
+ */
+#ifndef HYP_RANDOM
+#	include <stdlib.h> /* rand */
+#	define HYP_RANDOM() rand()
+#endif
+
+/** @brief The largest value HYP_RANDOM can return */
+#ifndef HYP_RANDOM_MAX
+#	include <stdlib.h> /* RAND_MAX */
+#	define HYP_RANDOM_MAX RAND_MAX
 #endif
 
 /** @brief A macro that converts an angle in degrees to an angle in radians */
@@ -290,6 +315,7 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 
 HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2);
 HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon);
+HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max);
 
 #define scalar_equals scalar_equalsf
 
@@ -889,6 +915,33 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 	}
 
 	return 1;
+}
+
+/**
+ * @brief Returns a random number in the range [min, max), evenly distributed.
+ * The randomness comes from HYP_RANDOM.  max - min must be finite.  If min is
+ * not less than max, returns min.
+ *
+ */
+HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max)
+{
+	HYP_FLOAT unit;
+	HYP_FLOAT value;
+
+	if (!(min < max)) {
+		return min;
+	}
+
+	/* the integer to HYP_FLOAT conversions need casts in single precision.
+	 * There, unit can round up to exactly 1 and value up to exactly max, so
+	 * draw again until both are below.
+	 */
+	do {
+		unit = (HYP_FLOAT)HYP_RANDOM() / ((HYP_FLOAT)HYP_RANDOM_MAX + HYP_FLOAT_C(1.0));
+		value = min + (max - min) * unit;
+	} while (!(unit < HYP_FLOAT_C(1.0)) || !(value < max));
+
+	return value;
 }
 
 

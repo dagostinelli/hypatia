@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include "random_source.h"
+
 static const char *test_hyp_min_first_smaller(void)
 {
 	test_assert(scalar_equalsf(HYP_MIN(HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)), HYP_FLOAT_C(1.0)));
@@ -237,6 +239,83 @@ static const char *test_hyp_constants_full_precision(void)
 	return NULL;
 }
 
+static const char *test_scalar_random_rangef_scripted_values(void)
+{
+	static const long values[] = {0, 1073741824L};
+
+	/* 0 maps to 0 and the midpoint maps to exactly 0.5 */
+	test_random_script(values, 2);
+	test_assert(floats_identical(scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)), HYP_FLOAT_C(0.0)));
+	test_assert(floats_identical(scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)), HYP_FLOAT_C(0.5)));
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+static const char *test_scalar_random_rangef_below_one(void)
+{
+	static const long values[] = {TEST_RANDOM_MAX, 0};
+	HYP_FLOAT r;
+
+	/* in single precision TEST_RANDOM_MAX rounds to exactly 1 and is drawn again */
+	test_random_script(values, 2);
+	r = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	test_assert(r >= HYP_FLOAT_C(0.0));
+	test_assert(r < HYP_FLOAT_C(1.0));
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+static const char *test_scalar_random_rangef_bounds(void)
+{
+	static const long low[] = {0};
+	static const long high[] = {TEST_RANDOM_MAX, 0};
+	/* 2^31 - 2^11 gives r = 1 - 2^-20, exactly representable in single precision */
+	static const long near_one[] = {2147481600L, 0};
+	HYP_FLOAT r;
+
+	test_random_script(low, 1);
+	test_assert(floats_identical(scalar_random_rangef(HYP_FLOAT_C(-1.0), HYP_FLOAT_C(1.0)), HYP_FLOAT_C(-1.0)));
+
+	test_random_script(high, 2);
+	r = scalar_random_rangef(HYP_FLOAT_C(-1.0), HYP_FLOAT_C(1.0));
+	test_assert(r >= HYP_FLOAT_C(-1.0));
+	test_assert(r < HYP_FLOAT_C(1.0));
+
+	/* in single precision 1000 + (1001 - 1000) * r rounds up to 1001 and is drawn again */
+	test_random_script(near_one, 2);
+	r = scalar_random_rangef(HYP_FLOAT_C(1000.0), HYP_FLOAT_C(1001.0));
+	test_assert(r >= HYP_FLOAT_C(1000.0));
+	test_assert(r < HYP_FLOAT_C(1001.0));
+
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+static const char *test_scalar_random_rangef_empty_range(void)
+{
+	test_assert(floats_identical(scalar_random_rangef(HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0)), HYP_FLOAT_C(2.0)));
+	test_assert(floats_identical(scalar_random_rangef(HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0)), HYP_FLOAT_C(3.0)));
+	return NULL;
+}
+
+static const char *test_scalar_random_rangef_many_draws_in_range(void)
+{
+	HYP_FLOAT r;
+	int i;
+
+	for (i = 0; i < 10000; i++) {
+		r = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+		test_assert(r >= HYP_FLOAT_C(0.0));
+		test_assert(r < HYP_FLOAT_C(1.0));
+
+		r = scalar_random_rangef(HYP_FLOAT_C(-1.0), HYP_FLOAT_C(1.0));
+		test_assert(r >= HYP_FLOAT_C(-1.0));
+		test_assert(r < HYP_FLOAT_C(1.0));
+	}
+
+	return NULL;
+}
+
 static const char *utility_all_tests(void)
 {
 	run_test(test_hyp_min_first_smaller);
@@ -273,6 +352,11 @@ static const char *utility_all_tests(void)
 	run_test(test_hyp_rad_to_deg);
 	run_test(test_hyp_deg_rad_roundtrip);
 	run_test(test_hyp_constants_full_precision);
+	run_test(test_scalar_random_rangef_scripted_values);
+	run_test(test_scalar_random_rangef_below_one);
+	run_test(test_scalar_random_rangef_bounds);
+	run_test(test_scalar_random_rangef_empty_range);
+	run_test(test_scalar_random_rangef_many_draws_in_range);
 
 	return NULL;
 }

@@ -12,6 +12,17 @@ TARGET_COMPILE_OPTIONS(test_hypatia_double_precision PRIVATE ${HYP_DOUBLE_PRECIS
 TARGET_LINK_LIBRARIES(test_hypatia_double_precision hypatia::hypatia)
 ADD_TEST(NAME test_hypatia_double_precision COMMAND test_hypatia_double_precision)
 
+ADD_EXECUTABLE(test_random_default_single_precision test_random_default.c)
+TARGET_COMPILE_OPTIONS(test_random_default_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
+TARGET_LINK_LIBRARIES(test_random_default_single_precision hypatia::hypatia)
+SET_TARGET_PROPERTIES(test_random_default_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
+ADD_TEST(NAME test_random_default_single_precision COMMAND test_random_default_single_precision)
+
+ADD_EXECUTABLE(test_random_default_double_precision test_random_default.c)
+TARGET_COMPILE_OPTIONS(test_random_default_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
+TARGET_LINK_LIBRARIES(test_random_default_double_precision hypatia::hypatia)
+ADD_TEST(NAME test_random_default_double_precision COMMAND test_random_default_double_precision)
+
 ADD_EXECUTABLE(test_hypatia_static_single_precision test_static.c)
 TARGET_COMPILE_OPTIONS(test_hypatia_static_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
 TARGET_LINK_LIBRARIES(test_hypatia_static_single_precision hypatia::hypatia)
@@ -27,8 +38,8 @@ ADD_TEST(NAME test_hypatia_static_double_precision COMMAND test_hypatia_static_d
 # Windows the functions are exported and imported by defining HYPAPI, as a user
 # of a Hypatia DLL would.
 if(WIN32)
-	SET(HYP_SHARED_EXPORT "HYPAPI=__declspec(dllexport)")
-	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)")
+	SET(HYP_SHARED_EXPORT "HYPAPI=__declspec(dllexport)" "TEST_RANDOM_API=__declspec(dllexport)")
+	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)" "TEST_RANDOM_API=__declspec(dllimport)")
 endif()
 
 ADD_LIBRARY(hypatia_shared_single_precision SHARED implementation.c)

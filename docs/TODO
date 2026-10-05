@@ -86,7 +86,9 @@ Remaining casts (README: prefer no casts):
   sinf is worst 0.56 ulp and differs in the last bit 1.4% of the time, and sinf is ~2x
   faster. Trig is rarely the bottleneck here, so accuracy and C89 win. Revisit only if
   float trig speed matters. (Long double will still need sinl etc.; see below.)
-- hypatia.h HYP_RANDOM_FLOAT: 3 casts (rand() and RAND_MAX to HYP_FLOAT).
+- hypatia.h scalar_random_rangef: 2 casts (HYP_RANDOM() and HYP_RANDOM_MAX to
+  HYP_FLOAT). Accepted: the single precision build needs them for int -> float, and
+  they are contained in that one function.
 
 Long double support (planned):
 - Add a HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
