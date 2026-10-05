@@ -28,4 +28,16 @@ Remaining Work:
 - TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
+Remaining casts (README: prefer no casts):
+- The math macros HYP_SQRT, HYP_FMOD, HYP_SIN, HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS and
+  HYP_ATAN2 cast the double result to HYP_FLOAT. They stay: C89 has only the double
+  functions.
+- HYP_RANDOM_FLOAT casts rand() and RAND_MAX to HYP_FLOAT.
+
+Long double support (planned):
+- A HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
+- Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and a long double format
+  (%Lf) in the print helpers
+- long double differs by platform; CI needs a long double job per platform
+
 // end of TODO.txt ...

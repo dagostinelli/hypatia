@@ -26,3 +26,7 @@ if(CMAKE_COMPILER_IS_GNUC)
 		SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wtrampolines -Wunsafe-loop-optimizations -Wfloat-conversion")
 	endif()
 endif()
+
+if(CMAKE_COMPILER_IS_GNUC OR CMAKE_COMPILER_IS_CLANG)
+	SET(HYP_DOUBLE_PRECISION_FLAGS -Wdouble-promotion)
+endif()

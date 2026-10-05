@@ -85,6 +85,7 @@ Coding Standard
 	- all CAPS for public constants.  HYP is the prefix for public constants
 	- use 'self' for describing the function context
 	- math entities are mutable
+	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting
 	- blank line at the end of every file
 * Run the checks in check.mak `make -f check.mak`
 
