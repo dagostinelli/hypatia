@@ -33,6 +33,18 @@
 #	endif
 #endif
 
+/** @brief Makes a HYP_FLOAT constant from a floating point literal, in the
+ * style of INT64_C in <stdint.h>.  It adds the suffix that matches HYP_FLOAT,
+ * so the constant is rounded once, straight to the precision in use.
+ */
+#ifndef HYP_FLOAT_C
+#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#		define HYP_FLOAT_C(x) x ## f
+#	else
+#		define HYP_FLOAT_C(x) x
+#	endif
+#endif
+
 #ifndef HYP_NO_C_MATH
 #	include <math.h> /* sin, cos, acos, fmod */
 #endif
@@ -48,31 +60,31 @@
 
 /** @brief PI to 100 digits (gets rounded off by the compiler) */
 #ifndef HYP_PI
-#	define HYP_PI 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679f
+#	define HYP_PI HYP_FLOAT_C(3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679)
 #endif
 /** @brief Tau to 100 digits, which is 2 * PI */
 #ifndef HYP_TAU
-#	define HYP_TAU 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359f
+#	define HYP_TAU HYP_FLOAT_C(6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359)
 #endif
 /** @brief Half of PI */
 #ifndef HYP_PI_HALF
-#	define HYP_PI_HALF 1.5707963267948966f
+#	define HYP_PI_HALF HYP_FLOAT_C(1.570796326794896619231321691639751442099)
 #endif
 /** @brief PI * PI */
 #ifndef HYP_PI_SQUARED
-#	define HYP_PI_SQUARED 9.8696044010893586f
+#	define HYP_PI_SQUARED HYP_FLOAT_C(9.869604401089358618834490999876151135314)
 #endif
 /** @brief Log e is the Natural Logarithm in base 10 */
 #ifndef HYP_E
-#	define HYP_E 2.71828182845904523536028747135266249775724709369995f
+#	define HYP_E HYP_FLOAT_C(2.71828182845904523536028747135266249775724709369995)
 #endif
 /** @brief Radians per Degree = PI/180 */
 #ifndef HYP_RAD_PER_DEG
-#	define HYP_RAD_PER_DEG 0.0174532925199432957692369076848861f
+#	define HYP_RAD_PER_DEG HYP_FLOAT_C(0.0174532925199432957692369076848861)
 #endif
 /** @brief Degrees per Radian = 180/PI */
 #ifndef HYP_DEG_PER_RAD
-#	define HYP_DEG_PER_RAD 57.2957795130823208767981548141052f
+#	define HYP_DEG_PER_RAD HYP_FLOAT_C(57.2957795130823208767981548141052)
 #endif
 /** @brief PI/180 */
 #ifndef HYP_PIOVER180
@@ -153,7 +165,7 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 /** @brief A macro that returns the absolute value */
 static HYP_INLINE HYP_FLOAT HYP_ABS(HYP_FLOAT value)
 {
-	return (value < 0.0f) ? -value : value;
+	return (value < HYP_FLOAT_C(0.0)) ? -value : value;
 }
 
 /** @brief A macro that wraps a value around and around in a range */
@@ -290,7 +302,7 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 #	define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
 #endif
 #ifndef HYP_COT
-#	define HYP_COT(a) (1.0f / HYP_TAN(a))
+#	define HYP_COT(a) (HYP_FLOAT_C(1.0) / HYP_TAN(a))
 #endif
 
 /* @} */
@@ -866,12 +878,12 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 }
 
 
-static struct vector2 _vector2_zero = { { {0.0f, 0.0f} } };
-static struct vector2 _vector2_one = { { {1.0f, 1.0f} } };
-static struct vector2 _vector2_unit_x = { { {1.0f, 0.0f} } };
-static struct vector2 _vector2_unit_y = { { {0.0f, 1.0f} } };
-static struct vector2 _vector2_unit_x_negative = { { {-1.0f, 0.0f} } };
-static struct vector2 _vector2_unit_y_negative = { { {0.0f, -1.0f} } };
+static struct vector2 _vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 _vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector2 _vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 _vector2_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
+static struct vector2 _vector2_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 _vector2_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
 
 
 HYPAPI const struct vector2 *vector2_get_reference_vector2(int id)
@@ -914,7 +926,7 @@ HYPAPI struct vector2 *vector2_setf2(struct vector2 *self, HYP_FLOAT xT, HYP_FLO
 
 HYPAPI struct vector2 *vector2_zero(struct vector2 *self)
 {
-	return vector2_setf2(self, 0.0f, 0.0f);
+	return vector2_setf2(self, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
 }
 
 
@@ -1106,14 +1118,14 @@ HYPAPI struct vector2 *_vector2_set_random(struct vector2 *self)
 }
 
 
-static struct vector3 _vector3_zero = { { {0.0f, 0.0f, 0.0f} } };
-static struct vector3 _vector3_one = { { {1.0f, 1.0f, 1.0f} } };
-static struct vector3 _vector3_unit_x = { { {1.0f, 0.0f, 0.0f} } };
-static struct vector3 _vector3_unit_y = { { {0.0f, 1.0f, 0.0f} } };
-static struct vector3 _vector3_unit_z = { { {0.0f, 0.0f, 1.0f} } };
-static struct vector3 _vector3_unit_x_negative = { { {-1.0f, 0.0f, 0.0f} } };
-static struct vector3 _vector3_unit_y_negative = { { {0.0f, -1.0f,  0.0f} } };
-static struct vector3 _vector3_unit_z_negative = { { {0.0f,  0.0f, -1.0f} } };
+static struct vector3 _vector3_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 _vector3_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector3 _vector3_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 _vector3_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 _vector3_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
+static struct vector3 _vector3_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 _vector3_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0)} } };
+static struct vector3 _vector3_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
 
 
 HYPAPI const struct vector3 *vector3_get_reference_vector3(int id)
@@ -1174,7 +1186,7 @@ HYPAPI struct vector3 *vector3_set(struct vector3 *self, const struct vector3 *v
  */
 HYPAPI struct vector3 *vector3_zero(struct vector3 *self)
 {
-	return vector3_setf3(self, 0.0f, 0.0f, 0.0f);
+	return vector3_setf3(self, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
 }
 
 
@@ -1328,7 +1340,7 @@ HYPAPI struct vector3 *vector3_normalize(struct vector3 *self)
 
 	mag = vector3_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0f)) {
+	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
@@ -1507,14 +1519,14 @@ HYPAPI struct vector3 *_vector3_set_random(struct vector3 *self)
 }
 
 
-static struct vector4 _vector4_zero = { { {0.0f, 0.0f, 0.0f, 0.0f} } };
-static struct vector4 _vector4_one = { { {1.0f, 1.0f, 1.0f, 1.0f} } };
-static struct vector4 _vector4_unit_x = { { {1.0f, 0.0f, 0.0f, 0.0f} } };
-static struct vector4 _vector4_unit_y = { { {0.0f, 1.0f, 0.0f, 0.0f} } };
-static struct vector4 _vector4_unit_z = { { {0.0f, 0.0f, 1.0f, 0.0f} } };
-static struct vector4 _vector4_unit_x_negative = { { {-1.0f, 0.0f, 0.0f, 0.0f} } };
-static struct vector4 _vector4_unit_y_negative = { { {0.0f, -1.0f,  0.0f, 0.0f} } };
-static struct vector4 _vector4_unit_z_negative = { { {0.0f,  0.0f, -1.0f, 0.0f} } };
+static struct vector4 _vector4_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector4 _vector4_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 _vector4_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
 
 
 HYPAPI const struct vector4 *vector4_get_reference_vector4(int id)
@@ -1577,7 +1589,7 @@ HYPAPI struct vector4 *vector4_set(struct vector4 *self, const struct vector4 *v
  */
 HYPAPI struct vector4 *vector4_zero(struct vector4 *self)
 {
-	return vector4_setf4(self, 0.0f, 0.0f, 0.0f, 0.0f);
+	return vector4_setf4(self, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
 }
 
 
@@ -1741,7 +1753,7 @@ HYPAPI struct vector4 *vector4_normalize(struct vector4 *self)
 
 	mag = vector4_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0)) {
+	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
@@ -1837,8 +1849,8 @@ HYPAPI struct matrix2 *matrix2_zero(struct matrix2 *self)
  */
 HYPAPI struct matrix2 *matrix2_identity(struct matrix2 *m)
 {
-	m->c00 = 1.0f, m->c10 = 0.0f;
-	m->c01 = 0.0f, m->c11 = 1.0f;
+	m->c00 = HYP_FLOAT_C(1.0), m->c10 = HYP_FLOAT_C(0.0);
+	m->c01 = HYP_FLOAT_C(0.0), m->c11 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
@@ -2206,11 +2218,11 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	determinant = matrix2_determinant(self);
 
 	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, 0.0f)) {
+	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
-	determinant = 1.0f / determinant;
+	determinant = HYP_FLOAT_C(1.0) / determinant;
 
 	/* find the adjugate of self */
 	inverse.c00 = self->c11;
@@ -2244,9 +2256,9 @@ HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self)
  */
 HYPAPI struct matrix3 *matrix3_identity(struct matrix3 *m)
 {
-	m->c00 = 1.0f, m->c10 = 0.0f, m->c20 = 0.0f;
-	m->c01 = 0.0f, m->c11 = 1.0f, m->c21 = 0.0f;
-	m->c02 = 0.0f, m->c12 = 0.0f, m->c22 = 1.0f;
+	m->c00 = HYP_FLOAT_C(1.0), m->c10 = HYP_FLOAT_C(0.0), m->c20 = HYP_FLOAT_C(0.0);
+	m->c01 = HYP_FLOAT_C(0.0), m->c11 = HYP_FLOAT_C(1.0), m->c21 = HYP_FLOAT_C(0.0);
+	m->c02 = HYP_FLOAT_C(0.0), m->c12 = HYP_FLOAT_C(0.0), m->c22 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
@@ -2688,11 +2700,11 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	determinant = matrix3_determinant(self);
 
 	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, 0.0f)) {
+	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
-	determinant = 1.0f / determinant;
+	determinant = HYP_FLOAT_C(1.0) / determinant;
 
 	matrix3_identity(&inverse);
 
@@ -2735,10 +2747,10 @@ HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *matrix4_identity(struct matrix4 *m)
 {
-	m->c00 = 1.0f, m->c10 = 0.0f, m->c20 = 0.0f, m->c30 = 0.0f;
-	m->c01 = 0.0f, m->c11 = 1.0f, m->c21 = 0.0f, m->c31 = 0.0f;
-	m->c02 = 0.0f, m->c12 = 0.0f, m->c22 = 1.0f, m->c32 = 0.0f;
-	m->c03 = 0.0f, m->c13 = 0.0f, m->c23 = 0.0f, m->c33 = 1.0f;
+	m->c00 = HYP_FLOAT_C(1.0), m->c10 = HYP_FLOAT_C(0.0), m->c20 = HYP_FLOAT_C(0.0), m->c30 = HYP_FLOAT_C(0.0);
+	m->c01 = HYP_FLOAT_C(0.0), m->c11 = HYP_FLOAT_C(1.0), m->c21 = HYP_FLOAT_C(0.0), m->c31 = HYP_FLOAT_C(0.0);
+	m->c02 = HYP_FLOAT_C(0.0), m->c12 = HYP_FLOAT_C(0.0), m->c22 = HYP_FLOAT_C(1.0), m->c32 = HYP_FLOAT_C(0.0);
+	m->c03 = HYP_FLOAT_C(0.0), m->c13 = HYP_FLOAT_C(0.0), m->c23 = HYP_FLOAT_C(0.0), m->c33 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
@@ -3055,15 +3067,15 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *sel
 
 	matrix4_identity(m);
 
-	m->m[0] = 1.0f - 2.0f * (q->y * q->y + q->z * q->z);
-	m->m[4] = 2.0f * (q->x * q->y - q->z * q->w);
-	m->m[8] = 2.0f * (q->x * q->z + q->y * q->w);
-	m->m[1] = 2.0f * (q->x * q->y + q->z * q->w);
-	m->m[5] = 1.0f - 2.0f * (q->x * q->x + q->z * q->z);
-	m->m[9] = 2.0f * (q->y * q->z - q->x * q->w);
-	m->m[2] = 2.0f * (q->x * q->z - q->y * q->w);
-	m->m[6] = 2.0f * (q->y * q->z + q->x * q->w);
-	m->m[10] = 1.0f - 2.0f * (q->x * q->x + q->y * q->y);
+	m->m[0] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->y * q->y + q->z * q->z);
+	m->m[4] = HYP_FLOAT_C(2.0) * (q->x * q->y - q->z * q->w);
+	m->m[8] = HYP_FLOAT_C(2.0) * (q->x * q->z + q->y * q->w);
+	m->m[1] = HYP_FLOAT_C(2.0) * (q->x * q->y + q->z * q->w);
+	m->m[5] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->z * q->z);
+	m->m[9] = HYP_FLOAT_C(2.0) * (q->y * q->z - q->x * q->w);
+	m->m[2] = HYP_FLOAT_C(2.0) * (q->x * q->z - q->y * q->w);
+	m->m[6] = HYP_FLOAT_C(2.0) * (q->y * q->z + q->x * q->w);
+	m->m[10] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->y * q->y);
 
 	return self;
 }
@@ -3299,11 +3311,11 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	determinant = matrix4_determinant(self);
 
 	/* calculated early for a quick exit if no determinant exists */
-	if (scalar_equalsf(determinant, 0.0f)) {
+	if (scalar_equalsf(determinant, HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
-	determinant = 1.0f / determinant;
+	determinant = HYP_FLOAT_C(1.0) / determinant;
 
 	matrix4_identity(&inverse);
 
@@ -3348,10 +3360,10 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
  */
 HYPAPI struct quaternion *quaternion_identity(struct quaternion *self)
 {
-	self->x = 0.0f;
-	self->y = 0.0f;
-	self->z = 0.0f;
-	self->w = 1.0f;
+	self->x = HYP_FLOAT_C(0.0);
+	self->y = HYP_FLOAT_C(0.0);
+	self->z = HYP_FLOAT_C(0.0);
+	self->w = HYP_FLOAT_C(1.0);
 
 	return self;
 }
@@ -3400,8 +3412,8 @@ HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct q
  */
 HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle)
 {
-	HYP_FLOAT s = HYP_SIN(angle / 2.0f);
-	HYP_FLOAT c = HYP_COS(angle / 2.0f);
+	HYP_FLOAT s = HYP_SIN(angle / HYP_FLOAT_C(2.0));
+	HYP_FLOAT c = HYP_COS(angle / HYP_FLOAT_C(2.0));
 
 	self->x = x * s;
 	self->y = y * s;
@@ -3444,10 +3456,10 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *se
  */
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
-	self->w = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
-	self->x = HYP_COS(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f) - HYP_SIN(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f);
-	self->y = HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_COS(ax / 2.0f) + HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_SIN(ax / 2.0f);
-	self->z = HYP_SIN(az / 2.0f) * HYP_COS(ay / 2.0f) * HYP_COS(ax / 2.0f) - HYP_COS(az / 2.0f) * HYP_SIN(ay / 2.0f) * HYP_SIN(ax / 2.0f);
+	self->w = HYP_COS(az / HYP_FLOAT_C(2.0)) * HYP_COS(ay / HYP_FLOAT_C(2.0)) * HYP_COS(ax / HYP_FLOAT_C(2.0)) + HYP_SIN(az / HYP_FLOAT_C(2.0)) * HYP_SIN(ay / HYP_FLOAT_C(2.0)) * HYP_SIN(ax / HYP_FLOAT_C(2.0));
+	self->x = HYP_COS(az / HYP_FLOAT_C(2.0)) * HYP_COS(ay / HYP_FLOAT_C(2.0)) * HYP_SIN(ax / HYP_FLOAT_C(2.0)) - HYP_SIN(az / HYP_FLOAT_C(2.0)) * HYP_SIN(ay / HYP_FLOAT_C(2.0)) * HYP_COS(ax / HYP_FLOAT_C(2.0));
+	self->y = HYP_COS(az / HYP_FLOAT_C(2.0)) * HYP_SIN(ay / HYP_FLOAT_C(2.0)) * HYP_COS(ax / HYP_FLOAT_C(2.0)) + HYP_SIN(az / HYP_FLOAT_C(2.0)) * HYP_COS(ay / HYP_FLOAT_C(2.0)) * HYP_SIN(ax / HYP_FLOAT_C(2.0));
+	self->z = HYP_SIN(az / HYP_FLOAT_C(2.0)) * HYP_COS(ay / HYP_FLOAT_C(2.0)) * HYP_COS(ax / HYP_FLOAT_C(2.0)) - HYP_COS(az / HYP_FLOAT_C(2.0)) * HYP_SIN(ay / HYP_FLOAT_C(2.0)) * HYP_SIN(ax / HYP_FLOAT_C(2.0));
 
 	quaternion_normalize(self);
 
@@ -3476,9 +3488,9 @@ HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLO
 	qy = self->y;
 	qz = self->z;
 
-	*ax = HYP_ATAN2(qy * qz + qw * qx, 0.5f - ((qx * qx) + (qy * qy)));
-	*ay = HYP_ASIN(-2.0f * ((qx * qz) - (qw * qy)));
-	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), 0.5f - ((qy * qy) + (qz * qz)));
+	*ax = HYP_ATAN2(qy * qz + qw * qx, HYP_FLOAT_C(0.5) - ((qx * qx) + (qy * qy)));
+	*ay = HYP_ASIN(-HYP_FLOAT_C(2.0) * ((qx * qz) - (qw * qy)));
+	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), HYP_FLOAT_C(0.5) - ((qy * qy) + (qz * qz)));
 }
 
 
@@ -3577,14 +3589,14 @@ HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
 
 	norm = quaternion_norm(self);
 
-	if (scalar_equalsf(norm, 0.0f)) {
+	if (scalar_equalsf(norm, HYP_FLOAT_C(0.0))) {
 		/* avoid divide by zero */
 		return self;
 	}
 
 	quaternion_conjugate(self);
 
-	if (scalar_equalsf(norm, 1.0f)) {
+	if (scalar_equalsf(norm, HYP_FLOAT_C(1.0))) {
 		/* we're done */
 		return self;
 	}
@@ -3611,7 +3623,7 @@ HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self)
 
 	mag = quaternion_magnitude(self);
 
-	if (scalar_equalsf(mag, 0.0f)) {
+	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
 		/* can't normalize a zero
 		 * avoid divide by zero
 		 */
@@ -3634,7 +3646,7 @@ HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self)
  */
 HYPAPI short quaternion_is_unit(struct quaternion *self)
 {
-	return scalar_equalsf(1.0f, quaternion_norm(self));
+	return scalar_equalsf(HYP_FLOAT_C(1.0), quaternion_norm(self));
 }
 
 
@@ -3645,7 +3657,7 @@ HYPAPI short quaternion_is_unit(struct quaternion *self)
  */
 HYPAPI short quaternion_is_pure(struct quaternion *self)
 {
-	return scalar_equalsf(self->w, 0.0f);
+	return scalar_equalsf(self->w, HYP_FLOAT_C(0.0));
 }
 
 
@@ -3687,18 +3699,18 @@ HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const 
 	HYP_FLOAT f1, f2;
 
 	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, 0.0f)) {
+	if (scalar_equalsf(percent, HYP_FLOAT_C(0.0))) {
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, 1.0f)) {
+	if (scalar_equalsf(percent, HYP_FLOAT_C(1.0))) {
 		quaternion_set(qR, end);
 		return qR;
 	}
 
-	f1 = 1.0f - percent;
+	f1 = HYP_FLOAT_C(1.0) - percent;
 	f2 = percent;
 
 	/* this expanded form avoids calling quaternion_multiply and
@@ -3738,13 +3750,13 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	struct quaternion qneg;
 
 	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, 0.0f)) {
+	if (scalar_equalsf(percent, HYP_FLOAT_C(0.0))) {
 		quaternion_set(qR, start);
 		return qR;
 	}
 
 	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, 1.0f)) {
+	if (scalar_equalsf(percent, HYP_FLOAT_C(1.0))) {
 		quaternion_set(qR, end);
 		return qR;
 	}
@@ -3757,7 +3769,7 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	 *	- At small angles, the slerp and lerp are the same
 	 */
 
-	if (scalar_equalsf(dot, 1.0f)) {
+	if (scalar_equalsf(dot, HYP_FLOAT_C(1.0))) {
 		quaternion_lerp(start, end, percent, qR);
 		return qR;
 	}
@@ -3768,7 +3780,7 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	 * the sphere beginning with "end" and going the other way around
 	 * the sphere
 	 */
-	if (dot < 0.0f) {
+	if (dot < HYP_FLOAT_C(0.0)) {
 		quaternion_set(&qneg, end);
 		/*quaternion_conjugate(&qneg);*/
 		quaternion_negate(&qneg);
@@ -3780,14 +3792,14 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 
 	/* keep the dot product in the range that acos can handle */
 	/* (shouldn't get here) */
-	HYP_CLAMP(dot, -1.0f, 1.0f);
+	HYP_CLAMP(dot, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
 
 	/* the angle between start and end in radians */
 	theta = HYP_ACOS(dot);
 	/* cache */
 	s = HYP_SIN(theta);
 	/* compute negative */
-	f1 = HYP_SIN((1.0 - percent) * theta) / s;
+	f1 = HYP_SIN((HYP_FLOAT_C(1.0) - percent) * theta) / s;
 	/* compute positive */
 	f2 = HYP_SIN(percent * theta) / s;
 
@@ -3924,10 +3936,10 @@ HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const s
 HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct vector3 *vR, HYP_FLOAT *angle)
 {
 	/* scale is not same as magnitude */
-	HYP_FLOAT scale = HYP_SQRT(1.0f - self->w * self->w);
+	HYP_FLOAT scale = HYP_SQRT(HYP_FLOAT_C(1.0) - self->w * self->w);
 
 	/* avoid divide by zero */
-	if (scalar_equalsf(scale, 0.0f)) {
+	if (scalar_equalsf(scale, HYP_FLOAT_C(0.0))) {
 		vR->x = self->x;
 		vR->y = self->y;
 		vR->z = self->z;
@@ -3937,7 +3949,7 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 		vR->z = self->z / scale;
 	}
 
-	*angle = 2.0f * HYP_ACOS(self->w);
+	*angle = HYP_FLOAT_C(2.0) * HYP_ACOS(self->w);
 }
 
 
@@ -4002,7 +4014,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 	/* normalization with avoidance of div/0 and reusing the norm */
 	/* (already calculated above) */
-	if (!scalar_equalsf(norm, 0.0f)) {
+	if (!scalar_equalsf(norm, HYP_FLOAT_C(0.0))) {
 		qR->x /= norm;
 		qR->y /= norm;
 		qR->z /= norm;
@@ -4139,7 +4151,7 @@ HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const struct quaternion *self, con
 
 	c = quaternion_dot_product(self, qT) / (quaternion_norm(self) * quaternion_norm(qT));
 
-	return 2.0f * HYP_ACOS(c);
+	return HYP_FLOAT_C(2.0) * HYP_ACOS(c);
 }
 
 
@@ -4171,7 +4183,7 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4
 	HYP_FLOAT p;
 	HYP_FLOAT q;
 
-	h = HYP_COT(fovy) / 2.0f;
+	h = HYP_COT(fovy) / HYP_FLOAT_C(2.0);
 	w = h / aspect;
 
 	p = zFar / (zNear - zFar);
@@ -4182,7 +4194,7 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4
 	self->r00 = w;
 	self->r11 = h;
 	self->r22 = p;
-	self->r23 = -1.0f; /* this is what makes this RH */
+	self->r23 = -HYP_FLOAT_C(1.0); /* this is what makes this RH */
 	self->r32 = q;
 
 	return self;
@@ -4206,11 +4218,11 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self,
 	width = xmax - xmin;
 	height = ymax - ymin;
 
-	self->c00 = 2.0f / width;
-	self->c11 = 2.0f / height;
-	self->c22 = 1.0f / (zFar - zNear);
+	self->c00 = HYP_FLOAT_C(2.0) / width;
+	self->c11 = HYP_FLOAT_C(2.0) / height;
+	self->c22 = HYP_FLOAT_C(1.0) / (zFar - zNear);
 	self->c23 = zNear / (zNear - zFar);
-	self->c33 = 1.0f;
+	self->c33 = HYP_FLOAT_C(1.0);
 
 	return self;
 }
@@ -4251,25 +4263,25 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, H
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
 
-	self->c00 = (x * x) * (1.0f - c) + c;
-	self->c01 = (x * y) * (1.0f - c) + (z * s);
-	self->c02 = (x * z) * (1.0f - c) - (y * s);
-	self->c03 = 0.0f;
+	self->c00 = (x * x) * (HYP_FLOAT_C(1.0) - c) + c;
+	self->c01 = (x * y) * (HYP_FLOAT_C(1.0) - c) + (z * s);
+	self->c02 = (x * z) * (HYP_FLOAT_C(1.0) - c) - (y * s);
+	self->c03 = HYP_FLOAT_C(0.0);
 
-	self->c10 = (y * x) * (1.0f - c) - (z * s);
-	self->c11 = (y * y) * (1.0f - c) + c;
-	self->c12 = (y * z) * (1.0f - c) + (x * s);
-	self->c13 = 0.0f;
+	self->c10 = (y * x) * (HYP_FLOAT_C(1.0) - c) - (z * s);
+	self->c11 = (y * y) * (HYP_FLOAT_C(1.0) - c) + c;
+	self->c12 = (y * z) * (HYP_FLOAT_C(1.0) - c) + (x * s);
+	self->c13 = HYP_FLOAT_C(0.0);
 
-	self->c20 = (z * x) * (1.0f - c) + (y * s);
-	self->c21 = (z * y) * (1.0f - c) - (x * s);
-	self->c22 = (z * z) * (1.0f - c) + c;
-	self->c23 = 0.0f;
+	self->c20 = (z * x) * (HYP_FLOAT_C(1.0) - c) + (y * s);
+	self->c21 = (z * y) * (HYP_FLOAT_C(1.0) - c) - (x * s);
+	self->c22 = (z * z) * (HYP_FLOAT_C(1.0) - c) + c;
+	self->c23 = HYP_FLOAT_C(0.0);
 
-	self->c30 = 0.0f;
-	self->c31 = 0.0f;
-	self->c32 = 0.0f;
-	self->c33 = 1.0f;
+	self->c30 = HYP_FLOAT_C(0.0);
+	self->c31 = HYP_FLOAT_C(0.0);
+	self->c32 = HYP_FLOAT_C(0.0);
+	self->c33 = HYP_FLOAT_C(1.0);
 
 	return self;
 }
@@ -4306,22 +4318,22 @@ HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self,
 	self->c00 = C * E;
 	self->c01 = -C * F;
 	self->c02 = D;
-	self->c03 = 0.0f;
+	self->c03 = HYP_FLOAT_C(0.0);
 
 	self->c10 = BD * E + A * F;
 	self->c11 = -BD * F + A * E;
 	self->c12 = -B * C;
-	self->c13 = 0.0f;
+	self->c13 = HYP_FLOAT_C(0.0);
 
 	self->c20 = -AD * E + B * F;
 	self->c21 = AD * F + B * E;
 	self->c22 = A * C;
-	self->c23 = 0.0f;
+	self->c23 = HYP_FLOAT_C(0.0);
 
-	self->c30 = 0.0f;
-	self->c31 = 0.0f;
-	self->c32 = 0.0f;
-	self->c33 = 1.0f;
+	self->c30 = HYP_FLOAT_C(0.0);
+	self->c31 = HYP_FLOAT_C(0.0);
+	self->c32 = HYP_FLOAT_C(0.0);
+	self->c33 = HYP_FLOAT_C(1.0);
 
 	return self;
 }
@@ -4437,9 +4449,9 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 	 */
 
 	/* sign */
-	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -1.0f : 1.0f;
-	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -1.0f : 1.0f;
-	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -1.0f : 1.0f;
+	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
+	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
+	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
 
 	/* scale */
 	scale->x = signx * HYP_SQRT(self->c00 * self->c00 + self->c01 * self->c01 + self->c02 * self->c02);

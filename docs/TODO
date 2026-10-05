@@ -28,4 +28,25 @@ Remaining Work:
 - TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
+Remaining casts (README: prefer no casts):
+- hypatia.h math macros: DECIDED, keep the 8 casts in HYP_SQRT, HYP_FMOD, HYP_SIN,
+  HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS, HYP_ATAN2. They are an accepted exception to
+  "prefer no casts": they are contained in these macros and callers never see them.
+  Why: C89 only has the double functions, so the float build calls sin() and casts the
+  result. The alternative (sinf/sqrtf/... per precision) is C99 and, measured with glibc
+  on x86-64 over 10M angles: (float)sin is always the closest float (worst 0.50 ulp),
+  sinf is worst 0.56 ulp and differs in the last bit 1.4% of the time, and sinf is ~2x
+  faster. Trig is rarely the bottleneck here, so accuracy and C89 win. Revisit only if
+  float trig speed matters. (Long double will still need sinl etc.; see below.)
+- hypatia.h HYP_RANDOM_FLOAT: 3 casts (rand() and RAND_MAX to HYP_FLOAT).
+
+Long double support (planned):
+- Add a HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
+- Math macros need sinl/cosl/sqrtl/etc. (C99, not C89) in that mode
+- The 18 printf debug helpers use %f, which is undefined for long double; add a
+  per-precision format macro (%Lf)
+- Needs its own HYP_EPSILON
+- long double differs by platform: same as double on MSVC, 80-bit on x86 gcc/clang,
+  128-bit software on ARM64 Linux; CI needs a long double job per platform
+
 // end of TODO.txt ...
