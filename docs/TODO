@@ -1,3 +1,16 @@
+Correctness:
+Design choices that currently conflict with mathematical correctness. Each is treated
+as a bug; details are in the sections named below.
+
+1. Equality uses a fixed absolute tolerance (HYP_EPSILON): too strict for large values
+   (especially in single precision) and too loose for small ones (1e-7 and 9e-6
+   compare equal). (See "Correctness and API safety".)
+2. The same "within HYP_EPSILON of zero" guard is used in vector / quaternion
+   normalize, quaternion inverse / is_pure and the SLERP shortcuts; to be reviewed.
+   (See "Correctness and API safety".)
+3. The _EXP functions are not yet verified against reference values.
+   (See "Experimental (_EXP) functions".)
+
 Remaining Work:
 
 - matrix4 Test the identity property I * M = M and also M * I = M

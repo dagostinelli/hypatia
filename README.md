@@ -111,6 +111,9 @@ Rotations follow the right-hand rule: a positive angle turns counterclockwise wh
 Coding Standard
 ---------------
 
+* Mathematical correctness comes first. Design opinions never take priority over it;
+  where a design choice and correctness conflict, correctness wins and the conflict
+  is treated as a bug. Known conflicts are listed in docs/TODO under "Correctness".
 * C89/C90, and standard C in every version: no names starting with an underscore, only standard headers
 * Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
