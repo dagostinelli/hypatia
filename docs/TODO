@@ -5,11 +5,9 @@ as a bug; details are in the sections named below.
 1. Equality uses a fixed absolute tolerance (HYP_EPSILON): too strict for large values
    (especially in single precision) and too loose for small ones (1e-7 and 9e-6
    compare equal). (See "Correctness and API safety".)
-2. The same "within HYP_EPSILON of zero" guard is used in vector / quaternion
-   normalize, quaternion inverse / is_pure and the SLERP shortcuts; to be reviewed.
-   Example: quaternion_normalize leaves a quaternion unchanged when its magnitude is
-   below HYP_EPSILON, so short inputs stay unnormalized.
-   (See "Correctness and API safety".)
+2. "Within HYP_EPSILON of zero / one" shortcuts give wrong results for small or
+   nearly-unit inputs, and quaternion_get_axis_anglev3 loses accuracy for small
+   rotations. See "Near-zero audit".
 3. The _EXP functions are not yet verified against reference values.
    (See "Experimental (_EXP) functions".)
 4. matrix4 rotations turn the opposite way from the right-hand rule, while the
@@ -18,6 +16,73 @@ as a bug; details are in the sections named below.
 5. quaternion_get_rotation_tov3 loses accuracy for nearly opposite vectors and
    returns the identity for very small vectors in single precision. See
    "get_rotation_tov3 accuracy".
+
+Near-zero audit:
+Every check that treats "within HYP_EPSILON of 0 (or 1)" as exactly 0 (or 1), measured
+in both precisions (HYP_EPSILON is 1E-5 single, 1E-12 double). Nothing changed yet.
+
+Wrong in both precisions:
+- vector2_normalize has no zero check: normalizing (0, 0) gives NaN. (vector3/4
+  return the zero vector unchanged.)
+- quaternion_get_axis_anglev3 computes sin(angle/2) as sqrt(1 - w^2) and the angle
+  as acos(w); both lose most of their digits when w is near 1.
+  0.001 rad about Z, single: axis length 1.024, angle 0.000977 (2.4% off).
+  1e-6 rad about Z, single: axis (0, 0, 5e-7), angle 0; double: axis length 0.99996,
+  angle 1.00004e-6.
+
+Wrong in single precision (in double the same happens at much smaller scales):
+- vector3/4_normalize, quaternion_normalize: length below HYP_EPSILON is left
+  unchanged (length 1e-6 stays 1e-6; double fails at 1e-13).
+- quaternion_inverse: norm below HYP_EPSILON is left unchanged (w = 0.001 stays 0.001,
+  should be 1000). Its "norm within HYP_EPSILON of 1" shortcut skips the division:
+  q * inverse(q) is off by 4e-6 when |q|^2 = 1 + 4e-6.
+- quaternion_is_pure: |w| < HYP_EPSILON is absolute, so a scaled-down quaternion
+  (x = w = 1e-6, a 90 degree rotation) counts as pure.
+- quaternion_lerp / quaternion_slerp: t within HYP_EPSILON of 0 or 1 returns the
+  endpoint exactly (slerp t = 5e-6 returns start; should move slightly).
+
+Harmless:
+- quaternion_slerp uses lerp (not normalized) when dot is within HYP_EPSILON of 1;
+  the result is off unit length by at most 5e-7 single, 0 double.
+- quaternion_slerp calls HYP_CLAMP(dot, -1, 1) and discards the result, so it does
+  nothing. The only case that needs it (dot just above 1) already takes the lerp
+  branch, so no NaN today; it is dead code.
+
+Recommendations:
+Comparing a computed float with exactly zero is fragile: a value that should be zero
+usually comes out tiny instead. The matrix inverse check is an exception because it
+asks whether a division is possible at all. The items below avoid zero checks where
+they are not needed.
+- quaternion_inverse: drop the "norm close to 1" shortcut; it only saves a division.
+- lerp / slerp: drop the t near 0 / near 1 shortcuts; the formula already gives the
+  endpoints (lerp exactly). Remove the dead clamp or assign its result.
+- quaternion_get_axis_anglev3: sin(angle/2) = |(x, y, z)|, angle =
+  2 atan2(|(x, y, z)|, w); accurate for small rotations without a threshold. A vector
+  part of exactly (0, 0, 0) is the identity rotation, which has no axis; that one
+  input needs a defined answer (to be chosen).
+- quaternion_is_pure: a yes/no question on floating point data needs a tolerance;
+  compare w relative to the quaternion's size, e.g. |w| <= HYP_EPSILON * |q|.
+- Length computation: sqrt(x^2 + y^2 + z^2) underflows for very small components
+  (in single precision, 1e-20 squared is already below the normal range), so the
+  length itself is inaccurate there. Scaling by the largest component before
+  squaring avoids this. Applies to normalize, magnitude and the axis-angle length.
+
+Open question (not decided): when can a vector or quaternion not be normalized?
+The library cannot tell a deliberately small vector from rounding noise; only the
+caller knows the scale of its data. Choices seen elsewhere:
+- Eigen: divides unless the length is exactly zero.
+- GLM: divides always; the zero vector gives NaN.
+- Unity: returns the zero vector below a fixed 1e-5 (today's Hypatia behavior).
+- Unreal: GetSafeNormal(tolerance) takes the threshold from the caller and returns
+  zero below it.
+A fixed tolerance is wrong for small valid vectors; exactly zero normalizes noise
+without complaint; a caller-supplied tolerance does not guess. Same question applies
+to quaternion_inverse with a very small norm. vector2_normalize gives NaN for (0, 0)
+today, unlike vector3/4; it should follow whichever rule is chosen.
+
+Suggested commits: (1) drop the inverse and lerp / slerp shortcuts, (2) axis-angle,
+(3) is_pure, (4) normalize once the open question is decided; each with tests that
+fail today.
 
 get_rotation_tov3 accuracy:
 Measured over 2 million random vector pairs per precision: the rotated from compared
