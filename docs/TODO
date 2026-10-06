@@ -12,7 +12,6 @@ Remaining Work:
 - add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
 - make doxygen ignore vector3_get_reference_vector3
 
-- Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
 C89 compliance:
 - The anonymous unions in the types are not C89 (gcc -std=c89 -pedantic reports them).
@@ -42,8 +41,12 @@ Long double support (planned):
   long double parameter (%Lf)
 - long double differs by platform; CI needs a long double job per platform
 
+Build and CI:
+- The generated docs do not include the function doc comments: they are in the
+  implementation section, which Doxygen does not read. Not decided how to fix.
+
 Docs:
-- Publish the Doxygen output (e.g. GitHub Pages)
+- Publish the Doxygen output (.github/workflows/publish-docs.yml)
 - Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
   objects are mutated in place
 
