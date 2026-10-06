@@ -13,10 +13,6 @@
 #	endif
 #endif
 
-#ifndef HYP_DEF
-#	define HYPDEF HYPAPI
-#endif
-
 #ifndef HYP_INLINE
 #	ifdef _MSC_VER
 #		define HYP_INLINE __inline
