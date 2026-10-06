@@ -27,6 +27,17 @@ Remaining Work:
 - AppVeyor is showing CMake warnings that do not appear on other platforms
 - TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
+- Stale: the Visual Studio / PDB / hypatiad.dll, AppVeyor, TravisCI, CPack and test .lib
+  entries above refer to build setups that no longer exist; review and remove
+
+API safety:
+- The short-name alias macros (78 of them, e.g. `#define m3 struct matrix3`, vec3,
+  quat, mat4_mul) are always defined, so a user variable or parameter named m3 or m4
+  breaks. Conflicts with "don't interfere with the user's program" in the README coding
+  standard. Options (not decided): an opt-in switch, deprecation, or keep as is.
+- Configuration switches use two prefixes: HYPATIA_SINGLE_PRECISION_FLOATS and
+  HYPATIA_IMPLEMENTATION vs HYP_STATIC, HYP_NO_STDIO, HYP_NO_C_MATH, HYP_NO_DEPRECATED.
+  Renaming would go through deprecation. Not decided.
 
 C89 compliance:
 - `gcc -std=c89 -pedantic` reports 32 warnings: 25 unnamed structs/unions, 7 structs with
@@ -34,6 +45,8 @@ C89 compliance:
 - <stdint.h> / uint8_t are C99
 - Either provide a strict-C89 path (feature macro for the anonymous unions, replace uint8_t)
   or change the README to say "C99, C89-friendly style"
+- Decided: the anonymous unions stay (not named). Update this section and the strict
+  C89 CI item under "Build and CI" to match
 
 API gaps:
 - vector2/3/4_lerp
@@ -45,6 +58,10 @@ API gaps:
 - left-handed variants of the _EXP projection / view functions
 - a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
 - consider optional by-value inline variants for small types for expression-style code
+
+Tests:
+- Rename the test predicate hyp_float_identical to "the property it checks" (e.g.
+  floats_identical). Not decided.
 
 Remaining casts (README: prefer no casts):
 - hypatia.h math macros: DECIDED, keep the 8 casts in HYP_SQRT, HYP_FMOD, HYP_SIN,
@@ -73,10 +90,16 @@ Long double support (planned):
 
 Build and CI:
 - Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
+- CMake support for users: an interface library target (add_subdirectory / find_package)
+  and install rules
+- Build the Doxygen docs in CI to catch broken doc comments
 
 Docs:
 - Publish the Doxygen output (e.g. GitHub Pages)
 - Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
   objects are mutated in place
+- State the right-hand rule in the README (the library's convention)
+- README typos: "implmentation", "you simple `#include`"; hypatia.h comment "degress"
+- README example uses 3.0f-style literals (user code; decide whether to change)
 
 // end of TODO.txt ...
