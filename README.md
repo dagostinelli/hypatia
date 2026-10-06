@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/f86hqjfhmsq70a11/branch/master?svg=true)](https://ci.appveyor.com/project/dagostinelli/hypatia/branch/master)
+[![CI](https://github.com/dagostinelli/hypatia/actions/workflows/ci.yml/badge.svg)](https://github.com/dagostinelli/hypatia/actions/workflows/ci.yml)
 
 
 
@@ -90,6 +90,7 @@ Coding Standard
 	- math entities are mutable
 	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting
 	- blank line at the end of every file
+* Build and run the tests: `cmake -B build && cmake --build build && ctest --test-dir build`
 * Run the checks in check.mak `make -f check.mak`
 
 Unit Tests
