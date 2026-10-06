@@ -12,7 +12,6 @@ IF(DOXYGEN_FOUND)
 	)
 	ADD_CUSTOM_TARGET(
 		hypatia_docs
-		ALL
 		${DOXYGEN_EXECUTABLE} "${HYPATIA_OUTPUT_DOXYFILE}"
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		COMMENT "Building documentation in 'doc' directory..."

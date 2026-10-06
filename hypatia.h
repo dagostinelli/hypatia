@@ -53,6 +53,18 @@
 #	include <stdio.h> /* printf */
 #endif
 
+/** @defgroup _constants Constants */
+/** @defgroup trig Trigonometry */
+/** @defgroup reference_vectors Reference vectors */
+/** @defgroup vector3 vector3 */
+/** @defgroup vector4 vector4 */
+/** @defgroup quaternion quaternion */
+/** @defgroup matrix Matrices */
+/** @defgroup matrix2 matrix2 */
+/** @defgroup matrix3 matrix3 */
+/** @defgroup matrix4 matrix4 */
+/** @defgroup experimental Experimental */
+
 /**
  * @ingroup _constants
  * @{
@@ -114,7 +126,7 @@
 #		define HYP_EPSILON 1E-5
 #	endif
 #endif
-/*@}*/
+/** @} */
 
 /** @brief A macro that enabled you to override memset */
 #ifndef HYP_MEMSET
@@ -258,7 +270,6 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 /** @ingroup reference_vectors */
 /** @brief {1,1,1} */
 #define HYP_VECTOR3_ONE vector3_get_reference_vector3(HYP_REF_VECTOR3_ONE)
-/* @} */
 
 
 /** @ingroup reference_vectors */
@@ -279,7 +290,6 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 /** @ingroup reference_vectors */
 /** @brief {1,1} */
 #define HYP_VECTOR2_ONE vector2_get_reference_vector2(HYP_REF_VECTOR2_ONE)
-/* @} */
 
 
 HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2);
@@ -315,7 +325,7 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 #	define HYP_COT(a) (HYP_FLOAT_C(1.0) / HYP_TAN(a))
 #endif
 
-/* @} */
+/** @} */
 
 
 /**
@@ -342,7 +352,7 @@ HYPAPI void hyp_vector2_print(const struct vector2 *self);
 HYPAPI void hyp_vector4_print(const struct vector4 *self);
 #endif
 
-/* @} */
+/** @} */
 
 struct vector2 {
 	union {

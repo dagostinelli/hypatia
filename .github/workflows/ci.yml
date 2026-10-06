@@ -96,3 +96,15 @@ jobs:
           for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
           cl /nologo /W3 /WX example.c
           example.exe
+
+  docs:
+    name: docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+      - name: Build the docs (warnings are errors)
+        run: |
+          cmake -B build -DHYPATIA_BUILD_TESTS=OFF
+          cmake --build build --target hypatia_docs
