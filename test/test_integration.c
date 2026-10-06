@@ -110,12 +110,14 @@ static const char *test_integration_quaternion_matrix_rotation_equivalence(void)
 	vector3_multiplym4(&vM, &m);
 
 	/* quaternion gives (0,1,0), matrix gives (0,-1,0) --
-	 * they are the negation of each other in the rotated components */
+	 * they are the negation of each other in the rotated components
+	 */
 	test_assert(vector3_equals(&vQ, HYP_VECTOR3_UNIT_Y));
 	test_assert(vector3_equals(&vM, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
 	/* Now verify: matrix built from the negated-angle quaternion matches
-	 * the direct quaternion rotation with the original angle */
+	 * the direct quaternion rotation with the original angle
+	 */
 	{
 		struct quaternion qNeg;
 		struct matrix4 mNeg;

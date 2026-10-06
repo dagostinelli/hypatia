@@ -48,6 +48,10 @@ INSTALL(FILES
 	"${CMAKE_CURRENT_BINARY_DIR}/hypatiaConfigVersion.cmake"
 	DESTINATION ${HYPATIA_CMAKE_DIR})
 
+if(HYPATIA_IS_TOP_LEVEL)
+	INCLUDE(cmake/CMakeChecks.cmake)
+endif()
+
 OPTION(HYPATIA_BUILD_TESTS "Build unit tests" ${HYPATIA_IS_TOP_LEVEL})
 IF(HYPATIA_BUILD_TESTS)
 	enable_testing()
