@@ -360,7 +360,7 @@ static const char *test_matrix2_inverse_singular(void)
 	void *ret;
 
 	ret = matrix2_inverse(&singular, &result);
-	test_assert(ret == NULL);
+	test_assert(!ret);
 
 	return NULL;
 }

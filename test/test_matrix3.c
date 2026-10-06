@@ -403,7 +403,7 @@ static const char *test_matrix3_inverse_singular(void)
 	void *ret;
 
 	ret = matrix3_inverse(&singular, &result);
-	test_assert(ret == NULL);
+	test_assert(!ret);
 
 	return NULL;
 }
