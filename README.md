@@ -17,7 +17,7 @@ Hypatia is a single-file-header, pure-C math library.  It is almost 100% C89/C90
 
 Quick Start
 ----------
-The entire library is self-contained in this one header file.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simple `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to also use implmentation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before an `#include <hypatia.h>`. 
+The entire library is self-contained in this one header file.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simply `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to also use implementation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before an `#include <hypatia.h>`. 
 
 Like so:
 
@@ -45,14 +45,14 @@ int main(void)
 
 	printf("Using Hypatia Version:%s\n", HYPATIA_VERSION);
 
-	vector3_setf3(&a, 3.0f, -3.0f, 1.0f);
-	vector3_setf3(&b, 4.0f, 9.0f, 2.0f);
+	vector3_setf3(&a, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0));
+	vector3_setf3(&b, HYP_FLOAT_C(4.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(2.0));
 
 	vector3_cross_product(&r, &a, &b);
 
-	assert(scalar_equalsf(r.x, -15.0f));
-	assert(scalar_equalsf(r.y, -2.0f));
-	assert(scalar_equalsf(r.z, 39.0f));
+	assert(scalar_equalsf(r.x, -HYP_FLOAT_C(15.0)));
+	assert(scalar_equalsf(r.y, -HYP_FLOAT_C(2.0)));
+	assert(scalar_equalsf(r.z, HYP_FLOAT_C(39.0)));
 
 	return 0;
 }
@@ -112,6 +112,8 @@ A word about convention
 Hypatia uses verbose names. In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (gracefully allows for ambiguous names).  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".  
 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
+
+Rotations follow the right-hand rule: a positive angle turns counterclockwise when the axis points toward the viewer.
 
 Coding Standard
 ---------------
