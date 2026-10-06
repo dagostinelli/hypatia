@@ -2,6 +2,7 @@
 INCLUDE(../cmake/CMakeBuildFlags.cmake)
 
 ADD_EXECUTABLE(test_hypatia_single_precision main.c implementation.c)
+TARGET_COMPILE_OPTIONS(test_hypatia_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
 TARGET_INCLUDE_DIRECTORIES(test_hypatia_single_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
 TARGET_LINK_LIBRARIES(test_hypatia_single_precision ${LIBM})
 SET_TARGET_PROPERTIES(test_hypatia_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
