@@ -28,6 +28,7 @@ jobs:
           - { name: ubuntu / clang Release,   os: ubuntu-latest,  cc: clang,    build_type: Release }
           - { name: macos / default Release,  os: macos-latest,                 build_type: Release }
           - { name: windows / msvc Release,   os: windows-latest,               build_type: Release }
+          - { name: windows / msvc nmake,     os: windows-latest,               build_type: Release, generator: NMake Makefiles, vcvars: true }
 
           # variants
           - { name: sanitizers / gcc,         os: ubuntu-latest,  cc: gcc,
@@ -45,6 +46,12 @@ jobs:
       - name: Install compiler
         if: matrix.install
         run: sudo apt-get update && sudo apt-get install -y ${{ matrix.install }}
+      - name: Set up the MSVC command-line environment
+        if: matrix.vcvars
+        shell: cmd
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
+          set >> %GITHUB_ENV%
       - name: Configure
         shell: bash
         run: |
