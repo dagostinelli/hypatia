@@ -146,7 +146,7 @@ static HYP_INLINE void HYP_SWAP(HYP_FLOAT *a, HYP_FLOAT *b)
 #	define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
 #endif
 
-/** @brief A macro that converts an angle in degress to an angle in radians */
+/** @brief A macro that converts an angle in degrees to an angle in radians */
 #ifndef HYP_DEG_TO_RAD
 #	define HYP_DEG_TO_RAD(angle)  ((angle) * HYP_RAD_PER_DEG)
 #endif

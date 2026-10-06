@@ -67,8 +67,5 @@ Docs:
 - Publish the Doxygen output (e.g. GitHub Pages)
 - Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
   objects are mutated in place
-- State the right-hand rule in the README (the library's convention)
-- README typos: "implmentation", "you simple `#include`"; hypatia.h comment "degress"
-- README example uses 3.0f-style literals (user code; decide whether to change)
 
 // end of TODO.txt ...
