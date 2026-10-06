@@ -59,6 +59,25 @@ int main(void)
 
 ```
 
+Configuration
+-------------
+Define these before including `hypatia.h`.  Except for `HYPATIA_IMPLEMENTATION` and
+`HYPAPI`, use the same definitions in every file of a program that includes `hypatia.h`.
+
+| Macro | Effect |
+|---|---|
+| `HYPATIA_IMPLEMENTATION` | Compiles the implementation into this file.  Define it in exactly one file. |
+| `HYPATIA_SINGLE_PRECISION_FLOATS` | Uses `float` instead of `double` for `HYP_FLOAT`. |
+| `HYP_STATIC` | Makes every function `static` (and inline), so each file that includes the implementation gets its own private copy. |
+| `HYPAPI` | The linkage of every function (default `extern`).  To build Hypatia into a Windows DLL, define it as `__declspec(dllexport)` when building the DLL and `__declspec(dllimport)` when using it. |
+| `HYP_NO_STDIO` | Leaves out `<stdio.h>` and the `hyp_*_print` debug functions. |
+| `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all of `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS` and `HYP_ATAN2` yourself. |
+| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | Replace the math functions (default: the C library's `sqrt`, `fmod`, ... converted to `HYP_FLOAT`). |
+| `HYP_MEMSET(a, b, c)` | Replaces `memset` (default: `memset` from `<string.h>`). |
+| `HYP_EPSILON` | The tolerance for the `*_equals` functions (default 1E-5). |
+| `HYP_INLINE` | The inline keyword for the small helper functions (default `__inline` for MSVC, `__inline__` otherwise). |
+| `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. |
+
 Documentation
 -------------
 A great way to learn how to use the library is to review the
