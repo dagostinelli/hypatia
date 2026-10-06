@@ -117,6 +117,7 @@ Coding Standard
 ---------------
 
 * Ensure C89/C90 compatibility
+* Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement
 	- indent with tabs
@@ -125,9 +126,19 @@ Coding Standard
 	- use 'self' for describing the function context
 	- math entities are mutable
 	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting
+	- comments are neutral, factual and short
 	- blank line at the end of every file
+* Don't interfere with the user's program: no stray macros, no declarations without definitions, any include order works
+* Every configuration macro works alone and combined, and is tested
+* Follow the library's own conventions (e.g. the right-hand rule)
+* Remove unused code; change public names only by deprecation (@deprecated, HYP_NO_DEPRECATED)
 * Build and run the tests: `cmake -B build && cmake --build build && ctest --test-dir build`
 * Run the checks in check.mak `make -f check.mak`
+* Test how people use the library: compilers, platforms, Release, 32-bit, static, shared, each configuration macro, the README example
+* Detect compiler features, not versions
+* Make a new check fail once before trusting it
+* One topic per commit; a fix ships with the check that enforces it
+* No false steps in the history; every commit builds and passes
 
 Unit Tests
 --------------------------------
