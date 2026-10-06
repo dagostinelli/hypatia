@@ -144,7 +144,8 @@ Coding Standard
 * Follow the library's own conventions (e.g. the right-hand rule)
 * Remove unused code; change public names only by deprecation (@deprecated, HYP_NO_DEPRECATED)
 * Build and run the tests: `cmake -B build && cmake --build build && ctest --test-dir build`
-* Run the checks in check.mak `make -f check.mak`
+* The build treats warnings as errors; the experimental `make checksparse` and `make checkpatch` need sparse and checkpatch.pl, and CI does not run them
+* The Makefile has shortcuts for local development (`make help` lists them): `make configure`, then `make test` builds and runs the tests
 * Test how people use the library: compilers, platforms, Release, 32-bit, static, shared, each configuration macro, the README example
 * Detect compiler features, not versions
 * Make a new check fail once before trusting it
