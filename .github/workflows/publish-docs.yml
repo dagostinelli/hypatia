@@ -1,0 +1,35 @@
+name: Publish docs
+
+# Runs only when started by hand: Actions tab, "Publish docs", "Run workflow".
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen
+      - name: Build the docs
+        run: |
+          cmake -B build -DHYPATIA_BUILD_TESTS=OFF
+          cmake --build build --target hypatia_docs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/help/html
+      - id: deploy
+        uses: actions/deploy-pages@v4
