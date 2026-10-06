@@ -108,7 +108,7 @@
 
 /** @brief A macro that enabled you to override memset */
 #ifndef HYP_MEMSET
-#	include <memory.h> /* memset */
+#	include <string.h> /* memset */
 #	define HYP_MEMSET(a, b, c)  memset(a, b, c)
 #endif
 
