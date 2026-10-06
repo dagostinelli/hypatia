@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 
-static char *test_vector2_set(void)
+static const char *test_vector2_set(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 	struct vector2 v2;
@@ -12,7 +12,7 @@ static char *test_vector2_set(void)
 	return NULL;
 }
 
-static char *test_vector2_setf2(void)
+static const char *test_vector2_setf2(void)
 {
 	struct vector2 v;
 
@@ -23,7 +23,7 @@ static char *test_vector2_setf2(void)
 	return NULL;
 }
 
-static char *test_vector2_zero(void)
+static const char *test_vector2_zero(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 
@@ -34,7 +34,7 @@ static char *test_vector2_zero(void)
 	return NULL;
 }
 
-static char *test_vector2_equals(void)
+static const char *test_vector2_equals(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
@@ -46,7 +46,7 @@ static char *test_vector2_equals(void)
 	return NULL;
 }
 
-static char *test_vector2_negate(void)
+static const char *test_vector2_negate(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0)}};
 
@@ -57,7 +57,7 @@ static char *test_vector2_negate(void)
 	return NULL;
 }
 
-static char *test_vector2_add(void)
+static const char *test_vector2_add(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
@@ -69,7 +69,7 @@ static char *test_vector2_add(void)
 	return NULL;
 }
 
-static char *test_vector2_addf(void)
+static const char *test_vector2_addf(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 
@@ -80,7 +80,7 @@ static char *test_vector2_addf(void)
 	return NULL;
 }
 
-static char *test_vector2_subtract(void)
+static const char *test_vector2_subtract(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
@@ -92,7 +92,7 @@ static char *test_vector2_subtract(void)
 	return NULL;
 }
 
-static char *test_vector2_subtractf(void)
+static const char *test_vector2_subtractf(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0)}};
 
@@ -103,7 +103,7 @@ static char *test_vector2_subtractf(void)
 	return NULL;
 }
 
-static char *test_vector2_multiply(void)
+static const char *test_vector2_multiply(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
@@ -115,7 +115,7 @@ static char *test_vector2_multiply(void)
 	return NULL;
 }
 
-static char *test_vector2_multiplyf(void)
+static const char *test_vector2_multiplyf(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
@@ -126,7 +126,7 @@ static char *test_vector2_multiplyf(void)
 	return NULL;
 }
 
-static char *test_vector2_divide(void)
+static const char *test_vector2_divide(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(8.0), HYP_FLOAT_C(15.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
@@ -138,7 +138,7 @@ static char *test_vector2_divide(void)
 	return NULL;
 }
 
-static char *test_vector2_dividef(void)
+static const char *test_vector2_dividef(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(6.0), HYP_FLOAT_C(8.0)}};
 
@@ -149,7 +149,7 @@ static char *test_vector2_dividef(void)
 	return NULL;
 }
 
-static char *test_vector2_magnitude(void)
+static const char *test_vector2_magnitude(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
@@ -158,7 +158,7 @@ static char *test_vector2_magnitude(void)
 	return NULL;
 }
 
-static char *test_vector2_normalize(void)
+static const char *test_vector2_normalize(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
@@ -170,7 +170,7 @@ static char *test_vector2_normalize(void)
 	return NULL;
 }
 
-static char *test_vector2_distance(void)
+static const char *test_vector2_distance(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)}};
@@ -181,7 +181,7 @@ static char *test_vector2_distance(void)
 	return NULL;
 }
 
-static char *test_vector2_dot_product(void)
+static const char *test_vector2_dot_product(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
@@ -192,7 +192,7 @@ static char *test_vector2_dot_product(void)
 	return NULL;
 }
 
-static char *test_vector2_dot_product_perpendicular(void)
+static const char *test_vector2_dot_product_perpendicular(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
@@ -202,7 +202,7 @@ static char *test_vector2_dot_product_perpendicular(void)
 	return NULL;
 }
 
-static char *test_vector2_cross_product(void)
+static const char *test_vector2_cross_product(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
@@ -219,7 +219,7 @@ static char *test_vector2_cross_product(void)
 	return NULL;
 }
 
-static char *test_vector2_normalize_zero(void)
+static const char *test_vector2_normalize_zero(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
@@ -235,7 +235,7 @@ static char *test_vector2_normalize_zero(void)
 	return NULL;
 }
 
-static char *test_vector2_magnitude_zero(void)
+static const char *test_vector2_magnitude_zero(void)
 {
 	struct vector2 v = {{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
@@ -244,7 +244,7 @@ static char *test_vector2_magnitude_zero(void)
 	return NULL;
 }
 
-static char *test_vector2_angle_between_perpendicular(void)
+static const char *test_vector2_angle_between_perpendicular(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
@@ -253,7 +253,7 @@ static char *test_vector2_angle_between_perpendicular(void)
 	return NULL;
 }
 
-static char *test_vector2_angle_between_same(void)
+static const char *test_vector2_angle_between_same(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector2 v2 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
@@ -262,7 +262,7 @@ static char *test_vector2_angle_between_same(void)
 	return NULL;
 }
 
-static char *test_vector2_angle_between_opposite(void)
+static const char *test_vector2_angle_between_opposite(void)
 {
 	struct vector2 v1 = {{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector2 v2 = {{-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
@@ -271,7 +271,7 @@ static char *test_vector2_angle_between_opposite(void)
 	return NULL;
 }
 
-static char *vector2_all_tests(void)
+static const char *vector2_all_tests(void)
 {
 	run_test(test_vector2_set);
 	run_test(test_vector2_setf2);

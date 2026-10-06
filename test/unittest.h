@@ -17,4 +17,4 @@
 #define run_test(test) do { test_message = test(); tests_run++; if (test_message) return test_message; } while (0)
 
 extern int tests_run;
-extern char *test_message;
+extern const char *test_message;

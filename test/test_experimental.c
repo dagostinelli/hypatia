@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 
-static char *test_matrix4_transformation_decompose_translation(void)
+static const char *test_matrix4_transformation_decompose_translation(void)
 {
 	struct vector3 in_translation;
 	struct vector3 out_translation;
@@ -23,7 +23,7 @@ static char *test_matrix4_transformation_decompose_translation(void)
 	return NULL;
 }
 
-static char *test_matrix4_transformation_decompose_scaling(void)
+static const char *test_matrix4_transformation_decompose_scaling(void)
 {
 	struct vector3 in_scale;
 	struct vector3 out_translation;
@@ -46,7 +46,7 @@ static char *test_matrix4_transformation_decompose_scaling(void)
 	return NULL;
 }
 
-static char *experimental_all_tests(void)
+static const char *experimental_all_tests(void)
 {
 	run_test(test_matrix4_transformation_decompose_translation);
 	run_test(test_matrix4_transformation_decompose_scaling);

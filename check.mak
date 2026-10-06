@@ -17,9 +17,9 @@ checksparse:
 
 checksyntax:
 	@echo checksyntax
-	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wdouble-promotion hypatia.h
-	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wdouble-promotion -I. test/implementation.c
-	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wdouble-promotion -I. test/main.c
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wwrite-strings -Wdouble-promotion hypatia.h
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wwrite-strings -Wdouble-promotion -I. test/implementation.c
+	@gcc -fsyntax-only -std=c90 -Wno-missing-braces -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wwrite-strings -Wdouble-promotion -I. test/main.c
 
 checkpatch:
 	@echo checkpatch

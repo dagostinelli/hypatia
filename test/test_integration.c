@@ -25,7 +25,7 @@
  *     y' = 4
  *     z' = 5*sin45 + 5*cos45 = 10*cos45 ~ 7.07107
  */
-static char *test_integration_trs_roundtrip(void)
+static const char *test_integration_trs_roundtrip(void)
 {
 	struct matrix4 combined, scaleM, translateM, rotateM;
 	struct quaternion q;
@@ -91,7 +91,7 @@ static char *test_integration_trs_roundtrip(void)
  * results: rotating by +angle via quaternion equals rotating by -angle via
  * the matrix (and vice-versa).
  */
-static char *test_integration_quaternion_matrix_rotation_equivalence(void)
+static const char *test_integration_quaternion_matrix_rotation_equivalence(void)
 {
 	struct quaternion q;
 	struct matrix4 m;
@@ -145,7 +145,7 @@ static char *test_integration_quaternion_matrix_rotation_equivalence(void)
  * scale(2, 3, 4) -> (2, 3, 4)
  * translate(10, 20, 30) -> (12, 23, 34)
  */
-static char *test_integration_matrix_multiply_chain(void)
+static const char *test_integration_matrix_multiply_chain(void)
 {
 	struct matrix4 combined, scaleM, translateM;
 	struct vector3 v;
@@ -183,7 +183,7 @@ static char *test_integration_matrix_multiply_chain(void)
  * Rotate (1, 0) by 90 degrees -> (0, 1)
  * Then rotate that result by another 90 degrees -> (-1, 0)
  */
-static char *test_integration_vector2_matrix2_rotation(void)
+static const char *test_integration_vector2_matrix2_rotation(void)
 {
 	struct matrix2 m90;
 	struct vector2 v;
@@ -209,7 +209,7 @@ static char *test_integration_vector2_matrix2_rotation(void)
  * Translate (1, 2) by (3, 4) -> (4, 6)
  * Then scale by (2, 0.5) -> (8, 3)
  */
-static char *test_integration_vector2_matrix3_translate_scale(void)
+static const char *test_integration_vector2_matrix3_translate_scale(void)
 {
 	struct matrix3 translateM, scaleM;
 	struct vector2 v;
@@ -239,7 +239,7 @@ static char *test_integration_vector2_matrix3_translate_scale(void)
  * Rotate (1, 0) by 90 degrees -> (0, 1) via matrix3, confirming
  * that matrix3 rotation matches matrix2 rotation for unit vectors.
  */
-static char *test_integration_vector2_matrix3_rotation(void)
+static const char *test_integration_vector2_matrix3_rotation(void)
 {
 	struct matrix3 m90;
 	struct matrix2 m2_90;
@@ -265,7 +265,7 @@ static char *test_integration_vector2_matrix3_rotation(void)
 }
 
 
-static char *integration_all_tests(void)
+static const char *integration_all_tests(void)
 {
 	run_test(test_integration_trs_roundtrip);
 	run_test(test_integration_quaternion_matrix_rotation_equivalence);
