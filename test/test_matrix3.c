@@ -183,8 +183,8 @@ static const char *test_matrix3_columnrowcolumn(void)
 	test_assert(matrix3_equals(&m, &r));
 
 	/* transpose only c and r, but not m */
-	_matrix3_transpose_rowcolumn(&r);
-	_matrix3_transpose_columnrow(&c);
+	hyp_matrix3_transpose_rowcolumn(&r);
+	hyp_matrix3_transpose_columnrow(&c);
 
 	test_assert(matrix3_equals(&c, &r));
 	test_assert(matrix3_equals(&c, &m) == 0);

@@ -907,11 +907,7 @@ EXCLUDE_PATTERNS       = single*file*.* \
 # exclude all test directories use the pattern */test/*
 
 EXCLUDE_SYMBOLS        = HYPAPI \
-                         _matrix4* \
-                         _quaternion* \
-                         _vector3* \
-                         _vector2* \
-                         _SWAP*
+                         hyp_*
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

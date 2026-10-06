@@ -17,7 +17,6 @@ Remaining Work:
 C89 compliance:
 - The anonymous unions in the types are not C89 (gcc -std=c89 -pedantic reports them).
   They stay.
-- The determinant macros are variadic, which is C99
 - <stdint.h> / uint8_t are C99
 
 API gaps:
@@ -39,7 +38,7 @@ Remaining casts (README: prefer no casts):
 
 Long double support (planned):
 - A HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
-- Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and _hyp_print_value with a
+- Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and hyp_print_value with a
   long double parameter (%Lf)
 - long double differs by platform; CI needs a long double job per platform
 
