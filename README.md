@@ -99,18 +99,42 @@ As an experiment, some \#defines have been added to alias the verbose names. (ma
 Coding Standard
 ---------------
 
-* Ensure C89/C90 compatibility
+* Ensure C89/C90 compatibility, and stay within the C standard in every version: no
+  reserved identifiers (names that start with an underscore), only standard headers.
+* Warnings are errors.  Fix the code instead of turning a warning off.
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement
 	- indent with tabs
+	- formatting is done by hand; keep deliberate layouts (such as matrices written as grids)
 	- lower case function names for public-facing functions
 	- all CAPS for public constants.  HYP is the prefix for public constants
 	- use 'self' for describing the function context
 	- math entities are mutable
 	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting
+	- comments are neutral, factual and short
 	- blank line at the end of every file
+* The library must not get in the way of the program that uses it: no macros left
+  defined under short or common names, nothing declared that is not defined, and the
+  header works however it is included.
+* Every configuration macro (see Configuration) must work on its own and together with
+  the others, and is built and tested.
+* Opinionated choices follow the library's own conventions (for example the right-hand
+  rule).
+* Remove code that nothing uses.  Public names change only through deprecation: mark
+  them with Doxygen `@deprecated`, leave them out under `HYP_NO_DEPRECATED`, and remove
+  them in a later release.
 * Build and run the tests: `cmake -B build && cmake --build build && ctest --test-dir build`
 * Run the checks in check.mak `make -f check.mak`
+* Test the ways people use the library: several compilers, versions and platforms,
+  Release builds, 32-bit, static and shared builds, and each configuration macro.
+  Documented usage is tested too; CI builds the README example with only the compiler.
+* Check what a compiler supports (`CheckCCompilerFlag`, compiler ID) rather than
+  guessing from its version or path.
+* Show that a new check fails on purpose before relying on it.
+* One topic per commit.  A fix goes in the same commit as the check or warning flag
+  that enforces it, and a docs/TODO change goes in with its code.
+* Keep the history free of false steps: nothing added and later undone, and every
+  commit builds and passes the tests.
 
 Unit Tests
 --------------------------------
