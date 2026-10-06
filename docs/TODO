@@ -58,6 +58,10 @@ Remaining casts (README: prefer no casts):
   float trig speed matters. (Long double will still need sinl etc.; see below.)
 - hypatia.h HYP_RANDOM_FLOAT: 3 casts (rand() and RAND_MAX to HYP_FLOAT).
 
+Deprecated (Doxygen @deprecated, hidden by HYP_NO_DEPRECATED), to remove in a later
+release:
+- HYP_PIOVER180 (use HYP_RAD_PER_DEG), HYP_PIUNDER180 (use HYP_DEG_PER_RAD)
+
 Long double support (planned):
 - Add a HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
 - Math macros need sinl/cosl/sqrtl/etc. (C99, not C89) in that mode
