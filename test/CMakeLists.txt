@@ -26,3 +26,49 @@ TARGET_COMPILE_OPTIONS(test_hypatia_static_double_precision PRIVATE ${HYP_DOUBLE
 TARGET_INCLUDE_DIRECTORIES(test_hypatia_static_double_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
 TARGET_LINK_LIBRARIES(test_hypatia_static_double_precision ${LIBM})
 ADD_TEST(NAME test_hypatia_static_double_precision COMMAND test_hypatia_static_double_precision)
+
+# Hypatia built into a shared library, with the tests linked against it.  On
+# Windows the functions are exported and imported by defining HYPAPI, as a user
+# of a Hypatia DLL would.
+if(WIN32)
+	SET(HYP_SHARED_EXPORT "HYPAPI=__declspec(dllexport)")
+	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)")
+endif()
+
+ADD_LIBRARY(hypatia_shared_single_precision SHARED implementation.c)
+TARGET_COMPILE_OPTIONS(hypatia_shared_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
+TARGET_COMPILE_DEFINITIONS(hypatia_shared_single_precision PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS ${HYP_SHARED_EXPORT})
+TARGET_INCLUDE_DIRECTORIES(hypatia_shared_single_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
+TARGET_LINK_LIBRARIES(hypatia_shared_single_precision ${LIBM})
+
+ADD_EXECUTABLE(test_hypatia_shared_single_precision main.c)
+TARGET_COMPILE_OPTIONS(test_hypatia_shared_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
+TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_single_precision PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS ${HYP_SHARED_IMPORT})
+TARGET_LINK_LIBRARIES(test_hypatia_shared_single_precision hypatia_shared_single_precision ${LIBM})
+ADD_TEST(NAME test_hypatia_shared_single_precision COMMAND test_hypatia_shared_single_precision)
+
+ADD_LIBRARY(hypatia_shared_double_precision SHARED implementation.c)
+TARGET_COMPILE_OPTIONS(hypatia_shared_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
+TARGET_COMPILE_DEFINITIONS(hypatia_shared_double_precision PRIVATE ${HYP_SHARED_EXPORT})
+TARGET_INCLUDE_DIRECTORIES(hypatia_shared_double_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
+TARGET_LINK_LIBRARIES(hypatia_shared_double_precision ${LIBM})
+
+ADD_EXECUTABLE(test_hypatia_shared_double_precision main.c)
+TARGET_COMPILE_OPTIONS(test_hypatia_shared_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
+TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_double_precision PRIVATE ${HYP_SHARED_IMPORT})
+TARGET_LINK_LIBRARIES(test_hypatia_shared_double_precision hypatia_shared_double_precision ${LIBM})
+ADD_TEST(NAME test_hypatia_shared_double_precision COMMAND test_hypatia_shared_double_precision)
+
+# HYP_NO_C_MATH: the program supplies the math functions
+ADD_EXECUTABLE(test_hypatia_no_c_math_single_precision test_no_c_math.c no_c_math_functions.c)
+TARGET_COMPILE_OPTIONS(test_hypatia_no_c_math_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
+TARGET_INCLUDE_DIRECTORIES(test_hypatia_no_c_math_single_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
+TARGET_LINK_LIBRARIES(test_hypatia_no_c_math_single_precision ${LIBM})
+SET_TARGET_PROPERTIES(test_hypatia_no_c_math_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
+ADD_TEST(NAME test_hypatia_no_c_math_single_precision COMMAND test_hypatia_no_c_math_single_precision)
+
+ADD_EXECUTABLE(test_hypatia_no_c_math_double_precision test_no_c_math.c no_c_math_functions.c)
+TARGET_COMPILE_OPTIONS(test_hypatia_no_c_math_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
+TARGET_INCLUDE_DIRECTORIES(test_hypatia_no_c_math_double_precision PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../)
+TARGET_LINK_LIBRARIES(test_hypatia_no_c_math_double_precision ${LIBM})
+ADD_TEST(NAME test_hypatia_no_c_math_double_precision COMMAND test_hypatia_no_c_math_double_precision)
