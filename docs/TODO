@@ -39,8 +39,8 @@ Remaining casts (README: prefer no casts):
 
 Long double support (planned):
 - A HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
-- Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and a long double format
-  (%Lf) in the print helpers
+- Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and _hyp_print_value with a
+  long double parameter (%Lf)
 - long double differs by platform; CI needs a long double job per platform
 
 Docs:
