@@ -19,9 +19,9 @@
 #include "test_integration.c"
 
 int tests_run;
-char *test_message;
+const char *test_message;
 
-static char *all_testsuites(void)
+static const char *all_testsuites(void)
 {
 	printf("quaternion_all_tests\n");
 	run_test(quaternion_all_tests);
@@ -49,21 +49,21 @@ static char *all_testsuites(void)
 
 int main(int argc, char *argv[])
 {
-	char *result;
+	const char *result;
 
 	UNUSED_VARIABLE(argc);
 	UNUSED_VARIABLE(argv);
 
 	tests_run = 0;
-	test_message = 0;
+	test_message = NULL;
 
 	result = all_testsuites();
-	if (result != 0) {
+	if (result) {
 		printf("%s\n", result);
 	} else {
 		printf("ALL TESTS PASSED\n");
 	}
 	printf("Tests run: %d\n", tests_run);
 
-	return result != 0;
+	return result ? 1 : 0;
 }

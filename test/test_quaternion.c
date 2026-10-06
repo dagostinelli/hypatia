@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
 /** [quaternion identity example] */
-static char *test_quaternion_identity(void)
+static const char *test_quaternion_identity(void)
 {
 	struct quaternion q;
 
@@ -21,7 +21,7 @@ static char *test_quaternion_identity(void)
 
 
 /** [quaternion conjugate example] */
-static char *test_quaternion_conjugate(void)
+static const char *test_quaternion_conjugate(void)
 {
 	struct quaternion qA;
 	struct quaternion qB;
@@ -37,7 +37,7 @@ static char *test_quaternion_conjugate(void)
 
 
 /** [quaternion inverse example] */
-static char *test_quaternion_inverse(void)
+static const char *test_quaternion_inverse(void)
 {
 	struct quaternion qA;
 	struct quaternion qInverse;
@@ -56,7 +56,7 @@ static char *test_quaternion_inverse(void)
 /** [quaternion inverse example] */
 
 
-static char *test_quaternion_axis_anglev3(void)
+static const char *test_quaternion_axis_anglev3(void)
 {
 	struct quaternion q, q1;
 	HYP_FLOAT c;
@@ -84,7 +84,7 @@ static char *test_quaternion_axis_anglev3(void)
 }
 
 
-static char *test_quaternion_get_set_axis_anglev3(void)
+static const char *test_quaternion_get_set_axis_anglev3(void)
 {
 	struct quaternion q;
 	HYP_FLOAT angle, angle1;
@@ -103,7 +103,7 @@ static char *test_quaternion_get_set_axis_anglev3(void)
 }
 
 
-static char *test_quaternion_multiply(void)
+static const char *test_quaternion_multiply(void)
 {
 	struct quaternion qA, qB;
 
@@ -119,7 +119,7 @@ static char *test_quaternion_multiply(void)
 }
 
 
-static char *test_quaternion_multiply_identity(void)
+static const char *test_quaternion_multiply_identity(void)
 {
 	struct quaternion qA, qB, q;
 
@@ -139,7 +139,7 @@ static char *test_quaternion_multiply_identity(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -152,7 +152,7 @@ static char *test_vector3_rotate_by_quaternion_yx_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -165,7 +165,7 @@ static char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -178,7 +178,7 @@ static char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -191,7 +191,7 @@ static char *test_vector3_rotate_by_quaternion_zy_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -204,7 +204,7 @@ static char *test_vector3_rotate_by_quaternion_xz_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
+static const char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -217,7 +217,7 @@ static char *test_vector3_rotate_by_quaternion_yz_quarter_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
+static const char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -230,7 +230,7 @@ static char *test_vector3_rotate_by_quaternion_yx_half_turn(void)
 }
 
 
-static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
+static const char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 {
 	struct quaternion q;
 	struct vector3 r;
@@ -243,7 +243,7 @@ static char *test_vector3_rotate_by_quaternion_xy_half_turn(void)
 }
 
 
-static char *test_quaternion_slerp(void)
+static const char *test_quaternion_slerp(void)
 {
 	struct quaternion q, q1, q2, q3;
 	HYP_FLOAT angle;
@@ -314,7 +314,7 @@ static char *test_quaternion_slerp(void)
 }
 
 
-static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
+static const char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 {
 	struct quaternion q1, q2;
 	HYP_FLOAT in_anglex, in_angley, in_anglez;
@@ -345,7 +345,7 @@ static char *test_quaternion_get_eulers_create_quaternion_ZYX(void)
 }
 
 
-static char *test_quaternion_rotate_by_quaternion_identity(void)
+static const char *test_quaternion_rotate_by_quaternion_identity(void)
 {
 	struct quaternion scratchQuaternion;
 	struct quaternion q1;
@@ -388,7 +388,7 @@ static char *test_quaternion_rotate_by_quaternion_identity(void)
 }
 
 
-static char *test_quaternion_get_eulers_from_axis_angle(void)
+static const char *test_quaternion_get_eulers_from_axis_angle(void)
 {
 	struct quaternion q1, q2;
 	HYP_FLOAT in_anglex, in_angley, in_anglez;
@@ -418,7 +418,7 @@ static char *test_quaternion_get_eulers_from_axis_angle(void)
 }
 
 
-static char *test_quaternion_360_degree_eulers(void)
+static const char *test_quaternion_360_degree_eulers(void)
 {
 	struct quaternion q1;
 	HYP_FLOAT out_anglex, out_angley, out_anglez;
@@ -440,7 +440,7 @@ static char *test_quaternion_360_degree_eulers(void)
 }
 
 
-static char *test_quaternion_setf4(void)
+static const char *test_quaternion_setf4(void)
 {
 	struct quaternion q;
 
@@ -460,7 +460,7 @@ static char *test_quaternion_setf4(void)
 }
 
 
-static char *test_quaternion_add(void)
+static const char *test_quaternion_add(void)
 {
 	struct quaternion q, qT, qExpected;
 
@@ -482,7 +482,7 @@ static char *test_quaternion_add(void)
 }
 
 
-static char *test_quaternion_subtract(void)
+static const char *test_quaternion_subtract(void)
 {
 	struct quaternion q, qT, qExpected;
 
@@ -503,7 +503,7 @@ static char *test_quaternion_subtract(void)
 }
 
 
-static char *test_quaternion_negate(void)
+static const char *test_quaternion_negate(void)
 {
 	struct quaternion q, qExpected;
 
@@ -523,7 +523,7 @@ static char *test_quaternion_negate(void)
 }
 
 
-static char *test_quaternion_multiplyf(void)
+static const char *test_quaternion_multiplyf(void)
 {
 	struct quaternion q, qExpected;
 
@@ -548,7 +548,7 @@ static char *test_quaternion_multiplyf(void)
 }
 
 
-static char *test_quaternion_multiplyv3(void)
+static const char *test_quaternion_multiplyv3(void)
 {
 	struct quaternion q, qExpected;
 	struct vector3 v;
@@ -573,7 +573,7 @@ static char *test_quaternion_multiplyv3(void)
 }
 
 
-static char *test_quaternion_dot_product(void)
+static const char *test_quaternion_dot_product(void)
 {
 	struct quaternion q1, q2;
 	HYP_FLOAT dot;
@@ -599,7 +599,7 @@ static char *test_quaternion_dot_product(void)
 }
 
 
-static char *test_quaternion_lerp(void)
+static const char *test_quaternion_lerp(void)
 {
 	struct quaternion q1, q2, qR, qExpected;
 
@@ -623,7 +623,7 @@ static char *test_quaternion_lerp(void)
 }
 
 
-static char *test_quaternion_nlerp(void)
+static const char *test_quaternion_nlerp(void)
 {
 	struct quaternion q1, q2, qR;
 
@@ -647,7 +647,7 @@ static char *test_quaternion_nlerp(void)
 }
 
 
-static char *test_quaternion_get_rotation_tov3(void)
+static const char *test_quaternion_get_rotation_tov3(void)
 {
 	struct quaternion qR;
 	struct vector3 r;
@@ -677,7 +677,7 @@ static char *test_quaternion_get_rotation_tov3(void)
 }
 
 
-static char *test_quaternion_slerp_nearly_identical(void)
+static const char *test_quaternion_slerp_nearly_identical(void)
 {
 	struct quaternion q1, q2, qR;
 
@@ -697,7 +697,7 @@ static char *test_quaternion_slerp_nearly_identical(void)
 }
 
 
-static char *test_quaternion_slerp_opposite(void)
+static const char *test_quaternion_slerp_opposite(void)
 {
 	struct quaternion q1, q2, qR;
 
@@ -719,7 +719,7 @@ static char *test_quaternion_slerp_opposite(void)
 }
 
 
-static char *test_quaternion_slerp_at_endpoints(void)
+static const char *test_quaternion_slerp_at_endpoints(void)
 {
 	struct quaternion q1, q2, qR;
 
@@ -738,7 +738,7 @@ static char *test_quaternion_slerp_at_endpoints(void)
 }
 
 
-static char *quaternion_all_tests(void)
+static const char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_identity);
 	run_test(test_quaternion_conjugate);
