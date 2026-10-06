@@ -883,6 +883,7 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self, H
 HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
 HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const struct vector3 *vT, struct vector3 *vR);
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
+HYPAPI struct matrix4 *matrix4_set_from_quaternion_EXP(struct matrix4 *self, const struct quaternion *qT);
 HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z);
@@ -4492,6 +4493,71 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, H
 HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	return matrix4_set_from_axisf3_angle_EXP(self, axis->x, axis->y, axis->z, angle);
+}
+
+
+/**
+ * @ingroup experimental
+ * @brief Sets the matrix to the rotation described by the quaternion
+ *
+ * The whole matrix is set: the rotation, no translation, and 1 in c33.
+ * Applied with vector3_multiplym4, the matrix rotates a vector the same way as
+ * vector3_rotate_by_quaternion does (right hand rule), the same convention as
+ * matrix4_set_from_axisf3_angle_EXP.  matrix4_make_transformation_rotationq
+ * turns the opposite way (see docs/TODO, "Rotation direction audit").
+ *
+ * The quaternion does not need to be unit length: only its direction is used.
+ * A quaternion with all four components exactly zero describes no rotation and
+ * gives the identity.
+ *
+ * @param self The matrix
+ * @param qT The quaternion
+ *
+ */
+HYPAPI struct matrix4 *matrix4_set_from_quaternion_EXP(struct matrix4 *self, const struct quaternion *qT)
+{
+	HYP_FLOAT norm = quaternion_norm(qT);
+	HYP_FLOAT s;
+	HYP_FLOAT xx, yy, zz, xy, xz, yz, xw, yw, zw;
+
+	if (!(norm > HYP_FLOAT_C(0.0))) {
+		return matrix4_identity(self);
+	}
+
+	/* 2 / |q|^2 makes the result a pure rotation for any length of q */
+	s = HYP_FLOAT_C(2.0) / norm;
+
+	xx = s * qT->x * qT->x;
+	yy = s * qT->y * qT->y;
+	zz = s * qT->z * qT->z;
+	xy = s * qT->x * qT->y;
+	xz = s * qT->x * qT->z;
+	yz = s * qT->y * qT->z;
+	xw = s * qT->x * qT->w;
+	yw = s * qT->y * qT->w;
+	zw = s * qT->z * qT->w;
+
+	self->c00 = HYP_FLOAT_C(1.0) - (yy + zz);
+	self->c01 = xy + zw;
+	self->c02 = xz - yw;
+	self->c03 = HYP_FLOAT_C(0.0);
+
+	self->c10 = xy - zw;
+	self->c11 = HYP_FLOAT_C(1.0) - (xx + zz);
+	self->c12 = yz + xw;
+	self->c13 = HYP_FLOAT_C(0.0);
+
+	self->c20 = xz + yw;
+	self->c21 = yz - xw;
+	self->c22 = HYP_FLOAT_C(1.0) - (xx + yy);
+	self->c23 = HYP_FLOAT_C(0.0);
+
+	self->c30 = HYP_FLOAT_C(0.0);
+	self->c31 = HYP_FLOAT_C(0.0);
+	self->c32 = HYP_FLOAT_C(0.0);
+	self->c33 = HYP_FLOAT_C(1.0);
+
+	return self;
 }
 
 

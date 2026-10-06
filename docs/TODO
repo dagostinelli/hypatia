@@ -119,6 +119,7 @@ Follow the right-hand rule (X -> +Y):
 - matrix2_make_transformation_rotationf_z, matrix2_rotate
 - matrix3_make_transformation_rotationf_z, matrix3_rotate
 - matrix4_set_from_axisf3_angle_EXP / matrix4_set_from_axisv3_angle_EXP
+- matrix4_set_from_quaternion_EXP
 
 Turn the opposite way (X -> -Y):
 - matrix4_make_transformation_rotationf_x / _y / _z
@@ -137,10 +138,12 @@ Cause: the layouts disagree.
 - matrix2/3 use the same builder layout but apply as v * M (matrix2_multiplyv2 and
   matrix3_multiplyv2 read c00, c01 = r00, r10), so they come out right-handed. So
   matrix2/3 and matrix4 also apply matrices with different conventions.
-- matrix4_set_from_axisf3_angle_EXP is the one matrix4 builder written for M * v.
+- matrix4_set_from_axisf3_angle_EXP and matrix4_set_from_quaternion_EXP are the matrix4
+  builders written for M * v.
 
 Other findings from the audit:
-- matrix4_set_from_quaternion_EXP is declared but never defined (link error if used).
+- matrix4_set_from_quaternion_EXP was declared but never defined; now implemented,
+  following the right-hand rule like matrix4_set_from_axisf3_angle_EXP.
 - quaternion_get_rotation_tov3: fixed. It added the squared length (quaternion_norm)
   to w and divided by it, so results were not unit length, non-unit inputs gave the
   wrong direction, and opposite vectors gave a zero quaternion. Its test normalized
