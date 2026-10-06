@@ -15,6 +15,15 @@ Hypatia, a Greek mathematician, 355-415 C.E. Considered by many to be the first 
 
 Hypatia is a single-file-header, pure-C math library.  It is almost 100% C89/C90 compliant.  This library is intended for use in 2d/3d graphics program (such as games).  Since it is not a general purpose math library, but a library meant for 3d graphics, certain opinions have been expressed in its design.  One of those design choices, intended to help with speed, is that all objects (quaternions, matrices, vectors) are mutable.  (That means that the objects change their values.)  This was a purposeful design choice. Construct your program around this choice.
 
+With CMake, either add the source tree to your project:
+
+```
+add_subdirectory(hypatia)
+target_link_libraries(your_program PRIVATE hypatia::hypatia)
+```
+
+or install it (`cmake -B build && cmake --install build`) and use `find_package(hypatia 2.0 REQUIRED)` with the same `target_link_libraries` line.  The target adds the include directory and links the C math library where needed.
+
 Quick Start
 ----------
 The entire library is self-contained in this one header file.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simply `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to also use implementation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before an `#include <hypatia.h>`. 

@@ -58,8 +58,6 @@ Long double support (planned):
 Build and CI:
 - Add a strict `-std=c89 -pedantic -Werror` CI job. As it stands it cannot pass, because
   the anonymous unions stay (see C89 compliance).
-- CMake support for users: an interface library target (add_subdirectory / find_package)
-  and install rules
 - The generated docs contain none of the function doc comments: they are in the
   implementation section, which Doxygen skips (HYPATIA_IMPLEMENTATION is not defined
   for it). With HYPATIA_IMPLEMENTATION in PREDEFINED, Doxygen reports 157 "no matching
