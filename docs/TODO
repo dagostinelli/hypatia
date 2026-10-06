@@ -12,41 +12,13 @@ Remaining Work:
 - add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
 - make doxygen ignore vector3_get_reference_vector3
 
-- Re-test the Visual Studio compilation
-	- Postfix is not being applied correctly for MSVC (hypatiad.dll)
-	- PDB is not being founds and added to install files (See CPack)
-	- PDB is not being collected by AppVeyor artifact collector
-
-- In Visual Studio compilation Fix this: (shouldn't be outputting a lib file for the test project)
-	Linking C executable test_hypatia.exe
-	   Creating library test_hypatia.lib and object test_hypatia.exp
-	   Creating library test_hypatia.lib and object test_hypatia.exp
-	[100%] Built target test_hypatia
-
-- CPack is using strange version numbers. Where is it getting those version numbers from?
-- AppVeyor is showing CMake warnings that do not appear on other platforms
-- TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
-- Stale: the Visual Studio / PDB / hypatiad.dll, AppVeyor, TravisCI, CPack and test .lib
-  entries above refer to build setups that no longer exist; review and remove
-
-API safety:
-- The short-name alias macros (78 of them, e.g. `#define m3 struct matrix3`, vec3,
-  quat, mat4_mul) are always defined, so a user variable or parameter named m3 or m4
-  breaks. Conflicts with "don't interfere with the user's program" in the README coding
-  standard. Options (not decided): an opt-in switch, deprecation, or keep as is.
-- Configuration switches use two prefixes: HYPATIA_SINGLE_PRECISION_FLOATS and
-  HYPATIA_IMPLEMENTATION vs HYP_STATIC, HYP_NO_STDIO, HYP_NO_C_MATH, HYP_NO_DEPRECATED.
-  Renaming would go through deprecation. Not decided.
 
 C89 compliance:
 - `gcc -std=c89 -pedantic` reports 32 warnings: 25 unnamed structs/unions, 7 structs with
-  no named members
+  no named members. Decided: the anonymous unions stay; the README says "almost 100%
+  C89/C90 compliant".
 - <stdint.h> / uint8_t are C99
-- Either provide a strict-C89 path (feature macro for the anonymous unions, replace uint8_t)
-  or change the README to say "C99, C89-friendly style"
-- Decided: the anonymous unions stay (not named). Update this section and the strict
-  C89 CI item under "Build and CI" to match
 
 API gaps:
 - vector2/3/4_lerp
@@ -89,7 +61,8 @@ Long double support (planned):
   128-bit software on ARM64 Linux; CI needs a long double job per platform
 
 Build and CI:
-- Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
+- Add a strict `-std=c89 -pedantic -Werror` CI job. As it stands it cannot pass, because
+  the anonymous unions stay (see C89 compliance).
 - CMake support for users: an interface library target (add_subdirectory / find_package)
   and install rules
 - Build the Doxygen docs in CI to catch broken doc comments
