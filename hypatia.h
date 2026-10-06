@@ -871,6 +871,18 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 }
 
 
+#ifndef HYP_NO_STDIO
+/* prints prefix and then value.  value is a double because printf takes
+ * floating point arguments as double; the conversion happens here, in one
+ * place, together with the number format.
+ */
+static void _hyp_print_value(const char *prefix, double value)
+{
+	printf("%s%10f", prefix, value);
+}
+#endif
+
+
 static struct vector2 _vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
 static struct vector2 _vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
 static struct vector2 _vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
@@ -1093,7 +1105,9 @@ HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct mat
 #ifndef HYP_NO_STDIO
 HYPAPI void _vector2_print(const struct vector2 *self)
 {
-	printf("x:%10f, y:%10f\r\n", self->x, self->y);
+	_hyp_print_value("x:", self->x);
+	_hyp_print_value(", y:", self->y);
+	printf("\r\n");
 }
 #endif
 
@@ -1422,7 +1436,10 @@ HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct mat
 #ifndef HYP_NO_STDIO
 HYPAPI void _vector3_print(const struct vector3 *self)
 {
-	printf("x:%10f, y:%10f, z:%10f\r\n", self->x, self->y, self->z);
+	_hyp_print_value("x:", self->x);
+	_hyp_print_value(", y:", self->y);
+	_hyp_print_value(", z:", self->z);
+	printf("\r\n");
 }
 #endif
 
@@ -1778,7 +1795,11 @@ HYPAPI HYP_FLOAT vector4_distance(const struct vector4 *v1, const struct vector4
 #ifndef HYP_NO_STDIO
 HYPAPI void _vector4_print(const struct vector4 *self)
 {
-	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
+	_hyp_print_value("x:", self->x);
+	_hyp_print_value(", y:", self->y);
+	_hyp_print_value(", z:", self->z);
+	_hyp_print_value(", w:", self->w);
+	printf("\r\n");
 }
 #endif
 
@@ -1998,8 +2019,12 @@ HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self)
  */
 HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self)
 {
-	printf("%10f, %10f\r\n", self->c00, self->c10);
-	printf("%10f, %10f\r\n", self->c01, self->c11);
+	_hyp_print_value("", self->c00);
+	_hyp_print_value(", ", self->c10);
+	printf("\r\n");
+	_hyp_print_value("", self->c01);
+	_hyp_print_value(", ", self->c11);
+	printf("\r\n");
 }
 #endif
 
@@ -2012,8 +2037,12 @@ HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self)
  */
 HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
 {
-	printf("%10f, %10f\r\n", self->r00, self->r01);
-	printf("%10f, %10f\r\n", self->r10, self->r11);
+	_hyp_print_value("", self->r00);
+	_hyp_print_value(", ", self->r01);
+	printf("\r\n");
+	_hyp_print_value("", self->r10);
+	_hyp_print_value(", ", self->r11);
+	printf("\r\n");
 }
 #endif
 
@@ -2399,9 +2428,18 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
  */
 HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 {
-	printf("%10f, %10f, %10f\r\n", self->c00, self->c10, self->c20);
-	printf("%10f, %10f, %10f\r\n", self->c01, self->c11, self->c21);
-	printf("%10f, %10f, %10f\r\n", self->c02, self->c12, self->c22);
+	_hyp_print_value("", self->c00);
+	_hyp_print_value(", ", self->c10);
+	_hyp_print_value(", ", self->c20);
+	printf("\r\n");
+	_hyp_print_value("", self->c01);
+	_hyp_print_value(", ", self->c11);
+	_hyp_print_value(", ", self->c21);
+	printf("\r\n");
+	_hyp_print_value("", self->c02);
+	_hyp_print_value(", ", self->c12);
+	_hyp_print_value(", ", self->c22);
+	printf("\r\n");
 }
 #endif
 
@@ -2414,9 +2452,18 @@ HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
  */
 HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 {
-	printf("%10f, %10f, %10f\r\n", self->r00, self->r01, self->r02);
-	printf("%10f, %10f, %10f\r\n", self->r10, self->r11, self->r12);
-	printf("%10f, %10f, %10f\r\n", self->r20, self->r21, self->r22);
+	_hyp_print_value("", self->r00);
+	_hyp_print_value(", ", self->r01);
+	_hyp_print_value(", ", self->r02);
+	printf("\r\n");
+	_hyp_print_value("", self->r10);
+	_hyp_print_value(", ", self->r11);
+	_hyp_print_value(", ", self->r12);
+	printf("\r\n");
+	_hyp_print_value("", self->r20);
+	_hyp_print_value(", ", self->r21);
+	_hyp_print_value(", ", self->r22);
+	printf("\r\n");
 }
 #endif
 
@@ -2926,10 +2973,26 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
  */
 HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self)
 {
-	printf("%10f, %10f, %10f, %10f\r\n", self->c00, self->c10, self->c20, self->c30);
-	printf("%10f, %10f, %10f, %10f\r\n", self->c01, self->c11, self->c21, self->c31);
-	printf("%10f, %10f, %10f, %10f\r\n", self->c02, self->c12, self->c22, self->c32);
-	printf("%10f, %10f, %10f, %10f\r\n", self->c03, self->c13, self->c23, self->c33);
+	_hyp_print_value("", self->c00);
+	_hyp_print_value(", ", self->c10);
+	_hyp_print_value(", ", self->c20);
+	_hyp_print_value(", ", self->c30);
+	printf("\r\n");
+	_hyp_print_value("", self->c01);
+	_hyp_print_value(", ", self->c11);
+	_hyp_print_value(", ", self->c21);
+	_hyp_print_value(", ", self->c31);
+	printf("\r\n");
+	_hyp_print_value("", self->c02);
+	_hyp_print_value(", ", self->c12);
+	_hyp_print_value(", ", self->c22);
+	_hyp_print_value(", ", self->c32);
+	printf("\r\n");
+	_hyp_print_value("", self->c03);
+	_hyp_print_value(", ", self->c13);
+	_hyp_print_value(", ", self->c23);
+	_hyp_print_value(", ", self->c33);
+	printf("\r\n");
 }
 
 
@@ -2940,10 +3003,26 @@ HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self)
  */
 HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 {
-	printf("%10f, %10f, %10f, %10f\r\n", self->r00, self->r01, self->r02, self->r03);
-	printf("%10f, %10f, %10f, %10f\r\n", self->r10, self->r11, self->r12, self->r13);
-	printf("%10f, %10f, %10f, %10f\r\n", self->r20, self->r21, self->r22, self->r23);
-	printf("%10f, %10f, %10f, %10f\r\n", self->r30, self->r31, self->r32, self->r33);
+	_hyp_print_value("", self->r00);
+	_hyp_print_value(", ", self->r01);
+	_hyp_print_value(", ", self->r02);
+	_hyp_print_value(", ", self->r03);
+	printf("\r\n");
+	_hyp_print_value("", self->r10);
+	_hyp_print_value(", ", self->r11);
+	_hyp_print_value(", ", self->r12);
+	_hyp_print_value(", ", self->r13);
+	printf("\r\n");
+	_hyp_print_value("", self->r20);
+	_hyp_print_value(", ", self->r21);
+	_hyp_print_value(", ", self->r22);
+	_hyp_print_value(", ", self->r23);
+	printf("\r\n");
+	_hyp_print_value("", self->r30);
+	_hyp_print_value(", ", self->r31);
+	_hyp_print_value(", ", self->r32);
+	_hyp_print_value(", ", self->r33);
+	printf("\r\n");
 }
 #endif
 
@@ -3857,7 +3936,11 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
  */
 HYPAPI void _quaternion_print(const struct quaternion *self)
 {
-	printf("x:%10f, y:%10f, z:%10f, w:%10f\r\n", self->x, self->y, self->z, self->w);
+	_hyp_print_value("x:", self->x);
+	_hyp_print_value(", y:", self->y);
+	_hyp_print_value(", z:", self->z);
+	_hyp_print_value(", w:", self->w);
+	printf("\r\n");
 }
 #endif
 
