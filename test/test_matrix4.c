@@ -767,7 +767,7 @@ static const char *test_matrix4_inverse_singular(void)
 	matrix4_zero(&singular);
 
 	ret = matrix4_inverse(&singular, &result);
-	test_assert(ret == NULL);
+	test_assert(!ret);
 
 	return NULL;
 }

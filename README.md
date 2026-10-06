@@ -26,7 +26,7 @@ or install it (`cmake -B build && cmake --install build`) and use `find_package(
 
 Quick Start
 ----------
-The entire library is self-contained in this one header file.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simply `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to also use implementation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before an `#include <hypatia.h>`. 
+The entire library is self-contained in this one header file.  The file can be used in a header mode or implementation mode.  The header mode is used by default and is what you are using when you simply `#include` this file.  It does not compile-in the actual implementation.  To compile-in the actual implementation, you need to also use implementation mode.  The implementation mode requires the macro `HYPATIA_IMPLEMENTATION` exist in one .c/.cpp file in your project before an `#include <hypatia.h>`.
 
 Like so:
 
@@ -118,7 +118,7 @@ A goal of the unit tests is to test each function against HYP_EPSILON which is d
 A word about convention
 -----------------------
 
-Hypatia uses verbose names. In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (gracefully allows for ambiguous names).  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".  
+Hypatia uses verbose names. In pure-C code, math-related function names seem to end up either cryptic (m4mul), verbose (matrix4_multiplym4) or ambiguous (multiply).  C++ is a little better in this respect, because there is operator and function overloading (gracefully allows for ambiguous names).  When Hypatia was shown around before its release, the chief complaint was "it has verbose names".
 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
@@ -201,7 +201,7 @@ By making a contribution to this project, I certify that:
 	Signed-off-by: Random J Developer <random@developer.example.org>
 ```
 
-You must use your real name. 
+You must use your real name.
 
 This will be done for you automatically if you use `git commit -s`.
 

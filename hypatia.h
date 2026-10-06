@@ -1847,7 +1847,8 @@ HYPAPI struct matrix2 *matrix2_zero(struct matrix2 *self)
 HYPAPI struct matrix2 *matrix2_identity(struct matrix2 *m)
 {
 	matrix2_zero(m);
-	m->c00 = m->c11 = HYP_FLOAT_C(1.0);
+	m->c00 = HYP_FLOAT_C(1.0);
+	m->c11 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
@@ -2245,7 +2246,9 @@ HYPAPI struct matrix3 *matrix3_zero(struct matrix3 *self)
 HYPAPI struct matrix3 *matrix3_identity(struct matrix3 *m)
 {
 	matrix3_zero(m);
-	m->c00 = m->c11 = m->c22 = HYP_FLOAT_C(1.0);
+	m->c00 = HYP_FLOAT_C(1.0);
+	m->c11 = HYP_FLOAT_C(1.0);
+	m->c22 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
@@ -2736,7 +2739,10 @@ HYPAPI struct matrix4 *matrix4_zero(struct matrix4 *self)
 HYPAPI struct matrix4 *matrix4_identity(struct matrix4 *m)
 {
 	matrix4_zero(m);
-	m->c00 = m->c11 = m->c22 = m->c33 = HYP_FLOAT_C(1.0);
+	m->c00 = HYP_FLOAT_C(1.0);
+	m->c11 = HYP_FLOAT_C(1.0);
+	m->c22 = HYP_FLOAT_C(1.0);
+	m->c33 = HYP_FLOAT_C(1.0);
 
 	return m;
 }
