@@ -75,10 +75,6 @@ Build and CI:
 - Retire appveyor.yml (images: VS2015-2019, macOS Mojave) now that GitHub Actions covers
   Linux, macOS and Windows
 - Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
-- cmake/CMakeBuildFlags.cmake includes CheckCXXCompilerFlag in a C-only project; use
-  CheckCCompilerFlag (or drop it)
-- help/CMakeLists.txt uses ELSEIF() where ELSE() is intended, so the "Doxygen not found"
-  message never prints
 
 Docs:
 - Publish the Doxygen output (e.g. GitHub Pages)
