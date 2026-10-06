@@ -26,15 +26,18 @@ Like so:
 #include <hypatia.h>
 ```
 
+No build system is needed.  On Linux and other Unix systems, link the C math library, for example `cc example.c -lm`.
+
 Basic Usage
 -----------
 ```
+#include <assert.h>
 #include <stdio.h>
 
 #define HYPATIA_IMPLEMENTATION
 #include "hypatia.h"
 
-int main(int argc, char *argv)
+int main(void)
 {
 	struct vector3 a;
 	struct vector3 b;

@@ -6,51 +6,93 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.os }} / ${{ matrix.cc }}
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            cc: gcc
-          - os: ubuntu-latest
-            cc: clang
-          - os: macos-latest
-            cc: clang
-          - os: windows-latest
-            cc: cl
-    steps:
-      - uses: actions/checkout@v5
-      - name: Configure
-        run: cmake -B build -DHYPATIA_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=Debug
-        env:
-          CC: ${{ matrix.cc }}
-      - name: Build
-        run: cmake --build build --config Debug
-      - name: Test
-        run: ctest --test-dir build -C Debug --output-on-failure
+          # platforms and compilers (cc unset: the platform's default compiler)
+          - { name: ubuntu / gcc,             os: ubuntu-latest,  cc: gcc }
+          - { name: ubuntu / clang,           os: ubuntu-latest,  cc: clang }
+          - { name: ubuntu-22.04 / gcc-9,     os: ubuntu-22.04,   cc: gcc-9,    install: gcc-9 }
+          - { name: ubuntu-22.04 / clang-12,  os: ubuntu-22.04,   cc: clang-12, install: clang-12 }
+          - { name: ubuntu-24.04 / gcc-14,    os: ubuntu-24.04,   cc: gcc-14,   install: gcc-14 }
+          - { name: macos / default,          os: macos-latest }
+          - { name: windows / msvc,           os: windows-latest }
+          - { name: windows / mingw gcc,      os: windows-latest, cc: gcc,      generator: MinGW Makefiles }
+          - { name: ubuntu / gcc 32-bit,      os: ubuntu-latest,  cc: gcc,      install: gcc-multilib, cflags: -m32, ldflags: -m32 }
 
-  sanitizers:
-    name: sanitizers / ${{ matrix.cc }}
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        cc: [gcc, clang]
+          # optimized builds
+          - { name: ubuntu / gcc Release,     os: ubuntu-latest,  cc: gcc,      build_type: Release }
+          - { name: ubuntu / clang Release,   os: ubuntu-latest,  cc: clang,    build_type: Release }
+          - { name: macos / default Release,  os: macos-latest,                 build_type: Release }
+          - { name: windows / msvc Release,   os: windows-latest,               build_type: Release }
+          - { name: windows / msvc nmake,     os: windows-latest,               build_type: Release, generator: NMake Makefiles, vcvars: true }
+
+          # variants
+          - { name: sanitizers / gcc,         os: ubuntu-latest,  cc: gcc,
+              cflags: "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+              ldflags: "-fsanitize=address,undefined" }
+          - { name: sanitizers / clang,       os: ubuntu-latest,  cc: clang,
+              cflags: "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer",
+              ldflags: "-fsanitize=address,undefined" }
+          - { name: no-stdio / gcc,           os: ubuntu-latest,  cc: gcc,      cflags: -DHYP_NO_STDIO }
+          - { name: no-stdio / clang,         os: ubuntu-latest,  cc: clang,    cflags: -DHYP_NO_STDIO }
+    env:
+      BUILD_TYPE: ${{ matrix.build_type || 'Debug' }}
     steps:
       - uses: actions/checkout@v5
+      - name: Install compiler
+        if: matrix.install
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.install }}
+      - name: Set up the MSVC command-line environment
+        if: matrix.vcvars
+        shell: cmd
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
+          set >> %GITHUB_ENV%
       - name: Configure
-        run: >
-          cmake -B build -DHYPATIA_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=Debug
-          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
-          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
-        env:
-          CC: ${{ matrix.cc }}
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.cc }}" ]; then export CC="${{ matrix.cc }}"; fi
+          args=(-B build -DHYPATIA_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
+                -DCMAKE_C_FLAGS="${{ matrix.cflags }}" -DCMAKE_EXE_LINKER_FLAGS="${{ matrix.ldflags }}")
+          if [ -n "${{ matrix.generator }}" ]; then args+=(-G "${{ matrix.generator }}"); fi
+          cmake "${args[@]}"
       - name: Build
-        run: cmake --build build
+        run: cmake --build build --config ${{ env.BUILD_TYPE }}
       - name: Test
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --test-dir build -C ${{ env.BUILD_TYPE }} --output-on-failure
         env:
           ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
           UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+
+  readme-example:
+    name: readme example / ${{ matrix.cc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  cc: gcc }
+          - { os: ubuntu-latest,  cc: clang }
+          - { os: macos-latest,   cc: cc }
+          - { os: windows-latest, cc: cl }
+    steps:
+      - uses: actions/checkout@v5
+      - name: Extract the Basic Usage example
+        shell: bash
+        run: awk '/^Basic Usage/{s=1} s&&/^```/{if(f){exit} f=1; next} f' README.md > example.c
+      - name: Build and run (gcc, clang, cc)
+        if: matrix.cc != 'cl'
+        run: |
+          ${{ matrix.cc }} -std=c90 -Wall -Wextra -Werror example.c -o example -lm
+          ./example
+      - name: Build and run (cl)
+        if: matrix.cc == 'cl'
+        shell: cmd
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvars64.bat"
+          cl /nologo /W3 /WX example.c
+          example.exe
