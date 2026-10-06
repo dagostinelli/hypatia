@@ -17,7 +17,7 @@ if(CMAKE_COMPILER_IS_GNUC OR CMAKE_COMPILER_IS_CLANG)
 	FIND_LIBRARY(LIBM m)
 
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c90 -Wextra -Wmissing-prototypes -Wall -Wold-style-definition -Wdeclaration-after-statement")
-	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion")
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wundef -Wpointer-arith -Werror -Wcast-qual -Wcast-align -Wfloat-equal -Wconversion -Wwrite-strings")
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces")
 endif()
 

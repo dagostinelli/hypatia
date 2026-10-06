@@ -3,7 +3,7 @@
 /* non-symmetric, not the identity, and invertible */
 static const struct matrix3 test_matrix3_fixed = {1, 2, 3, 0, 1, 4, 5, 6, 0};
 
-static char *test_matrix3_zero(void)
+static const char *test_matrix3_zero(void)
 {
 	struct matrix3 zero;
 	uint8_t i;
@@ -18,7 +18,7 @@ static char *test_matrix3_zero(void)
 }
 
 
-static char *test_matrix3_equals(void)
+static const char *test_matrix3_equals(void)
 {
 	struct matrix3 m, identity;
 
@@ -35,7 +35,7 @@ static char *test_matrix3_equals(void)
 }
 
 
-static char *test_matrix3_multiply_identity(void)
+static const char *test_matrix3_multiply_identity(void)
 {
 	struct matrix3 m1, m2, identity;
 
@@ -55,7 +55,7 @@ static char *test_matrix3_multiply_identity(void)
 }
 
 
-static char *test_matrix3_multiplym3(void)
+static const char *test_matrix3_multiplym3(void)
 {
 	struct matrix3 m1, m2, mR;
 
@@ -77,7 +77,7 @@ static char *test_matrix3_multiplym3(void)
 }
 
 
-static char *test_matrix3_determinant_trial1(void)
+static const char *test_matrix3_determinant_trial1(void)
 {
 	struct matrix3 m = {5, 3, 7, 2, -5, 8, -6, 4, 9};
 
@@ -86,7 +86,7 @@ static char *test_matrix3_determinant_trial1(void)
 }
 
 
-static char *test_matrix3_determinant_trial2(void)
+static const char *test_matrix3_determinant_trial2(void)
 {
 	struct matrix3 m = {8, 4, 3, -5, 6, -2, 7, 9, -8};
 
@@ -95,7 +95,7 @@ static char *test_matrix3_determinant_trial2(void)
 }
 
 
-static char *test_matrix3_determinant_trial3(void)
+static const char *test_matrix3_determinant_trial3(void)
 {
 	struct matrix3 m = {2, -3, 1, 2, 0, -1, 1, 4, 5};
 
@@ -104,7 +104,7 @@ static char *test_matrix3_determinant_trial3(void)
 }
 
 
-static char *test_matrix3_determinant_trial4(void)
+static const char *test_matrix3_determinant_trial4(void)
 {
 	struct matrix3 m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123, (HYP_FLOAT)0.982764, (HYP_FLOAT)0.726415, (HYP_FLOAT)0.266338, (HYP_FLOAT)0.861622, (HYP_FLOAT)0.904272};
 
@@ -114,7 +114,7 @@ static char *test_matrix3_determinant_trial4(void)
 
 
 
-static char *test_matrix3_inverse(void)
+static const char *test_matrix3_inverse(void)
 {
 	struct matrix3 originalMatrix = {2, 0, -1, 5, 0, 1, 1, 1, 3};
 	struct matrix3 identity;
@@ -140,7 +140,7 @@ static char *test_matrix3_inverse(void)
 }
 
 
-static char *test_matrix3_invert(void)
+static const char *test_matrix3_invert(void)
 {
 	struct matrix3 m = {2, 0, -1, 5, 0, 1, 1, 1, 3};
 	struct matrix3 expected = {-1, -1, 0, -14, 7, -7, 5, -2, 0};
@@ -163,7 +163,7 @@ static char *test_matrix3_invert(void)
 }
 
 
-static char *test_matrix3_columnrowcolumn(void)
+static const char *test_matrix3_columnrowcolumn(void)
 {
 	struct matrix3 c;
 	struct matrix3 r;
@@ -199,7 +199,7 @@ static char *test_matrix3_columnrowcolumn(void)
 }
 
 
-static char *test_matrix3_transpose(void)
+static const char *test_matrix3_transpose(void)
 {
 	struct matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 	struct matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
@@ -210,7 +210,7 @@ static char *test_matrix3_transpose(void)
 }
 
 
-static char *test_matrix3_identity_with_vector(void)
+static const char *test_matrix3_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix3 m;
@@ -226,7 +226,7 @@ static char *test_matrix3_identity_with_vector(void)
 }
 
 
-static char *test_matrix3_transformation_translatev2(void)
+static const char *test_matrix3_transformation_translatev2(void)
 {
 	struct matrix3 transform;
 
@@ -242,7 +242,7 @@ static char *test_matrix3_transformation_translatev2(void)
 }
 
 
-static char *test_matrix3_transformation_translatev2_negative(void)
+static const char *test_matrix3_transformation_translatev2_negative(void)
 {
 	struct matrix3 transform;
 
@@ -258,7 +258,7 @@ static char *test_matrix3_transformation_translatev2_negative(void)
 }
 
 
-static char *test_matrix3_transformation_scalingv2(void)
+static const char *test_matrix3_transformation_scalingv2(void)
 {
 	struct matrix3 transform;
 
@@ -274,7 +274,7 @@ static char *test_matrix3_transformation_scalingv2(void)
 }
 
 
-static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
+static const char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 {
 	struct matrix3 m;
 	struct vector2 r;
@@ -288,7 +288,7 @@ static char *test_vector2_rotate_by_matrix_zx_quarter_turn(void)
 }
 
 
-static char *test_matrix3_rotatev3_xz_quarter_turn(void)
+static const char *test_matrix3_rotatev3_xz_quarter_turn(void)
 {
 	struct matrix3 m;
 	struct vector2 r;
@@ -303,7 +303,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn(void)
 }
 
 
-static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
+static const char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 {
 	struct matrix3 m;
 	struct vector2 r;
@@ -318,7 +318,7 @@ static char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 }
 
 
-static char *test_matrix3_add(void)
+static const char *test_matrix3_add(void)
 {
 	struct matrix3 m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 	struct matrix3 m2 = {9, 8, 7, 6, 5, 4, 3, 2, 1};
@@ -331,7 +331,7 @@ static char *test_matrix3_add(void)
 }
 
 
-static char *test_matrix3_subtract(void)
+static const char *test_matrix3_subtract(void)
 {
 	struct matrix3 m1 = {10, 9, 8, 7, 6, 5, 4, 3, 2};
 	struct matrix3 m2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -344,7 +344,7 @@ static char *test_matrix3_subtract(void)
 }
 
 
-static char *test_matrix3_multiplyf(void)
+static const char *test_matrix3_multiplyf(void)
 {
 	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 	struct matrix3 expected = {3, 6, 9, 12, 15, 18, 21, 24, 27};
@@ -356,7 +356,7 @@ static char *test_matrix3_multiplyf(void)
 }
 
 
-static char *test_matrix3_multiplyf_zero(void)
+static const char *test_matrix3_multiplyf_zero(void)
 {
 	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 	struct matrix3 expected;
@@ -370,7 +370,7 @@ static char *test_matrix3_multiplyf_zero(void)
 }
 
 
-static char *test_matrix3_inverse_nonmutating(void)
+static const char *test_matrix3_inverse_nonmutating(void)
 {
 	struct matrix3 original = {2, 0, -1, 5, 0, 1, 1, 1, 3};
 	struct matrix3 originalCopy = {2, 0, -1, 5, 0, 1, 1, 1, 3};
@@ -396,7 +396,7 @@ static char *test_matrix3_inverse_nonmutating(void)
 }
 
 
-static char *test_matrix3_inverse_singular(void)
+static const char *test_matrix3_inverse_singular(void)
 {
 	struct matrix3 singular = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 	struct matrix3 result;
@@ -409,7 +409,7 @@ static char *test_matrix3_inverse_singular(void)
 }
 
 
-static char *test_matrix3_multiplyv2(void)
+static const char *test_matrix3_multiplyv2(void)
 {
 	/* multiply by identity should return same vector */
 	struct matrix3 m;
@@ -424,7 +424,7 @@ static char *test_matrix3_multiplyv2(void)
 }
 
 
-static char *test_matrix3_multiplyv2_translation(void)
+static const char *test_matrix3_multiplyv2_translation(void)
 {
 	struct matrix3 m;
 	struct vector2 v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)};
@@ -440,7 +440,7 @@ static char *test_matrix3_multiplyv2_translation(void)
 }
 
 
-static char *test_matrix3_scalev2(void)
+static const char *test_matrix3_scalev2(void)
 {
 	struct matrix3 m;
 	struct vector2 scale = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)};
@@ -456,7 +456,7 @@ static char *test_matrix3_scalev2(void)
 }
 
 
-static char *test_matrix3_translatev2(void)
+static const char *test_matrix3_translatev2(void)
 {
 	struct matrix3 m;
 	struct vector2 translation = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)};
@@ -472,7 +472,7 @@ static char *test_matrix3_translatev2(void)
 }
 
 
-static char *test_matrix3_rotationf_z_components(void)
+static const char *test_matrix3_rotationf_z_components(void)
 {
 	/*
 	 * Regression test for bug where matrix3_make_transformation_rotationf_z
@@ -513,7 +513,7 @@ static char *test_matrix3_rotationf_z_components(void)
 	return NULL;
 }
 
-static char *test_matrix3_rotate_diagonal_vector(void)
+static const char *test_matrix3_rotate_diagonal_vector(void)
 {
 	struct matrix3 m;
 	struct vector2 v;
@@ -530,7 +530,7 @@ static char *test_matrix3_rotate_diagonal_vector(void)
 	return NULL;
 }
 
-static char *matrix3_all_tests(void)
+static const char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_zero);
 	run_test(test_matrix3_equals);

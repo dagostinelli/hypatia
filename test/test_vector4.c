@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: MIT */
 
-static char *test_vector4_set(void)
+static const char *test_vector4_set(void)
 {
 	struct vector4 v1, v2;
 
@@ -26,7 +26,7 @@ static char *test_vector4_set(void)
 	return NULL;
 }
 
-static char *test_vector4_zero(void)
+static const char *test_vector4_zero(void)
 {
 	struct vector4 v;
 
@@ -40,7 +40,7 @@ static char *test_vector4_zero(void)
 	return NULL;
 }
 
-static char *test_vector4_negate(void)
+static const char *test_vector4_negate(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
 
@@ -71,7 +71,7 @@ static char *test_vector4_negate(void)
 	return NULL;
 }
 
-static char *test_vector4_add(void)
+static const char *test_vector4_add(void)
 {
 	struct vector4 v1 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
 	struct vector4 v2 = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}}};
@@ -99,7 +99,7 @@ static char *test_vector4_add(void)
 	return NULL;
 }
 
-static char *test_vector4_addf(void)
+static const char *test_vector4_addf(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
 
@@ -129,7 +129,7 @@ static char *test_vector4_addf(void)
 	return NULL;
 }
 
-static char *test_vector4_subtract(void)
+static const char *test_vector4_subtract(void)
 {
 	struct vector4 v1 = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(11.0)}}};
 	struct vector4 v2 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
@@ -157,7 +157,7 @@ static char *test_vector4_subtract(void)
 	return NULL;
 }
 
-static char *test_vector4_subtractf(void)
+static const char *test_vector4_subtractf(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}}};
 
@@ -179,7 +179,7 @@ static char *test_vector4_subtractf(void)
 	return NULL;
 }
 
-static char *test_vector4_multiply(void)
+static const char *test_vector4_multiply(void)
 {
 	struct vector4 v1 = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}}};
 	struct vector4 v2 = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}}};
@@ -207,7 +207,7 @@ static char *test_vector4_multiply(void)
 	return NULL;
 }
 
-static char *test_vector4_multiplyf(void)
+static const char *test_vector4_multiplyf(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
 
@@ -241,7 +241,7 @@ static char *test_vector4_multiplyf(void)
 	return NULL;
 }
 
-static char *test_vector4_divide(void)
+static const char *test_vector4_divide(void)
 {
 	struct vector4 v1 = {{{HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}}};
 	struct vector4 v2 = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(8.0)}}};
@@ -269,7 +269,7 @@ static char *test_vector4_divide(void)
 	return NULL;
 }
 
-static char *test_vector4_dividef(void)
+static const char *test_vector4_dividef(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(8.0), HYP_FLOAT_C(12.0), HYP_FLOAT_C(16.0), HYP_FLOAT_C(20.0)}}};
 
@@ -282,7 +282,7 @@ static char *test_vector4_dividef(void)
 	return NULL;
 }
 
-static char *test_vector4_magnitude(void)
+static const char *test_vector4_magnitude(void)
 {
 	/* Unit vector along x */
 	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
@@ -304,7 +304,7 @@ static char *test_vector4_magnitude(void)
 	return NULL;
 }
 
-static char *test_vector4_normalize(void)
+static const char *test_vector4_normalize(void)
 {
 	/* Normalize a known vector */
 	struct vector4 v = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
@@ -335,7 +335,7 @@ static char *test_vector4_normalize(void)
 	return NULL;
 }
 
-static char *test_vector4_distance(void)
+static const char *test_vector4_distance(void)
 {
 	/* Distance between same point is zero */
 	struct vector4 v1 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
@@ -366,7 +366,7 @@ static char *test_vector4_distance(void)
 	return NULL;
 }
 
-static char *test_vector4_dot_product(void)
+static const char *test_vector4_dot_product(void)
 {
 	/* Dot product of orthogonal vectors is zero */
 	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
@@ -397,7 +397,7 @@ static char *test_vector4_dot_product(void)
 	return NULL;
 }
 
-static char *test_vector4_cross_product(void)
+static const char *test_vector4_cross_product(void)
 {
 	struct vector4 result;
 
@@ -460,7 +460,7 @@ static char *test_vector4_cross_product(void)
 	return NULL;
 }
 
-static char *test_vector4_dot_product_perpendicular(void)
+static const char *test_vector4_dot_product_perpendicular(void)
 {
 	/* All four pairs of standard basis vectors are perpendicular */
 	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
@@ -478,7 +478,7 @@ static char *test_vector4_dot_product_perpendicular(void)
 	return NULL;
 }
 
-static char *test_vector4_normalize_zero(void)
+static const char *test_vector4_normalize_zero(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
 
@@ -493,7 +493,7 @@ static char *test_vector4_normalize_zero(void)
 	return NULL;
 }
 
-static char *test_vector4_magnitude_zero(void)
+static const char *test_vector4_magnitude_zero(void)
 {
 	struct vector4 v = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
 
@@ -502,7 +502,7 @@ static char *test_vector4_magnitude_zero(void)
 	return NULL;
 }
 
-static char *test_vector4_equals(void)
+static const char *test_vector4_equals(void)
 {
 	struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
 	struct vector4 b = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
@@ -517,7 +517,7 @@ static char *test_vector4_equals(void)
 	return NULL;
 }
 
-static char *vector4_all_tests(void)
+static const char *vector4_all_tests(void)
 {
 	run_test(test_vector4_set);
 	run_test(test_vector4_zero);
