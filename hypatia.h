@@ -844,8 +844,12 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4
 HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
 HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
 
+#endif /* HYPATIA_H_ */
+
 
 #ifdef HYPATIA_IMPLEMENTATION
+#ifndef HYPATIA_IMPLEMENTATION_H_
+#define HYPATIA_IMPLEMENTATION_H_
 
 
 /**
@@ -4452,6 +4456,5 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 #undef HYP_A3
 #undef HYP_A2
 
+#endif /* HYPATIA_IMPLEMENTATION_H_ */
 #endif /* HYPATIA_IMPLEMENTATION */
-
-#endif /* HYPATIA_H_ */
