@@ -74,7 +74,7 @@
 #ifndef HYP_PI_SQUARED
 #	define HYP_PI_SQUARED HYP_FLOAT_C(9.869604401089358618834490999876151135314)
 #endif
-/** @brief Log e is the Natural Logarithm in base 10 */
+/** @brief e, the base of the natural logarithm */
 #ifndef HYP_E
 #	define HYP_E HYP_FLOAT_C(2.71828182845904523536028747135266249775724709369995)
 #endif
@@ -86,13 +86,23 @@
 #ifndef HYP_DEG_PER_RAD
 #	define HYP_DEG_PER_RAD HYP_FLOAT_C(57.2957795130823208767981548141052)
 #endif
-/** @brief PI/180 */
-#ifndef HYP_PIOVER180
-#	define HYP_PIOVER180  HYP_RAD_PER_DEG
-#endif
-/** @brief 180/PI */
-#ifndef HYP_PIUNDER180
-#	define HYP_PIUNDER180 HYP_DEG_PER_RAD
+#ifndef HYP_NO_DEPRECATED
+/** @brief PI/180
+ *
+ * @deprecated Use HYP_RAD_PER_DEG.  HYP_PIOVER180 will be removed in a later
+ * release; define HYP_NO_DEPRECATED to check that your code no longer uses it.
+ */
+#	ifndef HYP_PIOVER180
+#		define HYP_PIOVER180  HYP_RAD_PER_DEG
+#	endif
+/** @brief 180/PI
+ *
+ * @deprecated Use HYP_DEG_PER_RAD.  HYP_PIUNDER180 will be removed in a later
+ * release; define HYP_NO_DEPRECATED to check that your code no longer uses it.
+ */
+#	ifndef HYP_PIUNDER180
+#		define HYP_PIUNDER180 HYP_DEG_PER_RAD
+#	endif
 #endif
 /** @brief Epsilon.  This is the value that is used to determine how much
  * rounding error is tolerated.
