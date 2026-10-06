@@ -172,8 +172,8 @@ static const char *test_matrix2_columnrowcolumn(void)
 	test_assert(matrix2_equals(&m, &r));
 
 	/* transpose only c and r, but not m */
-	_matrix2_transpose_rowcolumn(&r);
-	_matrix2_transpose_columnrow(&c);
+	hyp_matrix2_transpose_rowcolumn(&r);
+	hyp_matrix2_transpose_columnrow(&c);
 
 	test_assert(matrix2_equals(&c, &r));
 	test_assert(matrix2_equals(&c, &m) == 0);

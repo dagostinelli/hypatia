@@ -29,8 +29,8 @@ Remaining Work:
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
 C89 compliance:
-- `gcc -std=c89 -pedantic` reports 34 warnings: 25 unnamed structs/unions, 7 structs with
-  no named members, 2 anonymous variadic macros
+- `gcc -std=c89 -pedantic` reports 32 warnings: 25 unnamed structs/unions, 7 structs with
+  no named members
 - <stdint.h> / uint8_t are C99
 - Either provide a strict-C89 path (feature macro for the anonymous unions, replace uint8_t)
   or change the README to say "C99, C89-friendly style"
@@ -61,7 +61,7 @@ Remaining casts (README: prefer no casts):
 Long double support (planned):
 - Add a HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
 - Math macros need sinl/cosl/sqrtl/etc. (C99, not C89) in that mode
-- The print helpers print every value through _hyp_print_value, which takes a double
+- The print helpers print every value through hyp_print_value, which takes a double
   and uses %10f; in that mode it needs a long double parameter and %10Lf
 - Needs its own HYP_EPSILON
 - long double differs by platform: same as double on MSVC, 80-bit on x86 gcc/clang,

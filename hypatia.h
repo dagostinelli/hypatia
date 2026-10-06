@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
-#ifndef _INC_HYPATIA
-#define _INC_HYPATIA
+#ifndef HYPATIA_H_
+#define HYPATIA_H_
 
 #define HYPATIA_VERSION "2.0.0"
 
@@ -313,22 +313,22 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @{
  */
 
-HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self);
-HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self);
+HYPAPI void hyp_matrix2_print_with_columnrow_indexer(struct matrix2 *self);
+HYPAPI void hyp_matrix2_print_with_rowcolumn_indexer(struct matrix2 *self);
 
-HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self);
-HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
+HYPAPI void hyp_matrix3_print_with_columnrow_indexer(struct matrix3 *self);
+HYPAPI void hyp_matrix3_print_with_rowcolumn_indexer(struct matrix3 *self);
 
-HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self);
-HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self);
+HYPAPI void hyp_matrix4_print_with_columnrow_indexer(struct matrix4 *self);
+HYPAPI void hyp_matrix4_print_with_rowcolumn_indexer(struct matrix4 *self);
 
-HYPAPI void _quaternion_print(const struct quaternion *self);
+HYPAPI void hyp_quaternion_print(const struct quaternion *self);
 
-HYPAPI void _vector3_print(const struct vector3 *self);
+HYPAPI void hyp_vector3_print(const struct vector3 *self);
 
-HYPAPI void _vector2_print(const struct vector2 *self);
+HYPAPI void hyp_vector2_print(const struct vector2 *self);
 
-HYPAPI void _vector4_print(const struct vector4 *self);
+HYPAPI void hyp_vector4_print(const struct vector4 *self);
 
 /* @} */
 
@@ -524,8 +524,8 @@ HYPAPI struct matrix2 *matrix2_make_transformation_rotationf_z(struct matrix2 *s
 HYPAPI struct matrix2 *matrix2_rotate(struct matrix2 *self, HYP_FLOAT angle);
 HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector2 *scale);
 
-HYPAPI struct matrix2 *_matrix2_transpose_rowcolumn(struct matrix2 *self);
-HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self);
+HYPAPI struct matrix2 *hyp_matrix2_transpose_rowcolumn(struct matrix2 *self);
+HYPAPI struct matrix2 *hyp_matrix2_transpose_columnrow(struct matrix2 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -617,8 +617,8 @@ HYPAPI struct matrix3 *matrix3_translatev2(struct matrix3 *self, const struct ve
 HYPAPI struct matrix3 *matrix3_rotate(struct matrix3 *self, HYP_FLOAT angle);
 HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector2 *scale);
 
-HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self);
-HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self);
+HYPAPI struct matrix3 *hyp_matrix3_transpose_rowcolumn(struct matrix3 *self);
+HYPAPI struct matrix3 *hyp_matrix3_transpose_columnrow(struct matrix3 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -719,8 +719,8 @@ HYPAPI struct matrix4 *matrix4_translatev3(struct matrix4 *self, const struct ve
 HYPAPI struct matrix4 *matrix4_rotatev3(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector3 *scale);
 
-HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self);
-HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self);
+HYPAPI struct matrix4 *hyp_matrix4_transpose_rowcolumn(struct matrix4 *self);
+HYPAPI struct matrix4 *hyp_matrix4_transpose_columnrow(struct matrix4 *self);
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -876,39 +876,39 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * floating point arguments as double; the conversion happens here, in one
  * place, together with the number format.
  */
-static void _hyp_print_value(const char *prefix, double value)
+static void hyp_print_value(const char *prefix, double value)
 {
 	printf("%s%10f", prefix, value);
 }
 #endif
 
 
-static struct vector2 _vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector2 _vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
-static struct vector2 _vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
-static struct vector2 _vector2_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
-static struct vector2 _vector2_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
-static struct vector2 _vector2_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
+static struct vector2 hyp_vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 hyp_vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector2 hyp_vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 hyp_vector2_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
+static struct vector2 hyp_vector2_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector2 hyp_vector2_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
 
 
 HYPAPI const struct vector2 *vector2_get_reference_vector2(int id)
 {
 	switch (id) {
 	case HYP_REF_VECTOR2_ZERO:
-		return &_vector2_zero;
+		return &hyp_vector2_zero;
 	case HYP_REF_VECTOR2_ONE:
-		return &_vector2_one;
+		return &hyp_vector2_one;
 	case HYP_REF_VECTOR2_UNIT_X:
-		return &_vector2_unit_x;
+		return &hyp_vector2_unit_x;
 	case HYP_REF_VECTOR2_UNIT_Y:
-		return &_vector2_unit_y;
+		return &hyp_vector2_unit_y;
 	case HYP_REF_VECTOR2_UNIT_X_NEGATIVE:
-		return &_vector2_unit_x_negative;
+		return &hyp_vector2_unit_x_negative;
 	case HYP_REF_VECTOR2_UNIT_Y_NEGATIVE:
-		return &_vector2_unit_y_negative;
+		return &hyp_vector2_unit_y_negative;
 	default:
 		/* undefined case */
-		return &_vector2_zero;
+		return &hyp_vector2_zero;
 	}
 }
 
@@ -1103,47 +1103,47 @@ HYPAPI struct vector2 *vector2_multiplym3(struct vector2 *self, const struct mat
 
 
 #ifndef HYP_NO_STDIO
-HYPAPI void _vector2_print(const struct vector2 *self)
+HYPAPI void hyp_vector2_print(const struct vector2 *self)
 {
-	_hyp_print_value("x:", self->x);
-	_hyp_print_value(", y:", self->y);
+	hyp_print_value("x:", self->x);
+	hyp_print_value(", y:", self->y);
 	printf("\r\n");
 }
 #endif
 
 
-static struct vector3 _vector3_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector3 _vector3_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
-static struct vector3 _vector3_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector3 _vector3_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
-static struct vector3 _vector3_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
-static struct vector3 _vector3_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector3 _vector3_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0)} } };
-static struct vector3 _vector3_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
+static struct vector3 hyp_vector3_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 hyp_vector3_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector3 hyp_vector3_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 hyp_vector3_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 hyp_vector3_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)} } };
+static struct vector3 hyp_vector3_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector3 hyp_vector3_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0)} } };
+static struct vector3 hyp_vector3_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0)} } };
 
 
 HYPAPI const struct vector3 *vector3_get_reference_vector3(int id)
 {
 	switch (id) {
 	case HYP_REF_VECTOR3_ZERO:
-		return &_vector3_zero;
+		return &hyp_vector3_zero;
 	case HYP_REF_VECTOR3_ONE:
-		return &_vector3_one;
+		return &hyp_vector3_one;
 	case HYP_REF_VECTOR3_UNIT_X:
-		return &_vector3_unit_x;
+		return &hyp_vector3_unit_x;
 	case HYP_REF_VECTOR3_UNIT_Y:
-		return &_vector3_unit_y;
+		return &hyp_vector3_unit_y;
 	case HYP_REF_VECTOR3_UNIT_Z:
-		return &_vector3_unit_z;
+		return &hyp_vector3_unit_z;
 	case HYP_REF_VECTOR3_UNIT_X_NEGATIVE:
-		return &_vector3_unit_x_negative;
+		return &hyp_vector3_unit_x_negative;
 	case HYP_REF_VECTOR3_UNIT_Y_NEGATIVE:
-		return &_vector3_unit_y_negative;
+		return &hyp_vector3_unit_y_negative;
 	case HYP_REF_VECTOR3_UNIT_Z_NEGATIVE:
-		return &_vector3_unit_z_negative;
+		return &hyp_vector3_unit_z_negative;
 	default:
 		/* undefined case */
-		return &_vector3_zero;
+		return &hyp_vector3_zero;
 	}
 }
 
@@ -1434,11 +1434,11 @@ HYPAPI struct vector3 *vector3_multiplym4(struct vector3 *self, const struct mat
 
 
 #ifndef HYP_NO_STDIO
-HYPAPI void _vector3_print(const struct vector3 *self)
+HYPAPI void hyp_vector3_print(const struct vector3 *self)
 {
-	_hyp_print_value("x:", self->x);
-	_hyp_print_value(", y:", self->y);
-	_hyp_print_value(", z:", self->z);
+	hyp_print_value("x:", self->x);
+	hyp_print_value(", y:", self->y);
+	hyp_print_value(", z:", self->z);
 	printf("\r\n");
 }
 #endif
@@ -1502,38 +1502,38 @@ HYPAPI struct vector3 *vector3_reflect_by_quaternion(struct vector3 *self, const
 }
 
 
-static struct vector4 _vector4_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
-static struct vector4 _vector4_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
-static struct vector4 _vector4_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
+static struct vector4 hyp_vector4_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_unit_y = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_unit_z = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_unit_x_negative = { { {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_unit_y_negative = { { {HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0),  HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
+static struct vector4 hyp_vector4_unit_z_negative = { { {HYP_FLOAT_C(0.0),  HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
 
 
 HYPAPI const struct vector4 *vector4_get_reference_vector4(int id)
 {
 	switch (id) {
 	case HYP_REF_VECTOR4_ZERO:
-		return &_vector4_zero;
+		return &hyp_vector4_zero;
 	case HYP_REF_VECTOR4_ONE:
-		return &_vector4_one;
+		return &hyp_vector4_one;
 	case HYP_REF_VECTOR4_UNIT_X:
-		return &_vector4_unit_x;
+		return &hyp_vector4_unit_x;
 	case HYP_REF_VECTOR4_UNIT_Y:
-		return &_vector4_unit_y;
+		return &hyp_vector4_unit_y;
 	case HYP_REF_VECTOR4_UNIT_Z:
-		return &_vector4_unit_z;
+		return &hyp_vector4_unit_z;
 	case HYP_REF_VECTOR4_UNIT_X_NEGATIVE:
-		return &_vector4_unit_x_negative;
+		return &hyp_vector4_unit_x_negative;
 	case HYP_REF_VECTOR4_UNIT_Y_NEGATIVE:
-		return &_vector4_unit_y_negative;
+		return &hyp_vector4_unit_y_negative;
 	case HYP_REF_VECTOR4_UNIT_Z_NEGATIVE:
-		return &_vector4_unit_z_negative;
+		return &hyp_vector4_unit_z_negative;
 	default:
 		/* undefined case */
-		return &_vector4_zero;
+		return &hyp_vector4_zero;
 	}
 }
 
@@ -1793,12 +1793,12 @@ HYPAPI HYP_FLOAT vector4_distance(const struct vector4 *v1, const struct vector4
 
 
 #ifndef HYP_NO_STDIO
-HYPAPI void _vector4_print(const struct vector4 *self)
+HYPAPI void hyp_vector4_print(const struct vector4 *self)
 {
-	_hyp_print_value("x:", self->x);
-	_hyp_print_value(", y:", self->y);
-	_hyp_print_value(", z:", self->z);
-	_hyp_print_value(", w:", self->w);
+	hyp_print_value("x:", self->x);
+	hyp_print_value(", y:", self->y);
+	hyp_print_value(", z:", self->z);
+	hyp_print_value(", w:", self->w);
 	printf("\r\n");
 }
 #endif
@@ -1981,7 +1981,7 @@ HYPAPI struct vector2 *matrix2_multiplyv2(const struct matrix2 *self, const stru
  */
 HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self)
 {
-	return _matrix2_transpose_columnrow(self);
+	return hyp_matrix2_transpose_columnrow(self);
 }
 
 
@@ -1990,7 +1990,7 @@ HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self)
  * @brief Swaps the row and column
  *
  */
-HYPAPI struct matrix2 *_matrix2_transpose_rowcolumn(struct matrix2 *self)
+HYPAPI struct matrix2 *hyp_matrix2_transpose_rowcolumn(struct matrix2 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
 
@@ -2003,7 +2003,7 @@ HYPAPI struct matrix2 *_matrix2_transpose_rowcolumn(struct matrix2 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self)
+HYPAPI struct matrix2 *hyp_matrix2_transpose_columnrow(struct matrix2 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
 
@@ -2017,13 +2017,13 @@ HYPAPI struct matrix2 *_matrix2_transpose_columnrow(struct matrix2 *self)
  * @brief Prints out the matrix using column and row notation
  *
  */
-HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self)
+HYPAPI void hyp_matrix2_print_with_columnrow_indexer(struct matrix2 *self)
 {
-	_hyp_print_value("", self->c00);
-	_hyp_print_value(", ", self->c10);
+	hyp_print_value("", self->c00);
+	hyp_print_value(", ", self->c10);
 	printf("\r\n");
-	_hyp_print_value("", self->c01);
-	_hyp_print_value(", ", self->c11);
+	hyp_print_value("", self->c01);
+	hyp_print_value(", ", self->c11);
 	printf("\r\n");
 }
 #endif
@@ -2035,13 +2035,13 @@ HYPAPI void _matrix2_print_with_columnrow_indexer(struct matrix2 *self)
  * @brief Prints out the matrix using row and column notation
  *
  */
-HYPAPI void _matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
+HYPAPI void hyp_matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
 {
-	_hyp_print_value("", self->r00);
-	_hyp_print_value(", ", self->r01);
+	hyp_print_value("", self->r00);
+	hyp_print_value(", ", self->r01);
 	printf("\r\n");
-	_hyp_print_value("", self->r10);
-	_hyp_print_value(", ", self->r11);
+	hyp_print_value("", self->r10);
+	hyp_print_value(", ", self->r11);
 	printf("\r\n");
 }
 #endif
@@ -2386,7 +2386,7 @@ HYPAPI struct vector2 *matrix3_multiplyv2(const struct matrix3 *self, const stru
  */
 HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self)
 {
-	return _matrix3_transpose_columnrow(self);
+	return hyp_matrix3_transpose_columnrow(self);
 }
 
 
@@ -2395,7 +2395,7 @@ HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self)
  * @brief Swaps the row and column
  *
  */
-HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
+HYPAPI struct matrix3 *hyp_matrix3_transpose_rowcolumn(struct matrix3 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
 	HYP_SWAP(&self->r02, &self->r20);
@@ -2410,7 +2410,7 @@ HYPAPI struct matrix3 *_matrix3_transpose_rowcolumn(struct matrix3 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
+HYPAPI struct matrix3 *hyp_matrix3_transpose_columnrow(struct matrix3 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
 	HYP_SWAP(&self->c02, &self->c20);
@@ -2426,19 +2426,19 @@ HYPAPI struct matrix3 *_matrix3_transpose_columnrow(struct matrix3 *self)
  * @brief Prints out the matrix using column and row notation
  *
  */
-HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
+HYPAPI void hyp_matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 {
-	_hyp_print_value("", self->c00);
-	_hyp_print_value(", ", self->c10);
-	_hyp_print_value(", ", self->c20);
+	hyp_print_value("", self->c00);
+	hyp_print_value(", ", self->c10);
+	hyp_print_value(", ", self->c20);
 	printf("\r\n");
-	_hyp_print_value("", self->c01);
-	_hyp_print_value(", ", self->c11);
-	_hyp_print_value(", ", self->c21);
+	hyp_print_value("", self->c01);
+	hyp_print_value(", ", self->c11);
+	hyp_print_value(", ", self->c21);
 	printf("\r\n");
-	_hyp_print_value("", self->c02);
-	_hyp_print_value(", ", self->c12);
-	_hyp_print_value(", ", self->c22);
+	hyp_print_value("", self->c02);
+	hyp_print_value(", ", self->c12);
+	hyp_print_value(", ", self->c22);
 	printf("\r\n");
 }
 #endif
@@ -2450,19 +2450,19 @@ HYPAPI void _matrix3_print_with_columnrow_indexer(struct matrix3 *self)
  * @brief Prints out the matrix using row and column notation
  *
  */
-HYPAPI void _matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
+HYPAPI void hyp_matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 {
-	_hyp_print_value("", self->r00);
-	_hyp_print_value(", ", self->r01);
-	_hyp_print_value(", ", self->r02);
+	hyp_print_value("", self->r00);
+	hyp_print_value(", ", self->r01);
+	hyp_print_value(", ", self->r02);
 	printf("\r\n");
-	_hyp_print_value("", self->r10);
-	_hyp_print_value(", ", self->r11);
-	_hyp_print_value(", ", self->r12);
+	hyp_print_value("", self->r10);
+	hyp_print_value(", ", self->r11);
+	hyp_print_value(", ", self->r12);
 	printf("\r\n");
-	_hyp_print_value("", self->r20);
-	_hyp_print_value(", ", self->r21);
-	_hyp_print_value(", ", self->r22);
+	hyp_print_value("", self->r20);
+	hyp_print_value(", ", self->r21);
+	hyp_print_value(", ", self->r22);
 	printf("\r\n");
 }
 #endif
@@ -2577,30 +2577,30 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 }
 
 
-#define _HYP_CAT(a, ...) _HYP_PRIMITIVE_CAT(a, __VA_ARGS__)
-#define _HYP_PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
-#define _HYP_DEC(x) _HYP_PRIMITIVE_CAT(DEC_, x)
-#define DEC_11 00
-#define DEC_12 01
-#define DEC_13 02
-#define DEC_14 03
-#define DEC_21 10
-#define DEC_22 11
-#define DEC_23 12
-#define DEC_24 13
-#define DEC_31 20
-#define DEC_32 21
-#define DEC_33 22
-#define DEC_34 23
-#define DEC_41 30
-#define DEC_42 31
-#define DEC_43 32
-#define DEC_44 33
-#define A(x) _HYP_CAT(self->r,  _HYP_DEC(x))
-#define B(x) _HYP_CAT(inverse.r, _HYP_DEC(x))
-#define A4(x1, x2, x3, x4) (A(x1) * A(x2) * A(x3) * A(x4))
-#define A3(x1, x2, x3) (A(x1) * A(x2) * A(x3))
-#define A2(x1, x2) (A(x1) * A(x2))
+#define HYP_CAT(a, b) HYP_PRIMITIVE_CAT(a, b)
+#define HYP_PRIMITIVE_CAT(a, b) a ## b
+#define HYP_DEC(x) HYP_PRIMITIVE_CAT(HYP_DEC_, x)
+#define HYP_DEC_11 00
+#define HYP_DEC_12 01
+#define HYP_DEC_13 02
+#define HYP_DEC_14 03
+#define HYP_DEC_21 10
+#define HYP_DEC_22 11
+#define HYP_DEC_23 12
+#define HYP_DEC_24 13
+#define HYP_DEC_31 20
+#define HYP_DEC_32 21
+#define HYP_DEC_33 22
+#define HYP_DEC_34 23
+#define HYP_DEC_41 30
+#define HYP_DEC_42 31
+#define HYP_DEC_43 32
+#define HYP_DEC_44 33
+#define HYP_A(x) HYP_CAT(self->r,  HYP_DEC(x))
+#define HYP_B(x) HYP_CAT(inverse.r, HYP_DEC(x))
+#define HYP_A4(x1, x2, x3, x4) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3) * HYP_A(x4))
+#define HYP_A3(x1, x2, x3) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3))
+#define HYP_A2(x1, x2) (HYP_A(x1) * HYP_A(x2))
 
 
 /**
@@ -2615,9 +2615,9 @@ HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self)
 	HYP_FLOAT determinant;
 
 	determinant =
-	  (A(11) * (A2(22, 33) - A2(32, 23)))
-	- (A(12) * (A2(21, 33) - A2(31, 23)))
-	+ (A(13) * (A2(21, 32) - A2(31, 22)))
+	  (HYP_A(11) * (HYP_A2(22, 33) - HYP_A2(32, 23)))
+	- (HYP_A(12) * (HYP_A2(21, 33) - HYP_A2(31, 23)))
+	+ (HYP_A(13) * (HYP_A2(21, 32) - HYP_A2(31, 22)))
 	;
 
 	return determinant;
@@ -2672,17 +2672,17 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	matrix3_identity(&inverse);
 
 	/* find the adjugate of self */
-	B(11) = A2(22, 33) - A2(32, 23);
-	B(12) = A2(32, 13) - A2(12, 33);
-	B(13) = A2(12, 23) - A2(22, 13);
+	HYP_B(11) = HYP_A2(22, 33) - HYP_A2(32, 23);
+	HYP_B(12) = HYP_A2(32, 13) - HYP_A2(12, 33);
+	HYP_B(13) = HYP_A2(12, 23) - HYP_A2(22, 13);
 
-	B(21) = A2(23, 31) - A2(33, 21);
-	B(22) = A2(33, 11) - A2(13, 31);
-	B(23) = A2(13, 21) - A2(23, 11);
+	HYP_B(21) = HYP_A2(23, 31) - HYP_A2(33, 21);
+	HYP_B(22) = HYP_A2(33, 11) - HYP_A2(13, 31);
+	HYP_B(23) = HYP_A2(13, 21) - HYP_A2(23, 11);
 
-	B(31) = A2(21, 32) - A2(31, 22);
-	B(32) = A2(31, 12) - A2(11, 32);
-	B(33) = A2(11, 22) - A2(21, 12);
+	HYP_B(31) = HYP_A2(21, 32) - HYP_A2(31, 22);
+	HYP_B(32) = HYP_A2(31, 12) - HYP_A2(11, 32);
+	HYP_B(33) = HYP_A2(11, 22) - HYP_A2(21, 12);
 
 	/* divide the determinant */
 	for (i = 0; i < 9; i++) {
@@ -2925,7 +2925,7 @@ HYPAPI struct vector2 *matrix4_multiplyv2(const struct matrix4 *self, const stru
  */
 HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self)
 {
-	return _matrix4_transpose_columnrow(self);
+	return hyp_matrix4_transpose_columnrow(self);
 }
 
 
@@ -2934,7 +2934,7 @@ HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self)
  * @brief Swaps the row and column
  *
  */
-HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
+HYPAPI struct matrix4 *hyp_matrix4_transpose_rowcolumn(struct matrix4 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
 	HYP_SWAP(&self->r02, &self->r20);
@@ -2952,7 +2952,7 @@ HYPAPI struct matrix4 *_matrix4_transpose_rowcolumn(struct matrix4 *self)
  * @brief Swaps the columns and row
  *
  */
-HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
+HYPAPI struct matrix4 *hyp_matrix4_transpose_columnrow(struct matrix4 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
 	HYP_SWAP(&self->c02, &self->c20);
@@ -2971,27 +2971,27 @@ HYPAPI struct matrix4 *_matrix4_transpose_columnrow(struct matrix4 *self)
  * @brief Prints out the matrix using column and row notation
  *
  */
-HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self)
+HYPAPI void hyp_matrix4_print_with_columnrow_indexer(struct matrix4 *self)
 {
-	_hyp_print_value("", self->c00);
-	_hyp_print_value(", ", self->c10);
-	_hyp_print_value(", ", self->c20);
-	_hyp_print_value(", ", self->c30);
+	hyp_print_value("", self->c00);
+	hyp_print_value(", ", self->c10);
+	hyp_print_value(", ", self->c20);
+	hyp_print_value(", ", self->c30);
 	printf("\r\n");
-	_hyp_print_value("", self->c01);
-	_hyp_print_value(", ", self->c11);
-	_hyp_print_value(", ", self->c21);
-	_hyp_print_value(", ", self->c31);
+	hyp_print_value("", self->c01);
+	hyp_print_value(", ", self->c11);
+	hyp_print_value(", ", self->c21);
+	hyp_print_value(", ", self->c31);
 	printf("\r\n");
-	_hyp_print_value("", self->c02);
-	_hyp_print_value(", ", self->c12);
-	_hyp_print_value(", ", self->c22);
-	_hyp_print_value(", ", self->c32);
+	hyp_print_value("", self->c02);
+	hyp_print_value(", ", self->c12);
+	hyp_print_value(", ", self->c22);
+	hyp_print_value(", ", self->c32);
 	printf("\r\n");
-	_hyp_print_value("", self->c03);
-	_hyp_print_value(", ", self->c13);
-	_hyp_print_value(", ", self->c23);
-	_hyp_print_value(", ", self->c33);
+	hyp_print_value("", self->c03);
+	hyp_print_value(", ", self->c13);
+	hyp_print_value(", ", self->c23);
+	hyp_print_value(", ", self->c33);
 	printf("\r\n");
 }
 
@@ -3001,27 +3001,27 @@ HYPAPI void _matrix4_print_with_columnrow_indexer(struct matrix4 *self)
  * @brief Prints out the matrix using row and column notation
  *
  */
-HYPAPI void _matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
+HYPAPI void hyp_matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 {
-	_hyp_print_value("", self->r00);
-	_hyp_print_value(", ", self->r01);
-	_hyp_print_value(", ", self->r02);
-	_hyp_print_value(", ", self->r03);
+	hyp_print_value("", self->r00);
+	hyp_print_value(", ", self->r01);
+	hyp_print_value(", ", self->r02);
+	hyp_print_value(", ", self->r03);
 	printf("\r\n");
-	_hyp_print_value("", self->r10);
-	_hyp_print_value(", ", self->r11);
-	_hyp_print_value(", ", self->r12);
-	_hyp_print_value(", ", self->r13);
+	hyp_print_value("", self->r10);
+	hyp_print_value(", ", self->r11);
+	hyp_print_value(", ", self->r12);
+	hyp_print_value(", ", self->r13);
 	printf("\r\n");
-	_hyp_print_value("", self->r20);
-	_hyp_print_value(", ", self->r21);
-	_hyp_print_value(", ", self->r22);
-	_hyp_print_value(", ", self->r23);
+	hyp_print_value("", self->r20);
+	hyp_print_value(", ", self->r21);
+	hyp_print_value(", ", self->r22);
+	hyp_print_value(", ", self->r23);
 	printf("\r\n");
-	_hyp_print_value("", self->r30);
-	_hyp_print_value(", ", self->r31);
-	_hyp_print_value(", ", self->r32);
-	_hyp_print_value(", ", self->r33);
+	hyp_print_value("", self->r30);
+	hyp_print_value(", ", self->r31);
+	hyp_print_value(", ", self->r32);
+	hyp_print_value(", ", self->r33);
 	printf("\r\n");
 }
 #endif
@@ -3234,14 +3234,14 @@ HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 	/* avoids temporary structures */
 
 	determinant =
-	  A4(11, 22, 33, 44) + A4(11, 23, 34, 42) + A4(11, 24, 32, 43)
-	+ A4(12, 21, 34, 43) + A4(12, 23, 31, 44) + A4(12, 24, 33, 41)
-	+ A4(13, 21, 32, 44) + A4(13, 22, 34, 41) + A4(13, 24, 31, 42)
-	+ A4(14, 21, 33, 42) + A4(14, 22, 31, 43) + A4(14, 23, 32, 41)
-	- A4(11, 22, 34, 43) - A4(11, 23, 32, 44) - A4(11, 24, 33, 42)
-	- A4(12, 21, 33, 44) - A4(12, 23, 34, 41) - A4(12, 24, 31, 43)
-	- A4(13, 21, 34, 42) - A4(13, 22, 31, 44) - A4(13, 24, 32, 41)
-	- A4(14, 21, 32, 43) - A4(14, 22, 33, 41) - A4(14, 23, 31, 42)
+	  HYP_A4(11, 22, 33, 44) + HYP_A4(11, 23, 34, 42) + HYP_A4(11, 24, 32, 43)
+	+ HYP_A4(12, 21, 34, 43) + HYP_A4(12, 23, 31, 44) + HYP_A4(12, 24, 33, 41)
+	+ HYP_A4(13, 21, 32, 44) + HYP_A4(13, 22, 34, 41) + HYP_A4(13, 24, 31, 42)
+	+ HYP_A4(14, 21, 33, 42) + HYP_A4(14, 22, 31, 43) + HYP_A4(14, 23, 32, 41)
+	- HYP_A4(11, 22, 34, 43) - HYP_A4(11, 23, 32, 44) - HYP_A4(11, 24, 33, 42)
+	- HYP_A4(12, 21, 33, 44) - HYP_A4(12, 23, 34, 41) - HYP_A4(12, 24, 31, 43)
+	- HYP_A4(13, 21, 34, 42) - HYP_A4(13, 22, 31, 44) - HYP_A4(13, 24, 32, 41)
+	- HYP_A4(14, 21, 32, 43) - HYP_A4(14, 22, 33, 41) - HYP_A4(14, 23, 31, 42)
 	;
 
 	return determinant;
@@ -3295,22 +3295,22 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 
 	matrix4_identity(&inverse);
 
-	B(11) = A3(22, 33, 44) + A3(23, 34, 42) + A3(24, 32, 43) - A3(22, 34, 43) - A3(23, 32, 44) - A3(24, 33, 42);
-	B(12) = A3(12, 34, 43) + A3(13, 32, 44) + A3(14, 33, 42) - A3(12, 33, 44) - A3(13, 34, 42) - A3(14, 32, 43);
-	B(13) = A3(12, 23, 44) + A3(13, 24, 42) + A3(14, 22, 43) - A3(12, 24, 43) - A3(13, 22, 44) - A3(14, 23, 42);
-	B(14) = A3(12, 24, 33) + A3(13, 22, 34) + A3(14, 23, 32) - A3(12, 23, 34) - A3(13, 24, 32) - A3(14, 22, 33);
-	B(21) = A3(21, 34, 43) + A3(23, 31, 44) + A3(24, 33, 41) - A3(21, 33, 44) - A3(23, 34, 41) - A3(24, 31, 43);
-	B(22) = A3(11, 33, 44) + A3(13, 34, 41) + A3(14, 31, 43) - A3(11, 34, 43) - A3(13, 31, 44) - A3(14, 33, 41);
-	B(23) = A3(11, 24, 43) + A3(13, 21, 44) + A3(14, 23, 41) - A3(11, 23, 44) - A3(13, 24, 41) - A3(14, 21, 43);
-	B(24) = A3(11, 23, 34) + A3(13, 24, 31) + A3(14, 21, 33) - A3(11, 24, 33) - A3(13, 21, 34) - A3(14, 23, 31);
-	B(31) = A3(21, 32, 44) + A3(22, 34, 41) + A3(24, 31, 42) - A3(21, 34, 42) - A3(22, 31, 44) - A3(24, 32, 41);
-	B(32) = A3(11, 34, 42) + A3(12, 31, 44) + A3(14, 32, 41) - A3(11, 32, 44) - A3(12, 34, 41) - A3(14, 31, 42);
-	B(33) = A3(11, 22, 44) + A3(12, 24, 41) + A3(14, 21, 42) - A3(11, 24, 42) - A3(12, 21, 44) - A3(14, 22, 41);
-	B(34) = A3(11, 24, 32) + A3(12, 21, 34) + A3(14, 22, 31) - A3(11, 22, 34) - A3(12, 24, 31) - A3(14, 21, 32);
-	B(41) = A3(21, 33, 42) + A3(22, 31, 43) + A3(23, 32, 41) - A3(21, 32, 43) - A3(22, 33, 41) - A3(23, 31, 42);
-	B(42) = A3(11, 32, 43) + A3(12, 33, 41) + A3(13, 31, 42) - A3(11, 33, 42) - A3(12, 31, 43) - A3(13, 32, 41);
-	B(43) = A3(11, 23, 42) + A3(12, 21, 43) + A3(13, 22, 41) - A3(11, 22, 43) - A3(12, 23, 41) - A3(13, 21, 42);
-	B(44) = A3(11, 22, 33) + A3(12, 23, 31) + A3(13, 21, 32) - A3(11, 23, 32) - A3(12, 21, 33) - A3(13, 22, 31);
+	HYP_B(11) = HYP_A3(22, 33, 44) + HYP_A3(23, 34, 42) + HYP_A3(24, 32, 43) - HYP_A3(22, 34, 43) - HYP_A3(23, 32, 44) - HYP_A3(24, 33, 42);
+	HYP_B(12) = HYP_A3(12, 34, 43) + HYP_A3(13, 32, 44) + HYP_A3(14, 33, 42) - HYP_A3(12, 33, 44) - HYP_A3(13, 34, 42) - HYP_A3(14, 32, 43);
+	HYP_B(13) = HYP_A3(12, 23, 44) + HYP_A3(13, 24, 42) + HYP_A3(14, 22, 43) - HYP_A3(12, 24, 43) - HYP_A3(13, 22, 44) - HYP_A3(14, 23, 42);
+	HYP_B(14) = HYP_A3(12, 24, 33) + HYP_A3(13, 22, 34) + HYP_A3(14, 23, 32) - HYP_A3(12, 23, 34) - HYP_A3(13, 24, 32) - HYP_A3(14, 22, 33);
+	HYP_B(21) = HYP_A3(21, 34, 43) + HYP_A3(23, 31, 44) + HYP_A3(24, 33, 41) - HYP_A3(21, 33, 44) - HYP_A3(23, 34, 41) - HYP_A3(24, 31, 43);
+	HYP_B(22) = HYP_A3(11, 33, 44) + HYP_A3(13, 34, 41) + HYP_A3(14, 31, 43) - HYP_A3(11, 34, 43) - HYP_A3(13, 31, 44) - HYP_A3(14, 33, 41);
+	HYP_B(23) = HYP_A3(11, 24, 43) + HYP_A3(13, 21, 44) + HYP_A3(14, 23, 41) - HYP_A3(11, 23, 44) - HYP_A3(13, 24, 41) - HYP_A3(14, 21, 43);
+	HYP_B(24) = HYP_A3(11, 23, 34) + HYP_A3(13, 24, 31) + HYP_A3(14, 21, 33) - HYP_A3(11, 24, 33) - HYP_A3(13, 21, 34) - HYP_A3(14, 23, 31);
+	HYP_B(31) = HYP_A3(21, 32, 44) + HYP_A3(22, 34, 41) + HYP_A3(24, 31, 42) - HYP_A3(21, 34, 42) - HYP_A3(22, 31, 44) - HYP_A3(24, 32, 41);
+	HYP_B(32) = HYP_A3(11, 34, 42) + HYP_A3(12, 31, 44) + HYP_A3(14, 32, 41) - HYP_A3(11, 32, 44) - HYP_A3(12, 34, 41) - HYP_A3(14, 31, 42);
+	HYP_B(33) = HYP_A3(11, 22, 44) + HYP_A3(12, 24, 41) + HYP_A3(14, 21, 42) - HYP_A3(11, 24, 42) - HYP_A3(12, 21, 44) - HYP_A3(14, 22, 41);
+	HYP_B(34) = HYP_A3(11, 24, 32) + HYP_A3(12, 21, 34) + HYP_A3(14, 22, 31) - HYP_A3(11, 22, 34) - HYP_A3(12, 24, 31) - HYP_A3(14, 21, 32);
+	HYP_B(41) = HYP_A3(21, 33, 42) + HYP_A3(22, 31, 43) + HYP_A3(23, 32, 41) - HYP_A3(21, 32, 43) - HYP_A3(22, 33, 41) - HYP_A3(23, 31, 42);
+	HYP_B(42) = HYP_A3(11, 32, 43) + HYP_A3(12, 33, 41) + HYP_A3(13, 31, 42) - HYP_A3(11, 33, 42) - HYP_A3(12, 31, 43) - HYP_A3(13, 32, 41);
+	HYP_B(43) = HYP_A3(11, 23, 42) + HYP_A3(12, 21, 43) + HYP_A3(13, 22, 41) - HYP_A3(11, 22, 43) - HYP_A3(12, 23, 41) - HYP_A3(13, 21, 42);
+	HYP_B(44) = HYP_A3(11, 22, 33) + HYP_A3(12, 23, 31) + HYP_A3(13, 21, 32) - HYP_A3(11, 23, 32) - HYP_A3(12, 21, 33) - HYP_A3(13, 22, 31);
 
 	/* divide the determinant */
 	for (i = 0; i < 16; i++) {
@@ -3934,12 +3934,12 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
  * @ingroup quaternion
  * @brief prints out the elements of the quaternion to stdout
  */
-HYPAPI void _quaternion_print(const struct quaternion *self)
+HYPAPI void hyp_quaternion_print(const struct quaternion *self)
 {
-	_hyp_print_value("x:", self->x);
-	_hyp_print_value(", y:", self->y);
-	_hyp_print_value(", z:", self->z);
-	_hyp_print_value(", w:", self->w);
+	hyp_print_value("x:", self->x);
+	hyp_print_value(", y:", self->y);
+	hyp_print_value(", z:", self->z);
+	hyp_print_value(", w:", self->w);
 	printf("\r\n");
 }
 #endif
@@ -4427,31 +4427,31 @@ HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct
 	return 1;
 }
 
-#undef _HYP_CAT
-#undef _HYP_PRIMITIVE_CAT
-#undef _HYP_DEC
-#undef DEC_11
-#undef DEC_12
-#undef DEC_13
-#undef DEC_14
-#undef DEC_21
-#undef DEC_22
-#undef DEC_23
-#undef DEC_24
-#undef DEC_31
-#undef DEC_32
-#undef DEC_33
-#undef DEC_34
-#undef DEC_41
-#undef DEC_42
-#undef DEC_43
-#undef DEC_44
-#undef A
-#undef B
-#undef A4
-#undef A3
-#undef A2
+#undef HYP_CAT
+#undef HYP_PRIMITIVE_CAT
+#undef HYP_DEC
+#undef HYP_DEC_11
+#undef HYP_DEC_12
+#undef HYP_DEC_13
+#undef HYP_DEC_14
+#undef HYP_DEC_21
+#undef HYP_DEC_22
+#undef HYP_DEC_23
+#undef HYP_DEC_24
+#undef HYP_DEC_31
+#undef HYP_DEC_32
+#undef HYP_DEC_33
+#undef HYP_DEC_34
+#undef HYP_DEC_41
+#undef HYP_DEC_42
+#undef HYP_DEC_43
+#undef HYP_DEC_44
+#undef HYP_A
+#undef HYP_B
+#undef HYP_A4
+#undef HYP_A3
+#undef HYP_A2
 
 #endif /* HYPATIA_IMPLEMENTATION */
 
-#endif /* _INC_HYPATIA */
+#endif /* HYPATIA_H_ */
