@@ -5,19 +5,23 @@
 
 #define HYPATIA_VERSION "2.0.0"
 
-#ifndef HYPAPI
-#	ifdef HYP_STATIC
-#		define HYPAPI static
-#	else
-#		define HYPAPI extern
-#	endif
-#endif
-
 #ifndef HYP_INLINE
 #	ifdef _MSC_VER
 #		define HYP_INLINE __inline
 #	else
 #		define HYP_INLINE __inline__
+#	endif
+#endif
+
+/* with HYP_STATIC every function is private to the file that includes the
+ * implementation; inline keeps compilers from warning about the ones that file
+ * does not use
+ */
+#ifndef HYPAPI
+#	ifdef HYP_STATIC
+#		define HYPAPI static HYP_INLINE
+#	else
+#		define HYPAPI extern
 #	endif
 #endif
 
@@ -309,6 +313,7 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
  * @{
  */
 
+#ifndef HYP_NO_STDIO
 HYPAPI void hyp_matrix2_print_with_columnrow_indexer(struct matrix2 *self);
 HYPAPI void hyp_matrix2_print_with_rowcolumn_indexer(struct matrix2 *self);
 
@@ -325,6 +330,7 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self);
 HYPAPI void hyp_vector2_print(const struct vector2 *self);
 
 HYPAPI void hyp_vector4_print(const struct vector4 *self);
+#endif
 
 /* @} */
 
@@ -831,7 +837,6 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self, H
 HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
 HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const struct vector3 *vT, struct vector3 *vR);
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
-HYPAPI struct matrix4 *matrix4_set_from_quaternion_EXP(struct matrix4 *self, const struct quaternion *qT);
 HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z);
