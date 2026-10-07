@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
 /* non-symmetric, not the identity, and invertible */
-static const struct matrix2 test_matrix2_fixed = {1, 2, 3, 5};
+static const struct matrix2 test_matrix2_fixed = {.m = {1, 2, 3, 5}};
 
 static const char *test_matrix2_zero(void)
 {
@@ -77,7 +77,7 @@ static const char *test_matrix2_multiply(void)
 
 static const char *test_matrix2_determinant_trial1(void)
 {
-	struct matrix2 m = {5, 3, 7, 2};
+	struct matrix2 m = {.m = {5, 3, 7, 2}};
 
 	test_assert(scalar_equals(matrix2_determinant(&m), -11));
 	return NULL;
@@ -86,7 +86,7 @@ static const char *test_matrix2_determinant_trial1(void)
 
 static const char *test_matrix2_determinant_trial2(void)
 {
-	struct matrix2 m = {8, 4, 3, -5};
+	struct matrix2 m = {.m = {8, 4, 3, -5}};
 
 	test_assert(scalar_equals(matrix2_determinant(&m), -52));
 	return NULL;
@@ -95,7 +95,7 @@ static const char *test_matrix2_determinant_trial2(void)
 
 static const char *test_matrix2_determinant_trial3(void)
 {
-	struct matrix2 m = {2, -3, 1, 2};
+	struct matrix2 m = {.m = {2, -3, 1, 2}};
 
 	test_assert(scalar_equals(matrix2_determinant(&m), 7));
 	return NULL;
@@ -104,7 +104,7 @@ static const char *test_matrix2_determinant_trial3(void)
 
 static const char *test_matrix2_determinant_trial4(void)
 {
-	struct matrix2 m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123};
+	struct matrix2 m = {.m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123}};
 
 	test_assert(scalar_equals(matrix2_determinant(&m), (HYP_FLOAT)0.024425249));
 	return NULL;
@@ -113,7 +113,7 @@ static const char *test_matrix2_determinant_trial4(void)
 
 static const char *test_matrix2_inverse(void)
 {
-	struct matrix2 originalMatrix = {2, 0, -1, 5};
+	struct matrix2 originalMatrix = {.m = {2, 0, -1, 5}};
 	struct matrix2 identity;
 	struct matrix2 inverted;
 	struct matrix2 scratchMatrix;
@@ -139,8 +139,8 @@ static const char *test_matrix2_inverse(void)
 
 static const char *test_matrix2_invert(void)
 {
-	struct matrix2 m = {2, 0, -1, 5};
-	struct matrix2 expected = {HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.2)};
+	struct matrix2 m = {.m = {2, 0, -1, 5}};
+	struct matrix2 expected = {.m = {HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.2)}};
 	uint8_t i;
 
 	matrix2_invert(&m);
@@ -190,8 +190,8 @@ static const char *test_matrix2_columnrowcolumn(void)
 
 static const char *test_matrix2_transpose(void)
 {
-	struct matrix2 m = {0, 1, 2, 3};
-	struct matrix2 e = {0, 2, 1, 3};
+	struct matrix2 m = {.m = {0, 1, 2, 3}};
+	struct matrix2 e = {.m = {0, 2, 1, 3}};
 
 	matrix2_transpose(&m);
 	test_assert(matrix2_equals(&m, &e));
@@ -203,8 +203,8 @@ static const char *test_matrix2_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix2 m;
-	struct vector2 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
 
 	matrix2_identity(&m);
 
@@ -219,9 +219,9 @@ static const char *test_matrix2_transformation_scalingv2(void)
 {
 	struct matrix2 transform;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)};
-	struct vector2 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct vector2 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1)}};
 
 	matrix2_make_transformation_scalingv2(&transform, &scale);
 	vector2_multiplym2(&startingPosition, &transform);
@@ -277,9 +277,9 @@ static const char *test_matrix2_rotatev3_xz_quarter_turn_opposite(void)
 
 static const char *test_matrix2_add(void)
 {
-	struct matrix2 m1 = {1, 2, 3, 4};
-	struct matrix2 m2 = {5, 6, 7, 8};
-	struct matrix2 expected = {6, 8, 10, 12};
+	struct matrix2 m1 = {.m = {1, 2, 3, 4}};
+	struct matrix2 m2 = {.m = {5, 6, 7, 8}};
+	struct matrix2 expected = {.m = {6, 8, 10, 12}};
 
 	matrix2_add(&m1, &m2);
 	test_assert(matrix2_equals(&m1, &expected));
@@ -290,9 +290,9 @@ static const char *test_matrix2_add(void)
 
 static const char *test_matrix2_subtract(void)
 {
-	struct matrix2 m1 = {5, 6, 7, 8};
-	struct matrix2 m2 = {1, 2, 3, 4};
-	struct matrix2 expected = {4, 4, 4, 4};
+	struct matrix2 m1 = {.m = {5, 6, 7, 8}};
+	struct matrix2 m2 = {.m = {1, 2, 3, 4}};
+	struct matrix2 expected = {.m = {4, 4, 4, 4}};
 
 	matrix2_subtract(&m1, &m2);
 	test_assert(matrix2_equals(&m1, &expected));
@@ -303,8 +303,8 @@ static const char *test_matrix2_subtract(void)
 
 static const char *test_matrix2_multiplyf(void)
 {
-	struct matrix2 m = {1, 2, 3, 4};
-	struct matrix2 expected = {2, 4, 6, 8};
+	struct matrix2 m = {.m = {1, 2, 3, 4}};
+	struct matrix2 expected = {.m = {2, 4, 6, 8}};
 
 	matrix2_multiplyf(&m, HYP_FLOAT_C(2.0));
 	test_assert(matrix2_equals(&m, &expected));
@@ -315,7 +315,7 @@ static const char *test_matrix2_multiplyf(void)
 
 static const char *test_matrix2_multiplyf_zero(void)
 {
-	struct matrix2 m = {1, 2, 3, 4};
+	struct matrix2 m = {.m = {1, 2, 3, 4}};
 	struct matrix2 expected;
 
 	matrix2_zero(&expected);
@@ -329,8 +329,8 @@ static const char *test_matrix2_multiplyf_zero(void)
 
 static const char *test_matrix2_inverse_nonmutating(void)
 {
-	struct matrix2 original = {2, 0, -1, 5};
-	struct matrix2 originalCopy = {2, 0, -1, 5};
+	struct matrix2 original = {.m = {2, 0, -1, 5}};
+	struct matrix2 originalCopy = {.m = {2, 0, -1, 5}};
 	struct matrix2 inv;
 	struct matrix2 product;
 	struct matrix2 identity;
@@ -355,7 +355,7 @@ static const char *test_matrix2_inverse_nonmutating(void)
 
 static const char *test_matrix2_inverse_singular(void)
 {
-	struct matrix2 singular = {1, 2, 2, 4};
+	struct matrix2 singular = {.m = {1, 2, 2, 4}};
 	struct matrix2 result;
 	void *ret;
 
@@ -368,8 +368,8 @@ static const char *test_matrix2_inverse_singular(void)
 
 static const char *test_matrix2_multiplyv2(void)
 {
-	struct matrix2 m = {1, 2, 3, 4};
-	struct vector2 v = {2, 3};
+	struct matrix2 m = {.m = {1, 2, 3, 4}};
+	struct vector2 v = {.v = {2, 3}};
 	struct vector2 r;
 	struct vector2 expected;
 
@@ -387,7 +387,7 @@ static const char *test_matrix2_multiplyv2(void)
 static const char *test_matrix2_multiplyv2_identity(void)
 {
 	struct matrix2 m;
-	struct vector2 v = {HYP_FLOAT_C(5.5), -HYP_FLOAT_C(3.2)};
+	struct vector2 v = {.v = {HYP_FLOAT_C(5.5), -HYP_FLOAT_C(3.2)}};
 	struct vector2 r;
 
 	matrix2_identity(&m);
@@ -401,9 +401,9 @@ static const char *test_matrix2_multiplyv2_identity(void)
 static const char *test_matrix2_scalev2(void)
 {
 	struct matrix2 m;
-	struct vector2 scale = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)};
-	struct vector2 v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)};
-	struct vector2 expected = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(15.0)};
+	struct vector2 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
+	struct vector2 v = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
+	struct vector2 expected = {.v = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(15.0)}};
 
 	matrix2_identity(&m);
 	matrix2_scalev2(&m, &scale);

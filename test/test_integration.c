@@ -34,8 +34,8 @@ static const char *test_integration_trs_roundtrip(void)
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
 
-	struct vector3 scale = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0)}}};
-	struct vector3 translation = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
 
 	/* build combined = R * T * S */
 	matrix4_identity(&combined);
@@ -152,9 +152,9 @@ static const char *test_integration_matrix_multiply_chain(void)
 	struct matrix4 combined, scaleM, translateM;
 	struct vector3 v;
 
-	struct vector3 scale = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-	struct vector3 translation = {{{HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0)}}};
-	struct vector3 expected = {{{HYP_FLOAT_C(12.0), HYP_FLOAT_C(23.0), HYP_FLOAT_C(34.0)}}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0)}};
+	struct vector3 expected = {.v = {HYP_FLOAT_C(12.0), HYP_FLOAT_C(23.0), HYP_FLOAT_C(34.0)}};
 
 	matrix4_identity(&combined);
 	matrix4_multiply(&combined, matrix4_make_transformation_scalingv3(&scaleM, &scale));
@@ -215,10 +215,10 @@ static const char *test_integration_vector2_matrix3_translate_scale(void)
 {
 	struct matrix3 translateM, scaleM;
 	struct vector2 v;
-	struct vector2 translation = {{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
-	struct vector2 scale = {{HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.5)}};
-	struct vector2 afterTranslate = {{HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)}};
-	struct vector2 afterScale = {{HYP_FLOAT_C(8.0), HYP_FLOAT_C(3.0)}};
+	struct vector2 translation = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector2 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.5)}};
+	struct vector2 afterTranslate = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)}};
+	struct vector2 afterScale = {.v = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(3.0)}};
 
 	/* translate */
 	matrix3_make_transformation_translationv2(&translateM, &translation);

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
 /* non-symmetric, not the identity, and invertible */
-static const struct matrix3 test_matrix3_fixed = {1, 2, 3, 0, 1, 4, 5, 6, 0};
+static const struct matrix3 test_matrix3_fixed = {.m = {1, 2, 3, 0, 1, 4, 5, 6, 0}};
 
 static const char *test_matrix3_zero(void)
 {
@@ -79,7 +79,7 @@ static const char *test_matrix3_multiplym3(void)
 
 static const char *test_matrix3_determinant_trial1(void)
 {
-	struct matrix3 m = {5, 3, 7, 2, -5, 8, -6, 4, 9};
+	struct matrix3 m = {.m = {5, 3, 7, 2, -5, 8, -6, 4, 9}};
 
 	test_assert(scalar_equals(matrix3_determinant(&m), -737));
 	return NULL;
@@ -88,7 +88,7 @@ static const char *test_matrix3_determinant_trial1(void)
 
 static const char *test_matrix3_determinant_trial2(void)
 {
-	struct matrix3 m = {8, 4, 3, -5, 6, -2, 7, 9, -8};
+	struct matrix3 m = {.m = {8, 4, 3, -5, 6, -2, 7, 9, -8}};
 
 	test_assert(scalar_equals(matrix3_determinant(&m), -717));
 	return NULL;
@@ -97,7 +97,7 @@ static const char *test_matrix3_determinant_trial2(void)
 
 static const char *test_matrix3_determinant_trial3(void)
 {
-	struct matrix3 m = {2, -3, 1, 2, 0, -1, 1, 4, 5};
+	struct matrix3 m = {.m = {2, -3, 1, 2, 0, -1, 1, 4, 5}};
 
 	test_assert(scalar_equals(matrix3_determinant(&m), 49));
 	return NULL;
@@ -106,7 +106,7 @@ static const char *test_matrix3_determinant_trial3(void)
 
 static const char *test_matrix3_determinant_trial4(void)
 {
-	struct matrix3 m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123, (HYP_FLOAT)0.982764, (HYP_FLOAT)0.726415, (HYP_FLOAT)0.266338, (HYP_FLOAT)0.861622, (HYP_FLOAT)0.904272};
+	struct matrix3 m = {.m = {(HYP_FLOAT)0.608088, (HYP_FLOAT)0.742654, (HYP_FLOAT)0.558388, (HYP_FLOAT)0.722123, (HYP_FLOAT)0.982764, (HYP_FLOAT)0.726415, (HYP_FLOAT)0.266338, (HYP_FLOAT)0.861622, (HYP_FLOAT)0.904272}};
 
 	test_assert(scalar_equals(matrix3_determinant(&m), (HYP_FLOAT)0.0198033));
 	return NULL;
@@ -116,7 +116,7 @@ static const char *test_matrix3_determinant_trial4(void)
 
 static const char *test_matrix3_inverse(void)
 {
-	struct matrix3 originalMatrix = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 originalMatrix = {.m = {2, 0, -1, 5, 0, 1, 1, 1, 3}};
 	struct matrix3 identity;
 	struct matrix3 inverted;
 	struct matrix3 scratchMatrix;
@@ -142,8 +142,8 @@ static const char *test_matrix3_inverse(void)
 
 static const char *test_matrix3_invert(void)
 {
-	struct matrix3 m = {2, 0, -1, 5, 0, 1, 1, 1, 3};
-	struct matrix3 expected = {-1, -1, 0, -14, 7, -7, 5, -2, 0};
+	struct matrix3 m = {.m = {2, 0, -1, 5, 0, 1, 1, 1, 3}};
+	struct matrix3 expected = {.m = {-1, -1, 0, -14, 7, -7, 5, -2, 0}};
 	HYP_FLOAT determinant;
 	uint8_t i;
 
@@ -201,8 +201,8 @@ static const char *test_matrix3_columnrowcolumn(void)
 
 static const char *test_matrix3_transpose(void)
 {
-	struct matrix3 m = {0, 1, 2, 3, 4, 5, 6, 7, 8};
-	struct matrix3 e = {0, 3, 6, 1, 4, 7, 2, 5, 8};
+	struct matrix3 m = {.m = {0, 1, 2, 3, 4, 5, 6, 7, 8}};
+	struct matrix3 e = {.m = {0, 3, 6, 1, 4, 7, 2, 5, 8}};
 
 	matrix3_transpose(&m);
 	test_assert(matrix3_equals(&m, &e));
@@ -214,8 +214,8 @@ static const char *test_matrix3_identity_with_vector(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix3 m;
-	struct vector2 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
 
 	matrix3_identity(&m);
 
@@ -230,9 +230,9 @@ static const char *test_matrix3_transformation_translatev2(void)
 {
 	struct matrix3 transform;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)};
-	struct vector2 translation = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.1)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct vector2 translation = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.1)}};
 
 	matrix3_make_transformation_translationv2(&transform, &translation);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -246,9 +246,9 @@ static const char *test_matrix3_transformation_translatev2_negative(void)
 {
 	struct matrix3 transform;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)};
-	struct vector2 translation = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)};
-	struct vector2 expectedPosition = {-HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.9)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct vector2 translation = {.v = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)}};
+	struct vector2 expectedPosition = {.v = {-HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.9)}};
 
 	matrix3_make_transformation_translationv2(&transform, &translation);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -262,9 +262,9 @@ static const char *test_matrix3_transformation_scalingv2(void)
 {
 	struct matrix3 transform;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)};
-	struct vector2 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct vector2 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1)}};
 
 	matrix3_make_transformation_scalingv2(&transform, &scale);
 	vector2_multiplym3(&startingPosition, &transform);
@@ -320,9 +320,9 @@ static const char *test_matrix3_rotatev3_xz_quarter_turn_opposite(void)
 
 static const char *test_matrix3_add(void)
 {
-	struct matrix3 m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-	struct matrix3 m2 = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-	struct matrix3 expected = {10, 10, 10, 10, 10, 10, 10, 10, 10};
+	struct matrix3 m1 = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
+	struct matrix3 m2 = {.m = {9, 8, 7, 6, 5, 4, 3, 2, 1}};
+	struct matrix3 expected = {.m = {10, 10, 10, 10, 10, 10, 10, 10, 10}};
 
 	matrix3_add(&m1, &m2);
 	test_assert(matrix3_equals(&m1, &expected));
@@ -333,9 +333,9 @@ static const char *test_matrix3_add(void)
 
 static const char *test_matrix3_subtract(void)
 {
-	struct matrix3 m1 = {10, 9, 8, 7, 6, 5, 4, 3, 2};
-	struct matrix3 m2 = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-	struct matrix3 expected = {9, 7, 5, 3, 1, -1, -3, -5, -7};
+	struct matrix3 m1 = {.m = {10, 9, 8, 7, 6, 5, 4, 3, 2}};
+	struct matrix3 m2 = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
+	struct matrix3 expected = {.m = {9, 7, 5, 3, 1, -1, -3, -5, -7}};
 
 	matrix3_subtract(&m1, &m2);
 	test_assert(matrix3_equals(&m1, &expected));
@@ -346,8 +346,8 @@ static const char *test_matrix3_subtract(void)
 
 static const char *test_matrix3_multiplyf(void)
 {
-	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-	struct matrix3 expected = {3, 6, 9, 12, 15, 18, 21, 24, 27};
+	struct matrix3 m = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
+	struct matrix3 expected = {.m = {3, 6, 9, 12, 15, 18, 21, 24, 27}};
 
 	matrix3_multiplyf(&m, HYP_FLOAT_C(3.0));
 	test_assert(matrix3_equals(&m, &expected));
@@ -358,7 +358,7 @@ static const char *test_matrix3_multiplyf(void)
 
 static const char *test_matrix3_multiplyf_zero(void)
 {
-	struct matrix3 m = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 m = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
 	struct matrix3 expected;
 
 	matrix3_zero(&expected);
@@ -372,8 +372,8 @@ static const char *test_matrix3_multiplyf_zero(void)
 
 static const char *test_matrix3_inverse_nonmutating(void)
 {
-	struct matrix3 original = {2, 0, -1, 5, 0, 1, 1, 1, 3};
-	struct matrix3 originalCopy = {2, 0, -1, 5, 0, 1, 1, 1, 3};
+	struct matrix3 original = {.m = {2, 0, -1, 5, 0, 1, 1, 1, 3}};
+	struct matrix3 originalCopy = {.m = {2, 0, -1, 5, 0, 1, 1, 1, 3}};
 	struct matrix3 inv;
 	struct matrix3 product;
 	struct matrix3 identity;
@@ -398,7 +398,7 @@ static const char *test_matrix3_inverse_nonmutating(void)
 
 static const char *test_matrix3_inverse_singular(void)
 {
-	struct matrix3 singular = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+	struct matrix3 singular = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
 	struct matrix3 result;
 	void *ret;
 
@@ -413,7 +413,7 @@ static const char *test_matrix3_multiplyv2(void)
 {
 	/* multiply by identity should return same vector */
 	struct matrix3 m;
-	struct vector2 v = {HYP_FLOAT_C(3.5), -HYP_FLOAT_C(2.1)};
+	struct vector2 v = {.v = {HYP_FLOAT_C(3.5), -HYP_FLOAT_C(2.1)}};
 	struct vector2 r;
 
 	matrix3_identity(&m);
@@ -427,10 +427,10 @@ static const char *test_matrix3_multiplyv2(void)
 static const char *test_matrix3_multiplyv2_translation(void)
 {
 	struct matrix3 m;
-	struct vector2 v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)};
-	struct vector2 translation = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)};
+	struct vector2 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
+	struct vector2 translation = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 	struct vector2 r;
-	struct vector2 expected = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)};
+	struct vector2 expected = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)}};
 
 	matrix3_make_transformation_translationv2(&m, &translation);
 	matrix3_multiplyv2(&m, &v, &r);
@@ -443,9 +443,9 @@ static const char *test_matrix3_multiplyv2_translation(void)
 static const char *test_matrix3_scalev2(void)
 {
 	struct matrix3 m;
-	struct vector2 scale = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)};
-	struct vector2 v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)};
-	struct vector2 expected = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(15.0)};
+	struct vector2 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
+	struct vector2 v = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
+	struct vector2 expected = {.v = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(15.0)}};
 
 	matrix3_identity(&m);
 	matrix3_scalev2(&m, &scale);
@@ -459,9 +459,9 @@ static const char *test_matrix3_scalev2(void)
 static const char *test_matrix3_translatev2(void)
 {
 	struct matrix3 m;
-	struct vector2 translation = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)};
-	struct vector2 v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)};
-	struct vector2 expected = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)};
+	struct vector2 translation = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0)}};
+	struct vector2 v = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector2 expected = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0)}};
 
 	matrix3_identity(&m);
 	matrix3_translatev2(&m, &translation);

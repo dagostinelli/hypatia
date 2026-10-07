@@ -42,7 +42,7 @@ static const char *test_vector4_zero(void)
 
 static const char *test_vector4_negate(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 	vector4_negate(&v);
 
@@ -73,8 +73,8 @@ static const char *test_vector4_negate(void)
 
 static const char *test_vector4_add(void)
 {
-	struct vector4 v1 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-	struct vector4 v2 = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}}};
+	struct vector4 v1 = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector4 v2 = {.v = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}};
 
 	vector4_add(&v1, &v2);
 
@@ -85,8 +85,8 @@ static const char *test_vector4_add(void)
 
 	/* Add with negative values */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0)}}};
-		struct vector4 b = {{{-HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0)}};
+		struct vector4 b = {.v = {-HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 		vector4_add(&a, &b);
 
@@ -101,7 +101,7 @@ static const char *test_vector4_add(void)
 
 static const char *test_vector4_addf(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 	vector4_addf(&v, HYP_FLOAT_C(10.0));
 
@@ -131,8 +131,8 @@ static const char *test_vector4_addf(void)
 
 static const char *test_vector4_subtract(void)
 {
-	struct vector4 v1 = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(11.0)}}};
-	struct vector4 v2 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+	struct vector4 v1 = {.v = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(11.0)}};
+	struct vector4 v2 = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 	vector4_subtract(&v1, &v2);
 
@@ -143,8 +143,8 @@ static const char *test_vector4_subtract(void)
 
 	/* Subtract same vector yields zero */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}};
 
 		vector4_subtract(&a, &b);
 
@@ -159,7 +159,7 @@ static const char *test_vector4_subtract(void)
 
 static const char *test_vector4_subtractf(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}};
 
 	vector4_subtractf(&v, HYP_FLOAT_C(5.0));
 
@@ -181,8 +181,8 @@ static const char *test_vector4_subtractf(void)
 
 static const char *test_vector4_multiply(void)
 {
-	struct vector4 v1 = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}}};
-	struct vector4 v2 = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}}};
+	struct vector4 v1 = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
+	struct vector4 v2 = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}};
 
 	vector4_multiply(&v1, &v2);
 
@@ -193,8 +193,8 @@ static const char *test_vector4_multiply(void)
 
 	/* Multiply by zero vector */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-		struct vector4 z = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+		struct vector4 z = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
 		vector4_multiply(&a, &z);
 
@@ -209,7 +209,7 @@ static const char *test_vector4_multiply(void)
 
 static const char *test_vector4_multiplyf(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 	vector4_multiplyf(&v, HYP_FLOAT_C(3.0));
 
@@ -228,7 +228,7 @@ static const char *test_vector4_multiplyf(void)
 
 	/* Multiply by negative */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 
 		vector4_multiplyf(&a, -HYP_FLOAT_C(2.0));
 
@@ -243,8 +243,8 @@ static const char *test_vector4_multiplyf(void)
 
 static const char *test_vector4_divide(void)
 {
-	struct vector4 v1 = {{{HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}}};
-	struct vector4 v2 = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(8.0)}}};
+	struct vector4 v1 = {.v = {HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(30.0), HYP_FLOAT_C(40.0)}};
+	struct vector4 v2 = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(8.0)}};
 
 	vector4_divide(&v1, &v2);
 
@@ -255,8 +255,8 @@ static const char *test_vector4_divide(void)
 
 	/* Divide by ones yields same vector */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(10.0)}}};
-		struct vector4 ones = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0), HYP_FLOAT_C(9.0), HYP_FLOAT_C(10.0)}};
+		struct vector4 ones = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)}};
 
 		vector4_divide(&a, &ones);
 
@@ -271,7 +271,7 @@ static const char *test_vector4_divide(void)
 
 static const char *test_vector4_dividef(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(8.0), HYP_FLOAT_C(12.0), HYP_FLOAT_C(16.0), HYP_FLOAT_C(20.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(8.0), HYP_FLOAT_C(12.0), HYP_FLOAT_C(16.0), HYP_FLOAT_C(20.0)}};
 
 	vector4_dividef(&v, HYP_FLOAT_C(4.0));
 	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(2.0)));
@@ -285,19 +285,19 @@ static const char *test_vector4_dividef(void)
 static const char *test_vector4_magnitude(void)
 {
 	/* Unit vector along x */
-	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+	struct vector4 vx = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 	test_assert(scalar_equalsf(vector4_magnitude(&vx), HYP_FLOAT_C(1.0)));
 
 	/* Known magnitude: sqrt(1+4+9+16) = sqrt(30) */
 	{
-		struct vector4 v = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+		struct vector4 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 		HYP_FLOAT expected = HYP_SQRT(HYP_FLOAT_C(30.0));
 		test_assert(scalar_equalsf(vector4_magnitude(&v), expected));
 	}
 
 	/* Zero vector */
 	{
-		struct vector4 z = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 z = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 		test_assert(scalar_equalsf(vector4_magnitude(&z), HYP_FLOAT_C(0.0)));
 	}
 
@@ -307,7 +307,7 @@ static const char *test_vector4_magnitude(void)
 static const char *test_vector4_normalize(void)
 {
 	/* Normalize a known vector */
-	struct vector4 v = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 	vector4_normalize(&v);
 
 	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(1.0)));
@@ -317,14 +317,14 @@ static const char *test_vector4_normalize(void)
 
 	/* Normalize a general vector, magnitude should be 1 */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 		vector4_normalize(&a);
 		test_assert(scalar_equalsf(vector4_magnitude(&a), HYP_FLOAT_C(1.0)));
 	}
 
 	/* Normalize zero vector should not crash and remain zero */
 	{
-		struct vector4 z = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 z = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 		vector4_normalize(&z);
 		test_assert(scalar_equalsf(z.x, HYP_FLOAT_C(0.0)));
 		test_assert(scalar_equalsf(z.y, HYP_FLOAT_C(0.0)));
@@ -338,28 +338,28 @@ static const char *test_vector4_normalize(void)
 static const char *test_vector4_distance(void)
 {
 	/* Distance between same point is zero */
-	struct vector4 v1 = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
+	struct vector4 v1 = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
 	test_assert(scalar_equalsf(vector4_distance(&v1, &v1), HYP_FLOAT_C(0.0)));
 
 	/* Distance between origin and a unit axis vector */
 	{
-		struct vector4 origin = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-		struct vector4 point = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 origin = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+		struct vector4 point = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 		test_assert(scalar_equalsf(vector4_distance(&origin, &point), HYP_FLOAT_C(1.0)));
 	}
 
 	/* Known distance: sqrt((4-1)^2 + (6-2)^2 + (8-3)^2 + (10-4)^2) = sqrt(9+16+25+36) = sqrt(86) */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(8.0), HYP_FLOAT_C(10.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(8.0), HYP_FLOAT_C(10.0)}};
 		HYP_FLOAT expected = HYP_SQRT(HYP_FLOAT_C(86.0));
 		test_assert(scalar_equalsf(vector4_distance(&a, &b), expected));
 	}
 
 	/* Distance is symmetric */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}};
 		test_assert(scalar_equalsf(vector4_distance(&a, &b), vector4_distance(&b, &a)));
 	}
 
@@ -369,28 +369,28 @@ static const char *test_vector4_distance(void)
 static const char *test_vector4_dot_product(void)
 {
 	/* Dot product of orthogonal vectors is zero */
-	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-	struct vector4 vy = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+	struct vector4 vx = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector4 vy = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vy), HYP_FLOAT_C(0.0)));
 
 	/* Dot product of parallel vectors */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 		test_assert(scalar_equalsf(vector4_dot_product(&a, &b), HYP_FLOAT_C(6.0)));
 	}
 
 	/* General dot product: 1*5 + 2*6 + 3*7 + 4*8 = 5+12+21+32 = 70 */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(8.0)}};
 		test_assert(scalar_equalsf(vector4_dot_product(&a, &b), HYP_FLOAT_C(70.0)));
 	}
 
 	/* Dot product with zero vector */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-		struct vector4 z = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+		struct vector4 z = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 		test_assert(scalar_equalsf(vector4_dot_product(&a, &z), HYP_FLOAT_C(0.0)));
 	}
 
@@ -403,8 +403,8 @@ static const char *test_vector4_cross_product(void)
 
 	/* Cross product of x and y unit vectors should be z */
 	{
-		struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-		struct vector4 vy = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 vx = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+		struct vector4 vy = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
 		vector4_cross_product(&result, &vx, &vy);
 
@@ -416,8 +416,8 @@ static const char *test_vector4_cross_product(void)
 
 	/* Cross product of y and x unit vectors should be -z */
 	{
-		struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-		struct vector4 vy = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 vx = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+		struct vector4 vy = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
 		vector4_cross_product(&result, &vy, &vx);
 
@@ -433,8 +433,8 @@ static const char *test_vector4_cross_product(void)
 	/* z = 1*5 - 2*4 = 5-8 = -3 */
 	/* w = w*w - w*w = 0 */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(1.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(1.0)}};
 
 		vector4_cross_product(&result, &a, &b);
 
@@ -446,8 +446,8 @@ static const char *test_vector4_cross_product(void)
 
 	/* Cross product of parallel vectors is zero */
 	{
-		struct vector4 a = {{{HYP_FLOAT_C(2.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(0.0)}}};
-		struct vector4 b = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0)}}};
+		struct vector4 a = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(0.0)}};
+		struct vector4 b = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0)}};
 
 		vector4_cross_product(&result, &a, &b);
 
@@ -463,10 +463,10 @@ static const char *test_vector4_cross_product(void)
 static const char *test_vector4_dot_product_perpendicular(void)
 {
 	/* All four pairs of standard basis vectors are perpendicular */
-	struct vector4 vx = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-	struct vector4 vy = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
-	struct vector4 vz = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}}};
-	struct vector4 vw = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}}};
+	struct vector4 vx = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector4 vy = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector4 vz = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector4 vw = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
 
 	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vy), HYP_FLOAT_C(0.0)));
 	test_assert(scalar_equalsf(vector4_dot_product(&vx, &vz), HYP_FLOAT_C(0.0)));
@@ -480,7 +480,7 @@ static const char *test_vector4_dot_product_perpendicular(void)
 
 static const char *test_vector4_normalize_zero(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
 	vector4_normalize(&v);
 
@@ -495,7 +495,7 @@ static const char *test_vector4_normalize_zero(void)
 
 static const char *test_vector4_magnitude_zero(void)
 {
-	struct vector4 v = {{{HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}}};
+	struct vector4 v = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
 	test_assert(scalar_equalsf(vector4_magnitude(&v), HYP_FLOAT_C(0.0)));
 
@@ -504,9 +504,9 @@ static const char *test_vector4_magnitude_zero(void)
 
 static const char *test_vector4_equals(void)
 {
-	struct vector4 a = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-	struct vector4 b = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}}};
-	struct vector4 c = {{{HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(5.0)}}};
+	struct vector4 a = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector4 b = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector4 c = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(5.0)}};
 
 	test_assert(vector4_equals(&a, &b));
 	test_assert(!vector4_equals(&a, &c));
