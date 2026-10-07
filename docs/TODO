@@ -13,11 +13,53 @@ Remaining Work:
 - make doxygen ignore vector3_get_reference_vector3
 
 
+Correctness and API safety:
+- matrix2/3/4_invert leave the matrix unchanged when it has no inverse (see matrix4_invert);
+  consider returning a status the caller can check, and document the behavior
+- Improve the "has an inverse" check in matrix2/3/4_inverse. It currently uses
+  scalar_equalsf(determinant, 0), i.e. |det| < HYP_EPSILON. Because the determinant
+  scales with the cube/fourth power of the matrix scale, very small uniform scales are
+  treated as having no inverse: in the float build, uniform scales below ~0.056 (e.g.
+  0.01, det 1e-6); in double, below ~0.001.
+  Findings:
+  - An exact-zero check (det == 0) catches structured singular matrices (a zero scale,
+    a row that is an exact multiple of another), but rounding can leave a small nonzero
+    determinant: in a test of 1000 singular matrices with one row = sum of two others,
+    ~80% had a determinant of ~1e-8 (float) / ~1e-18 (double). So exact zero alone is
+    not enough.
+  - Any threshold on the determinant alone has this trade-off.
+  - Recommended: scale-independent ratio (Hadamard's inequality). ratio =
+    |det| / product of row lengths is in [0, 1]; do the same with columns and take the
+    larger; "no inverse" if it is below HYP_EPSILON. Rows alone or columns alone depend
+    on the order transforms were combined (rotate * scale(1000, 0.001) has row ratio 1,
+    column ratio 2e-6, and inverts exactly). Tested: small uniform scales and
+    rotate/scale in either order invert; 100000 rounded singular matrices were all
+    rejected (worst ratio 1.2e-7 float, 2.5e-16 double). It is a rule of thumb: in float
+    it also declines rotate * scale(1000, 0.001) * rotate, which float precision cannot
+    invert accurately (~3% error).
+    Document as "returns NULL if the matrix is not invertible, or too close to it to
+    invert accurately at this precision".
+  - LAPACK's approach: report singular only on an exact zero pivot and provide a
+    separate condition estimate. Could add a matrixN condition-estimate function later.
+- The same "within HYP_EPSILON of zero" guard is used for vector normalize, quaternion
+  normalize / inverse, quaternion_is_pure and the SLERP shortcuts; review each the same way
+- Answer the SLERP shortest-arc question above with a test, then fix if needed
+- Test quaternion inverse with non-unit quaternions (see above) and fix if needed
+- HYP_EPSILON is 1E-5 (single) and 1E-12 (double), compared as an absolute difference.
+  Consider relative / ULP-based comparisons for large magnitudes (e.g. the matrix6
+  single precision inverse lands at ~2.3e-5)
+
 C89 compliance:
 - `gcc -std=c89 -pedantic` reports 32 warnings: 25 unnamed structs/unions, 7 structs with
   no named members. Decided: the anonymous unions stay; the README says "almost 100%
   C89/C90 compliant".
 - <stdint.h> / uint8_t are C99
+
+Experimental (_EXP) functions:
+- Add reference-value tests (e.g. against GLM output) for projection_perspective_fovy_rh,
+  projection_ortho3d_rh, view_lookat_rh, rotate_by_euler_angles, transformation_decompose,
+  quaternion_angle_between
+- Once tested, promote them and drop the _EXP suffix
 
 API gaps:
 - vector2/3/4_lerp
@@ -29,6 +71,10 @@ API gaps:
 - left-handed variants of the _EXP projection / view functions
 - a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
 - consider optional by-value inline variants for small types for expression-style code
+
+Tests:
+- Randomized / property-based round trips: quaternion vs axis-angle vs matrix rotations,
+  invert(invert(M)) ~= M, M * invert(M) ~= I
 
 Remaining casts (README: prefer no casts):
 - hypatia.h math macros: DECIDED, keep the 8 casts in HYP_SQRT, HYP_FMOD, HYP_SIN,
