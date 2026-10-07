@@ -28,6 +28,24 @@ Remaining Work:
 - TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
 
+C89 compliance:
+- `gcc -std=c89 -pedantic` reports 34 warnings: 25 unnamed structs/unions, 7 structs with
+  no named members, 2 anonymous variadic macros
+- <stdint.h> / uint8_t are C99
+- Either provide a strict-C89 path (feature macro for the anonymous unions, replace uint8_t)
+  or change the README to say "C99, C89-friendly style"
+
+API gaps:
+- vector2/3/4_lerp
+- vector2/3/4 clamp, component-wise min / max
+- vector projection (project a onto b)
+- matrix4 TRS constructor (translation + rotation + scale in one call)
+- normal matrix helper (inverse-transpose of the upper 3x3)
+- quaternion <-> matrix3 conversions
+- left-handed variants of the _EXP projection / view functions
+- a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
+- consider optional by-value inline variants for small types for expression-style code
+
 Remaining casts (README: prefer no casts):
 - hypatia.h math macros: DECIDED, keep the 8 casts in HYP_SQRT, HYP_FMOD, HYP_SIN,
   HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS, HYP_ATAN2. They are an accepted exception to
@@ -48,5 +66,19 @@ Long double support (planned):
 - Needs its own HYP_EPSILON
 - long double differs by platform: same as double on MSVC, 80-bit on x86 gcc/clang,
   128-bit software on ARM64 Linux; CI needs a long double job per platform
+
+Build and CI:
+- Retire appveyor.yml (images: VS2015-2019, macOS Mojave) now that GitHub Actions covers
+  Linux, macOS and Windows
+- Add a strict `-std=c89 -pedantic -Werror` CI job once the C89 warnings above are resolved
+- cmake/CMakeBuildFlags.cmake includes CheckCXXCompilerFlag in a C-only project; use
+  CheckCCompilerFlag (or drop it)
+- help/CMakeLists.txt uses ELSEIF() where ELSE() is intended, so the "Doxygen not found"
+  message never prints
+
+Docs:
+- Publish the Doxygen output (e.g. GitHub Pages)
+- Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
+  objects are mutated in place
 
 // end of TODO.txt ...
