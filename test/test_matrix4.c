@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
 /* non-symmetric, not the identity, and invertible */
-static const struct matrix4 test_matrix4_fixed = {1, 2, 3, 4, 0, 1, 2, 3, 0, 0, 1, 2, 0, 0, 0, 1};
+static const struct matrix4 test_matrix4_fixed = {.m = {1, 2, 3, 4, 0, 1, 2, 3, 0, 0, 1, 2, 0, 0, 0, 1}};
 
 static const char *test_matrix4_zero(void)
 {
@@ -83,8 +83,8 @@ static const char *test_matrix4_identity_with_vector2(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix4 m;
-	struct vector2 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4)}};
 	struct vector2 r;
 
 	matrix4_identity(&m);
@@ -101,9 +101,9 @@ static const char *test_matrix4_transformation_translatev3_with_vector2(void)
 	struct matrix4 m;
 	struct vector2 r;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(7.4)};
-	struct vector3 translation = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.0)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(4.4), HYP_FLOAT_C(7.5)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(7.4)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.0)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(4.4), HYP_FLOAT_C(7.5)}};
 
 	matrix4_make_transformation_translationv3(&m, &translation);
 	matrix4_multiplyv2(&m, &startingPosition, &r);
@@ -117,9 +117,9 @@ static const char *test_matrix4_transformation_translatev3_with_vector2_2(void)
 	struct matrix4 m;
 	struct vector2 r;
 
-	struct vector2 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(7.4)};
-	struct vector3 translation = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.0)};
-	struct vector2 expectedPosition = {HYP_FLOAT_C(4.4), HYP_FLOAT_C(7.5)};
+	struct vector2 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(7.4)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.0)}};
+	struct vector2 expectedPosition = {.v = {HYP_FLOAT_C(4.4), HYP_FLOAT_C(7.5)}};
 
 	matrix4_make_transformation_translationv3(&m, &translation);
 	matrix4_multiplyv2(&m, &startingPosition, &r);
@@ -133,8 +133,8 @@ static const char *test_matrix4_identity_with_vector3(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix4 m;
-	struct vector3 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67)}};
 	struct vector3 r;
 
 	matrix4_identity(&m);
@@ -150,8 +150,8 @@ static const char *test_matrix4_identity_with_vector4(void)
 {
 	/* vector * identity_matrix = vector */
 	struct matrix4 m;
-	struct vector4 startingPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67), HYP_FLOAT_C(2.4)};
-	struct vector4 expectedPosition = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67), HYP_FLOAT_C(2.4)};
+	struct vector4 startingPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67), HYP_FLOAT_C(2.4)}};
+	struct vector4 expectedPosition = {.v = {HYP_FLOAT_C(4.3), HYP_FLOAT_C(1.4), HYP_FLOAT_C(3.67), HYP_FLOAT_C(2.4)}};
 	struct vector4 r;
 
 	matrix4_identity(&m);
@@ -165,8 +165,8 @@ static const char *test_matrix4_identity_with_vector4(void)
 
 static const char *test_matrix4_transpose(void)
 {
-	struct matrix4 m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-	struct matrix4 e = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
+	struct matrix4 m = {.m = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}};
+	struct matrix4 e = {.m = {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15}};
 
 	matrix4_transpose(&m);
 	test_assert(matrix4_equals(&m, &e));
@@ -177,7 +177,7 @@ static const char *test_matrix4_transpose(void)
 
 static const char *test_matrix4_determinant_trial1(void)
 {
-	struct matrix4 m = {4, 3, 2, 2, 0, 1, -3, 3, 0, -1, 3, 3, 0, 3, 1, 1};
+	struct matrix4 m = {.m = {4, 3, 2, 2, 0, 1, -3, 3, 0, -1, 3, 3, 0, 3, 1, 1}};
 
 	test_assert(scalar_equals(matrix4_determinant(&m), -240));
 	return NULL;
@@ -186,7 +186,7 @@ static const char *test_matrix4_determinant_trial1(void)
 
 static const char *test_matrix4_determinant_trial2(void)
 {
-	struct matrix4 m = {-1, 1, 4, 2, 2, -1, 2, 5, 1, 2, 3, 4, 3, 4, -1, 2};
+	struct matrix4 m = {.m = {-1, 1, 4, 2, 2, -1, 2, 5, 1, 2, 3, 4, 3, 4, -1, 2}};
 
 	test_assert(scalar_equals(matrix4_determinant(&m), -26));
 	return NULL;
@@ -195,7 +195,7 @@ static const char *test_matrix4_determinant_trial2(void)
 
 static const char *test_matrix4_determinant_trial3(void)
 {
-	struct matrix4 m = {1, 3, -2, 1, 5, 1, 0, -1, 0, 1, 0, -2, 2, -1, 0, 3};
+	struct matrix4 m = {.m = {1, 3, -2, 1, 5, 1, 0, -1, 0, 1, 0, -2, 2, -1, 0, 3}};
 
 	test_assert(scalar_equals(matrix4_determinant(&m), -6));
 	return NULL;
@@ -242,9 +242,9 @@ static const char *test_matrix4_transformation_translatev3(void)
 {
 	struct matrix4 transform;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 translation = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.1)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.1)}};
 
 	matrix4_make_transformation_translationv3(&transform, &translation);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -258,9 +258,9 @@ static const char *test_matrix4_transformation_translatev3_negative(void)
 {
 	struct matrix4 transform;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 translation = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {-HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.9), -HYP_FLOAT_C(0.1)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 translation = {.v = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {-HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.9), -HYP_FLOAT_C(0.1)}};
 
 	matrix4_make_transformation_translationv3(&transform, &translation);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -274,9 +274,9 @@ static const char *test_matrix4_transformation_scalingv3(void)
 {
 	struct matrix4 transform;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.0)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.0)}};
 
 	matrix4_make_transformation_scalingv3(&transform, &scale);
 	vector3_multiplym4(&startingPosition, &transform);
@@ -291,10 +291,10 @@ static const char *test_matrix4_transformation_scale_then_translatev3(void)
 	struct matrix4 transform;
 	struct matrix4 scratch;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)};
-	struct vector3 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 translation = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(0.0)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 translation = {.v = {-HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1), -HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(0.0)}};
 
 	matrix4_identity(&transform);
 	matrix4_multiply(&transform, matrix4_make_transformation_scalingv3(&scratch, &scale));
@@ -533,10 +533,10 @@ static const char *test_matrix4_transform_3d(void)
 	struct quaternion orientation;
 	struct matrix4 modelMatrix, worldMatrix, scaleM, rotateM, translateM;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)};
-	struct vector3 translation = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 
 	/* modelMatrix */
 	matrix4_identity(&modelMatrix);
@@ -565,10 +565,10 @@ static const char *test_matrix4_transform_3d_combined(void)
 	struct quaternion orientation;
 	struct matrix4 worldMatrix, scaleM, rotateM, translateM;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)};
-	struct vector3 translation = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 
 	matrix4_identity(&worldMatrix);
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_scalingv3(&scaleM, &scale));
@@ -589,10 +589,10 @@ static const char *test_matrix4_transform_3d_scale_translate(void)
 {
 	struct matrix4 worldMatrix, scaleM, translateM;
 
-	struct vector3 startingPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
-	struct vector3 scale = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)};
-	struct vector3 expectedPosition = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0)};
-	struct vector3 translation = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)};
+	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
+	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0)}};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 
 	matrix4_identity(&worldMatrix);
 	matrix4_multiply(&worldMatrix, matrix4_make_transformation_scalingv3(&scaleM, &scale));
@@ -674,9 +674,9 @@ static const char *test_matrix4_inverse(void)
 
 static const char *test_matrix4_add(void)
 {
-	struct matrix4 m1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-	struct matrix4 m2 = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-	struct matrix4 expected = {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17};
+	struct matrix4 m1 = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
+	struct matrix4 m2 = {.m = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}};
+	struct matrix4 expected = {.m = {17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17, 17}};
 
 	matrix4_add(&m1, &m2);
 	test_assert(matrix4_equals(&m1, &expected));
@@ -687,9 +687,9 @@ static const char *test_matrix4_add(void)
 
 static const char *test_matrix4_subtract(void)
 {
-	struct matrix4 m1 = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-	struct matrix4 m2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-	struct matrix4 expected = {15, 13, 11, 9, 7, 5, 3, 1, -1, -3, -5, -7, -9, -11, -13, -15};
+	struct matrix4 m1 = {.m = {16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}};
+	struct matrix4 m2 = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
+	struct matrix4 expected = {.m = {15, 13, 11, 9, 7, 5, 3, 1, -1, -3, -5, -7, -9, -11, -13, -15}};
 
 	matrix4_subtract(&m1, &m2);
 	test_assert(matrix4_equals(&m1, &expected));
@@ -700,8 +700,8 @@ static const char *test_matrix4_subtract(void)
 
 static const char *test_matrix4_multiplyf(void)
 {
-	struct matrix4 m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-	struct matrix4 expected = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32};
+	struct matrix4 m = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
+	struct matrix4 expected = {.m = {2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32}};
 
 	matrix4_multiplyf(&m, HYP_FLOAT_C(2.0));
 	test_assert(matrix4_equals(&m, &expected));
@@ -712,7 +712,7 @@ static const char *test_matrix4_multiplyf(void)
 
 static const char *test_matrix4_multiplyf_zero(void)
 {
-	struct matrix4 m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	struct matrix4 m = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}};
 	struct matrix4 expected;
 
 	matrix4_zero(&expected);
@@ -776,9 +776,9 @@ static const char *test_matrix4_inverse_singular(void)
 static const char *test_matrix4_translatev3(void)
 {
 	struct matrix4 m;
-	struct vector3 translation = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)};
-	struct vector3 v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)};
-	struct vector3 expected = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(9.0)};
+	struct vector3 translation = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
+	struct vector3 v = {.v = {HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0)}};
+	struct vector3 expected = {.v = {HYP_FLOAT_C(5.0), HYP_FLOAT_C(7.0), HYP_FLOAT_C(9.0)}};
 
 	matrix4_identity(&m);
 	matrix4_translatev3(&m, &translation);
@@ -792,9 +792,9 @@ static const char *test_matrix4_translatev3(void)
 static const char *test_matrix4_scalev3(void)
 {
 	struct matrix4 m;
-	struct vector3 scale = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)};
-	struct vector3 v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)};
-	struct vector3 expected = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(12.0)};
+	struct vector3 scale = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
+	struct vector3 v = {.v = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)}};
+	struct vector3 expected = {.v = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(12.0)}};
 
 	matrix4_identity(&m);
 	matrix4_scalev3(&m, &scale);
