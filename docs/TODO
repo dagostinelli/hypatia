@@ -12,21 +12,24 @@ Remaining Work:
 - add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
 - make doxygen ignore vector3_get_reference_vector3
 
-- Re-test the Visual Studio compilation
-	- Postfix is not being applied correctly for MSVC (hypatiad.dll)
-	- PDB is not being founds and added to install files (See CPack)
-	- PDB is not being collected by AppVeyor artifact collector
-
-- In Visual Studio compilation Fix this: (shouldn't be outputting a lib file for the test project)
-	Linking C executable test_hypatia.exe
-	   Creating library test_hypatia.lib and object test_hypatia.exp
-	   Creating library test_hypatia.lib and object test_hypatia.exp
-	[100%] Built target test_hypatia
-
-- CPack is using strange version numbers. Where is it getting those version numbers from?
-- AppVeyor is showing CMake warnings that do not appear on other platforms
-- TravisCI's Mac machines are not building Doxygen
 - Doxygen is throwing warnings (looks like the config file has some obsolete variables -- it was generated to being with)
+
+C89 compliance:
+- The anonymous unions in the types are not C89 (gcc -std=c89 -pedantic reports them).
+  They stay.
+- The determinant macros are variadic, which is C99
+- <stdint.h> / uint8_t are C99
+
+API gaps:
+- vector2/3/4_lerp
+- vector2/3/4 clamp, component-wise min / max
+- vector projection (project a onto b)
+- matrix4 TRS constructor (translation + rotation + scale in one call)
+- normal matrix helper (inverse-transpose of the upper 3x3)
+- quaternion <-> matrix3 conversions
+- left-handed variants of the _EXP projection / view functions
+- a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
+- consider optional by-value inline variants for small types for expression-style code
 
 Remaining casts (README: prefer no casts):
 - The math macros HYP_SQRT, HYP_FMOD, HYP_SIN, HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS and
@@ -39,5 +42,10 @@ Long double support (planned):
 - Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and a long double format
   (%Lf) in the print helpers
 - long double differs by platform; CI needs a long double job per platform
+
+Docs:
+- Publish the Doxygen output (e.g. GitHub Pages)
+- Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
+  objects are mutated in place
 
 // end of TODO.txt ...
