@@ -31,10 +31,6 @@ API gaps:
 - a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
 - consider optional by-value inline variants for small types for expression-style code
 
-Tests:
-- Rename the test predicate hyp_float_identical to "the property it checks" (e.g.
-  floats_identical). Not decided.
-
 Remaining casts (README: prefer no casts):
 - hypatia.h math macros: DECIDED, keep the 8 casts in HYP_SQRT, HYP_FMOD, HYP_SIN,
   HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS, HYP_ATAN2. They are an accepted exception to

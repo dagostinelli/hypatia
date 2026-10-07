@@ -194,7 +194,7 @@ static const char *test_hyp_deg_rad_roundtrip(void)
 }
 
 /* exact comparison without tripping -Wfloat-equal */
-static int hyp_float_identical(HYP_FLOAT a, HYP_FLOAT b)
+static int floats_identical(HYP_FLOAT a, HYP_FLOAT b)
 {
 	return !(a < b) && !(b < a);
 }
@@ -202,13 +202,13 @@ static int hyp_float_identical(HYP_FLOAT a, HYP_FLOAT b)
 static const char *test_hyp_constants_full_precision(void)
 {
 	/* each constant must be the closest HYP_FLOAT to the true value */
-	test_assert(hyp_float_identical(HYP_PI, HYP_FLOAT_C(3.141592653589793238462643383279502884197)));
-	test_assert(hyp_float_identical(HYP_TAU, HYP_FLOAT_C(6.283185307179586476925286766559005768394)));
-	test_assert(hyp_float_identical(HYP_PI_HALF, HYP_FLOAT_C(1.570796326794896619231321691639751442099)));
-	test_assert(hyp_float_identical(HYP_PI_SQUARED, HYP_FLOAT_C(9.869604401089358618834490999876151135314)));
-	test_assert(hyp_float_identical(HYP_E, HYP_FLOAT_C(2.718281828459045235360287471352662497757)));
-	test_assert(hyp_float_identical(HYP_RAD_PER_DEG, HYP_FLOAT_C(0.01745329251994329576923690768488612713443)));
-	test_assert(hyp_float_identical(HYP_DEG_PER_RAD, HYP_FLOAT_C(57.29577951308232087679815481410517033241)));
+	test_assert(floats_identical(HYP_PI, HYP_FLOAT_C(3.141592653589793238462643383279502884197)));
+	test_assert(floats_identical(HYP_TAU, HYP_FLOAT_C(6.283185307179586476925286766559005768394)));
+	test_assert(floats_identical(HYP_PI_HALF, HYP_FLOAT_C(1.570796326794896619231321691639751442099)));
+	test_assert(floats_identical(HYP_PI_SQUARED, HYP_FLOAT_C(9.869604401089358618834490999876151135314)));
+	test_assert(floats_identical(HYP_E, HYP_FLOAT_C(2.718281828459045235360287471352662497757)));
+	test_assert(floats_identical(HYP_RAD_PER_DEG, HYP_FLOAT_C(0.01745329251994329576923690768488612713443)));
+	test_assert(floats_identical(HYP_DEG_PER_RAD, HYP_FLOAT_C(57.29577951308232087679815481410517033241)));
 	return NULL;
 }
 
