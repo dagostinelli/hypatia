@@ -1,27 +1,33 @@
 
 INCLUDE(../cmake/CMakeBuildFlags.cmake)
 
-ADD_EXECUTABLE(test_hypatia_single_precision main.c implementation.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_single_precision hypatia::hypatia)
-SET_TARGET_PROPERTIES(test_hypatia_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
-ADD_TEST(NAME test_hypatia_single_precision COMMAND test_hypatia_single_precision)
+# the precision flags and definitions for a target; precision is single or double
+function(hyp_precision target precision)
+	if(precision STREQUAL "single")
+		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
+		TARGET_COMPILE_DEFINITIONS(${target} PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS)
+	else()
+		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
+	endif()
+endfunction()
 
-ADD_EXECUTABLE(test_hypatia_double_precision main.c implementation.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_double_precision hypatia::hypatia)
-ADD_TEST(NAME test_hypatia_double_precision COMMAND test_hypatia_double_precision)
+# a test program from the given sources, in both precisions:
+# <name>_single_precision and <name>_double_precision
+function(hyp_add_test name)
+	foreach(precision single double)
+		SET(target ${name}_${precision}_precision)
+		ADD_EXECUTABLE(${target} ${ARGN})
+		hyp_precision(${target} ${precision})
+		TARGET_LINK_LIBRARIES(${target} hypatia::hypatia)
+		ADD_TEST(NAME ${target} COMMAND ${target})
+	endforeach()
+endfunction()
 
-ADD_EXECUTABLE(test_hypatia_static_single_precision test_static.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_static_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_static_single_precision hypatia::hypatia)
-SET_TARGET_PROPERTIES(test_hypatia_static_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
-ADD_TEST(NAME test_hypatia_static_single_precision COMMAND test_hypatia_static_single_precision)
+hyp_add_test(test_hypatia main.c implementation.c)
+hyp_add_test(test_hypatia_static test_static.c)
 
-ADD_EXECUTABLE(test_hypatia_static_double_precision test_static.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_static_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_static_double_precision hypatia::hypatia)
-ADD_TEST(NAME test_hypatia_static_double_precision COMMAND test_hypatia_static_double_precision)
+# HYP_NO_C_MATH: the program supplies the math functions
+hyp_add_test(test_hypatia_no_c_math test_no_c_math.c no_c_math_functions.c)
 
 # Hypatia built into a shared library, with the tests linked against it.  On
 # Windows the functions are exported and imported by defining HYPAPI, as a user
@@ -31,36 +37,13 @@ if(WIN32)
 	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)")
 endif()
 
-ADD_LIBRARY(hypatia_shared_single_precision SHARED implementation.c)
-TARGET_COMPILE_OPTIONS(hypatia_shared_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
-TARGET_COMPILE_DEFINITIONS(hypatia_shared_single_precision PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS ${HYP_SHARED_EXPORT})
-TARGET_LINK_LIBRARIES(hypatia_shared_single_precision hypatia::hypatia)
-
-ADD_EXECUTABLE(test_hypatia_shared_single_precision main.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_shared_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
-TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_single_precision PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS ${HYP_SHARED_IMPORT})
-TARGET_LINK_LIBRARIES(test_hypatia_shared_single_precision hypatia_shared_single_precision hypatia::hypatia)
-ADD_TEST(NAME test_hypatia_shared_single_precision COMMAND test_hypatia_shared_single_precision)
-
-ADD_LIBRARY(hypatia_shared_double_precision SHARED implementation.c)
-TARGET_COMPILE_OPTIONS(hypatia_shared_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
-TARGET_COMPILE_DEFINITIONS(hypatia_shared_double_precision PRIVATE ${HYP_SHARED_EXPORT})
-TARGET_LINK_LIBRARIES(hypatia_shared_double_precision hypatia::hypatia)
-
-ADD_EXECUTABLE(test_hypatia_shared_double_precision main.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_shared_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
-TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_double_precision PRIVATE ${HYP_SHARED_IMPORT})
-TARGET_LINK_LIBRARIES(test_hypatia_shared_double_precision hypatia_shared_double_precision hypatia::hypatia)
-ADD_TEST(NAME test_hypatia_shared_double_precision COMMAND test_hypatia_shared_double_precision)
-
-# HYP_NO_C_MATH: the program supplies the math functions
-ADD_EXECUTABLE(test_hypatia_no_c_math_single_precision test_no_c_math.c no_c_math_functions.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_no_c_math_single_precision PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_no_c_math_single_precision hypatia::hypatia)
-SET_TARGET_PROPERTIES(test_hypatia_no_c_math_single_precision PROPERTIES COMPILE_DEFINITIONS "HYPATIA_SINGLE_PRECISION_FLOATS")
-ADD_TEST(NAME test_hypatia_no_c_math_single_precision COMMAND test_hypatia_no_c_math_single_precision)
-
-ADD_EXECUTABLE(test_hypatia_no_c_math_double_precision test_no_c_math.c no_c_math_functions.c)
-TARGET_COMPILE_OPTIONS(test_hypatia_no_c_math_double_precision PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
-TARGET_LINK_LIBRARIES(test_hypatia_no_c_math_double_precision hypatia::hypatia)
-ADD_TEST(NAME test_hypatia_no_c_math_double_precision COMMAND test_hypatia_no_c_math_double_precision)
+hyp_add_test(test_hypatia_shared main.c)
+foreach(precision single double)
+	SET(library hypatia_shared_${precision}_precision)
+	ADD_LIBRARY(${library} SHARED implementation.c)
+	hyp_precision(${library} ${precision})
+	TARGET_COMPILE_DEFINITIONS(${library} PRIVATE ${HYP_SHARED_EXPORT})
+	TARGET_LINK_LIBRARIES(${library} hypatia::hypatia)
+	TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_${precision}_precision PRIVATE ${HYP_SHARED_IMPORT})
+	TARGET_LINK_LIBRARIES(test_hypatia_shared_${precision}_precision ${library})
+endforeach()
