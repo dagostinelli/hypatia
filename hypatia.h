@@ -21,7 +21,7 @@
 #	ifdef HYP_STATIC
 #		define HYPAPI static HYP_INLINE
 #	else
-#		define HYPAPI extern
+#		define HYPAPI
 #	endif
 #endif
 
