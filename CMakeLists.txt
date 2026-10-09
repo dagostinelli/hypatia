@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 
 # the version comes from HYPATIA_VERSION in hypatia.h
 FILE(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/hypatia.h" HYPATIA_VERSION_LINE REGEX "^#define HYPATIA_VERSION ")
-STRING(REGEX REPLACE "^#define HYPATIA_VERSION \"([0-9.]+)\".*$" "\\1" HYPATIA_VERSION "${HYPATIA_VERSION_LINE}")
+STRING(REGEX REPLACE "^#define HYPATIA_VERSION \"([^\"]+)\".*$" "\\1" HYPATIA_VERSION "${HYPATIA_VERSION_LINE}")
+# CMake versions are numeric: 2.1.0-dev is 2.1.0 to CMake
+STRING(REGEX REPLACE "^([0-9.]+).*$" "\\1" HYPATIA_VERSION_NUMBER "${HYPATIA_VERSION}")
 
 PROJECT(hypatia
-	VERSION ${HYPATIA_VERSION}
+	VERSION ${HYPATIA_VERSION_NUMBER}
 	LANGUAGES C)
 
 # tests and docs are built by default only when hypatia is the top-level project,
