@@ -1954,22 +1954,33 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT)
 {
 	struct quaternion unit;
-	struct quaternion conjugate;
+	struct vector3 u;
+	struct vector3 uv;
+	struct vector3 uuv;
+	HYP_FLOAT norm = quaternion_norm(qT);
+	HYP_FLOAT k;
 
-	/* normalize once, then use the conjugate: q * v * conjugate(q) would
-	 * also scale by |q|^2
+	/* v + 2 / |q|^2 (w (u x v) + u x (u x v)), with u the vector part: the
+	 * rotation by q / |q|, which q * v * conjugate(q) also scales by |q|^2.
+	 * Outside the normal range of |q|^2 (zero, overflow, underflow, NaN)
+	 * normalize q first.
 	 */
-	if (!(hyp_normalize(quaternion_set(&unit, qT)->q, 4) > HYP_FLOAT_C(0.0))) {
-		return self;
+	quaternion_set(&unit, qT);
+	if (!(norm > HYP_FLOAT_C(1e-30)) || !(norm < HYP_FLOAT_C(1e30))) {
+		if (!(hyp_normalize(unit.q, 4) > HYP_FLOAT_C(0.0))) {
+			return self;
+		}
+		norm = HYP_FLOAT_C(1.0);
 	}
-	quaternion_conjugate(quaternion_set(&conjugate, &unit));
+	k = HYP_FLOAT_C(2.0) / norm;
 
-	quaternion_multiplyv3(&unit, self);
-	quaternion_multiply(&unit, &conjugate);
+	vector3_setf3(&u, unit.x, unit.y, unit.z);
+	vector3_cross_product(&uv, &u, self);
+	vector3_cross_product(&uuv, &u, &uv);
 
-	self->x = unit.x;
-	self->y = unit.y;
-	self->z = unit.z;
+	self->x += k * (unit.w * uv.x + uuv.x);
+	self->y += k * (unit.w * uv.y + uuv.y);
+	self->z += k * (unit.w * uv.z + uuv.z);
 
 	return self;
 }
