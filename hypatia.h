@@ -25,9 +25,15 @@
 #	endif
 #endif
 
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+#	error "define at most one of HYPATIA_SINGLE_PRECISION_FLOATS and HYPATIA_LONG_DOUBLE_PRECISION_FLOATS"
+#endif
+
 #ifndef HYP_FLOAT
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #		define HYP_FLOAT float
+#	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+#		define HYP_FLOAT long double
 #	else
 #		define HYP_FLOAT double
 #	endif
@@ -40,6 +46,8 @@
 #ifndef HYP_FLOAT_C
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #		define HYP_FLOAT_C(x) x ## f
+#	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+#		define HYP_FLOAT_C(x) x ## L
 #	else
 #		define HYP_FLOAT_C(x) x
 #	endif
@@ -47,6 +55,13 @@
 
 #ifndef HYP_NO_C_MATH
 #	include <math.h> /* sin, cos, acos, fmod */
+#endif
+
+/* long double uses sinl, cosl and the other C99 math functions */
+#if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && !defined(HYP_NO_C_MATH) && !defined(_MSC_VER)
+#	if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
+#		error "HYPATIA_LONG_DOUBLE_PRECISION_FLOATS needs the C99 math functions (sinl, cosl, ...); compile as C99 or later, or define HYP_NO_C_MATH and supply the math macros"
+#	endif
 #endif
 
 #ifndef HYP_NO_STDIO
@@ -124,6 +139,8 @@
 #ifndef HYP_EPSILON
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #		define HYP_EPSILON 1E-5f
+#	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+#		define HYP_EPSILON 1E-5L
 #	else
 #		define HYP_EPSILON 1E-5
 #	endif
@@ -209,12 +226,20 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 
 /** @brief A macro that finds the square root of a value */
 #ifndef HYP_SQRT
-#	define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_SQRT(number) sqrtl(number)
+#	else
+#		define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
+#	endif
 #endif
 
 /** @brief A macro that computes the floating-point remainder */
 #ifndef HYP_FMOD
-#	define HYP_FMOD(x, y) ((HYP_FLOAT)fmod(x, y))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_FMOD(x, y) fmodl(x, y)
+#	else
+#		define HYP_FMOD(x, y) ((HYP_FLOAT)fmod(x, y))
+#	endif
 #endif
 
 /** @brief A macro that returns the absolute value */
@@ -367,22 +392,46 @@ HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max);
  */
 
 #ifndef HYP_SIN
-#	define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_SIN(x) sinl(x)
+#	else
+#		define HYP_SIN(x) ((HYP_FLOAT)sin(x))
+#	endif
 #endif
 #ifndef HYP_COS
-#	define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_COS(x) cosl(x)
+#	else
+#		define HYP_COS(x) ((HYP_FLOAT)cos(x))
+#	endif
 #endif
 #ifndef HYP_TAN
-#	define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_TAN(x) tanl(x)
+#	else
+#		define HYP_TAN(x) ((HYP_FLOAT)tan(x))
+#	endif
 #endif
 #ifndef HYP_ASIN
-#	define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_ASIN(x) asinl(x)
+#	else
+#		define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
+#	endif
 #endif
 #ifndef HYP_ACOS
-#	define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_ACOS(x) acosl(x)
+#	else
+#		define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
+#	endif
 #endif
 #ifndef HYP_ATAN2
-#	define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
+#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#		define HYP_ATAN2(y, x) atan2l(y, x)
+#	else
+#		define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
+#	endif
 #endif
 #ifndef HYP_COT
 #	define HYP_COT(a) (HYP_FLOAT_C(1.0) / HYP_TAN(a))
@@ -1063,13 +1112,12 @@ HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max)
 
 
 #ifndef HYP_NO_STDIO
-/* prints prefix and then value.  value is a double because printf takes
- * floating point arguments as double; the conversion happens here, in one
- * place, together with the number format.
+/* prints prefix and then value.  %10f shows six decimals; converting to
+ * double avoids %Lf, which MinGW's printf does not support by default.
  */
-static void hyp_print_value(const char *prefix, double value)
+static void hyp_print_value(const char *prefix, HYP_FLOAT value)
 {
-	printf("%s%10f", prefix, value);
+	printf("%s%10f", prefix, (double)value);
 }
 #endif
 
