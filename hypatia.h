@@ -490,6 +490,7 @@ HYPAPI struct vector3 *vector3_set(struct vector3 *self, const struct vector3 *v
 HYPAPI struct vector3 *vector3_setf3(struct vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT);
 HYPAPI struct vector3 *vector3_set_random_unit(struct vector3 *self);
 HYPAPI struct vector3 *vector3_set_random_in_ball(struct vector3 *self);
+HYPAPI struct vector3 *vector3_set_random_in_cone(struct vector3 *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct vector3 *vector3_negate(struct vector3 *self);
 HYPAPI struct vector3 *vector3_lerp(const struct vector3 *start, const struct vector3 *end, HYP_FLOAT percent, struct vector3 *vR);
 HYPAPI struct vector3 *vector3_clamp(struct vector3 *self, const struct vector3 *vMin, const struct vector3 *vMax);
@@ -1537,6 +1538,38 @@ HYPAPI struct vector3 *vector3_set_random_in_ball(struct vector3 *self)
 
 	return vector3_multiplyf(self, radius);
 }
+
+
+/**
+ * @ingroup vector3
+ * @brief Sets the vector to a random unit vector within angle (radians, 0 to
+ * pi) of axis, evenly distributed over that cap of the sphere.  axis does not need to
+ * be unit length; a zero axis means +Z.  Uses two draws from
+ * scalar_random_rangef, in this order: the height along the axis, then the
+ * angle around it.
+ */
+HYPAPI struct vector3 *vector3_set_random_in_cone(struct vector3 *self, const struct vector3 *axis, HYP_FLOAT angle)
+{
+	struct quaternion to_axis;
+	HYP_FLOAT z;
+	HYP_FLOAT around;
+	HYP_FLOAT r;
+
+	/* the height on a sphere is evenly distributed (Archimedes), so an even
+	 * height in [cos(angle), 1] spreads evenly over the cap about +Z
+	 */
+	z = scalar_random_rangef(HYP_COS(HYP_CLAMP(angle, HYP_FLOAT_C(0.0), HYP_PI)), HYP_FLOAT_C(1.0));
+	around = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+	r = HYP_SQRT(HYP_FLOAT_C(1.0) - z * z);
+	vector3_setf3(self, r * HYP_COS(around), r * HYP_SIN(around), z);
+
+	/* then turn +Z onto the axis */
+	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_Z, axis, &to_axis);
+
+	return vector3_rotate_by_quaternion(self, &to_axis);
+}
+
+
 /**
  * @ingroup vector3
  * @brief initializes the vertex with values from another vector

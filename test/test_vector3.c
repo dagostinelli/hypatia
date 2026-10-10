@@ -577,6 +577,46 @@ static const char *test_vector3_set_random_in_ball(void)
 }
 
 
+static const char *test_vector3_set_random_in_cone(void)
+{
+	static const long scripted[] = {0, 0};
+	struct vector3 v;
+	struct vector3 axis;
+	HYP_FLOAT angle = HYP_TAU / HYP_FLOAT_C(8.0);
+	HYP_FLOAT middle = (HYP_COS(angle) + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+	int upper = 0;
+	int i;
+
+	/* draws: the height along the axis, then the angle around it.  A quarter
+	 * turn cone about Z, lowest height, angle 0: X.  About X instead of Z, the
+	 * same draw turns X onto -Z.
+	 */
+	test_random_script(scripted, 2);
+	vector3_set_random_in_cone(&v, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_X));
+	test_random_script(scripted, 2);
+	vector3_set_random_in_cone(&v, HYP_VECTOR3_UNIT_X, HYP_TAU / HYP_FLOAT_C(4.0));
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_Z_NEGATIVE));
+	test_random_script(NULL, 0);
+
+	/* unit directions within angle of the axis, evenly spread over the cap:
+	 * half fall above the middle height
+	 */
+	vector3_normalize(vector3_setf3(&axis, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0)));
+	for (i = 0; i < 10000; i++) {
+		vector3_set_random_in_cone(&v, &axis, angle);
+		test_assert(scalar_equalsf(vector3_magnitude(&v), HYP_FLOAT_C(1.0)));
+		test_assert(vector3_dot_product(&v, &axis) >= HYP_COS(angle) - HYP_EPSILON);
+		if (vector3_dot_product(&v, &axis) > middle) {
+			upper++;
+		}
+	}
+	test_assert(upper > 4700 && upper < 5300);
+
+	return NULL;
+}
+
+
 static const char *test_vector3_normalize_small_and_zero(void)
 {
 	struct vector3 v;
@@ -608,6 +648,25 @@ static const char *test_vector3_normalize_nan(void)
 	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), nan);
 	vector3_normalize(&v);
 	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(1.0)));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_set_random_in_cone_wide(void)
+{
+	struct vector3 v;
+	int below = 0;
+	int i;
+
+	/* an angle of a full turn is the whole sphere: half the points are below */
+	for (i = 0; i < 2000; i++) {
+		vector3_set_random_in_cone(&v, HYP_VECTOR3_UNIT_Z, HYP_TAU);
+		if (v.z < HYP_FLOAT_C(0.0)) {
+			below++;
+		}
+	}
+	test_assert(below > 850 && below < 1150);
 
 	return NULL;
 }
@@ -653,6 +712,7 @@ static const char *vector3_all_tests(void)
 {
 	run_test(test_vector3_normalize_infinite);
 	run_test(test_vector3_project_short_and_long);
+	run_test(test_vector3_set_random_in_cone_wide);
 	run_test(test_vector3_normalize_nan);
 	run_test(test_vector3_normalize_small_and_zero);
 	run_test(test_vector3_lerp);
@@ -661,6 +721,7 @@ static const char *vector3_all_tests(void)
 	run_test(test_vector3_set_random_unit_scripted);
 	run_test(test_vector3_set_random_unit_many);
 	run_test(test_vector3_set_random_in_ball);
+	run_test(test_vector3_set_random_in_cone);
 	run_test(test_vector3_set);
 	run_test(test_vector3_setf3);
 	run_test(test_vector3_zero);
