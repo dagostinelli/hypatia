@@ -11,8 +11,9 @@
 ## Summary
 
 `glm::normalize(v)` is `v * inversesqrt(dot(v, v))`.  The sum of squares overflows for
-components above about 1e154 (double; 1e19 in float) and underflows below about 1e-154
-(1e-19 in float), although the unit vector is representable:
+components above about 1e154 (double; 1e19 in float).  For components below about 1e-154
+(1e-19 in float) it is subnormal and loses precision, and below about 1.6e-162 (2.6e-23 in
+float) it is exactly 0.  In each case the unit vector is representable:
 - (1e-200, 1e-200, 0) gives (inf, inf, NaN);
 - (1e200, 1e200, 0) gives (0, 0, 0);
 - a vector with one infinite component gives NaN in that component.
@@ -56,11 +57,11 @@ range is that of the squares, not that of the vector.
 
 ## How hypatia does it
 
-`vector3_normalize` (all vector and quaternion normalizations share `hyp_normalize`) divides
-by the length when the sum of the squares is in range; otherwise it first divides by the
-largest component, so the squares cannot overflow or underflow.  Infinite components
-become +-1 and the others 0 before dividing.  Only an exactly zero vector (or NaN) is left
-unchanged.
+`vector3_normalize` (all vector and quaternion normalizations share `hyp_normalize`)
+divides by the length when the sum of the squares is between 1e-30 and 1e30; otherwise it
+first divides by the largest component, so the squares cannot overflow or underflow.
+Infinite components become +-1 and the others 0 before dividing.  Only an exactly zero
+vector (or NaN) is left unchanged.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -90,9 +91,9 @@ normalize(inf, 1, 0)         = (1, 0, 0)
 
 ## Suggested fix
 
-When `dot(v, v)` is not in the normal range, divide `v` by its largest absolute component
-first (or use `length` computed with scaling, as `hypot` does), then normalize.  The fast
-path stays as it is.
+When `dot(v, v)` is outside a safe range such as 1e-30 to 1e30, divide `v` by its largest
+absolute component first (or use `length` computed with scaling, as `hypot` does), then
+normalize.  The fast path stays as it is.
 
 ## Checking
 

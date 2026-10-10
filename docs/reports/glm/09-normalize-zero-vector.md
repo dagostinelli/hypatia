@@ -56,7 +56,7 @@ Expected: a defined value: the zero vector (it has no direction) and an angle of
 
 `vector3_normalize` leaves the zero vector unchanged (it has no direction to keep), and the
 functions that take directions define their result for it: `vector3_angle_between` returns
-0 when either vector is zero.  NaN input stays NaN; nothing else produces it.
+0 when either vector is zero.  A vector with a NaN component is left unchanged.
 
 ```c
 #define HYPATIA_IMPLEMENTATION

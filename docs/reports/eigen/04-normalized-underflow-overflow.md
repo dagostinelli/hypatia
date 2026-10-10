@@ -11,9 +11,10 @@
 ## Summary
 
 `normalized()` divides by `sqrt(squaredNorm())`.  For components below about 1e-154
-(1e-19 in float) the squared norm underflows to 0 and the vector is returned unchanged, not
-of unit length; above 1e154 (1e19) it overflows to inf and the result is zero; a vector with
-an infinite component gives NaN.  `stableNormalized()` handles the first two, but
+(1e-19 in float) the squared norm is subnormal and loses precision; below about 1.6e-162
+(2.6e-23 in float) it is exactly 0 and the vector is returned unchanged, not of unit
+length.  Above 1e154 (1e19) it overflows to inf and the result is zero; a vector with an
+infinite component gives NaN.  `stableNormalized()` handles the first two, but
 `normalized()` is the function users reach for, it is used inside Eigen (for example in
 `Quaternion::FromTwoVectors`), and its failures are silent.
 
@@ -62,9 +63,10 @@ else
 ## How hypatia does it
 
 `vector3_normalize` (all hypatia normalizations use `hyp_normalize`) divides by the length
-when the sum of the squares is in range and otherwise divides by the largest component
-first.  Infinite components become +-1 and the others 0.  Only an exactly zero vector, or
-NaN, is left unchanged; there is no separate "stable" variant to choose.
+when the sum of the squares is between 1e-30 and 1e30, and otherwise divides by the
+largest component first.  Infinite components become +-1 and the others 0.  Only an
+exactly zero vector, or NaN, is left unchanged; there is no separate "stable" variant to
+choose.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -95,8 +97,9 @@ normalize(inf, 1, 0)         = (1, 0, 0)
 
 ## Suggested fix
 
-In `normalized()`, fall back to `stableNormalized()` when `z` is 0 (and the vector is not
-exactly zero) or not finite.  The fast path for the normal range is unchanged.
+In `normalized()`, fall back to `stableNormalized()` when `z` is subnormal or 0 (and the
+vector is not exactly zero), or not finite.  The fast path for other values of `z` is
+unchanged.
 
 ## Checking
 

@@ -1,4 +1,4 @@
-# `glm_quat_slerp` is inaccurate for small angles: an unnormalized lerp and acos
+# `glm_quat_slerp` returns its first argument when the dot product rounds to 1
 
 | | |
 |---|---|
@@ -10,13 +10,18 @@
 
 ## Summary
 
-For quaternions closer than `sinTheta < 0.001` (rotations less than 0.002 rad apart),
-`glm_quat_slerp` returns `glm_quat_lerp` without normalizing, so the result is shorter than
-unit length by up to 1.3e-7 and not on the arc; above that threshold the angle comes from
-`acosf(cosTheta)`, which loses digits near 0.  For rotations 1e-3 rad apart the program
-below measures a mean error of 11.7 float epsilons (largest 5839), against 0.46 (largest
-1.5) with hypatia; the comparison harness, over other inputs, 52.3 (largest 5890) against
-0.47 (largest 1.7).
+`glm_quat_slerp` returns `from` unchanged, without interpolating, when
+`fabsf(cosTheta) >= 1.0f`.  For nearby float quaternions the rounding of the inputs and of
+the dot product can make `cosTheta` exactly 1.  For rotations 1e-3 rad apart (`cosTheta`
+is 1 - 1.25e-7 before rounding, about two float ulps below 1) the program below finds this
+for 99 of 20000 inputs, and those inputs carry the large errors: mean 2300, largest 5839
+float epsilons.  The other 19901 inputs take the `sinTheta < 0.001` branch, an
+unnormalized `glm_quat_lerp`, with a mean error of 0.34 and largest 1.2 epsilons; none
+reaches the `acosf` branch.  Over all inputs the mean error is 11.7 epsilons (largest
+5839), against 0.46 (largest 1.5) with hypatia; the comparison harness, over other inputs,
+52.3 (largest 5890) against 0.474 (largest 1.67).  The same program with rotations 1e-6
+rad apart (not shown) takes the early return for 17609 of 20000 inputs, mean error 2.32
+epsilons (the `glm_quat_slerp` row of [12](12-precision-small-differences.md)).
 
 ## Reproduction
 
@@ -30,11 +35,12 @@ static double rnd(void) { state ^= state << 13; state ^= state >> 7; state ^= st
 
 int main(void)
 {
-	long double sum = 0, largest = 0;
-	int i, k;
+	long double sum = 0, largest = 0, bsum[3] = {0, 0, 0}, blargest[3] = {0, 0, 0};
+	int i, k, branch, count[3] = {0, 0, 0};
+	const char *name[3] = {"fabsf(cosTheta) >= 1, returns from", "sinTheta < 0.001, glm_quat_lerp", "acosf and sinf"};
 	for (i = 0; i < 20000; i++) {
 		long double q[4], n = 0, axis[3], m = 0, h, c, d[4], p[4], o[4], big = 0, e = 0, theta, ta = 0;
-		float t = (float)rnd();
+		float t = (float)rnd(), cosTheta;
 		versor a, b, r;
 		for (k = 0; k < 4; k++) { q[k] = 2 * rnd() - 1; n += q[k] * q[k]; }
 		for (k = 0; k < 3; k++) { axis[k] = 2 * rnd() - 1; m += axis[k] * axis[k]; }
@@ -46,6 +52,9 @@ int main(void)
 		p[3] = q[3] * d[3] - q[0] * d[0] - q[1] * d[1] - q[2] * d[2];
 		for (k = 0; k < 4; k++) { a[k] = (float)(q[k] / sqrtl(n)); b[k] = (float)(p[k] / sqrtl(n)); }
 		glm_quat_slerp(a, b, t, r);
+		/* the branch glm_quat_slerp takes (its own conditions) */
+		cosTheta = fabsf(glm_quat_dot(a, b));
+		branch = cosTheta >= 1.0f ? 0 : sqrtf(1.0f - cosTheta * cosTheta) < 0.001f ? 1 : 2;
 		/* the slerp of the rounded inputs, in long double */
 		{
 			long double na = 0, nb = 0, dot = 0, s2 = 0, c2 = 0, ua[4], ub[4];
@@ -59,8 +68,13 @@ int main(void)
 		}
 		sum += e;
 		largest = e > largest ? e : largest;
+		count[branch]++;
+		bsum[branch] += e;
+		blargest[branch] = e > blargest[branch] ? e : blargest[branch];
 	}
 	printf("glm_quat_slerp, 1e-3 rad apart: largest %.0Lf, mean %.1Lf epsilons\n", largest, sum / 20000);
+	for (k = 0; k < 3; k++)
+		printf("  %-35s %5d inputs, largest %.1Lf, mean %.2Lf\n", name[k], count[k], blargest[k], count[k] ? bsum[k] / count[k] : 0);
 	return 0;
 }
 ```
@@ -69,15 +83,25 @@ Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
 glm_quat_slerp, 1e-3 rad apart: largest 5839, mean 11.7 epsilons
+  fabsf(cosTheta) >= 1, returns from     99 inputs, largest 5839.4, mean 2300.23
+  sinTheta < 0.001, glm_quat_lerp     19901 inputs, largest 1.2, mean 0.34
+  acosf and sinf                          0 inputs, largest 0.0, mean 0.00
 ```
 
 Expected: an error of about an epsilon.
 
 ## Cause
 
-[`quat.h` lines 728-742](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L728-L742): `sinTheta = sqrtf(1 - cosTheta^2)` and
-`angle = acosf(cosTheta)` both lose about half the digits when `cosTheta` is near 1; below
-`sinTheta = 0.001` the fallback `glm_quat_lerp` is neither normalized nor on the arc.
+[`quat.h` lines 718-721](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L718-L721):
+`if (fabsf(cosTheta) >= 1.0f)` copies `from` to `dest` and returns, so a dot product that
+rounds to 1 gives no interpolation at all; the error is then up to the full distance
+between the two inputs.  Below `sinTheta = 0.001`
+([lines 731-734](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L731-L734))
+the fallback is `glm_quat_lerp`, not normalized and not on the arc; at these angles its
+error stays near an epsilon.  Above that threshold
+([lines 728-742](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L728-L742))
+`sinTheta = sqrtf(1 - cosTheta^2)` and `angle = acosf(cosTheta)` both lose about half the
+digits when `cosTheta` is near 1; the program does not reach that branch.
 
 ## How hypatia does it
 
@@ -143,9 +167,9 @@ quaternion_slerp, 1e-3 rad apart: largest 1.5, mean 0.46 epsilons
 ## Suggested fix
 
 Take the angle from `2 atan2f(length(q1 - to), length(q1 + to))` (with `q1` sign-corrected
-and both normalized); then `sin(angle)` is accurate for small angles and the lerp
-fallback is needed only for an angle of exactly 0.  If a fallback is kept, normalize it and
-use `q1`.
+and both normalized), and drop the `fabsf(cosTheta) >= 1.0f` early return; then
+`sin(angle)` is accurate for small angles and the lerp fallback is needed only for an
+angle of exactly 0.  If a fallback is kept, normalize it and use `q1`.
 
 ## Checking
 
