@@ -1955,7 +1955,6 @@ HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const 
 {
 	struct quaternion unit;
 	struct quaternion conjugate;
-	struct quaternion q;
 
 	/* normalize once, then use the conjugate: q * v * conjugate(q) would
 	 * also scale by |q|^2
@@ -1965,13 +1964,12 @@ HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const 
 	}
 	quaternion_conjugate(quaternion_set(&conjugate, &unit));
 
-	quaternion_set(&q, &unit);
-	quaternion_multiplyv3(&q, self);
-	quaternion_multiply(&q, &conjugate);
+	quaternion_multiplyv3(&unit, self);
+	quaternion_multiply(&unit, &conjugate);
 
-	self->x = q.x;
-	self->y = q.y;
-	self->z = q.z;
+	self->x = unit.x;
+	self->y = unit.y;
+	self->z = unit.z;
 
 	return self;
 }
@@ -4128,20 +4126,17 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *se
 {
 	HYP_FLOAT s = HYP_SIN(angle / HYP_FLOAT_C(2.0));
 	HYP_FLOAT c = HYP_COS(angle / HYP_FLOAT_C(2.0));
-	HYP_FLOAT axis[3];
+	struct vector3 axis;
 
 	/* the formula needs a unit axis: normalizing the result instead would
 	 * change the angle
 	 */
-	axis[0] = x;
-	axis[1] = y;
-	axis[2] = z;
-	if (!(hyp_normalize(axis, 3) > HYP_FLOAT_C(0.0))) {
+	if (!(hyp_normalize(vector3_setf3(&axis, x, y, z)->v, 3) > HYP_FLOAT_C(0.0))) {
 		return quaternion_identity(self);
 	}
-	x = axis[0];
-	y = axis[1];
-	z = axis[2];
+	x = axis.x;
+	y = axis.y;
+	z = axis.z;
 
 	self->x = x * s;
 	self->y = y * s;
@@ -5049,18 +5044,15 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_F
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
-	HYP_FLOAT axis[3];
+	struct vector3 axis;
 
 	/* the formula needs a unit axis */
-	axis[0] = x;
-	axis[1] = y;
-	axis[2] = z;
-	if (!(hyp_normalize(axis, 3) > HYP_FLOAT_C(0.0))) {
+	if (!(hyp_normalize(vector3_setf3(&axis, x, y, z)->v, 3) > HYP_FLOAT_C(0.0))) {
 		return matrix4_identity(self);
 	}
-	x = axis[0];
-	y = axis[1];
-	z = axis[2];
+	x = axis.x;
+	y = axis.y;
+	z = axis.z;
 
 	self->c00 = (x * x) * (HYP_FLOAT_C(1.0) - c) + c;
 	self->c01 = (x * y) * (HYP_FLOAT_C(1.0) - c) + (z * s);
