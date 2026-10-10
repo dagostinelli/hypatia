@@ -2544,8 +2544,8 @@ HYPAPI struct matrix2 *matrix2_multiply(struct matrix2 *self, const struct matri
  */
 HYPAPI struct vector2 *matrix2_multiplyv2(const struct matrix2 *self, const struct vector2 *vT, struct vector2 *vR)
 {
-	vR->x = vT->x * self->c00 + vT->y * self->c01;
-	vR->y = vT->x * self->c10 + vT->y * self->c11;
+	vR->x = self->r00 * vT->x + self->r01 * vT->y;
+	vR->y = self->r10 * vT->x + self->r11 * vT->y;
 
 	return vR;
 }
@@ -2639,8 +2639,8 @@ HYPAPI struct matrix2 *matrix2_make_transformation_rotationf_z(struct matrix2 *m
 	matrix2_identity(m);
 
 	m->r00 = c;
-	m->r01 = s;
-	m->r10 = -s;
+	m->r01 = -s;
+	m->r10 = s;
 	m->r11 = c;
 
 	return m;
@@ -2989,8 +2989,9 @@ HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matri
  */
 HYPAPI struct vector2 *matrix3_multiplyv2(const struct matrix3 *self, const struct vector2 *vT, struct vector2 *vR)
 {
-	vR->x = vT->x * self->c00 + vT->y * self->c01 + self->c20;
-	vR->y = vT->x * self->c10 + vT->y * self->c11 + self->c21;
+	/* the vector is (x, y, 1) */
+	vR->x = self->r00 * vT->x + self->r01 * vT->y + self->r02;
+	vR->y = self->r10 * vT->x + self->r11 * vT->y + self->r12;
 
 	return vR;
 }
@@ -3116,8 +3117,8 @@ HYPAPI struct matrix3 *matrix3_make_transformation_rotationf_z(struct matrix3 *m
 	matrix3_identity(m);
 
 	m->r00 = c;
-	m->r01 = s;
-	m->r10 = -s;
+	m->r01 = -s;
+	m->r10 = s;
 	m->r11 = c;
 
 	return m;

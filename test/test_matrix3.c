@@ -522,15 +522,12 @@ static const char *test_matrix3_rotationf_z_components(void)
 	 * Regression test for bug where matrix3_make_transformation_rotationf_z
 	 * set r12 = cos(angle) instead of r11 = cos(angle).
 	 *
-	 * A 2D rotation matrix around Z should be:
-	 *   | cos  sin  0 |
-	 *   | -sin cos  0 |
+	 * A 2D rotation matrix around Z, applied as M * v, should be:
+	 *   | cos  -sin 0 |
+	 *   | sin  cos  0 |
 	 *   | 0    0    1 |
 	 *
-	 * The bug produced:
-	 *   | cos  sin  0 |
-	 *   | -sin 1    cos |    <-- r11 wrong (1 from identity), r12 wrong (cos leaked here)
-	 *   | 0    0    1 |
+	 * The bug produced r11 = 1 (from the identity) and r12 = cos.
 	 */
 	struct matrix3 m;
 	HYP_FLOAT angle = HYP_PI / HYP_FLOAT_C(4.0); /* 45 degrees */
@@ -539,13 +536,13 @@ static const char *test_matrix3_rotationf_z_components(void)
 
 	matrix3_make_transformation_rotationf_z(&m, angle);
 
-	/* row 0: cos, sin, 0 */
+	/* row 0: cos, -sin, 0 */
 	test_assert(scalar_equalsf(m.r00, c));
-	test_assert(scalar_equalsf(m.r01, s));
+	test_assert(scalar_equalsf(m.r01, -s));
 	test_assert(scalar_equalsf(m.r02, HYP_FLOAT_C(0.0)));
 
-	/* row 1: -sin, cos, 0   (bug had: -sin, 1, cos) */
-	test_assert(scalar_equalsf(m.r10, -s));
+	/* row 1: sin, cos, 0 */
+	test_assert(scalar_equalsf(m.r10, s));
 	test_assert(scalar_equalsf(m.r11, c));
 	test_assert(scalar_equalsf(m.r12, HYP_FLOAT_C(0.0)));
 
