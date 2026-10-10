@@ -619,6 +619,61 @@ static const char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 }
 
 
+/* applies the upper 3x3 of m to a direction (w = 0) */
+static struct vector3 *direction_by(const struct matrix4 *m, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, struct vector3 *vR)
+{
+	struct vector4 v;
+	struct vector4 r;
+
+	vector4_setf4(&v, x, y, z, HYP_FLOAT_C(0.0));
+	matrix4_multiplyv4(m, &v, &r);
+
+	return vector3_setf3(vR, r.x, r.y, r.z);
+}
+
+
+static const char *test_matrix4_normal_matrix(void)
+{
+	struct matrix4 m;
+	struct matrix4 normal;
+	struct matrix4 singular;
+	struct vector3 scale;
+	struct vector3 translation;
+	struct vector3 tangent;
+	struct vector3 n;
+	struct quaternion q;
+
+	/* a non-uniform scale, a rotation and a translation */
+	vector3_setf3(&scale, HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5));
+	vector3_setf3(&translation, HYP_FLOAT_C(5.0), HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0));
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(0.5));
+	matrix4_transformation_compose(&m, &scale, &q, &translation);
+	test_assert(matrix4_normal_matrix(&m, &normal) != NULL);
+
+	/* a surface with tangent (1, 1, 0) and normal (1, -1, 0): the transformed
+	 * normal stays perpendicular to the transformed tangent
+	 */
+	direction_by(&m, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), &tangent);
+	direction_by(&normal, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), &n);
+	test_assert(scalar_equalsf(vector3_dot_product(&tangent, &n), HYP_FLOAT_C(0.0)));
+
+	/* the plain matrix does not keep it perpendicular */
+	direction_by(&m, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), &n);
+	test_assert(!scalar_equalsf(vector3_dot_product(&tangent, &n), HYP_FLOAT_C(0.0)));
+
+	/* the translation and the last row are not part of it */
+	test_assert(scalar_equalsf(normal.r03, HYP_FLOAT_C(0.0)));
+	test_assert(scalar_equalsf(normal.r33, HYP_FLOAT_C(1.0)));
+
+	/* a zero scale has no normal matrix */
+	vector3_setf3(&scale, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	matrix4_make_transformation_scalingv3(&singular, &scale);
+	test_assert(matrix4_normal_matrix(&singular, &normal) == NULL);
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_match_transformation_matrix_quaternion(void)
 {
 	struct matrix4 m;
@@ -981,6 +1036,7 @@ static const char *matrix4_all_tests(void)
 	run_test(test_matrix4_set_from_quaternion_xy_half_turn);
 
 	run_test(test_matrix4_match_transformation_matrix_quaternion);
+	run_test(test_matrix4_normal_matrix);
 	run_test(test_matrix4_transform_3d);
 	run_test(test_matrix4_transform_3d_combined);
 

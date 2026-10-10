@@ -8,7 +8,6 @@ Remaining Work:
 
 API gaps:
 - matrix4 TRS constructor (translation + rotation + scale in one call)
-- normal matrix helper (inverse-transpose of the upper 3x3)
 - quaternion <-> matrix3 conversions
 - consider optional by-value inline variants for small types for expression-style code
 

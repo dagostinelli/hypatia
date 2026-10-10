@@ -814,6 +814,7 @@ HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR);
 HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self);
+HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct matrix4 *mR);
 
 HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation);
 HYPAPI struct matrix4 *matrix4_make_transformation_scalingv3(struct matrix4 *self, const struct vector3 *scale);
@@ -3919,6 +3920,55 @@ HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
 
 	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 4) * hyp_matrix_row_norm(inverse.m, 4));
 }
+
+
+/**
+ * @ingroup matrix4
+ * @brief The normal matrix: the inverse transpose of the upper 3x3, with no
+ * translation and 1 in r33.  Surface normals transformed by it stay
+ * perpendicular to the surface under a non-uniform scale, where the matrix
+ * itself would tilt them.  Returns NULL when the upper 3x3 has no inverse
+ * (its determinant is exactly zero).
+ *
+ * @param self The transformation matrix
+ * @param mR The normal matrix is returned here
+ */
+HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
+{
+	struct matrix4 cofactors;
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	/* the inverse transpose is the cofactor matrix over the determinant */
+	matrix4_identity(&cofactors);
+	cofactors.r00 = self->r11 * self->r22 - self->r12 * self->r21;
+	cofactors.r01 = self->r12 * self->r20 - self->r10 * self->r22;
+	cofactors.r02 = self->r10 * self->r21 - self->r11 * self->r20;
+	cofactors.r10 = self->r02 * self->r21 - self->r01 * self->r22;
+	cofactors.r11 = self->r00 * self->r22 - self->r02 * self->r20;
+	cofactors.r12 = self->r01 * self->r20 - self->r00 * self->r21;
+	cofactors.r20 = self->r01 * self->r12 - self->r02 * self->r11;
+	cofactors.r21 = self->r02 * self->r10 - self->r00 * self->r12;
+	cofactors.r22 = self->r00 * self->r11 - self->r01 * self->r10;
+
+	determinant = self->r00 * cofactors.r00 + self->r01 * cofactors.r01 + self->r02 * cofactors.r02;
+
+	/* written without == for -Wfloat-equal; a NaN determinant also returns NULL */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	matrix4_identity(mR);
+	for (i = 0; i < 3; i++) {
+		mR->m44[i][0] = cofactors.m44[i][0] / determinant;
+		mR->m44[i][1] = cofactors.m44[i][1] / determinant;
+		mR->m44[i][2] = cofactors.m44[i][2] / determinant;
+	}
+
+	return mR;
+}
+
+
 /**
  * @ingroup quaternion
  * @brief Initializes the vector portion of the quaternion with 0.0 and the
