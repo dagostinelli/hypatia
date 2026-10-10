@@ -1280,7 +1280,16 @@ HYPAPI struct vector2 *vector2_max(struct vector2 *self, const struct vector2 *v
 HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector2 *onto)
 {
 	struct vector2 direction;
+	HYP_FLOAT norm = vector2_dot_product(onto, onto);
 	HYP_FLOAT length;
+
+	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
+	 * |onto|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		length = vector2_dot_product(self, onto) / norm;
+		return vector2_multiplyf(vector2_set(self, onto), length);
+	}
 
 	if (!(hyp_normalize(vector2_set(&direction, onto)->v, 2) > HYP_FLOAT_C(0.0))) {
 		return vector2_zero(self);
@@ -1701,7 +1710,16 @@ HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *v
 HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto)
 {
 	struct vector3 direction;
+	HYP_FLOAT norm = vector3_dot_product(onto, onto);
 	HYP_FLOAT length;
+
+	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
+	 * |onto|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		length = vector3_dot_product(self, onto) / norm;
+		return vector3_multiplyf(vector3_set(self, onto), length);
+	}
 
 	if (!(hyp_normalize(vector3_set(&direction, onto)->v, 3) > HYP_FLOAT_C(0.0))) {
 		return vector3_zero(self);
@@ -2225,7 +2243,16 @@ HYPAPI struct vector4 *vector4_max(struct vector4 *self, const struct vector4 *v
 HYPAPI struct vector4 *vector4_project(struct vector4 *self, const struct vector4 *onto)
 {
 	struct vector4 direction;
+	HYP_FLOAT norm = vector4_dot_product(onto, onto);
 	HYP_FLOAT length;
+
+	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
+	 * |onto|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		length = vector4_dot_product(self, onto) / norm;
+		return vector4_multiplyf(vector4_set(self, onto), length);
+	}
 
 	if (!(hyp_normalize(vector4_set(&direction, onto)->v, 4) > HYP_FLOAT_C(0.0))) {
 		return vector4_zero(self);
@@ -4318,7 +4345,8 @@ HYPAPI int quaternion_equals(const struct quaternion *self, const struct quatern
  */
 HYPAPI HYP_FLOAT quaternion_norm(const struct quaternion *self)
 {
-	return (self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w);
+	/* summed in pairs: a smaller rounding error than one running sum */
+	return ((self->x * self->x) + (self->y * self->y)) + ((self->z * self->z) + (self->w * self->w));
 }
 
 
@@ -4386,11 +4414,21 @@ HYPAPI struct quaternion *quaternion_negate(struct quaternion *self)
  */
 HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
 {
+	HYP_FLOAT norm = quaternion_norm(self);
 	HYP_FLOAT length;
 
-	/* conjugate / |q|^2, as (q / |q|) / |q| so that |q|^2 cannot overflow or
-	 * underflow.  Only the zero quaternion has no inverse; NaN is also left
-	 * unchanged.
+	/* conjugate / |q|^2 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		quaternion_conjugate(self);
+		self->x /= norm;
+		self->y /= norm;
+		self->z /= norm;
+		self->w /= norm;
+		return self;
+	}
+
+	/* outside that range |q|^2 overflows or underflows: (q / |q|) / |q|.
+	 * Only the zero quaternion has no inverse; NaN is also left unchanged.
 	 */
 	length = hyp_normalize(self->q, 4);
 
@@ -5144,36 +5182,45 @@ HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle(struct matrix4 *self, const
 HYPAPI struct matrix4 *matrix4_set_from_quaternion(struct matrix4 *self, const struct quaternion *qT)
 {
 	struct quaternion q;
+	HYP_FLOAT norm = quaternion_norm(qT);
+	HYP_FLOAT s;
 	HYP_FLOAT xx, yy, zz, xy, xz, yz, xw, yw, zw;
 
-	/* a unit q makes the result a pure rotation for any length of qT */
-	if (!(hyp_normalize(quaternion_set(&q, qT)->q, 4) > HYP_FLOAT_C(0.0))) {
+	/* 2 / |q|^2 makes the result a pure rotation for any length of qT; when
+	 * |q|^2 overflows or underflows, normalize q instead
+	 */
+	quaternion_set(&q, qT);
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		s = HYP_FLOAT_C(2.0) / norm;
+	} else if (hyp_normalize(q.q, 4) > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0);
+	} else {
 		return matrix4_identity(self);
 	}
 
-	xx = HYP_FLOAT_C(2.0) * q.x * q.x;
-	yy = HYP_FLOAT_C(2.0) * q.y * q.y;
-	zz = HYP_FLOAT_C(2.0) * q.z * q.z;
-	xy = HYP_FLOAT_C(2.0) * q.x * q.y;
-	xz = HYP_FLOAT_C(2.0) * q.x * q.z;
-	yz = HYP_FLOAT_C(2.0) * q.y * q.z;
-	xw = HYP_FLOAT_C(2.0) * q.x * q.w;
-	yw = HYP_FLOAT_C(2.0) * q.y * q.w;
-	zw = HYP_FLOAT_C(2.0) * q.z * q.w;
+	xx = s * q.x * q.x;
+	yy = s * q.y * q.y;
+	zz = s * q.z * q.z;
+	xy = s * q.x * q.y;
+	xz = s * q.x * q.z;
+	yz = s * q.y * q.z;
+	xw = s * q.x * q.w;
+	yw = s * q.y * q.w;
+	zw = s * q.z * q.w;
 
-	self->c00 = HYP_FLOAT_C(1.0) - (yy + zz);
+	self->c00 = HYP_FLOAT_C(1.0) - yy - zz;
 	self->c01 = xy + zw;
 	self->c02 = xz - yw;
 	self->c03 = HYP_FLOAT_C(0.0);
 
 	self->c10 = xy - zw;
-	self->c11 = HYP_FLOAT_C(1.0) - (xx + zz);
+	self->c11 = HYP_FLOAT_C(1.0) - xx - zz;
 	self->c12 = yz + xw;
 	self->c13 = HYP_FLOAT_C(0.0);
 
 	self->c20 = xz + yw;
 	self->c21 = yz - xw;
-	self->c22 = HYP_FLOAT_C(1.0) - (xx + yy);
+	self->c22 = HYP_FLOAT_C(1.0) - xx - yy;
 	self->c23 = HYP_FLOAT_C(0.0);
 
 	self->c30 = HYP_FLOAT_C(0.0);
