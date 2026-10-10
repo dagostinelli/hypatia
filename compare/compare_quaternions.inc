@@ -277,14 +277,14 @@ static void quaternions()
 	}
 
 	/* rotation between vectors */
-	begin("quaternions", "quaternion_get_rotation_tov3", "glm::rotation(normalize(a), normalize(b))");
+	begin("quaternions", "quaternion_get_rotation_tov3", "glm::rotation(normalize(a), normalize(b))", "near opposite GLM is less accurate: see the accuracy table");
 	for (int i = 0; i < N; i++) {
 		struct vector3 a = rv3(), b = rv3();
 		struct quaternion h;
 		quaternion_get_rotation_tov3(&a, &b, &h);
 		check(err_qr(h, hq(glm::rotation(glm::normalize(gv(a)), glm::normalize(gv(b))))), [&] { return sv(a.v, 3) + ", " + sv(b.v, 3) + " -> " + sq(h); });
 	}
-	begin("quaternions", "quaternion_get_rotation_tov3", "Eigen FromTwoVectors");
+	begin("quaternions", "quaternion_get_rotation_tov3", "Eigen FromTwoVectors", "near opposite Eigen is less accurate: see the accuracy table");
 	for (int i = 0; i < N; i++) {
 		struct vector3 a = rv3(), b = rv3();
 		struct quaternion h;

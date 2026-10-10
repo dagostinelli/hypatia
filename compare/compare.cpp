@@ -356,6 +356,7 @@ static struct matrix4 rtrs()
 #include "compare_matrices.inc"
 #include "compare_quaternions.inc"
 #include "compare_edges.inc"
+#include "compare_accuracy.inc"
 
 /* ---------------------------------------------------------------- main */
 
@@ -374,6 +375,7 @@ int main()
 	matrices();
 	quaternions();
 	edge_cases();
+	accuracy();
 
 	std::printf("# hypatia comparison: %s precision%s\n\n", SINGLE ? "single" : "double",
 #ifdef HYP_DEPTH_MINUS_ONE_TO_ONE

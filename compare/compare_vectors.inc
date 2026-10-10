@@ -114,7 +114,7 @@ static void vectors()
 	}
 
 	/* angle between: random, then nearly parallel */
-	begin("vectors", "vector3_angle_between", "glm::angle(normalize, normalize)");
+	begin("vectors", "vector3_angle_between", "glm::angle(normalize, normalize)", "GLM's acos loses accuracy near 0 and pi: see the accuracy table");
 	for (int i = 0; i < N; i++) {
 		struct vector3 a = rv3(), b = rv3();
 		H h = vector3_angle_between(&a, &b), g = glm::angle(glm::normalize(gv(a)), glm::normalize(gv(b)));
@@ -142,7 +142,7 @@ static void vectors()
 		/* the angle is small: compare absolute error relative to the angle */
 		check(std::fabs(h - o) / o * (SINGLE ? 1e-3 : 1e-6), [&] { return sv(a.v, 3) + ", " + sv(b.v, 3) + " -> " + f(h) + " vs " + f(o); });
 	}
-	begin("vectors", "vector2_angle_between", "glm::angle(normalize, normalize)");
+	begin("vectors", "vector2_angle_between", "glm::angle(normalize, normalize)", "GLM's acos loses accuracy near 0 and pi: see the accuracy table");
 	for (int i = 0; i < N; i++) {
 		struct vector2 a = rv2(), b = rv2();
 		H h = vector2_angle_between(&a, &b), g = glm::angle(glm::normalize(gv(a)), glm::normalize(gv(b)));
