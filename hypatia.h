@@ -948,6 +948,10 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh(struct matrix4 *se
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_view_lookat_rh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
 HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear);
+HYPAPI struct matrix4 *matrix4_projection_frustum_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_view_lookat_lh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
@@ -5488,6 +5492,128 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_lh(struct matrix4 *se
 	self->r23 = -zNear * zFar / (zFar - zNear);
 #endif
 	self->r32 = HYP_FLOAT_C(1.0); /* w = z: in front of the camera z is positive */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix with no far plane for
+ * right-handed coordinates (the camera looks down -Z): the limit of
+ * matrix4_projection_perspective_fovy_rh as zFar goes to infinity.  Depth maps
+ * to 0 at zNear and approaches 1 far away (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear)
+{
+	HYP_FLOAT h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
+
+	matrix4_zero(self);
+
+	self->r00 = h / aspect;
+	self->r11 = h;
+	self->r22 = -HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r23 = -HYP_FLOAT_C(2.0) * zNear;
+#else
+	self->r23 = -zNear;
+#endif
+	self->r32 = -HYP_FLOAT_C(1.0); /* w = -z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix with no far plane for
+ * left-handed coordinates (the camera looks down +Z): the limit of
+ * matrix4_projection_perspective_fovy_lh as zFar goes to infinity.  Depth maps
+ * to 0 at zNear and approaches 1 far away (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear)
+{
+	HYP_FLOAT h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
+
+	matrix4_zero(self);
+
+	self->r00 = h / aspect;
+	self->r11 = h;
+	self->r22 = HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r23 = -HYP_FLOAT_C(2.0) * zNear;
+#else
+	self->r23 = -zNear;
+#endif
+	self->r32 = HYP_FLOAT_C(1.0); /* w = z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix for right-handed coordinates
+ * (the camera looks down -Z) from the bounds of the view at the near plane,
+ * which need not be centered (off-axis projections).  xmin..xmax and
+ * ymin..ymax map to -1..1; depth maps to 0 at zNear and 1 at zFar (-1 and 1
+ * with HYP_DEPTH_MINUS_ONE_TO_ONE).  With centered bounds it is the same as
+ * matrix4_projection_perspective_fovy_rh.  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_frustum_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar)
+{
+	HYP_FLOAT width = xmax - xmin;
+	HYP_FLOAT height = ymax - ymin;
+
+	matrix4_zero(self);
+
+	self->r00 = HYP_FLOAT_C(2.0) * zNear / width;
+	self->r02 = (xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) * zNear / height;
+	self->r12 = (ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = (zFar + zNear) / (zNear - zFar);
+	self->r23 = HYP_FLOAT_C(2.0) * zFar * zNear / (zNear - zFar);
+#else
+	self->r22 = zFar / (zNear - zFar);
+	self->r23 = zNear * zFar / (zNear - zFar);
+#endif
+	self->r32 = -HYP_FLOAT_C(1.0); /* w = -z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix for left-handed coordinates
+ * (the camera looks down +Z) from the bounds of the view at the near plane,
+ * which need not be centered (off-axis projections).  xmin..xmax and
+ * ymin..ymax map to -1..1; depth maps to 0 at zNear and 1 at zFar (-1 and 1
+ * with HYP_DEPTH_MINUS_ONE_TO_ONE).  With centered bounds it is the same as
+ * matrix4_projection_perspective_fovy_lh.  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar)
+{
+	HYP_FLOAT width = xmax - xmin;
+	HYP_FLOAT height = ymax - ymin;
+
+	matrix4_zero(self);
+
+	self->r00 = HYP_FLOAT_C(2.0) * zNear / width;
+	self->r02 = -(xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) * zNear / height;
+	self->r12 = -(ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = (zFar + zNear) / (zFar - zNear);
+	self->r23 = -HYP_FLOAT_C(2.0) * zFar * zNear / (zFar - zNear);
+#else
+	self->r22 = zFar / (zFar - zNear);
+	self->r23 = -zNear * zFar / (zFar - zNear);
+#endif
+	self->r32 = HYP_FLOAT_C(1.0); /* w = z */
 
 	return self;
 }

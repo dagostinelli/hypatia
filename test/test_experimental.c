@@ -276,6 +276,74 @@ static const char *test_matrix4_projection_perspective(void)
 }
 
 
+static const char *test_matrix4_projection_frustum(void)
+{
+	struct matrix4 m;
+	struct matrix4 perspective;
+	struct vector3 r;
+	struct vector3 expected;
+
+	/* off center: x from -1 to 3 and y from -2 to 1 at the near plane z = -2;
+	 * at the far plane z = -50 the bounds are 25 times as large
+	 */
+	matrix4_projection_frustum_rh(&m, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(50.0));
+	project(&m, HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+	project(&m, -HYP_FLOAT_C(25.0), -HYP_FLOAT_C(50.0), -HYP_FLOAT_C(50.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0))));
+
+	matrix4_projection_frustum_lh(&m, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(50.0));
+	project(&m, HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+	project(&m, -HYP_FLOAT_C(25.0), -HYP_FLOAT_C(50.0), HYP_FLOAT_C(50.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0))));
+
+	/* centered bounds: the same as the perspective with that field of view
+	 * (90 degrees, aspect 2, near 1: 4 wide and 2 high at the near plane)
+	 */
+	matrix4_projection_frustum_rh(&m, -HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	matrix4_projection_perspective_fovy_rh(&perspective, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	test_assert(matrix4_equals(&m, &perspective));
+	matrix4_projection_frustum_lh(&m, -HYP_FLOAT_C(2.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	matrix4_projection_perspective_fovy_lh(&perspective, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	test_assert(matrix4_equals(&m, &perspective));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_projection_perspective_infinite(void)
+{
+	struct matrix4 m;
+	struct matrix4 far;
+	struct vector3 r;
+	struct vector3 expected;
+
+	/* 90 degrees, aspect 2, near 1: the near top right corner is at depth 0 */
+	matrix4_projection_perspective_fovy_infinite_rh(&m, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0));
+	project(&m, HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+
+	/* far away the depth approaches 1 and stays below it */
+	project(&m, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1e6), &r);
+	test_assert(scalar_equalsf(r.z, HYP_FLOAT_C(1.0)) && r.z < HYP_FLOAT_C(1.0));
+
+	/* the limit of the perspective with a far plane */
+	matrix4_projection_perspective_fovy_rh(&far, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1e7));
+	test_assert(matrix4_equals(&m, &far));
+
+	matrix4_projection_perspective_fovy_infinite_lh(&m, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0));
+	project(&m, HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+	project(&m, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e6), &r);
+	test_assert(scalar_equalsf(r.z, HYP_FLOAT_C(1.0)) && r.z < HYP_FLOAT_C(1.0));
+	matrix4_projection_perspective_fovy_lh(&far, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1e7));
+	test_assert(matrix4_equals(&m, &far));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_projection_ortho3d(void)
 {
 	struct matrix4 m;
@@ -532,6 +600,8 @@ static const char *experimental_all_tests(void)
 	run_test(test_matrix4_view_lookat);
 	run_test(test_matrix4_view_projection);
 	run_test(test_matrix4_projection_left_handed);
+	run_test(test_matrix4_projection_frustum);
+	run_test(test_matrix4_projection_perspective_infinite);
 	run_test(test_quaternion_angle_between);
 	run_test(test_quaternion_difference);
 

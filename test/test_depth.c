@@ -55,6 +55,31 @@ int main(void)
 		return 1;
 	}
 
+	matrix4_projection_frustum_rh(&m, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	if (!near_and_far(&m, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(100.0))) {
+		printf("frustum rh depth\n");
+		return 1;
+	}
+
+	matrix4_projection_frustum_lh(&m, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	if (!near_and_far(&m, HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0))) {
+		printf("frustum lh depth\n");
+		return 1;
+	}
+
+	/* no far plane: the depth approaches 1 far away */
+	matrix4_projection_perspective_fovy_infinite_rh(&m, fovy, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	if (!near_and_far(&m, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1e6))) {
+		printf("infinite perspective rh depth\n");
+		return 1;
+	}
+
+	matrix4_projection_perspective_fovy_infinite_lh(&m, fovy, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	if (!near_and_far(&m, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1e6))) {
+		printf("infinite perspective lh depth\n");
+		return 1;
+	}
+
 	printf("ALL TESTS PASSED\n");
 	return 0;
 }
