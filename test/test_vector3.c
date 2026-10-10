@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include "random_source.h"
+
 static const char *test_vector3_set(void)
 {
 	struct vector3 v1 = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0)}};
@@ -420,8 +422,113 @@ static const char *test_vector3_normalize_small(void)
 	return NULL;
 }
 
+static const char *test_vector3_set_random_unit_scripted(void)
+{
+	static const long bottom[] = {0, 0};
+	static const long equator[] = {1073741824L, 0};
+	static const long equator_half_turn[] = {1073741824L, 1073741824L};
+	struct vector3 v;
+	struct vector3 expected;
+
+	/* draws: z, then the angle */
+	test_random_script(bottom, 2);
+	vector3_set_random_unit(&v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(-1.0))));
+
+	test_random_script(equator, 2);
+	vector3_set_random_unit(&v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	/* angle pi: sin(pi) is close to 0, not exactly 0 */
+	test_random_script(equator_half_turn, 2);
+	vector3_set_random_unit(&v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(-1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+
+static const char *test_vector3_set_random_unit_many(void)
+{
+	struct vector3 v;
+	int counts[8];
+	int small[3];
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		counts[i] = 0;
+	}
+	for (i = 0; i < 3; i++) {
+		small[i] = 0;
+	}
+
+	for (i = 0; i < 10000; i++) {
+		vector3_set_random_unit(&v);
+		test_assert(scalar_equalsf(vector3_magnitude(&v), HYP_FLOAT_C(1.0)));
+		counts[(v.x >= HYP_FLOAT_C(0.0) ? 0 : 1) + (v.y >= HYP_FLOAT_C(0.0) ? 0 : 2) + (v.z >= HYP_FLOAT_C(0.0) ? 0 : 4)]++;
+		if (HYP_ABS(v.x) < HYP_FLOAT_C(0.5)) {
+			small[0]++;
+		}
+		if (HYP_ABS(v.y) < HYP_FLOAT_C(0.5)) {
+			small[1]++;
+		}
+		if (HYP_ABS(v.z) < HYP_FLOAT_C(0.5)) {
+			small[2]++;
+		}
+	}
+
+	/* each octant of the sphere gets 12.5% +/- 2% */
+	for (i = 0; i < 8; i++) {
+		test_assert(counts[i] > 1050 && counts[i] < 1450);
+	}
+
+	/* the octants are symmetric even for an uneven spread (e.g. normalizing
+	 * random components), so also check each component: evenly spread on the
+	 * sphere, |component| < 0.5 half the time (50% +/- 3%)
+	 */
+	for (i = 0; i < 3; i++) {
+		test_assert(small[i] > 4700 && small[i] < 5300);
+	}
+
+	return NULL;
+}
+
+
+static const char *test_vector3_set_random_in_ball(void)
+{
+	static const long scripted[] = {0, 0, 1073741824L, 0, 0};
+	struct vector3 v;
+	struct vector3 expected;
+	int inner = 0;
+	int i;
+
+	/* draws: the direction (z, then the angle), then three; the radius is the
+	 * largest of the three
+	 */
+	test_random_script(scripted, 5);
+	vector3_set_random_in_ball(&v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(0.5))));
+	test_random_script(NULL, 0);
+
+	/* evenly spread: an eighth of the points fall within radius 0.5 */
+	for (i = 0; i < 10000; i++) {
+		vector3_set_random_in_ball(&v);
+		test_assert(vector3_magnitude(&v) < HYP_FLOAT_C(1.0));
+		if (vector3_magnitude(&v) < HYP_FLOAT_C(0.5)) {
+			inner++;
+		}
+	}
+	test_assert(inner > 1050 && inner < 1450);
+
+	return NULL;
+}
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_set_random_unit_scripted);
+	run_test(test_vector3_set_random_unit_many);
+	run_test(test_vector3_set_random_in_ball);
 	run_test(test_vector3_set);
 	run_test(test_vector3_setf3);
 	run_test(test_vector3_zero);

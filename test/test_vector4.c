@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include "random_source.h"
+
 static const char *test_vector4_set(void)
 {
 	struct vector4 v1, v2;
@@ -517,8 +519,75 @@ static const char *test_vector4_equals(void)
 	return NULL;
 }
 
+static const char *test_vector4_set_random_unit_scripted(void)
+{
+	static const long zero[] = {0, 0, 0};
+	static const long half[] = {1073741824L, 0, 0};
+	struct vector4 v;
+	struct vector4 expected;
+	HYP_FLOAT root_half;
+
+	/* draws: u, then two angles */
+	test_random_script(zero, 3);
+	vector4_set_random_unit(&v);
+	test_assert(vector4_equals(&v, vector4_setf4(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	root_half = HYP_SQRT(HYP_FLOAT_C(0.5));
+	test_random_script(half, 3);
+	vector4_set_random_unit(&v);
+	test_assert(vector4_equals(&v, vector4_setf4(&expected, HYP_FLOAT_C(0.0), root_half, HYP_FLOAT_C(0.0), root_half)));
+
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+
+static const char *test_vector4_set_random_unit_many(void)
+{
+	struct vector4 v;
+	HYP_FLOAT c[4];
+	int positive[4];
+	int small[4];
+	int i;
+	int j;
+
+	for (j = 0; j < 4; j++) {
+		positive[j] = 0;
+		small[j] = 0;
+	}
+
+	for (i = 0; i < 10000; i++) {
+		vector4_set_random_unit(&v);
+		test_assert(scalar_equalsf(vector4_magnitude(&v), HYP_FLOAT_C(1.0)));
+
+		c[0] = v.x;
+		c[1] = v.y;
+		c[2] = v.z;
+		c[3] = v.w;
+		for (j = 0; j < 4; j++) {
+			if (c[j] >= HYP_FLOAT_C(0.0)) {
+				positive[j]++;
+			}
+			if (HYP_ABS(c[j]) < HYP_FLOAT_C(0.5)) {
+				small[j]++;
+			}
+		}
+	}
+
+	/* evenly spread on the 4D sphere: each component is positive 50% of the time
+	 * and has |component| < 0.5 60.9% of the time (each +/- 3%)
+	 */
+	for (j = 0; j < 4; j++) {
+		test_assert(positive[j] > 4700 && positive[j] < 5300);
+		test_assert(small[j] > 5790 && small[j] < 6390);
+	}
+
+	return NULL;
+}
 static const char *vector4_all_tests(void)
 {
+	run_test(test_vector4_set_random_unit_scripted);
+	run_test(test_vector4_set_random_unit_many);
 	run_test(test_vector4_set);
 	run_test(test_vector4_zero);
 	run_test(test_vector4_negate);
