@@ -3824,10 +3824,11 @@ HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matri
  */
 HYPAPI struct vector4 *matrix4_multiplyv4(const struct matrix4 *self, const struct vector4 *vT, struct vector4 *vR)
 {
-	vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + vT->w * self->r03;
-	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + vT->w * self->r13;
-	vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + vT->w * self->r23;
-	vR->w = vT->x * self->r30 + vT->y * self->r31 + vT->z * self->r32 + vT->w * self->r33;
+	/* summed in pairs: a smaller rounding error than one running sum */
+	vR->x = (vT->x * self->r00 + vT->y * self->r01) + (vT->z * self->r02 + vT->w * self->r03);
+	vR->y = (vT->x * self->r10 + vT->y * self->r11) + (vT->z * self->r12 + vT->w * self->r13);
+	vR->z = (vT->x * self->r20 + vT->y * self->r21) + (vT->z * self->r22 + vT->w * self->r23);
+	vR->w = (vT->x * self->r30 + vT->y * self->r31) + (vT->z * self->r32 + vT->w * self->r33);
 
 	return vR;
 }
@@ -3843,9 +3844,10 @@ HYPAPI struct vector4 *matrix4_multiplyv4(const struct matrix4 *self, const stru
  */
 HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const struct vector3 *vT, struct vector3 *vR)
 {
-	vR->x = vT->x * self->r00 + vT->y * self->r01 + vT->z * self->r02 + self->r03;
-	vR->y = vT->x * self->r10 + vT->y * self->r11 + vT->z * self->r12 + self->r13;
-	vR->z = vT->x * self->r20 + vT->y * self->r21 + vT->z * self->r22 + self->r23;
+	/* summed in pairs: a smaller rounding error than one running sum */
+	vR->x = (vT->x * self->r00 + vT->y * self->r01) + (vT->z * self->r02 + self->r03);
+	vR->y = (vT->x * self->r10 + vT->y * self->r11) + (vT->z * self->r12 + self->r13);
+	vR->z = (vT->x * self->r20 + vT->y * self->r21) + (vT->z * self->r22 + self->r23);
 
 	return vR;
 }
@@ -4976,10 +4978,11 @@ HYPAPI struct quaternion *quaternion_multiply(struct quaternion *self, const str
 
 	struct quaternion r;
 
-	r.x = self->w * qT->x + self->x * qT->w + self->y * qT->z - self->z * qT->y;
-	r.y = self->w * qT->y - self->x * qT->z + self->y * qT->w + self->z * qT->x;
-	r.z = self->w * qT->z + self->x * qT->y - self->y * qT->x + self->z * qT->w;
-	r.w = self->w * qT->w - self->x * qT->x - self->y * qT->y - self->z * qT->z;
+	/* summed in pairs: a smaller rounding error than one running sum */
+	r.x = (self->w * qT->x + self->x * qT->w) + (self->y * qT->z - self->z * qT->y);
+	r.y = (self->w * qT->y + self->y * qT->w) + (self->z * qT->x - self->x * qT->z);
+	r.z = (self->w * qT->z + self->z * qT->w) + (self->x * qT->y - self->y * qT->x);
+	r.w = (self->w * qT->w - self->x * qT->x) - (self->y * qT->y + self->z * qT->z);
 
 	quaternion_set(self, &r); /* overwrite/save it */
 
