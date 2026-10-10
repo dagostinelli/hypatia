@@ -3201,8 +3201,6 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 #define HYP_DEC_44 33
 #define HYP_A(x) HYP_CAT(self->r,  HYP_DEC(x))
 #define HYP_B(x) HYP_CAT(inverse.r, HYP_DEC(x))
-#define HYP_A4(x1, x2, x3, x4) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3) * HYP_A(x4))
-#define HYP_A3(x1, x2, x3) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3))
 #define HYP_A2(x1, x2) (HYP_A(x1) * HYP_A(x2))
 
 
@@ -3822,6 +3820,30 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
 }
 
 
+/* the 2x2 minors of the first two rows (s) and of the last two (c), and the
+ * determinant from them (Laplace expansion).  The inverse shares them: the
+ * determinant then comes from the same rounded values as the cofactors.
+ */
+static HYP_FLOAT hyp_matrix4_minors(const struct matrix4 *m, HYP_FLOAT *s, HYP_FLOAT *c)
+{
+	s[0] = m->r00 * m->r11 - m->r10 * m->r01;
+	s[1] = m->r00 * m->r12 - m->r10 * m->r02;
+	s[2] = m->r00 * m->r13 - m->r10 * m->r03;
+	s[3] = m->r01 * m->r12 - m->r11 * m->r02;
+	s[4] = m->r01 * m->r13 - m->r11 * m->r03;
+	s[5] = m->r02 * m->r13 - m->r12 * m->r03;
+
+	c[0] = m->r20 * m->r31 - m->r30 * m->r21;
+	c[1] = m->r20 * m->r32 - m->r30 * m->r22;
+	c[2] = m->r20 * m->r33 - m->r30 * m->r23;
+	c[3] = m->r21 * m->r32 - m->r31 * m->r22;
+	c[4] = m->r21 * m->r33 - m->r31 * m->r23;
+	c[5] = m->r22 * m->r33 - m->r32 * m->r23;
+
+	return s[0] * c[5] - s[1] * c[4] + s[2] * c[3] + s[3] * c[2] - s[4] * c[1] + s[5] * c[0];
+}
+
+
 /**
  * @ingroup matrix4
  * @brief Finds the determinant of a matrix
@@ -3831,23 +3853,10 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
  */
 HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 {
-	HYP_FLOAT determinant;
+	HYP_FLOAT s[6];
+	HYP_FLOAT c[6];
 
-	/* using the Leibniz formula */
-	/* avoids temporary structures */
-
-	determinant =
-	  HYP_A4(11, 22, 33, 44) + HYP_A4(11, 23, 34, 42) + HYP_A4(11, 24, 32, 43)
-	+ HYP_A4(12, 21, 34, 43) + HYP_A4(12, 23, 31, 44) + HYP_A4(12, 24, 33, 41)
-	+ HYP_A4(13, 21, 32, 44) + HYP_A4(13, 22, 34, 41) + HYP_A4(13, 24, 31, 42)
-	+ HYP_A4(14, 21, 33, 42) + HYP_A4(14, 22, 31, 43) + HYP_A4(14, 23, 32, 41)
-	- HYP_A4(11, 22, 34, 43) - HYP_A4(11, 23, 32, 44) - HYP_A4(11, 24, 33, 42)
-	- HYP_A4(12, 21, 33, 44) - HYP_A4(12, 23, 34, 41) - HYP_A4(12, 24, 31, 43)
-	- HYP_A4(13, 21, 34, 42) - HYP_A4(13, 22, 31, 44) - HYP_A4(13, 24, 32, 41)
-	- HYP_A4(14, 21, 32, 43) - HYP_A4(14, 22, 33, 41) - HYP_A4(14, 23, 31, 42)
-	;
-
-	return determinant;
+	return hyp_matrix4_minors(self, s, c);
 }
 
 
@@ -3891,11 +3900,12 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
 {
-	struct matrix4 inverse;
+	HYP_FLOAT s[6];
+	HYP_FLOAT c[6];
 	HYP_FLOAT determinant;
-	uint8_t i;
+	struct matrix4 inverse;
 
-	determinant = matrix4_determinant(self);
+	determinant = hyp_matrix4_minors(self, s, c);
 
 	/* only an exactly zero determinant has no inverse (written without ==
 	 * for -Wfloat-equal; a NaN determinant also returns NULL)
@@ -3904,33 +3914,28 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 		return NULL;
 	}
 
-	determinant = HYP_FLOAT_C(1.0) / determinant;
+	/* the cofactors, transposed (the adjugate) */
+	inverse.r00 = self->r11 * c[5] - self->r12 * c[4] + self->r13 * c[3];
+	inverse.r01 = -self->r01 * c[5] + self->r02 * c[4] - self->r03 * c[3];
+	inverse.r02 = self->r31 * s[5] - self->r32 * s[4] + self->r33 * s[3];
+	inverse.r03 = -self->r21 * s[5] + self->r22 * s[4] - self->r23 * s[3];
 
-	matrix4_identity(&inverse);
+	inverse.r10 = -self->r10 * c[5] + self->r12 * c[2] - self->r13 * c[1];
+	inverse.r11 = self->r00 * c[5] - self->r02 * c[2] + self->r03 * c[1];
+	inverse.r12 = -self->r30 * s[5] + self->r32 * s[2] - self->r33 * s[1];
+	inverse.r13 = self->r20 * s[5] - self->r22 * s[2] + self->r23 * s[1];
 
-	HYP_B(11) = HYP_A3(22, 33, 44) + HYP_A3(23, 34, 42) + HYP_A3(24, 32, 43) - HYP_A3(22, 34, 43) - HYP_A3(23, 32, 44) - HYP_A3(24, 33, 42);
-	HYP_B(12) = HYP_A3(12, 34, 43) + HYP_A3(13, 32, 44) + HYP_A3(14, 33, 42) - HYP_A3(12, 33, 44) - HYP_A3(13, 34, 42) - HYP_A3(14, 32, 43);
-	HYP_B(13) = HYP_A3(12, 23, 44) + HYP_A3(13, 24, 42) + HYP_A3(14, 22, 43) - HYP_A3(12, 24, 43) - HYP_A3(13, 22, 44) - HYP_A3(14, 23, 42);
-	HYP_B(14) = HYP_A3(12, 24, 33) + HYP_A3(13, 22, 34) + HYP_A3(14, 23, 32) - HYP_A3(12, 23, 34) - HYP_A3(13, 24, 32) - HYP_A3(14, 22, 33);
-	HYP_B(21) = HYP_A3(21, 34, 43) + HYP_A3(23, 31, 44) + HYP_A3(24, 33, 41) - HYP_A3(21, 33, 44) - HYP_A3(23, 34, 41) - HYP_A3(24, 31, 43);
-	HYP_B(22) = HYP_A3(11, 33, 44) + HYP_A3(13, 34, 41) + HYP_A3(14, 31, 43) - HYP_A3(11, 34, 43) - HYP_A3(13, 31, 44) - HYP_A3(14, 33, 41);
-	HYP_B(23) = HYP_A3(11, 24, 43) + HYP_A3(13, 21, 44) + HYP_A3(14, 23, 41) - HYP_A3(11, 23, 44) - HYP_A3(13, 24, 41) - HYP_A3(14, 21, 43);
-	HYP_B(24) = HYP_A3(11, 23, 34) + HYP_A3(13, 24, 31) + HYP_A3(14, 21, 33) - HYP_A3(11, 24, 33) - HYP_A3(13, 21, 34) - HYP_A3(14, 23, 31);
-	HYP_B(31) = HYP_A3(21, 32, 44) + HYP_A3(22, 34, 41) + HYP_A3(24, 31, 42) - HYP_A3(21, 34, 42) - HYP_A3(22, 31, 44) - HYP_A3(24, 32, 41);
-	HYP_B(32) = HYP_A3(11, 34, 42) + HYP_A3(12, 31, 44) + HYP_A3(14, 32, 41) - HYP_A3(11, 32, 44) - HYP_A3(12, 34, 41) - HYP_A3(14, 31, 42);
-	HYP_B(33) = HYP_A3(11, 22, 44) + HYP_A3(12, 24, 41) + HYP_A3(14, 21, 42) - HYP_A3(11, 24, 42) - HYP_A3(12, 21, 44) - HYP_A3(14, 22, 41);
-	HYP_B(34) = HYP_A3(11, 24, 32) + HYP_A3(12, 21, 34) + HYP_A3(14, 22, 31) - HYP_A3(11, 22, 34) - HYP_A3(12, 24, 31) - HYP_A3(14, 21, 32);
-	HYP_B(41) = HYP_A3(21, 33, 42) + HYP_A3(22, 31, 43) + HYP_A3(23, 32, 41) - HYP_A3(21, 32, 43) - HYP_A3(22, 33, 41) - HYP_A3(23, 31, 42);
-	HYP_B(42) = HYP_A3(11, 32, 43) + HYP_A3(12, 33, 41) + HYP_A3(13, 31, 42) - HYP_A3(11, 33, 42) - HYP_A3(12, 31, 43) - HYP_A3(13, 32, 41);
-	HYP_B(43) = HYP_A3(11, 23, 42) + HYP_A3(12, 21, 43) + HYP_A3(13, 22, 41) - HYP_A3(11, 22, 43) - HYP_A3(12, 23, 41) - HYP_A3(13, 21, 42);
-	HYP_B(44) = HYP_A3(11, 22, 33) + HYP_A3(12, 23, 31) + HYP_A3(13, 21, 32) - HYP_A3(11, 23, 32) - HYP_A3(12, 21, 33) - HYP_A3(13, 22, 31);
+	inverse.r20 = self->r10 * c[4] - self->r11 * c[2] + self->r13 * c[0];
+	inverse.r21 = -self->r00 * c[4] + self->r01 * c[2] - self->r03 * c[0];
+	inverse.r22 = self->r30 * s[4] - self->r31 * s[2] + self->r33 * s[0];
+	inverse.r23 = -self->r20 * s[4] + self->r21 * s[2] - self->r23 * s[0];
 
-	/* divide the determinant */
-	for (i = 0; i < 16; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
-	}
+	inverse.r30 = -self->r10 * c[3] + self->r11 * c[1] - self->r12 * c[0];
+	inverse.r31 = self->r00 * c[3] - self->r01 * c[1] + self->r02 * c[0];
+	inverse.r32 = -self->r30 * s[3] + self->r31 * s[1] - self->r32 * s[0];
+	inverse.r33 = self->r20 * s[3] - self->r21 * s[1] + self->r22 * s[0];
 
-	return mR;
+	return matrix4_multiplyf(matrix4_set(mR, &inverse), HYP_FLOAT_C(1.0) / determinant);
 }
 
 
@@ -5420,8 +5425,6 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 #undef HYP_DEC_44
 #undef HYP_A
 #undef HYP_B
-#undef HYP_A4
-#undef HYP_A3
 #undef HYP_A2
 
 #endif /* HYPATIA_IMPLEMENTATION_H_ */

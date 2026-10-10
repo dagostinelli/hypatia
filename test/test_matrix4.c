@@ -1084,8 +1084,55 @@ static const char *test_matrix4_reciprocal_condition(void)
 }
 
 
+static const char *test_matrix4_inverse_ill_conditioned(void)
+{
+	/* the inverses were computed in long double; the error is measured
+	 * relative to the largest element
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	/* condition number about 1e3 */
+	static const struct matrix4 m = {.m = {
+		HYP_FLOAT_C(0.0884399), HYP_FLOAT_C(0.137102), HYP_FLOAT_C(-0.360966), HYP_FLOAT_C(0.232208),
+		HYP_FLOAT_C(0.091032), HYP_FLOAT_C(0.14769), HYP_FLOAT_C(-0.201904), HYP_FLOAT_C(0.233368),
+		HYP_FLOAT_C(0.151817), HYP_FLOAT_C(0.221668), HYP_FLOAT_C(-0.384721), HYP_FLOAT_C(0.369558),
+		HYP_FLOAT_C(0.137144), HYP_FLOAT_C(0.224133), HYP_FLOAT_C(-0.345436), HYP_FLOAT_C(0.358889)}};
+	static const struct matrix4 expected = {.m = {
+		HYP_FLOAT_C(54.13173437), HYP_FLOAT_C(367.8325088), HYP_FLOAT_C(31.52293775), HYP_FLOAT_C(-306.6678178),
+		HYP_FLOAT_C(105.6770032), HYP_FLOAT_C(525.7416262), HYP_FLOAT_C(-89.04681015), HYP_FLOAT_C(-318.5451444),
+		HYP_FLOAT_C(-13.47666289), HYP_FLOAT_C(-31.06593676), HYP_FLOAT_C(5.060489878), HYP_FLOAT_C(23.70939038),
+		HYP_FLOAT_C(-99.65440438), HYP_FLOAT_C(-498.798669), HYP_FLOAT_C(48.43620642), HYP_FLOAT_C(341.7329656)}};
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-4);
+	const HYP_FLOAT largest = HYP_FLOAT_C(525.7416262);
+#else
+	/* condition number about 2e6 */
+	static const struct matrix4 m = {.m = {
+		HYP_FLOAT_C(0.296374), HYP_FLOAT_C(0.247638), HYP_FLOAT_C(-0.250437), HYP_FLOAT_C(0.172543),
+		HYP_FLOAT_C(0.315098), HYP_FLOAT_C(0.276445), HYP_FLOAT_C(-0.277747), HYP_FLOAT_C(0.181612),
+		HYP_FLOAT_C(0.313319), HYP_FLOAT_C(0.263054), HYP_FLOAT_C(-0.265772), HYP_FLOAT_C(0.18224),
+		HYP_FLOAT_C(0.269044), HYP_FLOAT_C(0.227544), HYP_FLOAT_C(-0.229843), HYP_FLOAT_C(0.156244)}};
+	static const struct matrix4 expected = {.m = {
+		HYP_FLOAT_C(505853.3934), HYP_FLOAT_C(86940.40829), HYP_FLOAT_C(-341953.3394), HYP_FLOAT_C(-260831.1801),
+		HYP_FLOAT_C(-56393.04431), HYP_FLOAT_C(-8861.098324), HYP_FLOAT_C(41926.07496), HYP_FLOAT_C(23673.86224),
+		HYP_FLOAT_C(49632.39313), HYP_FLOAT_C(9374.479657), HYP_FLOAT_C(-29253.89652), HYP_FLOAT_C(-31585.27627),
+		HYP_FLOAT_C(-715913.9766), HYP_FLOAT_C(-123011.744), HYP_FLOAT_C(484733.2641), HYP_FLOAT_C(368203.349)}};
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-7);
+	const HYP_FLOAT largest = HYP_FLOAT_C(715913.9766);
+#endif
+	struct matrix4 inverse;
+	uint8_t i;
+
+	test_assert(matrix4_inverse(&m, &inverse) != NULL);
+	for (i = 0; i < 16; i++) {
+		test_assert(HYP_ABS(inverse.m[i] - expected.m[i]) < tolerance * largest);
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
+	run_test(test_matrix4_inverse_ill_conditioned);
 	run_test(test_matrix4_reciprocal_condition);
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);
