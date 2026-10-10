@@ -1,8 +1,3 @@
-Correctness:
-- Equality uses a fixed absolute tolerance (HYP_EPSILON, 1E-5 in both precisions): too
-  strict for large values (especially in single precision) and too loose for small
-  ones (1e-7 and 9e-6 compare equal). Consider relative / ULP-based comparisons.
-
 Long double support (planned):
 - A HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
 - Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and hyp_print_value with a
