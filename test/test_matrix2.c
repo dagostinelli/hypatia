@@ -475,8 +475,34 @@ static const char *test_matrix2_reciprocal_condition(void)
 }
 
 
+static const char *test_matrix2_inverse_small_determinant(void)
+{
+	/* 1 / determinant overflows, but the inverse is 1 / scale times the
+	 * identity
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-20);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-3);
+#else
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-155);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
+#endif
+	struct matrix2 m;
+	struct matrix2 inverse;
+
+	matrix2_multiplyf(matrix2_identity(&m), scale);
+	test_assert(matrix2_inverse(&m, &inverse) != NULL);
+	test_assert(HYP_ABS(inverse.r00 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r11 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r01) < tolerance);
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_inverse_small_determinant);
 	run_test(test_matrix2_reciprocal_condition);
 	run_test(test_matrix2_zero);
 	run_test(test_matrix2_equals);

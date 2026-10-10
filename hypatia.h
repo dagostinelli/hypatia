@@ -2808,17 +2808,17 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 		return NULL;
 	}
 
-	determinant = HYP_FLOAT_C(1.0) / determinant;
-
 	/* find the adjugate of self */
 	inverse.c00 = self->c11;
 	inverse.c01 = -self->c01;
 	inverse.c10 = -self->c10;
 	inverse.c11 = self->c00;
 
-	/* divide the determinant */
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
 	for (i = 0; i < 4; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
+		mR->m[i] = inverse.m[i] / determinant;
 	}
 
 	return mR;
@@ -3307,8 +3307,6 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 		return NULL;
 	}
 
-	determinant = HYP_FLOAT_C(1.0) / determinant;
-
 	matrix3_identity(&inverse);
 
 	/* find the adjugate of self */
@@ -3324,9 +3322,11 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	HYP_B(32) = HYP_A2(31, 12) - HYP_A2(11, 32);
 	HYP_B(33) = HYP_A2(11, 22) - HYP_A2(21, 12);
 
-	/* divide the determinant */
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
 	for (i = 0; i < 9; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
+		mR->m[i] = inverse.m[i] / determinant;
 	}
 
 	return mR;
