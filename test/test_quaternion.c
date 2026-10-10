@@ -212,6 +212,32 @@ static const char *test_vector3_rotate_by_quaternion_zx_quarter_turn(void)
 }
 
 
+static const char *test_vector3_rotate_by_quaternion_diagonal_third_turn(void)
+{
+	/* a third of a turn about (1, 1, 1) cycles the axes: X -> Y -> Z -> X.
+	 * Rotations about a coordinate axis cannot catch a wrong sign on x * vx
+	 * in quaternion_multiplyv3; this one does (PR #4).
+	 */
+	struct quaternion q;
+	struct vector3 axis;
+	struct vector3 v;
+
+	vector3_normalize(vector3_setf3(&axis, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)));
+	quaternion_set_from_axis_anglev3(&q, &axis, HYP_TAU / HYP_FLOAT_C(3.0));
+
+	vector3_rotate_by_quaternion(vector3_set(&v, HYP_VECTOR3_UNIT_X), &q);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_Y));
+
+	vector3_rotate_by_quaternion(vector3_set(&v, HYP_VECTOR3_UNIT_Y), &q);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_Z));
+
+	vector3_rotate_by_quaternion(vector3_set(&v, HYP_VECTOR3_UNIT_Z), &q);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_X));
+
+	return NULL;
+}
+
+
 static const char *test_vector3_rotate_by_quaternion_xy_quarter_turn(void)
 {
 	struct quaternion q;
@@ -830,6 +856,7 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_axis_anglev3);
 	run_test(test_quaternion_multiply);
 	run_test(test_quaternion_multiply_identity);
+	run_test(test_vector3_rotate_by_quaternion_diagonal_third_turn);
 	run_test(test_vector3_rotate_by_quaternion_xy_quarter_turn);
 	run_test(test_vector3_rotate_by_quaternion_xz_quarter_turn);
 	run_test(test_vector3_rotate_by_quaternion_yx_quarter_turn);
