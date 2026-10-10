@@ -27,6 +27,26 @@ Results that differ from 2.0:
   has no inverse.  2.0 returned the matrix in both cases, so the caller
   could not tell.
 
+New functions:
+
+* scalar_random_rangef: a random number in [min, max), evenly distributed.
+* vector2/3/4_set_random_unit and quaternion_set_random_unit: evenly
+  distributed directions and rotations.
+* vector2_set_random_in_disk and vector3_set_random_in_ball: evenly
+  distributed points.
+
+New configuration macros:
+
+* HYP_RANDOM() and HYP_RANDOM_MAX: the random number source of the random
+  functions (default rand() and RAND_MAX).  Define both or neither.
+* HYP_NO_RANDOM: leaves out the random functions, HYP_RANDOM,
+  HYP_RANDOM_MAX, HYP_RANDOM_FLOAT and <stdlib.h>.
+
+Deprecated:
+
+* HYP_RANDOM_FLOAT: use scalar_random_rangef(-1, 1).  HYP_NO_DEPRECATED
+  leaves it out.
+
 Known problems in 2.1:
 
 These experimental functions give wrong results; do not use them.
@@ -48,3 +68,4 @@ Documentation and tests:
 * Tests for the matrix4 multiply properties, quaternion_inverse with unit
   and non-unit quaternions, and the slerp shortest arc.
 * A test that the matrix4 and quaternion rotations agree.
+* CI builds with HYP_NO_RANDOM.
