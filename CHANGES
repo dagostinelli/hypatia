@@ -45,6 +45,8 @@ New functions:
 
 * vector2/3/4_lerp, _clamp, _min, _max and _project; vector2/3_reflect;
   vector3_refract.
+* matrix2/3/4_reciprocal_condition: how reliable an inverse is, 1 for a
+  multiple of the identity and 0 for a matrix with no inverse.
 * scalar_random_rangef: a random number in [min, max), evenly distributed.
 * vector2/3/4_set_random_unit and quaternion_set_random_unit: evenly
   distributed directions and rotations.
