@@ -98,48 +98,9 @@ In single precision, besides the convention rows:
 
 ## Precision
 
-`results/double.md` and `results/single.md` end with a precision table: for each function,
-the largest and the mean error of hypatia, GLM, Eigen and cglm over 20000 inputs, in
-units of the epsilon, against the exact answer for the same rounded inputs (long
-double).  After the precision commits on correctness-h, hypatia is the best or tied in
-32 of 42 rows in double and 25 of 42 in single; in the others it is within 1 ulp of the
-best at the largest error, with the same mean, except `matrix4_inverse` of rotation,
-scale and translation matrices in double (6.4 against Eigen's 4.4 at the largest, 0.58
-against 0.61 mean) and `quaternion_get_rotation_tov3` for vectors 1e-6 rad apart (1.4
-against 0.6).
-
-What changed (largest / mean error, double, before and after; the best of the other
-libraries in brackets):
-
-| function | before | after | best other |
-|---|---|---|---|
-| `matrix4_inverse`, random matrices | 1.2e5 / 9.3 | 6.6e3 / 3.5 | 6.6e3 / 3.7 (Eigen) |
-| `matrix4_set_from_quaternion` | 4.9 / 0.93 | 2.7 / 0.62 | 4.8 / 0.91 |
-| `matrix4_view_lookat_rh` | 17.9 / 0.56 | 9.1 / 0.53 | 24.4 / 0.59 |
-| `quaternion_inverse` | 2.4 / 0.62 | 1.3 / 0.39 | 1.4 / 0.39 |
-| `quaternion_set_from_axis_anglev3`, angle 1e-4 | 0.53 / 0.53 | 0.033 / 0.033 | 0.033 / 0.033 |
-| `quaternion_angle_between`, 1e-4 rad apart | 1.6e4 / 1.9e3 | 6.2e3 / 220 | 9.7e3 / 1.8e3 (Eigen) |
-| `vector3_project` | 2.0 / 0.30 | 1.6 / 0.21 | 1.6 / 0.21 |
-| `vector3_rotate_by_quaternion` | 3.3 / 0.74 | 3.5 / 0.64 | 5.1 / 0.94 |
-| `quaternion_multiply` | 1.19 / 0.30 | 0.94 / 0.29 | 0.94 / 0.29 (Eigen) |
-
-The changes:
-
-- `hyp_normalize` divides once by the length when the sum of the squares is in range
-  (1e-30 to 1e30), as GLM and Eigen do; the scaled path, which divided twice, is kept for
-  tiny, huge, infinite and NaN components.  Every normalization in the library uses it.
-- `quaternion_inverse`, `vectorN_project` and `matrix4_set_from_quaternion` divide by
-  \|q\|^2 or \|v\|^2 directly when it is in range, instead of normalizing first.
-- `quaternion_norm` and `quaternion_multiply` sum in pairs.
-- `matrix4_inverse` and `matrix4_determinant` use 2x2 blocks (as Eigen), with the
-  determinant shared, so the two always agree.
-- `vector3_rotate_by_quaternion` uses 2 (u.v) u + (w^2 - u.u) v + 2 w (u x v), over
-  \|q\|^2 (the arrangement cglm uses); it is also faster than before (17 ns, 21 ns with the
-  conjugate before any of these changes, 40 ns with the inverse).
-
-Not changed: the remaining gaps are fractions of an ulp at the largest error with the
-same mean, or would cost a normalization that protects inputs that are not quite
-orthonormal (`quaternion_set_from_matrix4` near half turns).
+`docs/comparison.md` reports the precision of hypatia (master, before and after the
+precision work) against GLM, Eigen and cglm; the tables are also at the end of
+`results/double.md` and `results/single.md`.
 
 ## Not compared
 

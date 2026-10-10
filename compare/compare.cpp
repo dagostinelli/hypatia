@@ -9,6 +9,9 @@ extern "C" {
 #include "hypatia.h"
 }
 #include "hyp_unalias.h"
+#ifdef HYP_MASTER
+#include "hyp_master.h"
+#endif
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
@@ -36,6 +39,7 @@ extern "C" {
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 #include <functional>
 #include <limits>
 #include <sstream>
@@ -363,6 +367,10 @@ static struct matrix4 rtrs()
 
 int main()
 {
+	/* another sequence of random inputs: COMPARE_SEED=n */
+	if (const char *seed = std::getenv("COMPARE_SEED"))
+		rng_state ^= std::strtoull(seed, NULL, 10) * 0x2545F4914F6CDD1DULL;
+
 	/* the layout the conversions rely on: m[] row by row, r01 is m[1] */
 	struct matrix4 probe;
 	matrix4_zero(&probe);
@@ -372,11 +380,23 @@ int main()
 		return 1;
 	}
 
+#ifdef PRECISION_ONLY
+	std::printf("# hypatia precision: %s precision%s\n", SINGLE ? "single" : "double",
+#ifdef HYP_MASTER
+		    ", master (2.1.0-dev)"
+#else
+		    ""
+#endif
+	);
+	precision();
+	return 0;
+#else
 	vectors();
 	matrices();
 	quaternions();
 	edge_cases();
 	accuracy();
+#endif
 
 	std::printf("# hypatia comparison: %s precision%s\n\n", SINGLE ? "single" : "double",
 #ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
