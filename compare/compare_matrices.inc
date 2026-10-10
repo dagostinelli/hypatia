@@ -175,7 +175,7 @@ static void matrices()
 		double o = (double)l.determinant();
 		check(std::fabs(h - o) / std::max(1.0, std::fabs(o)), [&] { return sm4(a) + " -> " + f(h) + " vs " + f(o); });
 	}
-	begin("matrices", "matrix4_determinant", "LAPACK dgetrf");
+	begin("matrices", "matrix4_determinant", "LAPACK dgetrf", "LAPACK in double; single precision rounding of the matrix products");
 	for (int i = 0; i < N; i++) {
 		struct matrix4 a = rm4();
 		double d[16], inv[16], det, rc;
@@ -300,7 +300,7 @@ static void matrices()
 	}
 
 	/* reciprocal condition */
-	begin("matrices", "matrix4_reciprocal_condition", "1 / (|A|inf |A^-1|inf) in long double");
+	begin("matrices", "matrix4_reciprocal_condition", "1 / (norm(A) norm(A^-1)), infinity norm, in long double", "relative error up to 1e-2 (single) or 1e-5 (double); single precision is limited by the float inverse: see the accuracy table");
 	for (int i = 0; i < N; i++) {
 		struct matrix4 a = rm4_cond(rnd() * 6);
 		H h = matrix4_reciprocal_condition(&a);
@@ -316,17 +316,6 @@ static void matrices()
 		double o = (double)(1 / (na * ni));
 		check(std::fabs(h - o) / o * (SINGLE ? 1e-2 : 1e-5), [&] { return sm4(a) + " -> " + f(h) + " vs " + f(o); });
 	}
-	begin("matrices", "matrix4_reciprocal_condition", "LAPACK dgecon('I') estimate", "ratio within 3x");
-	for (int i = 0; i < N; i++) {
-		struct matrix4 a = rm4_cond(rnd() * 6);
-		H h = matrix4_reciprocal_condition(&a);
-		double d[16], inv[16], det, rc;
-		dbl<16>(a.m, d);
-		lapack_inverse(d, 4, inv, &det, &rc);
-		double ratio = h / rc;
-		check((ratio > 1.0 / 3 && ratio < 3) ? 0 : 1, [&] { return sm4(a) + " -> " + f(h) + " vs " + f(rc); });
-	}
-
 	/* normal matrix */
 	begin("matrices", "matrix4_normal_matrix", "glm::inverseTranspose(mat3(M))");
 	for (int i = 0; i < N; i++) {
@@ -437,17 +426,23 @@ static void matrices()
 		check(err_m4(h, glm::eulerAngleXYZ(x, y, z)), [&] { return f(x) + ", " + f(y) + ", " + f(z) + " -> " + sm4(h); });
 	}
 #ifdef HAVE_CGLM
-	begin("matrix builders", "matrix4_set_from_euler_anglesf3(x, y, z)", "cglm glm_euler_xyz");
-	for (int i = 0; i < N; i++) {
-		H x = rangle(), y = rangle(), z = rangle();
-		struct matrix4 h;
-		matrix4_set_from_euler_anglesf3(&h, x, y, z);
-		vec3 ang = {x, y, z};
-		mat4 cm;
-		glm_euler_xyz(ang, cm);
-		M4 g;
-		std::memcpy(&g[0][0], cm, sizeof cm);
-		check(err_m4(h, g), [&] { return f(x) + ", " + f(y) + ", " + f(z) + " -> " + sm4(h); });
+	for (int zyx = 0; zyx < 2; zyx++) {
+		begin("matrix builders", "matrix4_set_from_euler_anglesf3(x, y, z)", zyx ? "cglm glm_euler_zyx" : "cglm glm_euler_xyz",
+		      zyx ? "" : "for reference: cglm's xyz is GLM's XYZ");
+		for (int i = 0; i < N; i++) {
+			H x = rangle(), y = rangle(), z = rangle();
+			struct matrix4 h;
+			matrix4_set_from_euler_anglesf3(&h, x, y, z);
+			vec3 ang = {x, y, z};
+			mat4 cm;
+			if (zyx)
+				glm_euler_zyx(ang, cm);
+			else
+				glm_euler_xyz(ang, cm);
+			M4 g;
+			std::memcpy(&g[0][0], cm, sizeof cm);
+			check(err_m4(h, g), [&] { return f(x) + ", " + f(y) + ", " + f(z) + " -> " + sm4(h); });
+		}
 	}
 #endif
 	begin("matrix builders", "matrix4_make_transformation_rotationv3(v)", "glm::eulerAngleZYX(v.z, v.y, v.x)");
