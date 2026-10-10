@@ -1,0 +1,103 @@
+# `normalized()` returns tiny vectors unchanged and huge vectors as zero
+
+| | |
+|---|---|
+| Library | Eigen 3.4.0 (3147391) |
+| Function | `MatrixBase::normalized`, `normalize` (`Core/Dot.h`) |
+| Kind | wrong result |
+| Precision | double and float |
+| Status | still present in Eigen 5.0.1 (the latest release) and at master 6bd3136 (2026-10-10): the program prints the same |
+
+## Summary
+
+`normalized()` divides by `sqrt(squaredNorm())`.  For components below about 1e-154
+(1e-19 in float) the squared norm underflows to 0 and the vector is returned unchanged, not
+of unit length; above 1e154 (1e19) it overflows to inf and the result is zero; a vector with
+an infinite component gives NaN.  `stableNormalized()` handles the first two, but
+`normalized()` is the function users reach for, it is used inside Eigen (for example in
+`Quaternion::FromTwoVectors`), and its failures are silent.
+
+## Reproduction
+
+```cpp
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <cfloat>
+#include <cmath>
+#include <cstdio>
+
+int main()
+{
+	Eigen::Vector3d tiny = Eigen::Vector3d(1e-200, 1e-200, 0).normalized();
+	Eigen::Vector3d huge = Eigen::Vector3d(1e200, 1e200, 0).normalized();
+	Eigen::Vector3d inf = Eigen::Vector3d(INFINITY, 1, 0).normalized();
+	std::printf("(1e-200, 1e-200, 0).normalized() = (%g, %g, %g), norm %g\n", tiny.x(), tiny.y(), tiny.z(), tiny.norm());
+	std::printf("(1e200, 1e200, 0).normalized()   = (%g, %g, %g)\n", huge.x(), huge.y(), huge.z());
+	std::printf("(inf, 1, 0).normalized()         = (%g, %g, %g)\n", inf.x(), inf.y(), inf.z());
+}
+```
+
+Output (x86-64, gcc 13.3, `-O2`):
+
+```text
+(1e-200, 1e-200, 0).normalized() = (1e-200, 1e-200, 0), norm 0
+(1e200, 1e200, 0).normalized()   = (0, 0, 0)
+(inf, 1, 0).normalized()         = (-nan, 0, 0)
+```
+
+Expected: (0.707106781, 0.707106781, 0) for the first two, (1, 0, 0) for the third.
+
+## Cause
+
+[`Core/Dot.h` lines 124-134](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Core/Dot.h#L124-L134):
+
+```
+RealScalar z = n.squaredNorm();
+if(z>RealScalar(0))
+  return n / numext::sqrt(z);
+else
+  return n;
+```
+
+## How hypatia does it
+
+`vector3_normalize` (all hypatia normalizations use `hyp_normalize`) divides by the length
+when the sum of the squares is in range and otherwise divides by the largest component
+first.  Infinite components become +-1 and the others 0.  Only an exactly zero vector, or
+NaN, is left unchanged; there is no separate "stable" variant to choose.
+
+```c
+#define HYPATIA_IMPLEMENTATION
+#include <float.h>
+#include <math.h>
+#include <stdio.h>
+#include "hypatia.h"
+
+int main(void)
+{
+	struct vector3 v;
+
+	vector3_normalize(vector3_setf3(&v, 1e-200, 1e-200, 0));
+	printf("normalize(1e-200, 1e-200, 0) = (%.9g, %.9g, %g)\n", v.x, v.y, v.z);
+	vector3_normalize(vector3_setf3(&v, 1e200, 1e200, 0));
+	printf("normalize(1e200, 1e200, 0)   = (%.9g, %.9g, %g)\n", v.x, v.y, v.z);
+	vector3_normalize(vector3_setf3(&v, INFINITY, 1, 0));
+	printf("normalize(inf, 1, 0)         = (%g, %g, %g)\n", v.x, v.y, v.z);
+	return 0;
+}
+```
+
+```text
+normalize(1e-200, 1e-200, 0) = (0.707106781, 0.707106781, 0)
+normalize(1e200, 1e200, 0)   = (0.707106781, 0.707106781, 0)
+normalize(inf, 1, 0)         = (1, 0, 0)
+```
+
+## Suggested fix
+
+In `normalized()`, fall back to `stableNormalized()` when `z` is 0 (and the vector is not
+exactly zero) or not finite.  The fast path for the normal range is unchanged.
+
+## Checking
+
+`compare/check_reports.py docs/reports/eigen/04-normalized-underflow-overflow.md` builds both programs above and compares their output with this report. The harness: `results/double.md`, "Edge cases", `vector3_normalize`.

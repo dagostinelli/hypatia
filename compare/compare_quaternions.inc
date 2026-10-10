@@ -257,7 +257,7 @@ static void quaternions()
 		check(err_q(h, e), [&] { return sq(a) + ", " + sq(b) + ", " + f(t) + " -> " + sq(h) + " vs " + sq(e); });
 	}
 #ifdef HAVE_CGLM
-	begin("quaternions", "quaternion_slerp", "cglm glm_quat_slerp", "as a rotation (cglm does not take the shortest arc)");
+	begin("quaternions", "quaternion_slerp", "cglm glm_quat_slerp", "as a rotation");
 	for (int i = 0; i < N; i++) {
 		struct quaternion a = rq_unit(), b = rq_unit(), h;
 		H t = r(0, 1);
