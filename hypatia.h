@@ -443,6 +443,12 @@ HYPAPI struct vector2 *vector2_set_random_unit(struct vector2 *self);
 HYPAPI struct vector2 *vector2_set_random_in_disk(struct vector2 *self);
 #endif
 HYPAPI struct vector2 *vector2_negate(struct vector2 *self);
+HYPAPI struct vector2 *vector2_lerp(const struct vector2 *start, const struct vector2 *end, HYP_FLOAT percent, struct vector2 *vR);
+HYPAPI struct vector2 *vector2_clamp(struct vector2 *self, const struct vector2 *vMin, const struct vector2 *vMax);
+HYPAPI struct vector2 *vector2_min(struct vector2 *self, const struct vector2 *vT);
+HYPAPI struct vector2 *vector2_max(struct vector2 *self, const struct vector2 *vT);
+HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector2 *onto);
+HYPAPI struct vector2 *vector2_reflect(struct vector2 *self, const struct vector2 *normal);
 HYPAPI struct vector2 *vector2_add(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_addf(struct vector2 *self, HYP_FLOAT fT);
 HYPAPI struct vector2 *vector2_subtract(struct vector2 *self, const struct vector2 *vT);
@@ -497,6 +503,13 @@ HYPAPI struct vector3 *vector3_set_random_unit(struct vector3 *self);
 HYPAPI struct vector3 *vector3_set_random_in_ball(struct vector3 *self);
 #endif
 HYPAPI struct vector3 *vector3_negate(struct vector3 *self);
+HYPAPI struct vector3 *vector3_lerp(const struct vector3 *start, const struct vector3 *end, HYP_FLOAT percent, struct vector3 *vR);
+HYPAPI struct vector3 *vector3_clamp(struct vector3 *self, const struct vector3 *vMin, const struct vector3 *vMax);
+HYPAPI struct vector3 *vector3_min(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *vT);
+HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto);
+HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector3 *normal);
+HYPAPI struct vector3 *vector3_refract(struct vector3 *self, const struct vector3 *normal, HYP_FLOAT eta);
 HYPAPI struct vector3 *vector3_add(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_addf(struct vector3 *self, HYP_FLOAT fT);
 HYPAPI struct vector3 *vector3_subtract(struct vector3 *self, const struct vector3 *vT);
@@ -550,6 +563,11 @@ HYPAPI struct vector4 *vector4_setf4(struct vector4 *self, HYP_FLOAT xT, HYP_FLO
 HYPAPI struct vector4 *vector4_set_random_unit(struct vector4 *self);
 #endif
 HYPAPI struct vector4 *vector4_negate(struct vector4 *self);
+HYPAPI struct vector4 *vector4_lerp(const struct vector4 *start, const struct vector4 *end, HYP_FLOAT percent, struct vector4 *vR);
+HYPAPI struct vector4 *vector4_clamp(struct vector4 *self, const struct vector4 *vMin, const struct vector4 *vMax);
+HYPAPI struct vector4 *vector4_min(struct vector4 *self, const struct vector4 *vT);
+HYPAPI struct vector4 *vector4_max(struct vector4 *self, const struct vector4 *vT);
+HYPAPI struct vector4 *vector4_project(struct vector4 *self, const struct vector4 *onto);
 HYPAPI struct vector4 *vector4_add(struct vector4 *self, const struct vector4 *vT);
 HYPAPI struct vector4 *vector4_addf(struct vector4 *self, HYP_FLOAT fT);
 HYPAPI struct vector4 *vector4_subtract(struct vector4 *self, const struct vector4 *vT);
@@ -1021,6 +1039,49 @@ static void hyp_print_value(const char *prefix, double value)
 #endif
 
 
+/* divides the n components by their length and returns the length; returns 0
+ * and leaves them unchanged when they are all zero or one is NaN.  Dividing by
+ * the largest component first keeps the squares in range.  When a component is
+ * infinite, the infinite components become +-1 and the others 0 before the
+ * division, and the length is infinite.
+ */
+static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
+{
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	HYP_FLOAT sum = HYP_FLOAT_C(0.0);
+	HYP_FLOAT length;
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return HYP_FLOAT_C(0.0); /* NaN */
+		}
+	}
+
+	if (!(largest > HYP_FLOAT_C(0.0))) {
+		return HYP_FLOAT_C(0.0);
+	}
+
+	for (i = 0; i < n; i++) {
+		if (!(largest - largest <= HYP_FLOAT_C(0.0))) {
+			/* largest is infinite */
+			v[i] = (HYP_ABS(v[i]) < largest) ? HYP_FLOAT_C(0.0) : (v[i] > HYP_FLOAT_C(0.0)) ? HYP_FLOAT_C(1.0) : -HYP_FLOAT_C(1.0);
+		} else {
+			v[i] /= largest;
+		}
+		sum += v[i] * v[i];
+	}
+
+	length = HYP_SQRT(sum);
+
+	for (i = 0; i < n; i++) {
+		v[i] /= length;
+	}
+
+	return largest * length;
+}
 static struct vector2 hyp_vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
 static struct vector2 hyp_vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
 static struct vector2 hyp_vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
@@ -1112,6 +1173,108 @@ HYPAPI struct vector2 *vector2_zero(struct vector2 *self)
 HYPAPI int vector2_equals(const struct vector2 *self, const struct vector2 *vT)
 {
 	return scalar_equals(self->x, vT->x) && scalar_equals(self->y, vT->y);
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Linear interpolation: start at percent 0, end at percent 1
+ *
+ * @param start the vector at percent 0
+ * @param end the vector at percent 1
+ * @param percent how far from start to end
+ * @param vR the result
+ */
+HYPAPI struct vector2 *vector2_lerp(const struct vector2 *start, const struct vector2 *end, HYP_FLOAT percent, struct vector2 *vR)
+{
+	/* written so that percent 0 and 1 give start and end exactly */
+	vR->v[0] = start->v[0] * (HYP_FLOAT_C(1.0) - percent) + end->v[0] * percent;
+	vR->v[1] = start->v[1] * (HYP_FLOAT_C(1.0) - percent) + end->v[1] * percent;
+	return vR;
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Clamps each component between the components of vMin and vMax
+ */
+HYPAPI struct vector2 *vector2_clamp(struct vector2 *self, const struct vector2 *vMin, const struct vector2 *vMax)
+{
+	self->v[0] = HYP_CLAMP(self->v[0], vMin->v[0], vMax->v[0]);
+	self->v[1] = HYP_CLAMP(self->v[1], vMin->v[1], vMax->v[1]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Sets each component to the smaller of self and vT
+ */
+HYPAPI struct vector2 *vector2_min(struct vector2 *self, const struct vector2 *vT)
+{
+	self->v[0] = HYP_MIN(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MIN(self->v[1], vT->v[1]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Sets each component to the larger of self and vT
+ */
+HYPAPI struct vector2 *vector2_max(struct vector2 *self, const struct vector2 *vT)
+{
+	self->v[0] = HYP_MAX(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MAX(self->v[1], vT->v[1]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Projects self onto the direction of onto: the part of self parallel
+ * to onto.  Projecting onto the zero vector gives the zero vector.
+ */
+HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector2 *onto)
+{
+	struct vector2 direction;
+	HYP_FLOAT length;
+
+	if (!(hyp_normalize(vector2_set(&direction, onto)->v, 2) > HYP_FLOAT_C(0.0))) {
+		return vector2_zero(self);
+	}
+
+	length = vector2_dot_product(self, &direction);
+
+	return vector2_multiplyf(vector2_set(self, &direction), length);
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Reflects self off a surface with the given normal: self - 2 (self . n) n
+ * for the unit normal n.  The normal does not need to be unit length; a zero
+ * normal leaves self unchanged.
+ */
+HYPAPI struct vector2 *vector2_reflect(struct vector2 *self, const struct vector2 *normal)
+{
+	struct vector2 direction;
+	HYP_FLOAT norm = vector2_dot_product(normal, normal);
+	HYP_FLOAT s;
+
+	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
+	 * when |normal|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, normal) / norm;
+		vector2_set(&direction, normal);
+	} else if (hyp_normalize(vector2_set(&direction, normal)->v, 2) > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, &direction);
+	} else {
+		return self;
+	}
+
+	return vector2_subtract(self, vector2_multiplyf(&direction, s));
 }
 
 
@@ -1412,6 +1575,152 @@ HYPAPI int vector3_equals(const struct vector3 *self, const struct vector3 *vT)
 	return scalar_equalsf(self->x, vT->x) &&
 		scalar_equalsf(self->y, vT->y) &&
 		scalar_equalsf(self->z, vT->z);
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Linear interpolation: start at percent 0, end at percent 1
+ *
+ * @param start the vector at percent 0
+ * @param end the vector at percent 1
+ * @param percent how far from start to end
+ * @param vR the result
+ */
+HYPAPI struct vector3 *vector3_lerp(const struct vector3 *start, const struct vector3 *end, HYP_FLOAT percent, struct vector3 *vR)
+{
+	/* written so that percent 0 and 1 give start and end exactly */
+	vR->v[0] = start->v[0] * (HYP_FLOAT_C(1.0) - percent) + end->v[0] * percent;
+	vR->v[1] = start->v[1] * (HYP_FLOAT_C(1.0) - percent) + end->v[1] * percent;
+	vR->v[2] = start->v[2] * (HYP_FLOAT_C(1.0) - percent) + end->v[2] * percent;
+	return vR;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Clamps each component between the components of vMin and vMax
+ */
+HYPAPI struct vector3 *vector3_clamp(struct vector3 *self, const struct vector3 *vMin, const struct vector3 *vMax)
+{
+	self->v[0] = HYP_CLAMP(self->v[0], vMin->v[0], vMax->v[0]);
+	self->v[1] = HYP_CLAMP(self->v[1], vMin->v[1], vMax->v[1]);
+	self->v[2] = HYP_CLAMP(self->v[2], vMin->v[2], vMax->v[2]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Sets each component to the smaller of self and vT
+ */
+HYPAPI struct vector3 *vector3_min(struct vector3 *self, const struct vector3 *vT)
+{
+	self->v[0] = HYP_MIN(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MIN(self->v[1], vT->v[1]);
+	self->v[2] = HYP_MIN(self->v[2], vT->v[2]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Sets each component to the larger of self and vT
+ */
+HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *vT)
+{
+	self->v[0] = HYP_MAX(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MAX(self->v[1], vT->v[1]);
+	self->v[2] = HYP_MAX(self->v[2], vT->v[2]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Projects self onto the direction of onto: the part of self parallel
+ * to onto.  Projecting onto the zero vector gives the zero vector.
+ */
+HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto)
+{
+	struct vector3 direction;
+	HYP_FLOAT length;
+
+	if (!(hyp_normalize(vector3_set(&direction, onto)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return vector3_zero(self);
+	}
+
+	length = vector3_dot_product(self, &direction);
+
+	return vector3_multiplyf(vector3_set(self, &direction), length);
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Reflects self off a surface with the given normal: self - 2 (self . n) n
+ * for the unit normal n.  The normal does not need to be unit length; a zero
+ * normal leaves self unchanged.
+ */
+HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector3 *normal)
+{
+	struct vector3 direction;
+	HYP_FLOAT norm = vector3_dot_product(normal, normal);
+	HYP_FLOAT s;
+
+	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
+	 * when |normal|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, normal) / norm;
+		vector3_set(&direction, normal);
+	} else if (hyp_normalize(vector3_set(&direction, normal)->v, 3) > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, &direction);
+	} else {
+		return self;
+	}
+
+	return vector3_subtract(self, vector3_multiplyf(&direction, s));
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Refracts the direction self through a surface with the given normal,
+ * by Snell's law.  eta is the ratio of the refractive indices, from the side
+ * self comes from to the other (1 / 1.5 from air into glass).  The normal faces
+ * the side self comes from (normal . self < 0).
+ *
+ * Neither vector needs to be unit length.  The result is the unit direction of
+ * the refracted ray, or the zero vector for total internal reflection or a zero
+ * self.  A zero normal leaves the direction unchanged.
+ */
+HYPAPI struct vector3 *vector3_refract(struct vector3 *self, const struct vector3 *normal, HYP_FLOAT eta)
+{
+	struct vector3 incident;
+	struct vector3 n;
+	HYP_FLOAT d;
+	HYP_FLOAT k;
+
+	if (!(hyp_normalize(vector3_set(&incident, self)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return vector3_zero(self);
+	}
+	if (!(hyp_normalize(vector3_set(&n, normal)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return vector3_set(self, &incident);
+	}
+
+	/* the cosine of the angle of incidence is -d; k is the square of the
+	 * cosine of the angle of refraction
+	 */
+	d = vector3_dot_product(&n, &incident);
+	k = HYP_FLOAT_C(1.0) - eta * eta * (HYP_FLOAT_C(1.0) - d * d);
+	if (k < HYP_FLOAT_C(0.0)) {
+		return vector3_zero(self);
+	}
+
+	/* eta incident - (eta d + sqrt(k)) n */
+	vector3_multiplyf(vector3_set(self, &incident), eta);
+	return vector3_subtract(self, vector3_multiplyf(&n, eta * d + HYP_SQRT(k)));
 }
 
 
@@ -1844,6 +2153,88 @@ HYPAPI int vector4_equals(const struct vector4 *self, const struct vector4 *vT)
 		scalar_equalsf(self->y, vT->y) &&
 		scalar_equalsf(self->z, vT->z) &&
 		scalar_equalsf(self->w, vT->w);
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Linear interpolation: start at percent 0, end at percent 1
+ *
+ * @param start the vector at percent 0
+ * @param end the vector at percent 1
+ * @param percent how far from start to end
+ * @param vR the result
+ */
+HYPAPI struct vector4 *vector4_lerp(const struct vector4 *start, const struct vector4 *end, HYP_FLOAT percent, struct vector4 *vR)
+{
+	/* written so that percent 0 and 1 give start and end exactly */
+	vR->v[0] = start->v[0] * (HYP_FLOAT_C(1.0) - percent) + end->v[0] * percent;
+	vR->v[1] = start->v[1] * (HYP_FLOAT_C(1.0) - percent) + end->v[1] * percent;
+	vR->v[2] = start->v[2] * (HYP_FLOAT_C(1.0) - percent) + end->v[2] * percent;
+	vR->v[3] = start->v[3] * (HYP_FLOAT_C(1.0) - percent) + end->v[3] * percent;
+	return vR;
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Clamps each component between the components of vMin and vMax
+ */
+HYPAPI struct vector4 *vector4_clamp(struct vector4 *self, const struct vector4 *vMin, const struct vector4 *vMax)
+{
+	self->v[0] = HYP_CLAMP(self->v[0], vMin->v[0], vMax->v[0]);
+	self->v[1] = HYP_CLAMP(self->v[1], vMin->v[1], vMax->v[1]);
+	self->v[2] = HYP_CLAMP(self->v[2], vMin->v[2], vMax->v[2]);
+	self->v[3] = HYP_CLAMP(self->v[3], vMin->v[3], vMax->v[3]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Sets each component to the smaller of self and vT
+ */
+HYPAPI struct vector4 *vector4_min(struct vector4 *self, const struct vector4 *vT)
+{
+	self->v[0] = HYP_MIN(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MIN(self->v[1], vT->v[1]);
+	self->v[2] = HYP_MIN(self->v[2], vT->v[2]);
+	self->v[3] = HYP_MIN(self->v[3], vT->v[3]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Sets each component to the larger of self and vT
+ */
+HYPAPI struct vector4 *vector4_max(struct vector4 *self, const struct vector4 *vT)
+{
+	self->v[0] = HYP_MAX(self->v[0], vT->v[0]);
+	self->v[1] = HYP_MAX(self->v[1], vT->v[1]);
+	self->v[2] = HYP_MAX(self->v[2], vT->v[2]);
+	self->v[3] = HYP_MAX(self->v[3], vT->v[3]);
+	return self;
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Projects self onto the direction of onto: the part of self parallel
+ * to onto.  Projecting onto the zero vector gives the zero vector.
+ */
+HYPAPI struct vector4 *vector4_project(struct vector4 *self, const struct vector4 *onto)
+{
+	struct vector4 direction;
+	HYP_FLOAT length;
+
+	if (!(hyp_normalize(vector4_set(&direction, onto)->v, 4) > HYP_FLOAT_C(0.0))) {
+		return vector4_zero(self);
+	}
+
+	length = vector4_dot_product(self, &direction);
+
+	return vector4_multiplyf(vector4_set(self, &direction), length);
 }
 
 

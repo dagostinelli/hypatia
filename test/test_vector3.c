@@ -499,6 +499,142 @@ static const char *test_vector3_set_random_unit_many(void)
 #endif
 
 
+static const char *test_vector3_lerp(void)
+{
+	struct vector3 start, end, r, e;
+
+	vector3_setf3(&start, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(3.0));
+	vector3_setf3(&end, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(0.0), &r), &start));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(1.0), &r), &end));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(0.25), &r), vector3_setf3(&e, HYP_FLOAT_C(1.5), HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_clamp_min_max(void)
+{
+	struct vector3 v, lo, hi, e;
+
+	vector3_setf3(&lo, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	vector3_setf3(&hi, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	vector3_setf3(&v, -HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(7.0));
+	test_assert(vector3_equals(vector3_clamp(&v, &lo, &hi), vector3_setf3(&e, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0))));
+
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0));
+	vector3_setf3(&lo, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_min(&v, &lo), vector3_setf3(&e, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0))));
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0));
+	test_assert(vector3_equals(vector3_max(&v, &lo), vector3_setf3(&e, HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(3.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_reflect(void)
+{
+	struct vector3 v, normal, e, twice;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* off the floor: the part along the normal changes sign */
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+
+	/* the length of the normal does not matter, including lengths whose
+	 * squares underflow or overflow
+	 */
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+	for (i = 0; i < 2; i++) {
+		vector3_setf3(&normal, HYP_FLOAT_C(0.0), lengths[i], HYP_FLOAT_C(0.0));
+		vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+		test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+	}
+
+	/* reflecting twice gives the vector back, and the length is kept */
+	vector3_setf3(&normal, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0));
+	vector3_setf3(&v, HYP_FLOAT_C(0.3), -HYP_FLOAT_C(0.7), HYP_FLOAT_C(0.2));
+	vector3_reflect(vector3_set(&twice, &v), &normal);
+	test_assert(scalar_equalsf(vector3_magnitude(&twice), vector3_magnitude(&v)));
+	test_assert(vector3_equals(vector3_reflect(&twice, &normal), &v));
+
+	/* a zero normal leaves the vector unchanged */
+	vector3_zero(&normal);
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_refract(void)
+{
+	struct vector3 v, normal, e;
+	HYP_FLOAT sin45 = HYP_SQRT(HYP_FLOAT_C(0.5));
+	HYP_FLOAT eta = HYP_FLOAT_C(1.0) / HYP_FLOAT_C(1.5);
+
+	/* with eta 1 the direction does not change; lengths do not matter */
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, HYP_FLOAT_C(1.0)), vector3_setf3(&e, sin45, -sin45, HYP_FLOAT_C(0.0))));
+
+	/* from air into glass at 45 degrees: sin(refracted) = sin(45) / 1.5 */
+	vector3_setf3(&v, HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0));
+	vector3_refract(&v, &normal, eta);
+	test_assert(scalar_equalsf(v.x, sin45 * eta));
+	test_assert(scalar_equalsf(v.y, -HYP_SQRT(HYP_FLOAT_C(1.0) - sin45 * sin45 * eta * eta)));
+	test_assert(scalar_equalsf(v.z, HYP_FLOAT_C(0.0)));
+
+	/* straight on, the ray goes straight through */
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), -HYP_FLOAT_C(7.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_setf3(&e, HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+
+	/* from glass into air at 60 degrees: total internal reflection */
+	vector3_setf3(&v, HYP_SQRT(HYP_FLOAT_C(3.0)), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, HYP_FLOAT_C(1.5)), vector3_zero(&e)));
+
+	/* a zero normal leaves the direction unchanged; a zero vector stays zero */
+	vector3_zero(&normal);
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(2.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0))));
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	vector3_zero(&v);
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_zero(&e)));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_project(void)
+{
+	struct vector3 v, onto, e;
+
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_setf3(&onto, HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	/* onto the zero vector */
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_zero(&onto);
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_zero(&e)));
+
+	/* a perpendicular vector projects to zero */
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&onto, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_zero(&e)));
+
+	return NULL;
+}
+
+
 #ifndef HYP_NO_RANDOM
 static const char *test_vector3_set_random_in_ball(void)
 {
@@ -530,8 +666,35 @@ static const char *test_vector3_set_random_in_ball(void)
 }
 #endif
 
+
+static const char *test_vector3_project_short_and_long(void)
+{
+	struct vector3 v, onto, e;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* onto vectors whose squares underflow or overflow */
+	for (i = 0; i < 2; i++) {
+		vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+		vector3_setf3(&onto, HYP_FLOAT_C(0.0), lengths[i], HYP_FLOAT_C(0.0));
+		test_assert(vector3_equals(vector3_project(&v, &onto), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(0.0))));
+	}
+
+	return NULL;
+}
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_project_short_and_long);
+	run_test(test_vector3_lerp);
+	run_test(test_vector3_clamp_min_max);
+	run_test(test_vector3_project);
+	run_test(test_vector3_reflect);
+	run_test(test_vector3_refract);
 #ifndef HYP_NO_RANDOM
 	run_test(test_vector3_set_random_unit_scripted);
 	run_test(test_vector3_set_random_unit_many);
