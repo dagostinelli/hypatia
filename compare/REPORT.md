@@ -67,6 +67,12 @@ slerp, rotation between vectors, angle between).
 | rotation from a zero vector | identity | NaN | a quarter turn | |
 | singular matrix inverse | NULL | NaN | | |
 | lookat with eye == target | zero rows | NaN | | |
+| rotate X by 2 * (quarter turn about Z) | (0, 1, 0) | (-3, 4, 0): neither a rotation nor a scaling | (-3, 4, 0) | (0, 1, 0): normalizes q |
+| rotate X by the zero quaternion | X | X | X | X |
+| matrix, quarter turn about (0, 0, 10) | X to (0, 1, 0) | X to (0, 1, 0): `rotate` normalizes the axis | X to (0, 10, 0): not a rotation | X to (0, 1, 0): `glm_rotate_make` normalizes |
+| quaternion, quarter turn about (0, 0, 10) | unit, X to (0, 1, 0) | `angleAxis`: length 7.1, X to (-99, 10, 0) | `AngleAxis`: length 7.1, X to (-99, 10, 0) | `glm_quatv`: unit, X to (0, 1, 0) |
+| matrix, quarter turn about the zero axis | identity | NaN | X to (0, 0, 0) (cos(angle) on the diagonal) | X to (0, 0, 0) |
+| quaternion, quarter turn about the zero axis | identity | (0, 0, 0, 0.707): length 0.707, leaves X unchanged | the same as GLM | the same as GLM |
 
 The opposite-vector case is a GLM problem, not a hypatia one: `glm::rotation` misses by
 the full distance (2) for a and -2a in both precisions (the accuracy table).  Near
