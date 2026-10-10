@@ -410,14 +410,11 @@ static const char *test_vector3_normalize_small(void)
 {
 	struct vector3 v = {.v = {HYP_FLOAT_C(1e-15), HYP_FLOAT_C(1e-15), HYP_FLOAT_C(1e-15)}};
 
-	/* NOTE: vector3_normalize treats very small magnitudes as zero
-	 * (via scalar_equalsf), so the vector is returned unchanged.
-	 * Verify it does not crash and the vector remains as-is.
-	 */
+	/* only an exactly zero vector is left unchanged: this one normalizes */
 	vector3_normalize(&v);
-	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(0.0)));
-	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(0.0)));
-	test_assert(scalar_equalsf(v.z, HYP_FLOAT_C(0.0)));
+	test_assert(scalar_equalsf(v.x, HYP_SQRT(HYP_FLOAT_C(1.0) / HYP_FLOAT_C(3.0))));
+	test_assert(scalar_equalsf(v.y, HYP_SQRT(HYP_FLOAT_C(1.0) / HYP_FLOAT_C(3.0))));
+	test_assert(scalar_equalsf(v.z, HYP_SQRT(HYP_FLOAT_C(1.0) / HYP_FLOAT_C(3.0))));
 
 	return NULL;
 }
@@ -580,6 +577,42 @@ static const char *test_vector3_set_random_in_ball(void)
 }
 
 
+static const char *test_vector3_normalize_small_and_zero(void)
+{
+	struct vector3 v;
+	struct vector3 e;
+
+	/* only an exactly zero vector cannot be normalized */
+	vector3_setf3(&v, HYP_FLOAT_C(1e-6), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_normalize(&v), HYP_VECTOR3_UNIT_X));
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(3e-30), HYP_FLOAT_C(4e-30));
+	test_assert(vector3_equals(vector3_normalize(&v), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.6), HYP_FLOAT_C(0.8))));
+	vector3_zero(&v);
+	test_assert(vector3_equals(vector3_normalize(&v), HYP_VECTOR3_ZERO));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_normalize_nan(void)
+{
+	struct vector3 v;
+	volatile HYP_FLOAT zero = HYP_FLOAT_C(0.0); /* not folded at compile time */
+	HYP_FLOAT nan = zero / zero;
+
+	/* a vector with a NaN component is left unchanged, wherever the NaN is */
+	vector3_setf3(&v, nan, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	vector3_normalize(&v);
+	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(1.0)));
+
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), nan);
+	vector3_normalize(&v);
+	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(1.0)));
+
+	return NULL;
+}
+
+
 static const char *test_vector3_project_short_and_long(void)
 {
 	struct vector3 v, onto, e;
@@ -600,9 +633,28 @@ static const char *test_vector3_project_short_and_long(void)
 	return NULL;
 }
 
+static const char *test_vector3_normalize_infinite(void)
+{
+	struct vector3 v, e;
+	volatile HYP_FLOAT zero = HYP_FLOAT_C(0.0); /* not folded at compile time */
+	HYP_FLOAT infinity = HYP_FLOAT_C(1.0) / zero;
+
+	/* the infinite components set the direction */
+	vector3_setf3(&v, infinity, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_normalize(&v), vector3_setf3(&e, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	vector3_setf3(&v, HYP_FLOAT_C(5.0), infinity, -infinity);
+	test_assert(vector3_equals(vector3_normalize(&v), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_SQRT(HYP_FLOAT_C(0.5)), -HYP_SQRT(HYP_FLOAT_C(0.5)))));
+
+	return NULL;
+}
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_normalize_infinite);
 	run_test(test_vector3_project_short_and_long);
+	run_test(test_vector3_normalize_nan);
+	run_test(test_vector3_normalize_small_and_zero);
 	run_test(test_vector3_lerp);
 	run_test(test_vector3_clamp_min_max);
 	run_test(test_vector3_project);

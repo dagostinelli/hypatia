@@ -1089,6 +1089,24 @@ static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
 
 	return largest * length;
 }
+
+
+/* the length of the n (at most 4) components without overflow or underflow;
+ * 0 when they are all zero or one is NaN
+ */
+static HYP_FLOAT hyp_length(const HYP_FLOAT *v, uint8_t n)
+{
+	HYP_FLOAT copy[4];
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		copy[i] = v[i];
+	}
+
+	return hyp_normalize(copy, n);
+}
+
+
 static struct vector2 hyp_vector2_zero = { { {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)} } };
 static struct vector2 hyp_vector2_one = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)} } };
 static struct vector2 hyp_vector2_unit_x = { { {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)} } };
@@ -1333,12 +1351,13 @@ HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self)
 }
 
 
+/**
+ * @ingroup vector2
+ * @brief normalizes the vector; the zero vector is left unchanged
+ */
 HYPAPI struct vector2 *vector2_normalize(struct vector2 *self)
 {
-	HYP_FLOAT mag = vector2_magnitude(self);
-
-	self->x = self->x / mag;
-	self->y = self->y / mag;
+	hyp_normalize(self->v, 2);
 	return self;
 }
 
@@ -1761,25 +1780,11 @@ HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self)
 
 /**
  * @ingroup vector3
- * @brief normalizes the vector by dividing each component by the magnitude
+ * @brief normalizes the vector; the zero vector is left unchanged
  */
 HYPAPI struct vector3 *vector3_normalize(struct vector3 *self)
 {
-	HYP_FLOAT mag;
-
-	mag = vector3_magnitude(self);
-
-	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
-		/* can't normalize a zero
-		 * avoid divide by zero
-		 */
-		return self;
-	}
-
-	self->x = self->x / mag;
-	self->y = self->y / mag;
-	self->z = self->z / mag;
-
+	hyp_normalize(self->v, 3);
 	return self;
 }
 
@@ -2282,26 +2287,11 @@ HYPAPI HYP_FLOAT vector4_magnitude(const struct vector4 *self)
 
 /**
  * @ingroup vector4
- * @brief normalizes the vector by dividing each component by the magnitude
+ * @brief normalizes the vector; the zero vector is left unchanged
  */
 HYPAPI struct vector4 *vector4_normalize(struct vector4 *self)
 {
-	HYP_FLOAT mag;
-
-	mag = vector4_magnitude(self);
-
-	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
-		/* can't normalize a zero
-		 * avoid divide by zero
-		 */
-		return self;
-	}
-
-	self->x = self->x / mag;
-	self->y = self->y / mag;
-	self->z = self->z / mag;
-	self->w = self->w / mag;
-
+	hyp_normalize(self->v, 4);
 	return self;
 }
 
@@ -4300,26 +4290,24 @@ HYPAPI struct quaternion *quaternion_negate(struct quaternion *self)
  */
 HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
 {
-	HYP_FLOAT norm;
+	HYP_FLOAT length;
 
-	norm = quaternion_norm(self);
+	/* conjugate / |q|^2, as (q / |q|) / |q| so that |q|^2 cannot overflow or
+	 * underflow.  Only the zero quaternion has no inverse; NaN is also left
+	 * unchanged.
+	 */
+	length = hyp_normalize(self->q, 4);
 
-	if (scalar_equalsf(norm, HYP_FLOAT_C(0.0))) {
-		/* avoid divide by zero */
+	if (!(length > HYP_FLOAT_C(0.0))) {
 		return self;
 	}
 
 	quaternion_conjugate(self);
 
-	if (scalar_equalsf(norm, HYP_FLOAT_C(1.0))) {
-		/* we're done */
-		return self;
-	}
-
-	self->x /= norm;
-	self->y /= norm;
-	self->z /= norm;
-	self->w /= norm;
+	self->x /= length;
+	self->y /= length;
+	self->z /= length;
+	self->w /= length;
 
 	return self;
 }
@@ -4334,22 +4322,8 @@ HYPAPI struct quaternion *quaternion_inverse(struct quaternion *self)
  */
 HYPAPI struct quaternion *quaternion_normalize(struct quaternion *self)
 {
-	HYP_FLOAT mag;
-
-	mag = quaternion_magnitude(self);
-
-	if (scalar_equalsf(mag, HYP_FLOAT_C(0.0))) {
-		/* can't normalize a zero
-		 * avoid divide by zero
-		 */
-		return self;
-	}
-
-	self->x /= mag;
-	self->y /= mag;
-	self->z /= mag;
-	self->w /= mag;
-
+	/* the zero quaternion is left unchanged */
+	hyp_normalize(self->q, 4);
 	return self;
 }
 
@@ -4368,11 +4342,12 @@ HYPAPI short quaternion_is_unit(struct quaternion *self)
 /**
  * @ingroup quaternion
  * @brief if the scalar is 0.0 (w == 0.0), then the quaternion is said to be a
- * 'pure quaternion'
+ * 'pure quaternion'.  w is compared relative to the size of the quaternion,
+ * so a scaled quaternion gives the same answer.
  */
 HYPAPI short quaternion_is_pure(struct quaternion *self)
 {
-	return scalar_equalsf(self->w, HYP_FLOAT_C(0.0));
+	return HYP_ABS(self->w) <= HYP_EPSILON * hyp_length(self->q, 4);
 }
 
 
@@ -4413,18 +4388,7 @@ HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const 
 {
 	HYP_FLOAT f1, f2;
 
-	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, HYP_FLOAT_C(0.0))) {
-		quaternion_set(qR, start);
-		return qR;
-	}
-
-	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, HYP_FLOAT_C(1.0))) {
-		quaternion_set(qR, end);
-		return qR;
-	}
-
+	/* percent 0 and 1 give start and end exactly */
 	f1 = HYP_FLOAT_C(1.0) - percent;
 	f2 = percent;
 

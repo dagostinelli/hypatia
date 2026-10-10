@@ -225,14 +225,11 @@ static const char *test_vector2_normalize_zero(void)
 {
 	struct vector2 v = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 
-	/* vector2_normalize does not guard against zero magnitude,
-	 * so this produces NaN via 0/0. Verify it does not crash.
-	 */
+	/* the zero vector cannot be normalized and is left unchanged */
 	vector2_normalize(&v);
 
-	/* Result is NaN (0/0 in IEEE 754), so scalar_equalsf with 0 is false */
-	test_assert(!scalar_equalsf(v.x, HYP_FLOAT_C(0.0)));
-	test_assert(!scalar_equalsf(v.y, HYP_FLOAT_C(0.0)));
+	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(0.0)));
+	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(0.0)));
 
 	return NULL;
 }
@@ -417,6 +414,23 @@ static const char *test_vector2_set_random_in_disk(void)
 }
 
 
+static const char *test_vector2_normalize_small_and_zero(void)
+{
+	struct vector2 v;
+	struct vector2 e;
+
+	/* only an exactly zero vector cannot be normalized */
+	vector2_setf2(&v, HYP_FLOAT_C(3e-7), HYP_FLOAT_C(4e-7));
+	test_assert(vector2_equals(vector2_normalize(&v), vector2_setf2(&e, HYP_FLOAT_C(0.6), HYP_FLOAT_C(0.8))));
+	vector2_setf2(&v, HYP_FLOAT_C(3e-30), HYP_FLOAT_C(4e-30));
+	test_assert(vector2_equals(vector2_normalize(&v), vector2_setf2(&e, HYP_FLOAT_C(0.6), HYP_FLOAT_C(0.8))));
+	vector2_zero(&v);
+	test_assert(vector2_equals(vector2_normalize(&v), vector2_zero(&e)));
+
+	return NULL;
+}
+
+
 static const char *test_vector2_project_short_and_long(void)
 {
 	struct vector2 v, onto, e;
@@ -440,6 +454,7 @@ static const char *test_vector2_project_short_and_long(void)
 static const char *vector2_all_tests(void)
 {
 	run_test(test_vector2_project_short_and_long);
+	run_test(test_vector2_normalize_small_and_zero);
 	run_test(test_vector2_lerp);
 	run_test(test_vector2_clamp_min_max);
 	run_test(test_vector2_project);
