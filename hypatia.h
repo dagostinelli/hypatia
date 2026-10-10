@@ -936,27 +936,58 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 #include <stdint.h> /* uint8_t; C99, kept by design (see the README coding standard) */
 
-HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT);
-HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
-HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
-HYPAPI HYP_FLOAT quaternion_difference_EXP(const struct quaternion *q1, const struct quaternion *q2);
-HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const struct quaternion *self, const struct quaternion *qT);
-HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR);
-HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar);
-HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
-HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
-HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const struct vector3 *vT, struct vector3 *vR);
+HYPAPI struct quaternion *quaternion_rotate_by_quaternion(struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct quaternion *quaternion_rotate_by_axis_angle(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
+HYPAPI struct quaternion *quaternion_rotate_by_euler_angles(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI HYP_FLOAT quaternion_difference(const struct quaternion *q1, const struct quaternion *q2);
+HYPAPI HYP_FLOAT quaternion_angle_between(const struct quaternion *self, const struct quaternion *qT);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_view_lookat_rh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear);
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear);
+HYPAPI struct matrix4 *matrix4_projection_frustum_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct vector3 *vector3_project_to_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport);
+HYPAPI struct vector3 *vector3_unproject_from_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport);
+HYPAPI struct matrix4 *matrix4_projection_ortho3d_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct matrix4 *matrix4_view_lookat_lh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
+HYPAPI struct matrix4 *matrix4_set_from_quaternion(struct matrix4 *self, const struct quaternion *qT);
+HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle);
+HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z);
+HYPAPI struct vector3 *matrix4_get_translation(const struct matrix4 *self, struct vector3 *vT);
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3(struct matrix4 *self, const struct vector3 *vR);
+HYPAPI struct matrix4 *matrix4_transformation_compose(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
+HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
+
+#ifndef HYP_NO_DEPRECATED
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
-HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
-HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle);
-HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z);
-HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, struct vector3 *vT);
-HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4 *self, const struct vector3 *vR);
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
-HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
+HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR);
+#endif
 
 #endif /* HYPATIA_H_ */
 
+
+#if !defined(HYP_NO_DEPRECATED) && !defined(DOXYGEN_SHOULD_SKIP_THIS)
+#define matrix4_get_translation_EXP matrix4_get_translation
+#define matrix4_make_transformation_rotationv3_EXP matrix4_make_transformation_rotationv3
+#define matrix4_projection_ortho3d_rh_EXP matrix4_projection_ortho3d_rh
+#define matrix4_projection_perspective_fovy_rh_EXP matrix4_projection_perspective_fovy_rh
+#define matrix4_set_from_axisf3_angle_EXP matrix4_set_from_axisf3_angle
+#define matrix4_set_from_axisv3_angle_EXP matrix4_set_from_axisv3_angle
+#define matrix4_set_from_euler_anglesf3_EXP matrix4_set_from_euler_anglesf3
+#define matrix4_transformation_compose_EXP matrix4_transformation_compose
+#define matrix4_transformation_decompose_EXP matrix4_transformation_decompose
+#define matrix4_view_lookat_rh_EXP matrix4_view_lookat_rh
+#define quaternion_angle_between_EXP quaternion_angle_between
+#define quaternion_difference_EXP quaternion_difference
+#define quaternion_rotate_by_axis_angle_EXP quaternion_rotate_by_axis_angle
+#define quaternion_rotate_by_euler_angles_EXP quaternion_rotate_by_euler_angles
+#define quaternion_rotate_by_quaternion_EXP quaternion_rotate_by_quaternion
+#define matrix4_multiplyv3_EXP matrix4_multiplyv3
+#endif
 
 #ifdef HYPATIA_IMPLEMENTATION
 #ifndef HYPATIA_IMPLEMENTATION_H_
@@ -4723,7 +4754,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 
 
 /**
- * @ingroup experimental
+ * @ingroup quaternion
  * @brief rotate a quaternion by a quaternion
  * (basically, multiply and then normalize)
  *
@@ -4731,7 +4762,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
  * @param qT the other quaternion
  *
  */
-HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT)
+HYPAPI struct quaternion *quaternion_rotate_by_quaternion(struct quaternion *self, const struct quaternion *qT)
 {
 	/* self = self * qT */
 	quaternion_multiply(self, qT);
@@ -4742,22 +4773,22 @@ HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion 
 
 
 /**
- * @ingroup experimental
+ * @ingroup quaternion
  * @brief rotate a quaternion by the indicated axis and angle
  * first it makes a quaternion from the axis/angle
  * then it rotates the quaternion by that axis/angle
  *
  * @param self the quaternion being rotated
- * @param axis the starting point
- * @param angle the transformed point
+ * @param axis the axis of rotation (unit length)
+ * @param angle the angle in radians (right-hand rule)
  *
  */
-HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct quaternion *quaternion_rotate_by_axis_angle(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
 	struct quaternion qT;
 
 	quaternion_set_from_axis_anglev3(&qT, axis, angle);
-	quaternion_rotate_by_quaternion_EXP(self, &qT);
+	quaternion_rotate_by_quaternion(self, &qT);
 
 	return self;
 }
@@ -4765,37 +4796,37 @@ HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion 
 
 
 /**
- * @ingroup experimental
+ * @ingroup quaternion
  * @brief returns a score that seeks to describe the difference
- * between two quaternions
+ * between two quaternions: the squared distance between them, 0 for the same
+ * rotation.  q and -q are the same rotation.
  *
  */
-HYPAPI HYP_FLOAT quaternion_difference_EXP(const struct quaternion *q1, const struct quaternion *q2)
+HYPAPI HYP_FLOAT quaternion_difference(const struct quaternion *q1, const struct quaternion *q2)
 {
 	struct quaternion diff;
+	struct quaternion sum;
 
-	diff.x = q2->x - q1->x;
-	diff.y = q2->y - q1->y;
-	diff.z = q2->z - q1->z;
-	diff.w = q2->w - q1->w;
-	return quaternion_norm(&diff);
+	quaternion_subtract(quaternion_set(&diff, q2), q1);
+	quaternion_add(quaternion_set(&sum, q2), q1);
+
+	/* the distance to q1 or to -q1, whichever is closer */
+	return HYP_MIN(quaternion_norm(&diff), quaternion_norm(&sum));
 }
 
 
 /**
- * @ingroup experimental
- * @brief this is an opinionated method (opinionated about what axis is
- * yaw, pitch, roll and what is left/right/up/down applies the rotations
- * in this order: x, y, z (yaw, pitch, roll)
- * rotates the quaternion by these angles
+ * @ingroup quaternion
+ * @brief rotates the quaternion by Euler angles, in radians: about X first,
+ * then Y, then Z (the order of quaternion_set_from_euler_anglesf3)
  *
  * @param self the quaternion being rotated
- * @param ax yaw
- * @param ay pitch
- * @param az roll
+ * @param ax the angle about X
+ * @param ay the angle about Y
+ * @param az the angle about Z
  *
  */
-HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
+HYPAPI struct quaternion *quaternion_rotate_by_euler_angles(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az)
 {
 	struct quaternion qT;
 
@@ -4803,18 +4834,23 @@ HYPAPI struct quaternion *quaternion_rotate_by_euler_angles_EXP(struct quaternio
 	quaternion_set_from_euler_anglesf3(&qT, ax, ay, az);
 
 	/* rotate the quaternion by it */
-	quaternion_rotate_by_quaternion_EXP(self, &qT);
+	quaternion_rotate_by_quaternion(self, &qT);
 
 	return self;
 }
 
 
+#ifndef HYP_NO_DEPRECATED
 /**
  * @ingroup experimental
  * @brief This code is suspect.  Computes the cross-product on the vector
  * portion and then something that resembles a negated dot product on the
  * real portion.
  *
+ * @deprecated It is not a quaternion operation.  For the cross product of the
+ * vector parts use vector3_cross_product.  quaternion_cross_product_EXP will
+ * be removed in a later release; define HYP_NO_DEPRECATED to check that your
+ * code no longer uses it.
  */
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT)
 {
@@ -4832,30 +4868,55 @@ HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *s
 
 	return r;
 }
+#endif
 
 
 /**
- * @ingroup experimental
- * @brief Computes the angle between two quaternions
+ * @ingroup quaternion
+ * @brief Computes the angle of the rotation from self to qT, in radians
+ * (0 to pi).  q and -q are the same rotation, and the lengths do not matter.
+ * Returns 0 when either quaternion has zero length.
  *
- *  * \f$angle= 2 * acos((self \cdot qT) / (||self|| * ||qT||))\f$
- *
+ * For unit a and b with a . b >= 0 and angle t: |a - b| = 2 sin(t/4) and
+ * |a + b| = 2 cos(t/4), so \f$t = 4 \, atan2(|a - b|, |a + b|)\f$, which stays
+ * accurate for small angles where acos does not.
  */
-HYPAPI HYP_FLOAT quaternion_angle_between_EXP(const struct quaternion *self, const struct quaternion *qT)
+HYPAPI HYP_FLOAT quaternion_angle_between(const struct quaternion *self, const struct quaternion *qT)
 {
-	HYP_FLOAT c; /* cosine */
+	struct quaternion a;
+	struct quaternion b;
+	struct quaternion sum;
+	struct quaternion difference;
 
-	c = quaternion_dot_product(self, qT) / (quaternion_norm(self) * quaternion_norm(qT));
+	if (!(hyp_normalize(quaternion_set(&a, self)->q, 4) > HYP_FLOAT_C(0.0))
+	    || !(hyp_normalize(quaternion_set(&b, qT)->q, 4) > HYP_FLOAT_C(0.0))) {
+		return HYP_FLOAT_C(0.0);
+	}
 
-	return HYP_FLOAT_C(2.0) * HYP_ACOS(c);
+	/* q and -q are the same rotation: take the closer one */
+	if (quaternion_dot_product(&a, &b) < HYP_FLOAT_C(0.0)) {
+		quaternion_negate(&b);
+	}
+
+	quaternion_add(quaternion_set(&sum, &a), &b);
+	quaternion_subtract(quaternion_set(&difference, &a), &b);
+
+	return HYP_FLOAT_C(4.0) * HYP_ATAN2(quaternion_magnitude(&difference), quaternion_magnitude(&sum));
 }
 
 
+#ifndef HYP_NO_DEPRECATED
 /**
  * @ingroup experimental
  * @brief This code is suspect. Treats two quaternions sort of like 2 vector4's
  * and then computes the cross-product between them.
  *
+ * @deprecated It is not the axis of the rotation between them.  That axis is
+ * the axis of the rotation from self to qT (quaternion_get_axis_anglev3 of the
+ * product of the inverse of self and qT); for two vectors use
+ * quaternion_get_rotation_tov3.  quaternion_axis_between_EXP will be removed in
+ * a later release; define HYP_NO_DEPRECATED to check that your code no longer
+ * uses it.
  */
 HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR)
 {
@@ -4865,43 +4926,55 @@ HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const str
 	quaternion_set(qR, &axis);
 	quaternion_normalize(qR);
 }
+#endif
 
 
 /**
- * @ingroup experimental
- * @brief creates an perspective projection matrix using the RH system with a
- * FOV about the Y-axis.  It's opinionated about what that means.
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix for right-handed coordinates
+ * (the camera looks down -Z), with fovy the vertical field of view in radians.
+ * Depth maps to 0 at zNear and 1 at zFar (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v (matrix4_multiplyv4) and
+ * divide by w.
  */
-HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh_EXP(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
 	HYP_FLOAT h;
 	HYP_FLOAT w;
 	HYP_FLOAT p;
 	HYP_FLOAT q;
 
-	h = HYP_COT(fovy) / HYP_FLOAT_C(2.0);
+	h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
 	w = h / aspect;
 
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	p = (zFar + zNear) / (zNear - zFar);
+	q = HYP_FLOAT_C(2.0) * zFar * zNear / (zNear - zFar);
+#else
 	p = zFar / (zNear - zFar);
 	q = zNear * p;
+#endif
 
 	matrix4_zero(self);
 
 	self->r00 = w;
 	self->r11 = h;
 	self->r22 = p;
-	self->r23 = -HYP_FLOAT_C(1.0); /* this is what makes this RH */
-	self->r32 = q;
+	self->r23 = q;
+	self->r32 = -HYP_FLOAT_C(1.0); /* w = -z: in front of the camera z is negative */
 
 	return self;
 }
 
 
 /**
- * @ingroup experimental
- * @brief make an orthographic projection matrix with right handed coordinates
+ * @ingroup matrix4
+ * @brief make an orthographic projection matrix for right-handed coordinates
+ * (the camera looks down -Z).  The box maps to -1..1 in x and y; depth maps
+ * to 0 at zNear and 1 at zFar (-1 and 1 with HYP_DEPTH_MINUS_ONE_TO_ONE).
+ * Apply it as M * v.
  */
-HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self,
+HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self,
 							 HYP_FLOAT xmin, HYP_FLOAT xmax,
 							 HYP_FLOAT ymin, HYP_FLOAT ymax,
 							 HYP_FLOAT zNear, HYP_FLOAT zFar)
@@ -4914,36 +4987,25 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh_EXP(struct matrix4 *self,
 	width = xmax - xmin;
 	height = ymax - ymin;
 
-	self->c00 = HYP_FLOAT_C(2.0) / width;
-	self->c11 = HYP_FLOAT_C(2.0) / height;
-	self->c22 = HYP_FLOAT_C(1.0) / (zFar - zNear);
-	self->c23 = zNear / (zNear - zFar);
-	self->c33 = HYP_FLOAT_C(1.0);
+	self->r00 = HYP_FLOAT_C(2.0) / width;
+	self->r03 = -(xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) / height;
+	self->r13 = -(ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = HYP_FLOAT_C(2.0) / (zNear - zFar);
+	self->r23 = (zFar + zNear) / (zNear - zFar);
+#else
+	self->r22 = HYP_FLOAT_C(1.0) / (zNear - zFar);
+	self->r23 = zNear / (zNear - zFar);
+#endif
+	self->r33 = HYP_FLOAT_C(1.0);
 
 	return self;
 }
 
 
 /**
- * @ingroup experimental
- * @brief Multiply a matrix by a vector, returns a vector
- *
- * @param m The matrix being multiplied
- * @param vT The vector being multiplied
- * @param vR The result
- */
-HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const struct vector3 *vT, struct vector3 *vR)
-{
-	vR->x = vT->x * m->c00 + vT->y * m->c01 + vT->z * m->c02 + m->c03;
-	vR->y = vT->x * m->c10 + vT->y * m->c11 + vT->z * m->c12 + m->c13;
-	vR->z = vT->x * m->c20 + vT->y * m->c21 + vT->z * m->c22 + m->c23;
-
-	return vR;
-}
-
-
-/**
- * @ingroup experimental
+ * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
  * angle (used as a rotation matrix)
  *
@@ -4954,7 +5016,7 @@ HYPAPI struct vector3 *matrix4_multiplyv3_EXP(const struct matrix4 *m, const str
  * @param angle the angle in radians
  *
  */
-HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle)
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
@@ -4984,7 +5046,7 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, H
 
 
 /**
- * @ingroup experimental
+ * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
  * angle (used as a rotation matrix)
  *
@@ -4993,37 +5055,62 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle_EXP(struct matrix4 *self, H
  * @param angle the angle in radians
  *
  */
-HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle)
+HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle)
 {
-	return matrix4_set_from_axisf3_angle_EXP(self, axis->x, axis->y, axis->z, angle);
+	return matrix4_set_from_axisf3_angle(self, axis->x, axis->y, axis->z, angle);
 }
 
 
-HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z)
+/**
+ * @ingroup matrix4
+ * @brief Sets the matrix to the rotation described by the quaternion
+ *
+ * The whole matrix is set: the rotation, no translation, and 1 in c33.
+ * Applied with vector3_multiplym4, the matrix rotates a vector the same way as
+ * vector3_rotate_by_quaternion does (right hand rule), the same convention as
+ * matrix4_set_from_axisf3_angle and matrix4_make_transformation_rotationq.
+ *
+ * The quaternion does not need to be unit length: only its direction is used.
+ * A quaternion with all four components exactly zero describes no rotation and
+ * gives the identity.
+ *
+ * @param self The matrix
+ * @param qT The quaternion
+ *
+ */
+HYPAPI struct matrix4 *matrix4_set_from_quaternion(struct matrix4 *self, const struct quaternion *qT)
 {
-	HYP_FLOAT A = HYP_COS(x);
-	HYP_FLOAT B = HYP_SIN(x);
-	HYP_FLOAT C = HYP_COS(y);
-	HYP_FLOAT D = HYP_SIN(y);
-	HYP_FLOAT E = HYP_COS(z);
-	HYP_FLOAT F = HYP_SIN(z);
+	struct quaternion q;
+	HYP_FLOAT xx, yy, zz, xy, xz, yz, xw, yw, zw;
 
-	HYP_FLOAT AD = A * D;
-	HYP_FLOAT BD = B * D;
+	/* a unit q makes the result a pure rotation for any length of qT */
+	if (!(hyp_normalize(quaternion_set(&q, qT)->q, 4) > HYP_FLOAT_C(0.0))) {
+		return matrix4_identity(self);
+	}
 
-	self->c00 = C * E;
-	self->c01 = -C * F;
-	self->c02 = D;
+	xx = HYP_FLOAT_C(2.0) * q.x * q.x;
+	yy = HYP_FLOAT_C(2.0) * q.y * q.y;
+	zz = HYP_FLOAT_C(2.0) * q.z * q.z;
+	xy = HYP_FLOAT_C(2.0) * q.x * q.y;
+	xz = HYP_FLOAT_C(2.0) * q.x * q.z;
+	yz = HYP_FLOAT_C(2.0) * q.y * q.z;
+	xw = HYP_FLOAT_C(2.0) * q.x * q.w;
+	yw = HYP_FLOAT_C(2.0) * q.y * q.w;
+	zw = HYP_FLOAT_C(2.0) * q.z * q.w;
+
+	self->c00 = HYP_FLOAT_C(1.0) - (yy + zz);
+	self->c01 = xy + zw;
+	self->c02 = xz - yw;
 	self->c03 = HYP_FLOAT_C(0.0);
 
-	self->c10 = BD * E + A * F;
-	self->c11 = -BD * F + A * E;
-	self->c12 = -B * C;
+	self->c10 = xy - zw;
+	self->c11 = HYP_FLOAT_C(1.0) - (xx + zz);
+	self->c12 = yz + xw;
 	self->c13 = HYP_FLOAT_C(0.0);
 
-	self->c20 = -AD * E + B * F;
-	self->c21 = AD * F + B * E;
-	self->c22 = A * C;
+	self->c20 = xz + yw;
+	self->c21 = yz - xw;
+	self->c22 = HYP_FLOAT_C(1.0) - (xx + yy);
 	self->c23 = HYP_FLOAT_C(0.0);
 
 	self->c30 = HYP_FLOAT_C(0.0);
@@ -5035,7 +5122,53 @@ HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self,
 }
 
 
-HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, struct vector3 *vT)
+/**
+ * @ingroup matrix4
+ * @brief Sets the matrix to the rotation by Euler angles, in radians: about X
+ * first, then Y, then Z (the order of quaternion_set_from_euler_anglesf3).
+ * The whole matrix is set: no translation and 1 in r33.
+ *
+ * @param self The matrix
+ * @param x the angle about X
+ * @param y the angle about Y
+ * @param z the angle about Z
+ */
+HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z)
+{
+	HYP_FLOAT cx = HYP_COS(x);
+	HYP_FLOAT sx = HYP_SIN(x);
+	HYP_FLOAT cy = HYP_COS(y);
+	HYP_FLOAT sy = HYP_SIN(y);
+	HYP_FLOAT cz = HYP_COS(z);
+	HYP_FLOAT sz = HYP_SIN(z);
+
+	matrix4_identity(self);
+
+	/* Rz * Ry * Rx, applied as M * v */
+	self->r00 = cz * cy;
+	self->r01 = cz * sy * sx - sz * cx;
+	self->r02 = cz * sy * cx + sz * sx;
+
+	self->r10 = sz * cy;
+	self->r11 = sz * sy * sx + cz * cx;
+	self->r12 = sz * sy * cx - cz * sx;
+
+	self->r20 = -sy;
+	self->r21 = cy * sx;
+	self->r22 = cy * cx;
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Gets the translation of the matrix (r03, r13, r23)
+ *
+ * @param self The matrix
+ * @param vT The translation is returned here
+ */
+HYPAPI struct vector3 *matrix4_get_translation(const struct matrix4 *self, struct vector3 *vT)
 {
 	vT->x = self->c30;
 	vT->y = self->c31;
@@ -5046,10 +5179,10 @@ HYPAPI struct vector3 *matrix4_get_translation_EXP(const struct matrix4 *self, s
 
 
 /**
- * @ingroup experimental
+ * @ingroup matrix4
  * @brief creates a look at matrix using the RH system.
  */
-HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up)
+HYPAPI struct matrix4 *matrix4_view_lookat_rh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up)
 {
 	struct vector3 yaxis;
 	struct vector3 zaxis;
@@ -5083,7 +5216,8 @@ HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const st
 
 	self->c30 = -vector3_dot_product(&xaxis, eye);
 	self->c31 = -vector3_dot_product(&yaxis, eye);
-	self->c32 = -vector3_dot_product(&zaxis, eye);
+	/* the third row is -zaxis */
+	self->c32 = vector3_dot_product(&zaxis, eye);
 
 	return self;
 }
@@ -5091,25 +5225,332 @@ HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const st
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary rotation matrix and then multiplies self by that.
- * Opinionated function about what rotation means.
- *
- * @param self The transformation matrix being rotated
- * @param vR the euler angles
- *
+ * @brief creates a perspective projection matrix for left-handed coordinates
+ * (the camera looks down +Z), with fovy the vertical field of view in radians.
+ * Depth maps to 0 at zNear and 1 at zFar (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v (matrix4_multiplyv4) and
+ * divide by w.
  */
-HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3_EXP(struct matrix4 *self, const struct vector3 *vR)
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar)
 {
-	struct matrix4 scratchMatrix;
+	HYP_FLOAT h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
 
-	matrix4_identity(self);
+	matrix4_zero(self);
 
-	return matrix4_multiply(self,
-		matrix4_set_from_euler_anglesf3_EXP(&scratchMatrix, vR->x, vR->y, vR->z));
+	self->r00 = h / aspect;
+	self->r11 = h;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = (zFar + zNear) / (zFar - zNear);
+	self->r23 = -HYP_FLOAT_C(2.0) * zFar * zNear / (zFar - zNear);
+#else
+	self->r22 = zFar / (zFar - zNear);
+	self->r23 = -zNear * zFar / (zFar - zNear);
+#endif
+	self->r32 = HYP_FLOAT_C(1.0); /* w = z: in front of the camera z is positive */
+
+	return self;
 }
 
 
-HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation)
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix with no far plane for
+ * right-handed coordinates (the camera looks down -Z): the limit of
+ * matrix4_projection_perspective_fovy_rh as zFar goes to infinity.  Depth maps
+ * to 0 at zNear and approaches 1 far away (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear)
+{
+	HYP_FLOAT h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
+
+	matrix4_zero(self);
+
+	self->r00 = h / aspect;
+	self->r11 = h;
+	self->r22 = -HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r23 = -HYP_FLOAT_C(2.0) * zNear;
+#else
+	self->r23 = -zNear;
+#endif
+	self->r32 = -HYP_FLOAT_C(1.0); /* w = -z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix with no far plane for
+ * left-handed coordinates (the camera looks down +Z): the limit of
+ * matrix4_projection_perspective_fovy_lh as zFar goes to infinity.  Depth maps
+ * to 0 at zNear and approaches 1 far away (-1 and 1 with
+ * HYP_DEPTH_MINUS_ONE_TO_ONE).  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear)
+{
+	HYP_FLOAT h = HYP_COT(fovy / HYP_FLOAT_C(2.0));
+
+	matrix4_zero(self);
+
+	self->r00 = h / aspect;
+	self->r11 = h;
+	self->r22 = HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r23 = -HYP_FLOAT_C(2.0) * zNear;
+#else
+	self->r23 = -zNear;
+#endif
+	self->r32 = HYP_FLOAT_C(1.0); /* w = z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix for right-handed coordinates
+ * (the camera looks down -Z) from the bounds of the view at the near plane,
+ * which need not be centered (off-axis projections).  xmin..xmax and
+ * ymin..ymax map to -1..1; depth maps to 0 at zNear and 1 at zFar (-1 and 1
+ * with HYP_DEPTH_MINUS_ONE_TO_ONE).  With centered bounds it is the same as
+ * matrix4_projection_perspective_fovy_rh.  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_frustum_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar)
+{
+	HYP_FLOAT width = xmax - xmin;
+	HYP_FLOAT height = ymax - ymin;
+
+	matrix4_zero(self);
+
+	self->r00 = HYP_FLOAT_C(2.0) * zNear / width;
+	self->r02 = (xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) * zNear / height;
+	self->r12 = (ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = (zFar + zNear) / (zNear - zFar);
+	self->r23 = HYP_FLOAT_C(2.0) * zFar * zNear / (zNear - zFar);
+#else
+	self->r22 = zFar / (zNear - zFar);
+	self->r23 = zNear * zFar / (zNear - zFar);
+#endif
+	self->r32 = -HYP_FLOAT_C(1.0); /* w = -z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a perspective projection matrix for left-handed coordinates
+ * (the camera looks down +Z) from the bounds of the view at the near plane,
+ * which need not be centered (off-axis projections).  xmin..xmax and
+ * ymin..ymax map to -1..1; depth maps to 0 at zNear and 1 at zFar (-1 and 1
+ * with HYP_DEPTH_MINUS_ONE_TO_ONE).  With centered bounds it is the same as
+ * matrix4_projection_perspective_fovy_lh.  Apply it as M * v and divide by w.
+ */
+HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar)
+{
+	HYP_FLOAT width = xmax - xmin;
+	HYP_FLOAT height = ymax - ymin;
+
+	matrix4_zero(self);
+
+	self->r00 = HYP_FLOAT_C(2.0) * zNear / width;
+	self->r02 = -(xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) * zNear / height;
+	self->r12 = -(ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = (zFar + zNear) / (zFar - zNear);
+	self->r23 = -HYP_FLOAT_C(2.0) * zFar * zNear / (zFar - zNear);
+#else
+	self->r22 = zFar / (zFar - zNear);
+	self->r23 = -zNear * zFar / (zFar - zNear);
+#endif
+	self->r32 = HYP_FLOAT_C(1.0); /* w = z */
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Maps the point self to window coordinates: transform (projection *
+ * view * model, applied as M * v), the divide by w, then the viewport (x, y,
+ * width, height).  Window x and y grow right and up from (x, y); window depth
+ * is 0 at the near plane and 1 at the far plane with either depth convention.
+ *
+ * Returns NULL, and leaves self unchanged, when w is exactly 0 (a point in
+ * the plane of the eye).
+ */
+HYPAPI struct vector3 *vector3_project_to_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport)
+{
+	struct vector4 point;
+	struct vector4 clip;
+
+	vector4_setf4(&point, self->x, self->y, self->z, HYP_FLOAT_C(1.0));
+	matrix4_multiplyv4(transform, &point, &clip);
+	/* w exactly 0 (written without == for -Wfloat-equal; NaN also returns NULL) */
+	if (!(clip.w < HYP_FLOAT_C(0.0)) && !(clip.w > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	self->x = viewport->x + viewport->z * (clip.x / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+	self->y = viewport->y + viewport->w * (clip.y / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->z = (clip.z / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+#else
+	self->z = clip.z / clip.w;
+#endif
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Maps window coordinates back to a point: the inverse of
+ * vector3_project_to_window for the same transform and viewport.  A window
+ * depth of 0 gives the point on the near plane, 1 the point on the far plane.
+ *
+ * Returns NULL, and leaves self unchanged, when transform has no inverse or the
+ * point is at infinity (w exactly 0).
+ */
+HYPAPI struct vector3 *vector3_unproject_from_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport)
+{
+	struct matrix4 inverse;
+	struct vector4 ndc;
+	struct vector4 point;
+
+	if (matrix4_inverse(transform, &inverse) == NULL) {
+		return NULL;
+	}
+
+	ndc.x = HYP_FLOAT_C(2.0) * (self->x - viewport->x) / viewport->z - HYP_FLOAT_C(1.0);
+	ndc.y = HYP_FLOAT_C(2.0) * (self->y - viewport->y) / viewport->w - HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	ndc.z = HYP_FLOAT_C(2.0) * self->z - HYP_FLOAT_C(1.0);
+#else
+	ndc.z = self->z;
+#endif
+	ndc.w = HYP_FLOAT_C(1.0);
+
+	matrix4_multiplyv4(&inverse, &ndc, &point);
+	/* w exactly 0 (written without == for -Wfloat-equal; NaN also returns NULL) */
+	if (!(point.w < HYP_FLOAT_C(0.0)) && !(point.w > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	return vector3_setf3(self, point.x / point.w, point.y / point.w, point.z / point.w);
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief make an orthographic projection matrix for left-handed coordinates
+ * (the camera looks down +Z).  The box maps to -1..1 in x and y; depth maps
+ * to 0 at zNear and 1 at zFar (-1 and 1 with HYP_DEPTH_MINUS_ONE_TO_ONE).
+ * Apply it as M * v.
+ */
+HYPAPI struct matrix4 *matrix4_projection_ortho3d_lh(struct matrix4 *self,
+							 HYP_FLOAT xmin, HYP_FLOAT xmax,
+							 HYP_FLOAT ymin, HYP_FLOAT ymax,
+							 HYP_FLOAT zNear, HYP_FLOAT zFar)
+{
+	HYP_FLOAT width = xmax - xmin;
+	HYP_FLOAT height = ymax - ymin;
+
+	matrix4_zero(self);
+
+	self->r00 = HYP_FLOAT_C(2.0) / width;
+	self->r03 = -(xmax + xmin) / width;
+	self->r11 = HYP_FLOAT_C(2.0) / height;
+	self->r13 = -(ymax + ymin) / height;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->r22 = HYP_FLOAT_C(2.0) / (zFar - zNear);
+	self->r23 = -(zFar + zNear) / (zFar - zNear);
+#else
+	self->r22 = HYP_FLOAT_C(1.0) / (zFar - zNear);
+	self->r23 = -zNear / (zFar - zNear);
+#endif
+	self->r33 = HYP_FLOAT_C(1.0);
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief creates a view matrix for left-handed coordinates: the eye goes to
+ * the origin and looks down +Z, with up toward +Y.  Apply it as M * v.
+ */
+HYPAPI struct matrix4 *matrix4_view_lookat_lh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up)
+{
+	struct vector3 xaxis;
+	struct vector3 yaxis;
+	struct vector3 zaxis;
+
+	zaxis.x = target->x - eye->x;
+	zaxis.y = target->y - eye->y;
+	zaxis.z = target->z - eye->z;
+	vector3_normalize(&zaxis);
+
+	/* xaxis = up x zaxis */
+	vector3_cross_product(&xaxis, up, &zaxis);
+	vector3_normalize(&xaxis);
+
+	/* yaxis = zaxis x xaxis */
+	vector3_cross_product(&yaxis, &zaxis, &xaxis);
+
+	matrix4_identity(self);
+
+	/* the rows are the camera axes */
+	self->r00 = xaxis.x;
+	self->r01 = xaxis.y;
+	self->r02 = xaxis.z;
+	self->r03 = -vector3_dot_product(&xaxis, eye);
+
+	self->r10 = yaxis.x;
+	self->r11 = yaxis.y;
+	self->r12 = yaxis.z;
+	self->r13 = -vector3_dot_product(&yaxis, eye);
+
+	self->r20 = zaxis.x;
+	self->r21 = zaxis.y;
+	self->r22 = zaxis.z;
+	self->r23 = -vector3_dot_product(&zaxis, eye);
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Sets self to the rotation by the Euler angles in vR (radians), as
+ * matrix4_set_from_euler_anglesf3: about X first, then Y, then Z.
+ *
+ * @param self The matrix
+ * @param vR the euler angles
+ *
+ */
+HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3(struct matrix4 *self, const struct vector3 *vR)
+{
+	return matrix4_set_from_euler_anglesf3(self, vR->x, vR->y, vR->z);
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Sets the matrix to scale, then rotate, then translate (a TRS
+ * matrix), applied as M * v.  matrix4_transformation_decompose splits it back.
+ *
+ * @param self The matrix
+ * @param scale The scale
+ * @param rotation The rotation, as a unit quaternion
+ * @param translation The translation
+ */
+HYPAPI struct matrix4 *matrix4_transformation_compose(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation)
 {
 	struct matrix4 scaleM, rotateM;
 
@@ -5129,33 +5570,62 @@ HYPAPI struct matrix4 *matrix4_transformation_compose_EXP(struct matrix4 *self, 
 	return self;
 }
 
-HYPAPI uint8_t matrix4_transformation_decompose_EXP(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation)
+/**
+ * @ingroup matrix4
+ * @brief Splits a matrix made by matrix4_transformation_compose (scale,
+ * then rotate, then translate) back into its parts.  A mirror (a negative
+ * determinant) comes back as a negative x scale.  Returns 0, with the identity
+ * rotation, when a scale is zero and the rotation cannot be recovered.
+ * Shear is not supported.
+ *
+ * @param self The matrix
+ * @param scale The scale
+ * @param rotation The rotation, as a unit quaternion
+ * @param translation The translation
+ */
+HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation)
 {
-	HYP_FLOAT signx, signy, signz;
+	struct matrix4 unscaled;
+	struct vector3 x, y, z;
+	struct vector3 cross;
 
 	/* translation */
-	translation->x = self->c30;
-	translation->y = self->c31;
-	translation->z = self->c32;
+	translation->x = self->r03;
+	translation->y = self->r13;
+	translation->z = self->r23;
 
-	/*
-	 * self->c00 = scale->x;
-	 * self->c11 = scale->y;
-	 * self->c22 = scale->z;
-	 */
+	/* each column of the 3x3 is a rotated axis times its scale */
+	vector3_setf3(&x, self->r00, self->r10, self->r20);
+	vector3_setf3(&y, self->r01, self->r11, self->r21);
+	vector3_setf3(&z, self->r02, self->r12, self->r22);
+	scale->x = hyp_normalize(x.v, 3);
+	scale->y = hyp_normalize(y.v, 3);
+	scale->z = hyp_normalize(z.v, 3);
 
-	/* sign */
-	signx = ((self->c00 * self->c01 * self->c02 * self->c03) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
-	signy = ((self->c10 * self->c11 * self->c12 * self->c13) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
-	signz = ((self->c20 * self->c21 * self->c22 * self->c23) < 0) ? -HYP_FLOAT_C(1.0) : HYP_FLOAT_C(1.0);
+	if (!(scale->x > HYP_FLOAT_C(0.0)) || !(scale->y > HYP_FLOAT_C(0.0)) || !(scale->z > HYP_FLOAT_C(0.0))) {
+		quaternion_identity(rotation);
+		return 0;
+	}
 
-	/* scale */
-	scale->x = signx * HYP_SQRT(self->c00 * self->c00 + self->c01 * self->c01 + self->c02 * self->c02);
-	scale->y = signy * HYP_SQRT(self->c10 * self->c10 + self->c11 * self->c11 + self->c12 * self->c12);
-	scale->z = signz * HYP_SQRT(self->c20 * self->c20 + self->c21 * self->c21 + self->c22 * self->c22);
+	/* a negative determinant is a mirror: put it on x */
+	if (vector3_dot_product(&x, vector3_cross_product(&cross, &y, &z)) < HYP_FLOAT_C(0.0)) {
+		scale->x = -scale->x;
+		vector3_negate(&x);
+	}
 
-	/* todo */
-	quaternion_identity(rotation);
+	/* the rotation matrix: the unit columns */
+	matrix4_identity(&unscaled);
+	unscaled.r00 = x.x;
+	unscaled.r10 = x.y;
+	unscaled.r20 = x.z;
+	unscaled.r01 = y.x;
+	unscaled.r11 = y.y;
+	unscaled.r21 = y.z;
+	unscaled.r02 = z.x;
+	unscaled.r12 = z.y;
+	unscaled.r22 = z.z;
+
+	quaternion_set_from_matrix4(rotation, &unscaled);
 
 	return 1;
 }

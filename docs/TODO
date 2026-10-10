@@ -10,8 +10,6 @@ API gaps:
 - matrix4 TRS constructor (translation + rotation + scale in one call)
 - normal matrix helper (inverse-transpose of the upper 3x3)
 - quaternion <-> matrix3 conversions
-- left-handed variants of the _EXP projection / view functions
-- a depth-range option for the _EXP projections: 0..1 (Vulkan/D3D) vs -1..1 (OpenGL)
 - consider optional by-value inline variants for small types for expression-style code
 
 Long double support (planned):
