@@ -39,6 +39,8 @@ jobs:
               ldflags: "-fsanitize=address,undefined" }
           - { name: no-stdio / gcc,           os: ubuntu-latest,  cc: gcc,      cflags: -DHYP_NO_STDIO }
           - { name: no-stdio / clang,         os: ubuntu-latest,  cc: clang,    cflags: -DHYP_NO_STDIO }
+          - { name: no-random / gcc,          os: ubuntu-latest,  cc: gcc,      cflags: -DHYP_NO_RANDOM }
+          - { name: no-random / clang,        os: ubuntu-latest,  cc: clang,    cflags: -DHYP_NO_RANDOM }
     env:
       BUILD_TYPE: ${{ matrix.build_type || 'Debug' }}
     steps:
