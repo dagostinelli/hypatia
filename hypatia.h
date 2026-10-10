@@ -1953,21 +1953,21 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  */
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT)
 {
-	struct quaternion qinv;
+	struct quaternion unit;
+	struct quaternion conjugate;
 	struct quaternion q;
 
-	if (!(hyp_length(qT->q, 4) > HYP_FLOAT_C(0.0))) {
+	/* normalize once, then use the conjugate: q * v * conjugate(q) would
+	 * also scale by |q|^2
+	 */
+	if (!(hyp_normalize(quaternion_set(&unit, qT)->q, 4) > HYP_FLOAT_C(0.0))) {
 		return self;
 	}
+	quaternion_conjugate(quaternion_set(&conjugate, &unit));
 
-	/* the inverse, not the conjugate: q * v * conjugate(q) is also scaled by
-	 * |q|^2
-	 */
-	quaternion_inverse(quaternion_set(&qinv, qT));
-
-	quaternion_set(&q, qT);
+	quaternion_set(&q, &unit);
 	quaternion_multiplyv3(&q, self);
-	quaternion_multiply(&q, &qinv);
+	quaternion_multiply(&q, &conjugate);
 
 	self->x = q.x;
 	self->y = q.y;
