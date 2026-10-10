@@ -55,8 +55,11 @@ From `compare/results/precision/summary.md`, default seed:
   - Against long double, reflect, refract and unproject are ahead of GLM, project is tied,
     and the look rotation is 5% behind in the mean.
   - Measuring them found two defects in the other libraries: cglm 0.9.4's refract has a
-    sign error, and GLM's `quatLookAt` fails when up is nearly parallel to the view
-    direction (below).
+    sign error (fixed in cglm 0.9.5), and GLM's `quatLookAt` fails when up is nearly
+    parallel to the view direction (below).
+- **Reports:** every case where another library is wrong or less precise is written up as
+  an issue report with a program that shows it, in `docs/reports/` (38 reports; 37 still
+  present in the latest releases).
 - **Regressions:** now is less precise than master in six measurements, by 5% to 15% in
   the mean.  They are listed below with the reason.
 
@@ -251,7 +254,7 @@ calls.
 Two defects in the other libraries showed up:
 - **cglm 0.9.4 `glm_vec3_refract`** computes k = 1 + eta² − (eta n·v)², where Snell's
   law gives 1 − eta² + (eta n·v)².  It disagrees with GLM and hypatia on every input
-  (`results/single.md`) and is off by a mean of 9e6 float ulps.
+  (`results/single.md`) and is off by a mean of 9e6 float ulps.  cglm fixed it in 0.9.5.
 - **GLM `quatLookAt`** divides the right axis by max(1e-5, |right|²) instead of
   normalizing it.  When up is nearly parallel to the view direction, the result is not a
   rotation.  On one input of the second seed it is off by 5e14 ulps in double; hypatia's
@@ -348,7 +351,7 @@ comparison found in intermediate versions of correctness-h.
 | `matrix4_set_from_euler_anglesf3(x, y, z)` rotates about X, then Y, then Z (Rz Ry Rx) | GLM `eulerAngleZYX(z, y, x)` and cglm `glm_euler_zyx` are the same; GLM `eulerAngleXYZ` and cglm `glm_euler_xyz` are Rx Ry Rz |
 | `matrix4_translatev3(M, v)` (and rotate, scale) applies the new transform after M | GLM `translate(M, v)` applies it before M |
 | `quaternion_get_axis_anglev3` gives an angle in [0, π] | GLM `angle` gives [0, 2π] |
-| `quaternion_slerp` takes the shorter arc | GLM `slerp` and Eigen do too; cglm and GLM `mix` do not |
+| `quaternion_slerp` takes the shorter arc | GLM `slerp`, Eigen and cglm do too; GLM `mix` does not |
 
 ## Agreement and edge cases
 
