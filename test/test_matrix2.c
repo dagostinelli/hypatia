@@ -414,8 +414,26 @@ static const char *test_matrix2_scalev2(void)
 }
 
 
+static const char *test_matrix2_reciprocal_condition(void)
+{
+	struct matrix2 identity = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix2 scaled = {.m = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix2 singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
+	struct matrix2 nearly_singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5001)}};
+
+	test_assert(scalar_equalsf(matrix2_reciprocal_condition(&identity), HYP_FLOAT_C(1.0)));
+	test_assert(scalar_equalsf(matrix2_reciprocal_condition(&scaled), HYP_FLOAT_C(0.5)));
+	test_assert(scalar_equalsf(matrix2_reciprocal_condition(&singular), HYP_FLOAT_C(0.0)));
+	test_assert(matrix2_reciprocal_condition(&nearly_singular) < HYP_FLOAT_C(0.001));
+	test_assert(matrix2_reciprocal_condition(&nearly_singular) > HYP_FLOAT_C(0.0));
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_reciprocal_condition);
 	run_test(test_matrix2_zero);
 	run_test(test_matrix2_equals);
 	run_test(test_matrix2_multiply_identity);

@@ -621,6 +621,7 @@ HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self);
 HYPAPI HYP_FLOAT matrix2_determinant(const struct matrix2 *self);
 HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self);
 HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR);
+HYPAPI HYP_FLOAT matrix2_reciprocal_condition(const struct matrix2 *self);
 
 HYPAPI struct matrix2 *matrix2_make_transformation_scalingv2(struct matrix2 *self, const struct vector2 *scale);
 HYPAPI struct matrix2 *matrix2_make_transformation_rotationf_z(struct matrix2 *self, HYP_FLOAT angle);
@@ -712,6 +713,7 @@ HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self);
 HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self);
 HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self);
 HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR);
+HYPAPI HYP_FLOAT matrix3_reciprocal_condition(const struct matrix3 *self);
 
 HYPAPI struct matrix3 *matrix3_make_transformation_translationv2(struct matrix3 *self, const struct vector2 *translation);
 HYPAPI struct matrix3 *matrix3_make_transformation_scalingv2(struct matrix3 *self, const struct vector2 *scale);
@@ -811,6 +813,7 @@ HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self);
 HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self);
 HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR);
+HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self);
 
 HYPAPI struct matrix4 *matrix4_make_transformation_translationv3(struct matrix4 *self, const struct vector3 *translation);
 HYPAPI struct matrix4 *matrix4_make_transformation_scalingv3(struct matrix4 *self, const struct vector3 *scale);
@@ -2634,6 +2637,28 @@ HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector
 }
 
 
+/* the largest sum of absolute values over the rows of m[] (n by n): the
+ * matrix norm used by the condition estimates
+ */
+static HYP_FLOAT hyp_matrix_row_norm(const HYP_FLOAT *m, uint8_t n)
+{
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	HYP_FLOAT sum;
+	uint8_t i;
+	uint8_t j;
+
+	for (i = 0; i < n; i++) {
+		sum = HYP_FLOAT_C(0.0);
+		for (j = 0; j < n; j++) {
+			sum += HYP_ABS(m[i * n + j]);
+		}
+		largest = HYP_MAX(largest, sum);
+	}
+
+	return largest;
+}
+
+
 /**
  * @ingroup matrix2
  * @brief Finds the determinant of a matrix
@@ -2711,6 +2736,28 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	}
 
 	return mR;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Estimates how reliable the inverse is: 1 / (|M| |inverse(M)|) in the
+ * row-sum norm, as LAPACK's rcond.  1 for the identity and its multiples, near
+ * 0 for a nearly singular matrix, whose inverse can be dominated by rounding,
+ * and 0 when the matrix has no inverse.  About -log10 of it is the number of
+ * digits the inverse can lose.
+ *
+ * @param self The matrix being examined
+ */
+HYPAPI HYP_FLOAT matrix2_reciprocal_condition(const struct matrix2 *self)
+{
+	struct matrix2 inverse;
+
+	if (matrix2_inverse(self, &inverse) == NULL) {
+		return HYP_FLOAT_C(0.0);
+	}
+
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 2) * hyp_matrix_row_norm(inverse.m, 2));
 }
 
 
@@ -3188,6 +3235,28 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	}
 
 	return mR;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Estimates how reliable the inverse is: 1 / (|M| |inverse(M)|) in the
+ * row-sum norm, as LAPACK's rcond.  1 for the identity and its multiples, near
+ * 0 for a nearly singular matrix, whose inverse can be dominated by rounding,
+ * and 0 when the matrix has no inverse.  About -log10 of it is the number of
+ * digits the inverse can lose.
+ *
+ * @param self The matrix being examined
+ */
+HYPAPI HYP_FLOAT matrix3_reciprocal_condition(const struct matrix3 *self)
+{
+	struct matrix3 inverse;
+
+	if (matrix3_inverse(self, &inverse) == NULL) {
+		return HYP_FLOAT_C(0.0);
+	}
+
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 3) * hyp_matrix_row_norm(inverse.m, 3));
 }
 
 
@@ -3807,6 +3876,26 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 }
 
 
+/**
+ * @ingroup matrix4
+ * @brief Estimates how reliable the inverse is: 1 / (|M| |inverse(M)|) in the
+ * row-sum norm, as LAPACK's rcond.  1 for the identity and its multiples, near
+ * 0 for a nearly singular matrix, whose inverse can be dominated by rounding,
+ * and 0 when the matrix has no inverse.  About -log10 of it is the number of
+ * digits the inverse can lose.
+ *
+ * @param self The matrix being examined
+ */
+HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
+{
+	struct matrix4 inverse;
+
+	if (matrix4_inverse(self, &inverse) == NULL) {
+		return HYP_FLOAT_C(0.0);
+	}
+
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 4) * hyp_matrix_row_norm(inverse.m, 4));
+}
 /**
  * @ingroup quaternion
  * @brief Initializes the vector portion of the quaternion with 0.0 and the
