@@ -207,6 +207,56 @@ static void vectors()
 		struct vector3 g = hv(glm::proj(gv(a), gv(b)));
 		check(err_v(h.v, g.v, 3), [&] { return sv(a.v, 3) + " onto " + sv(b.v, 3) + " -> " + sv(h.v, 3) + " vs " + sv(g.v, 3); });
 	}
+	begin("vectors", "vector2_reflect", "glm::reflect(v, normalize(n))");
+	for (int i = 0; i < N; i++) {
+		struct vector2 a = rv2(), n = rv2(), h = a;
+		vector2_reflect(&h, &n);
+		struct vector2 g = hv(glm::reflect(gv(a), glm::normalize(gv(n))));
+		check(err_v(h.v, g.v, 2), [&] { return sv(a.v, 2) + " off " + sv(n.v, 2) + " -> " + sv(h.v, 2) + " vs " + sv(g.v, 2); });
+	}
+	begin("vectors", "vector3_reflect", "glm::reflect(v, normalize(n))");
+	for (int i = 0; i < N; i++) {
+		struct vector3 a = rv3(), n = rv3(), h = a;
+		vector3_reflect(&h, &n);
+		struct vector3 g = hv(glm::reflect(gv(a), glm::normalize(gv(n))));
+		check(err_v(h.v, g.v, 3), [&] { return sv(a.v, 3) + " off " + sv(n.v, 3) + " -> " + sv(h.v, 3) + " vs " + sv(g.v, 3); });
+	}
+	begin("vectors", "vector3_refract", "glm::refract(normalize(v), normalize(n), eta)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 a = rv3(), n = rv3(), h = a;
+		H eta = r(0.5, 2);
+		if (vector3_dot_product(&a, &n) > 0)
+			n = mk3(-n.x, -n.y, -n.z);
+		vector3_refract(&h, &n, eta);
+		struct vector3 g = hv(glm::refract(glm::normalize(gv(a)), glm::normalize(gv(n)), eta));
+		check(err_v(h.v, g.v, 3), [&] { return sv(a.v, 3) + " through " + sv(n.v, 3) + ", " + f(eta) + " -> " + sv(h.v, 3) + " vs " + sv(g.v, 3); });
+	}
+#ifdef HAVE_CGLM
+	begin("vectors", "vector3_reflect", "cglm glm_vec3_reflect(v, normalized n)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 a = rv3(), n = rv3(), h = a;
+		vector3_reflect(&h, &n);
+		vec3 cn = {n.x, n.y, n.z}, cr;
+		glm_vec3_normalize(cn);
+		glm_vec3_reflect(a.v, cn, cr);
+		struct vector3 c = mk3(cr[0], cr[1], cr[2]);
+		check(err_v(h.v, c.v, 3), [&] { return sv(a.v, 3) + " off " + sv(n.v, 3) + " -> " + sv(h.v, 3) + " vs " + sv(c.v, 3); });
+	}
+	begin("vectors", "vector3_refract", "cglm glm_vec3_refract(normalized v, normalized n, eta)", "cglm 0.9.4 computes k = 1 + eta^2 - (eta n.v)^2; Snell's law gives 1 - eta^2 + (eta n.v)^2");
+	for (int i = 0; i < N; i++) {
+		struct vector3 a = rv3(), n = rv3(), h = a;
+		H eta = r(0.5, 2);
+		if (vector3_dot_product(&a, &n) > 0)
+			n = mk3(-n.x, -n.y, -n.z);
+		vector3_refract(&h, &n, eta);
+		vec3 ca = {a.x, a.y, a.z}, cn = {n.x, n.y, n.z}, cr;
+		glm_vec3_normalize(ca);
+		glm_vec3_normalize(cn);
+		glm_vec3_refract(ca, cn, eta, cr);
+		struct vector3 c = mk3(cr[0], cr[1], cr[2]);
+		check(err_v(h.v, c.v, 3), [&] { return sv(a.v, 3) + " through " + sv(n.v, 3) + ", " + f(eta) + " -> " + sv(h.v, 3) + " vs " + sv(c.v, 3); });
+	}
+#endif
 	begin("vectors", "vector4_project", "glm::proj");
 	for (int i = 0; i < N; i++) {
 		struct vector4 a = rv4(), b = rv4(), h = a;
