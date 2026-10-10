@@ -495,6 +495,61 @@ static const char *test_vector3_set_random_unit_many(void)
 }
 
 
+static const char *test_vector3_lerp(void)
+{
+	struct vector3 start, end, r, e;
+
+	vector3_setf3(&start, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(3.0));
+	vector3_setf3(&end, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(0.0), &r), &start));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(1.0), &r), &end));
+	test_assert(vector3_equals(vector3_lerp(&start, &end, HYP_FLOAT_C(0.25), &r), vector3_setf3(&e, HYP_FLOAT_C(1.5), HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_clamp_min_max(void)
+{
+	struct vector3 v, lo, hi, e;
+
+	vector3_setf3(&lo, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	vector3_setf3(&hi, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	vector3_setf3(&v, -HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(7.0));
+	test_assert(vector3_equals(vector3_clamp(&v, &lo, &hi), vector3_setf3(&e, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0))));
+
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0));
+	vector3_setf3(&lo, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_min(&v, &lo), vector3_setf3(&e, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0))));
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0));
+	test_assert(vector3_equals(vector3_max(&v, &lo), vector3_setf3(&e, HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(3.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector3_project(void)
+{
+	struct vector3 v, onto, e;
+
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_setf3(&onto, HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	/* onto the zero vector */
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_zero(&onto);
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_zero(&e)));
+
+	/* a perpendicular vector projects to zero */
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&onto, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_project(&v, &onto), vector3_zero(&e)));
+
+	return NULL;
+}
+
+
 static const char *test_vector3_set_random_in_ball(void)
 {
 	static const long scripted[] = {0, 0, 1073741824L, 0, 0};
@@ -524,8 +579,33 @@ static const char *test_vector3_set_random_in_ball(void)
 	return NULL;
 }
 
+
+static const char *test_vector3_project_short_and_long(void)
+{
+	struct vector3 v, onto, e;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* onto vectors whose squares underflow or overflow */
+	for (i = 0; i < 2; i++) {
+		vector3_setf3(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+		vector3_setf3(&onto, HYP_FLOAT_C(0.0), lengths[i], HYP_FLOAT_C(0.0));
+		test_assert(vector3_equals(vector3_project(&v, &onto), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(0.0))));
+	}
+
+	return NULL;
+}
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_project_short_and_long);
+	run_test(test_vector3_lerp);
+	run_test(test_vector3_clamp_min_max);
+	run_test(test_vector3_project);
 	run_test(test_vector3_set_random_unit_scripted);
 	run_test(test_vector3_set_random_unit_many);
 	run_test(test_vector3_set_random_in_ball);
