@@ -26,6 +26,12 @@ Results that differ from 2.0:
 * matrix2/3/4_invert return NULL, and leave the matrix unchanged, when it
   has no inverse.  2.0 returned the matrix in both cases, so the caller
   could not tell.
+* vector2/3/4_normalize and quaternion_normalize leave only an exactly zero
+  vector unchanged; 2.0 left anything shorter than HYP_EPSILON unchanged.
+  Very long and very short vectors no longer overflow or underflow, and
+  vector2_normalize no longer gives NaN.
+* quaternion_inverse and quaternion_lerp have no shortcuts near 0 or 1, and
+  quaternion_is_pure compares w relative to the length of the quaternion.
 
 New functions:
 
