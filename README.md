@@ -104,6 +104,12 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
 
+Changes in 2.1
+--------------
+Results that differ from 2.0:
+
+* `matrix4_multiplyv2` treats z as 0.
+
 Documentation
 -------------
 A great way to learn how to use the library is to review the
