@@ -417,9 +417,9 @@ static const char *test_matrix2_multiplyv2(void)
 	struct vector2 r;
 	struct vector2 expected;
 
-	/* vR.x = vT.x * c00 + vT.y * c01, vR.y = vT.x * c10 + vT.y * c11 */
-	expected.x = 2 * 1 + 3 * 3;
-	expected.y = 2 * 2 + 3 * 4;
+	/* M * v: vR.x = r00 * vT.x + r01 * vT.y, vR.y = r10 * vT.x + r11 * vT.y */
+	expected.x = 1 * 2 + 2 * 3;
+	expected.y = 3 * 2 + 4 * 3;
 
 	matrix2_multiplyv2(&m, &v, &r);
 	test_assert(vector2_equals(&r, &expected));
