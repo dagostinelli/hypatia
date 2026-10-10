@@ -338,6 +338,102 @@ static const char *test_vector2_set_random_unit_many(void)
 #endif
 
 
+static const char *test_vector2_lerp(void)
+{
+	struct vector2 start, end, r, e;
+
+	vector2_setf2(&start, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0));
+	vector2_setf2(&end, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(2.0));
+	test_assert(vector2_equals(vector2_lerp(&start, &end, HYP_FLOAT_C(0.0), &r), &start));
+	test_assert(vector2_equals(vector2_lerp(&start, &end, HYP_FLOAT_C(1.0), &r), &end));
+	test_assert(vector2_equals(vector2_lerp(&start, &end, HYP_FLOAT_C(0.25), &r), vector2_setf2(&e, HYP_FLOAT_C(1.5), HYP_FLOAT_C(1.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector2_clamp_min_max(void)
+{
+	struct vector2 v, lo, hi, e;
+
+	vector2_setf2(&lo, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	vector2_setf2(&hi, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	vector2_setf2(&v, -HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.5));
+	test_assert(vector2_equals(vector2_clamp(&v, &lo, &hi), vector2_setf2(&e, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5))));
+
+	vector2_setf2(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0));
+	vector2_setf2(&lo, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0));
+	test_assert(vector2_equals(vector2_min(&v, &lo), vector2_setf2(&e, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0))));
+	vector2_setf2(&v, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0));
+	test_assert(vector2_equals(vector2_max(&v, &lo), vector2_setf2(&e, HYP_FLOAT_C(1.0), HYP_FLOAT_C(5.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector2_reflect(void)
+{
+	struct vector2 v, normal, e;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* off the floor: the part along the normal changes sign */
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	vector2_setf2(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+
+	/* the length of the normal does not matter, including lengths whose
+	 * squares underflow or overflow
+	 */
+	vector2_setf2(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(5.0));
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+	for (i = 0; i < 2; i++) {
+		vector2_setf2(&normal, HYP_FLOAT_C(0.0), lengths[i]);
+		vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+		test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+	}
+
+	/* off a diagonal wall: x and y swap */
+	vector2_setf2(&normal, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(4.0), HYP_FLOAT_C(3.0))));
+
+	/* a zero normal leaves the vector unchanged */
+	vector2_zero(&normal);
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0))));
+
+	return NULL;
+}
+
+
+static const char *test_vector2_project(void)
+{
+	struct vector2 v, onto, e;
+
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	vector2_setf2(&onto, HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0));
+	test_assert(vector2_equals(vector2_project(&v, &onto), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0))));
+
+	/* onto the zero vector */
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	vector2_zero(&onto);
+	test_assert(vector2_equals(vector2_project(&v, &onto), vector2_zero(&e)));
+
+	/* a perpendicular vector projects to zero */
+	vector2_setf2(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
+	vector2_setf2(&onto, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	test_assert(vector2_equals(vector2_project(&v, &onto), vector2_zero(&e)));
+
+	return NULL;
+}
+
+
 #ifndef HYP_NO_RANDOM
 static const char *test_vector2_set_random_in_disk(void)
 {
@@ -366,8 +462,35 @@ static const char *test_vector2_set_random_in_disk(void)
 	return NULL;
 }
 #endif
+
+
+static const char *test_vector2_project_short_and_long(void)
+{
+	struct vector2 v, onto, e;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* onto vectors whose squares underflow or overflow */
+	for (i = 0; i < 2; i++) {
+		vector2_setf2(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+		vector2_setf2(&onto, HYP_FLOAT_C(0.0), lengths[i]);
+		test_assert(vector2_equals(vector2_project(&v, &onto), vector2_setf2(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(4.0))));
+	}
+
+	return NULL;
+}
+
 static const char *vector2_all_tests(void)
 {
+	run_test(test_vector2_project_short_and_long);
+	run_test(test_vector2_lerp);
+	run_test(test_vector2_clamp_min_max);
+	run_test(test_vector2_project);
+	run_test(test_vector2_reflect);
 #ifndef HYP_NO_RANDOM
 	run_test(test_vector2_set_random_unit_scripted);
 	run_test(test_vector2_set_random_unit_many);
