@@ -1060,6 +1060,24 @@ static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
 	HYP_FLOAT length;
 	uint8_t i;
 
+	/* the usual case: the sum of the squares is in range, and dividing by
+	 * the length rounds each component once
+	 */
+	sum = v[0] * v[0] + v[1] * v[1];
+	if (n == 3) {
+		sum += v[2] * v[2];
+	} else if (n == 4) {
+		sum += v[2] * v[2] + v[3] * v[3];
+	}
+	if (sum > HYP_FLOAT_C(1e-30) && sum < HYP_FLOAT_C(1e30)) {
+		length = HYP_SQRT(sum);
+		for (i = 0; i < n; i++) {
+			v[i] /= length;
+		}
+		return length;
+	}
+	sum = HYP_FLOAT_C(0.0);
+
 	for (i = 0; i < n; i++) {
 		if (HYP_ABS(v[i]) > largest) {
 			largest = HYP_ABS(v[i]);
