@@ -4,6 +4,11 @@ Hypatia changes
 2.1 (not yet released)
 ----------------------
 
+Results that differ from 2.0:
+
+* matrix4_multiplyv2 treats the vector as (x, y, 0, 1); 2.0 added the third
+  column as if z were 1.
+
 Known problems in 2.1:
 
 These experimental functions give wrong results; do not use them.
