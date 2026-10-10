@@ -357,6 +357,7 @@ static struct matrix4 rtrs()
 #include "compare_quaternions.inc"
 #include "compare_edges.inc"
 #include "compare_accuracy.inc"
+#include "compare_precision.inc"
 
 /* ---------------------------------------------------------------- main */
 
@@ -398,5 +399,6 @@ int main()
 	std::printf("\n## Edge cases\n\n| function | input | hypatia | others |\n|---|---|---|---|\n");
 	for (const Edge &e : edges)
 		std::printf("| %s | %s | %s | %s |\n", e.what.c_str(), e.input.c_str(), e.hyp.c_str(), e.others.c_str());
+	precision();
 	return 0;
 }
