@@ -708,8 +708,39 @@ static const char *test_vector3_normalize_infinite(void)
 	return NULL;
 }
 
+static const char *test_vector3_angle_between_parallel_small_zero(void)
+{
+	struct vector3 a, b, zero;
+	HYP_FLOAT angle;
+	HYP_FLOAT i;
+
+	/* parallel vectors: acos of a rounded cosine above 1 was NaN */
+	for (i = HYP_FLOAT_C(1.0); i < HYP_FLOAT_C(20.5); i += HYP_FLOAT_C(1.0)) {
+		vector3_setf3(&a, HYP_FLOAT_C(0.37) * i - HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.1) * i - HYP_FLOAT_C(7.0), HYP_FLOAT_C(0.53) * i + HYP_FLOAT_C(0.1));
+		vector3_multiplyf(vector3_set(&b, &a), HYP_FLOAT_C(3.0));
+		test_assert(scalar_equalsf(vector3_angle_between(&a, &b), HYP_FLOAT_C(0.0)));
+	}
+
+	/* 1e-4 radians apart, to a thousandth of the angle */
+	vector3_setf3(&a, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&b, HYP_COS(HYP_FLOAT_C(1e-4)), HYP_SIN(HYP_FLOAT_C(1e-4)), HYP_FLOAT_C(0.0));
+	angle = vector3_angle_between(&a, &b);
+	test_assert(HYP_ABS(angle - HYP_FLOAT_C(1e-4)) < HYP_FLOAT_C(1e-7));
+
+	/* any length; 0 for the zero vector */
+	vector3_setf3(&a, HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&b, HYP_FLOAT_C(0.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0));
+	test_assert(scalar_equalsf(vector3_angle_between(&a, &b), HYP_PI / HYP_FLOAT_C(2.0)));
+	vector3_zero(&zero);
+	test_assert(scalar_equalsf(vector3_angle_between(&a, &zero), HYP_FLOAT_C(0.0)));
+
+	return NULL;
+}
+
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_angle_between_parallel_small_zero);
 	run_test(test_vector3_normalize_infinite);
 	run_test(test_vector3_project_short_and_long);
 	run_test(test_vector3_set_random_in_cone_wide);

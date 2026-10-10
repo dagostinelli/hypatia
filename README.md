@@ -125,6 +125,7 @@ Results that differ from 2.0:
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * `matrix4_inverse` and `matrix4_determinant` are as accurate as GLM and Eigen for badly conditioned matrices (2.0 lost up to 100 times more).
+* `vector2_angle_between` and `vector3_angle_between` are accurate for parallel and nearly parallel vectors (2.0 could give NaN) and give 0 for a zero vector.
 * `HYP_WRAP` wraps into [start, limit) for any start.
 * The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.
 
