@@ -2810,6 +2810,78 @@ HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector
 }
 
 
+/* the exponent e for which 2^e times the largest absolute value of the n
+ * values is at least 1 and less than 2; 0 when they are all zero or one is
+ * infinite or NaN
+ */
+static int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+{
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	int exponent = 0;
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return 0; /* NaN */
+		}
+	}
+
+	if (!(largest > HYP_FLOAT_C(0.0)) || !(largest - largest <= HYP_FLOAT_C(0.0))) {
+		return 0; /* zero or infinite */
+	}
+
+	while (largest >= HYP_FLOAT_C(65536.0)) {
+		largest *= HYP_FLOAT_C(1.52587890625e-05); /* 2^-16 */
+		exponent -= 16;
+	}
+	while (largest < HYP_FLOAT_C(1.52587890625e-05)) {
+		largest *= HYP_FLOAT_C(65536.0);
+		exponent += 16;
+	}
+	while (largest >= HYP_FLOAT_C(2.0)) {
+		largest *= HYP_FLOAT_C(0.5);
+		exponent -= 1;
+	}
+	while (largest < HYP_FLOAT_C(1.0)) {
+		largest *= HYP_FLOAT_C(2.0);
+		exponent += 1;
+	}
+
+	return exponent;
+}
+
+
+/* multiplies the n values by 2^exponent, in steps of 2^16 and 2, which are
+ * exact unless a value overflows or becomes subnormal
+ */
+static void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
+{
+	HYP_FLOAT step;
+	uint8_t i;
+
+	while (exponent != 0) {
+		if (exponent >= 16) {
+			step = HYP_FLOAT_C(65536.0);
+			exponent -= 16;
+		} else if (exponent <= -16) {
+			step = HYP_FLOAT_C(1.52587890625e-05);
+			exponent += 16;
+		} else if (exponent > 0) {
+			step = HYP_FLOAT_C(2.0);
+			exponent -= 1;
+		} else {
+			step = HYP_FLOAT_C(0.5);
+			exponent += 1;
+		}
+		for (i = 0; i < n; i++) {
+			v[i] *= step;
+		}
+	}
+}
+
+
 /* the largest sum of absolute values over the rows of m[] (n by n): the
  * matrix norm used by the condition estimates
  */
@@ -2877,6 +2949,39 @@ HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
 }
 
 
+/* matrix2_inverse without the scaling */
+static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
+{
+	struct matrix2 inverse;
+	HYP_FLOAT determinant;
+	uint8_t i;
+
+	determinant = matrix2_determinant(self);
+
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	/* find the adjugate of self */
+	inverse.c00 = self->c11;
+	inverse.c01 = -self->c01;
+	inverse.c10 = -self->c10;
+	inverse.c11 = self->c00;
+
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
+	for (i = 0; i < 4; i++) {
+		mR->m[i] = inverse.m[i] / determinant;
+	}
+
+	return mR;
+}
+
+
 /**
  * @ingroup matrix2
  * @brief Find the inverse of the matrix
@@ -2892,31 +2997,23 @@ HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
  */
 HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
 {
-	struct matrix2 inverse;
-	HYP_FLOAT determinant;
-	uint8_t i;
+	struct matrix2 scaled;
+	int exponent;
 
-	determinant = matrix2_determinant(self);
-
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
 	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 4);
+	hyp_scale_power2(scaled.m, 4, exponent);
+
+	if (hyp_matrix2_inverse(&scaled, mR) == NULL) {
 		return NULL;
 	}
 
-	determinant = HYP_FLOAT_C(1.0) / determinant;
-
-	/* find the adjugate of self */
-	inverse.c00 = self->c11;
-	inverse.c01 = -self->c01;
-	inverse.c10 = -self->c10;
-	inverse.c11 = self->c00;
-
-	/* divide the determinant */
-	for (i = 0; i < 4; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
-	}
+	hyp_scale_power2(mR->m, 4, exponent);
 
 	return mR;
 }
@@ -3327,8 +3424,6 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 #define HYP_DEC_44 33
 #define HYP_A(x) HYP_CAT(self->r,  HYP_DEC(x))
 #define HYP_B(x) HYP_CAT(inverse.r, HYP_DEC(x))
-#define HYP_A4(x1, x2, x3, x4) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3) * HYP_A(x4))
-#define HYP_A3(x1, x2, x3) (HYP_A(x1) * HYP_A(x2) * HYP_A(x3))
 #define HYP_A2(x1, x2) (HYP_A(x1) * HYP_A(x2))
 
 
@@ -3378,20 +3473,8 @@ HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
 }
 
 
-/**
- * @ingroup matrix3
- * @brief Find the inverse of the matrix
- *
- * Returns NULL only when the determinant is exactly zero.  A matrix that is
- * close to having no inverse is still inverted, and the result can contain
- * very large values; the reciprocal_condition function estimates how reliable
- * the inverse is.
- *
- * @param self The transformation matrix being examined
- * @param mR the inverse of the matrix is returned here
- *
- */
-HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+/* matrix3_inverse without the scaling */
+static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
 {
 	struct matrix3 inverse;
 	HYP_FLOAT determinant;
@@ -3405,8 +3488,6 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
-
-	determinant = HYP_FLOAT_C(1.0) / determinant;
 
 	matrix3_identity(&inverse);
 
@@ -3423,10 +3504,49 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	HYP_B(32) = HYP_A2(31, 12) - HYP_A2(11, 32);
 	HYP_B(33) = HYP_A2(11, 22) - HYP_A2(21, 12);
 
-	/* divide the determinant */
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
 	for (i = 0; i < 9; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
+		mR->m[i] = inverse.m[i] / determinant;
 	}
+
+	return mR;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Find the inverse of the matrix
+ *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values; the reciprocal_condition function estimates how reliable
+ * the inverse is.
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+{
+	struct matrix3 scaled;
+	int exponent;
+
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
+	 */
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 9);
+	hyp_scale_power2(scaled.m, 9, exponent);
+
+	if (hyp_matrix3_inverse(&scaled, mR) == NULL) {
+		return NULL;
+	}
+
+	hyp_scale_power2(mR->m, 9, exponent);
 
 	return mR;
 }
@@ -3948,6 +4068,35 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
 }
 
 
+/* the 4x4 in 2x2 blocks, self = [A B; C D], with X# the adjugate of X: the
+ * determinants of the blocks (|A|, |B|, |C|, |D|), A# B, D# C, and the
+ * determinant |A| |D| + |B| |C| - trace(A# B D# C).  The inverse and the
+ * determinant share it, so the two agree.
+ */
+static HYP_FLOAT hyp_matrix4_blocks(const struct matrix4 *m, HYP_FLOAT *blocks, HYP_FLOAT *ab, HYP_FLOAT *dc)
+{
+	blocks[0] = m->r00 * m->r11 - m->r01 * m->r10;
+	blocks[1] = m->r02 * m->r13 - m->r03 * m->r12;
+	blocks[2] = m->r20 * m->r31 - m->r21 * m->r30;
+	blocks[3] = m->r22 * m->r33 - m->r23 * m->r32;
+
+	/* A# = [r11 -r01; -r10 r00] */
+	ab[0] = m->r11 * m->r02 - m->r01 * m->r12;
+	ab[1] = m->r11 * m->r03 - m->r01 * m->r13;
+	ab[2] = m->r00 * m->r12 - m->r10 * m->r02;
+	ab[3] = m->r00 * m->r13 - m->r10 * m->r03;
+
+	/* D# = [r33 -r23; -r32 r22] */
+	dc[0] = m->r33 * m->r20 - m->r23 * m->r30;
+	dc[1] = m->r33 * m->r21 - m->r23 * m->r31;
+	dc[2] = m->r22 * m->r30 - m->r32 * m->r20;
+	dc[3] = m->r22 * m->r31 - m->r32 * m->r21;
+
+	return (blocks[0] * blocks[3] + blocks[1] * blocks[2])
+		- ((ab[0] * dc[0] + ab[1] * dc[2]) + (ab[2] * dc[1] + ab[3] * dc[3]));
+}
+
+
 /**
  * @ingroup matrix4
  * @brief Finds the determinant of a matrix
@@ -3957,23 +4106,11 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
  */
 HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 {
-	HYP_FLOAT determinant;
+	HYP_FLOAT blocks[4];
+	HYP_FLOAT ab[4];
+	HYP_FLOAT dc[4];
 
-	/* using the Leibniz formula */
-	/* avoids temporary structures */
-
-	determinant =
-	  HYP_A4(11, 22, 33, 44) + HYP_A4(11, 23, 34, 42) + HYP_A4(11, 24, 32, 43)
-	+ HYP_A4(12, 21, 34, 43) + HYP_A4(12, 23, 31, 44) + HYP_A4(12, 24, 33, 41)
-	+ HYP_A4(13, 21, 32, 44) + HYP_A4(13, 22, 34, 41) + HYP_A4(13, 24, 31, 42)
-	+ HYP_A4(14, 21, 33, 42) + HYP_A4(14, 22, 31, 43) + HYP_A4(14, 23, 32, 41)
-	- HYP_A4(11, 22, 34, 43) - HYP_A4(11, 23, 32, 44) - HYP_A4(11, 24, 33, 42)
-	- HYP_A4(12, 21, 33, 44) - HYP_A4(12, 23, 34, 41) - HYP_A4(12, 24, 31, 43)
-	- HYP_A4(13, 21, 34, 42) - HYP_A4(13, 22, 31, 44) - HYP_A4(13, 24, 32, 41)
-	- HYP_A4(14, 21, 32, 43) - HYP_A4(14, 22, 33, 41) - HYP_A4(14, 23, 31, 42)
-	;
-
-	return determinant;
+	return hyp_matrix4_blocks(self, blocks, ab, dc);
 }
 
 
@@ -4002,6 +4139,79 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
 }
 
 
+/* matrix4_inverse without the scaling */
+static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
+{
+	HYP_FLOAT blocks[4];
+	HYP_FLOAT ab[4];
+	HYP_FLOAT dc[4];
+	HYP_FLOAT x[4];
+	HYP_FLOAT determinant;
+	struct matrix4 inverse;
+	uint8_t i;
+
+	determinant = hyp_matrix4_blocks(self, blocks, ab, dc);
+
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	/* the blocks of the inverse, times the determinant:
+	 * [ (|D| A - B D# C)#  (|B| C - D (A# B)#)# ;
+	 *   (|C| B - A (D# C)#)#  (|A| D - C A# B)# ]
+	 */
+	x[0] = blocks[3] * self->r00 - (self->r02 * dc[0] + self->r03 * dc[2]);
+	x[1] = blocks[3] * self->r01 - (self->r02 * dc[1] + self->r03 * dc[3]);
+	x[2] = blocks[3] * self->r10 - (self->r12 * dc[0] + self->r13 * dc[2]);
+	x[3] = blocks[3] * self->r11 - (self->r12 * dc[1] + self->r13 * dc[3]);
+	inverse.r00 = x[3];
+	inverse.r01 = -x[1];
+	inverse.r10 = -x[2];
+	inverse.r11 = x[0];
+
+	x[0] = blocks[0] * self->r22 - (self->r20 * ab[0] + self->r21 * ab[2]);
+	x[1] = blocks[0] * self->r23 - (self->r20 * ab[1] + self->r21 * ab[3]);
+	x[2] = blocks[0] * self->r32 - (self->r30 * ab[0] + self->r31 * ab[2]);
+	x[3] = blocks[0] * self->r33 - (self->r30 * ab[1] + self->r31 * ab[3]);
+	inverse.r22 = x[3];
+	inverse.r23 = -x[1];
+	inverse.r32 = -x[2];
+	inverse.r33 = x[0];
+
+	/* (A# B)# = [ab3 -ab1; -ab2 ab0] */
+	x[0] = blocks[1] * self->r20 - (self->r22 * ab[3] - self->r23 * ab[2]);
+	x[1] = blocks[1] * self->r21 - (self->r23 * ab[0] - self->r22 * ab[1]);
+	x[2] = blocks[1] * self->r30 - (self->r32 * ab[3] - self->r33 * ab[2]);
+	x[3] = blocks[1] * self->r31 - (self->r33 * ab[0] - self->r32 * ab[1]);
+	inverse.r02 = x[3];
+	inverse.r03 = -x[1];
+	inverse.r12 = -x[2];
+	inverse.r13 = x[0];
+
+	/* (D# C)# = [dc3 -dc1; -dc2 dc0] */
+	x[0] = blocks[2] * self->r02 - (self->r00 * dc[3] - self->r01 * dc[2]);
+	x[1] = blocks[2] * self->r03 - (self->r01 * dc[0] - self->r00 * dc[1]);
+	x[2] = blocks[2] * self->r12 - (self->r10 * dc[3] - self->r11 * dc[2]);
+	x[3] = blocks[2] * self->r13 - (self->r11 * dc[0] - self->r10 * dc[1]);
+	inverse.r20 = x[3];
+	inverse.r21 = -x[1];
+	inverse.r30 = -x[2];
+	inverse.r31 = x[0];
+
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
+	for (i = 0; i < 16; i++) {
+		mR->m[i] = inverse.m[i] / determinant;
+	}
+
+	return mR;
+}
+
+
 /**
  * @ingroup matrix4
  * @brief Find the inverse of the matrix
@@ -4017,44 +4227,23 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
 {
-	struct matrix4 inverse;
-	HYP_FLOAT determinant;
-	uint8_t i;
+	struct matrix4 scaled;
+	int exponent;
 
-	determinant = matrix4_determinant(self);
-
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
 	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 16);
+	hyp_scale_power2(scaled.m, 16, exponent);
+
+	if (hyp_matrix4_inverse(&scaled, mR) == NULL) {
 		return NULL;
 	}
 
-	determinant = HYP_FLOAT_C(1.0) / determinant;
-
-	matrix4_identity(&inverse);
-
-	HYP_B(11) = HYP_A3(22, 33, 44) + HYP_A3(23, 34, 42) + HYP_A3(24, 32, 43) - HYP_A3(22, 34, 43) - HYP_A3(23, 32, 44) - HYP_A3(24, 33, 42);
-	HYP_B(12) = HYP_A3(12, 34, 43) + HYP_A3(13, 32, 44) + HYP_A3(14, 33, 42) - HYP_A3(12, 33, 44) - HYP_A3(13, 34, 42) - HYP_A3(14, 32, 43);
-	HYP_B(13) = HYP_A3(12, 23, 44) + HYP_A3(13, 24, 42) + HYP_A3(14, 22, 43) - HYP_A3(12, 24, 43) - HYP_A3(13, 22, 44) - HYP_A3(14, 23, 42);
-	HYP_B(14) = HYP_A3(12, 24, 33) + HYP_A3(13, 22, 34) + HYP_A3(14, 23, 32) - HYP_A3(12, 23, 34) - HYP_A3(13, 24, 32) - HYP_A3(14, 22, 33);
-	HYP_B(21) = HYP_A3(21, 34, 43) + HYP_A3(23, 31, 44) + HYP_A3(24, 33, 41) - HYP_A3(21, 33, 44) - HYP_A3(23, 34, 41) - HYP_A3(24, 31, 43);
-	HYP_B(22) = HYP_A3(11, 33, 44) + HYP_A3(13, 34, 41) + HYP_A3(14, 31, 43) - HYP_A3(11, 34, 43) - HYP_A3(13, 31, 44) - HYP_A3(14, 33, 41);
-	HYP_B(23) = HYP_A3(11, 24, 43) + HYP_A3(13, 21, 44) + HYP_A3(14, 23, 41) - HYP_A3(11, 23, 44) - HYP_A3(13, 24, 41) - HYP_A3(14, 21, 43);
-	HYP_B(24) = HYP_A3(11, 23, 34) + HYP_A3(13, 24, 31) + HYP_A3(14, 21, 33) - HYP_A3(11, 24, 33) - HYP_A3(13, 21, 34) - HYP_A3(14, 23, 31);
-	HYP_B(31) = HYP_A3(21, 32, 44) + HYP_A3(22, 34, 41) + HYP_A3(24, 31, 42) - HYP_A3(21, 34, 42) - HYP_A3(22, 31, 44) - HYP_A3(24, 32, 41);
-	HYP_B(32) = HYP_A3(11, 34, 42) + HYP_A3(12, 31, 44) + HYP_A3(14, 32, 41) - HYP_A3(11, 32, 44) - HYP_A3(12, 34, 41) - HYP_A3(14, 31, 42);
-	HYP_B(33) = HYP_A3(11, 22, 44) + HYP_A3(12, 24, 41) + HYP_A3(14, 21, 42) - HYP_A3(11, 24, 42) - HYP_A3(12, 21, 44) - HYP_A3(14, 22, 41);
-	HYP_B(34) = HYP_A3(11, 24, 32) + HYP_A3(12, 21, 34) + HYP_A3(14, 22, 31) - HYP_A3(11, 22, 34) - HYP_A3(12, 24, 31) - HYP_A3(14, 21, 32);
-	HYP_B(41) = HYP_A3(21, 33, 42) + HYP_A3(22, 31, 43) + HYP_A3(23, 32, 41) - HYP_A3(21, 32, 43) - HYP_A3(22, 33, 41) - HYP_A3(23, 31, 42);
-	HYP_B(42) = HYP_A3(11, 32, 43) + HYP_A3(12, 33, 41) + HYP_A3(13, 31, 42) - HYP_A3(11, 33, 42) - HYP_A3(12, 31, 43) - HYP_A3(13, 32, 41);
-	HYP_B(43) = HYP_A3(11, 23, 42) + HYP_A3(12, 21, 43) + HYP_A3(13, 22, 41) - HYP_A3(11, 22, 43) - HYP_A3(12, 23, 41) - HYP_A3(13, 21, 42);
-	HYP_B(44) = HYP_A3(11, 22, 33) + HYP_A3(12, 23, 31) + HYP_A3(13, 21, 32) - HYP_A3(11, 23, 32) - HYP_A3(12, 21, 33) - HYP_A3(13, 22, 31);
-
-	/* divide the determinant */
-	for (i = 0; i < 16; i++) {
-		mR->m[i] = inverse.m[i] * determinant;
-	}
+	hyp_scale_power2(mR->m, 16, exponent);
 
 	return mR;
 }
@@ -5754,8 +5943,6 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 #undef HYP_DEC_44
 #undef HYP_A
 #undef HYP_B
-#undef HYP_A4
-#undef HYP_A3
 #undef HYP_A2
 
 #endif /* HYPATIA_IMPLEMENTATION_H_ */

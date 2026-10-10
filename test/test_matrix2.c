@@ -475,8 +475,71 @@ static const char *test_matrix2_reciprocal_condition(void)
 }
 
 
+static const char *test_matrix2_inverse_small_determinant(void)
+{
+	/* 1 / determinant overflows, but the inverse is 1 / scale times the
+	 * identity
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-20);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-3);
+#else
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-155);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
+#endif
+	struct matrix2 m;
+	struct matrix2 inverse;
+
+	matrix2_multiplyf(matrix2_identity(&m), scale);
+	test_assert(matrix2_inverse(&m, &inverse) != NULL);
+	test_assert(HYP_ABS(inverse.r00 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r11 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r01) < tolerance);
+
+	return NULL;
+}
+
+
+static const char *test_matrix2_inverse_tiny_and_huge_scale(void)
+{
+	/* a well-conditioned matrix times a tiny or huge scale: the determinant
+	 * (scale^2) underflows to 0 or overflows to inf, but the inverse is in
+	 * range, and inverse times the matrix is the identity
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-25), HYP_FLOAT_C(1e25) };
+#elif defined(TEST_WIDE_RANGE)
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-2500), HYP_FLOAT_C(1e2500) };
+#else
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	const HYP_FLOAT a[4] = { HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0) };
+	struct matrix2 m;
+	struct matrix2 inverse;
+	struct matrix2 identity;
+	uint8_t i;
+	uint8_t k;
+
+	matrix2_identity(&identity);
+	for (k = 0; k < 2; k++) {
+		for (i = 0; i < 4; i++) {
+			m.m[i] = a[i] * scales[k];
+		}
+		test_assert(matrix2_inverse(&m, &inverse) != NULL);
+		matrix2_multiply(&inverse, &m);
+		for (i = 0; i < 4; i++) {
+			test_assert(HYP_ABS(inverse.m[i] - identity.m[i]) < HYP_EPSILON);
+		}
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_inverse_small_determinant);
+	run_test(test_matrix2_inverse_tiny_and_huge_scale);
 	run_test(test_matrix2_reciprocal_condition);
 	run_test(test_matrix2_zero);
 	run_test(test_matrix2_equals);
