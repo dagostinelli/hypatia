@@ -7,9 +7,6 @@ Remaining Work:
 
 
 API gaps:
-- vector2/3/4_lerp
-- vector2/3/4 clamp, component-wise min / max
-- vector projection (project a onto b)
 - matrix4 TRS constructor (translation + rotation + scale in one call)
 - normal matrix helper (inverse-transpose of the upper 3x3)
 - quaternion <-> matrix3 conversions
