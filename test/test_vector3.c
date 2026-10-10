@@ -568,6 +568,44 @@ static const char *test_vector3_reflect(void)
 }
 
 
+static const char *test_vector3_refract(void)
+{
+	struct vector3 v, normal, e;
+	HYP_FLOAT sin45 = HYP_SQRT(HYP_FLOAT_C(0.5));
+	HYP_FLOAT eta = HYP_FLOAT_C(1.0) / HYP_FLOAT_C(1.5);
+
+	/* with eta 1 the direction does not change; lengths do not matter */
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, HYP_FLOAT_C(1.0)), vector3_setf3(&e, sin45, -sin45, HYP_FLOAT_C(0.0))));
+
+	/* from air into glass at 45 degrees: sin(refracted) = sin(45) / 1.5 */
+	vector3_setf3(&v, HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0));
+	vector3_refract(&v, &normal, eta);
+	test_assert(scalar_equalsf(v.x, sin45 * eta));
+	test_assert(scalar_equalsf(v.y, -HYP_SQRT(HYP_FLOAT_C(1.0) - sin45 * sin45 * eta * eta)));
+	test_assert(scalar_equalsf(v.z, HYP_FLOAT_C(0.0)));
+
+	/* straight on, the ray goes straight through */
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), -HYP_FLOAT_C(7.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_setf3(&e, HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+
+	/* from glass into air at 60 degrees: total internal reflection */
+	vector3_setf3(&v, HYP_SQRT(HYP_FLOAT_C(3.0)), -HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, HYP_FLOAT_C(1.5)), vector3_zero(&e)));
+
+	/* a zero normal leaves the direction unchanged; a zero vector stays zero */
+	vector3_zero(&normal);
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(2.0));
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_setf3(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0))));
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	vector3_zero(&v);
+	test_assert(vector3_equals(vector3_refract(&v, &normal, eta), vector3_zero(&e)));
+
+	return NULL;
+}
+
+
 static const char *test_vector3_project(void)
 {
 	struct vector3 v, onto, e;
@@ -793,6 +831,7 @@ static const char *vector3_all_tests(void)
 	run_test(test_vector3_clamp_min_max);
 	run_test(test_vector3_project);
 	run_test(test_vector3_reflect);
+	run_test(test_vector3_refract);
 	run_test(test_vector3_set_random_unit_scripted);
 	run_test(test_vector3_set_random_unit_many);
 	run_test(test_vector3_set_random_in_ball);

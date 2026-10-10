@@ -499,6 +499,7 @@ HYPAPI struct vector3 *vector3_min(struct vector3 *self, const struct vector3 *v
 HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto);
 HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector3 *normal);
+HYPAPI struct vector3 *vector3_refract(struct vector3 *self, const struct vector3 *normal, HYP_FLOAT eta);
 HYPAPI struct vector3 *vector3_add(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_addf(struct vector3 *self, HYP_FLOAT fT);
 HYPAPI struct vector3 *vector3_subtract(struct vector3 *self, const struct vector3 *vT);
@@ -1786,6 +1787,46 @@ HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector
 	}
 
 	return vector3_subtract(self, vector3_multiplyf(&direction, s));
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Refracts the direction self through a surface with the given normal,
+ * by Snell's law.  eta is the ratio of the refractive indices, from the side
+ * self comes from to the other (1 / 1.5 from air into glass).  The normal faces
+ * the side self comes from (normal . self < 0).
+ *
+ * Neither vector needs to be unit length.  The result is the unit direction of
+ * the refracted ray, or the zero vector for total internal reflection or a zero
+ * self.  A zero normal leaves the direction unchanged.
+ */
+HYPAPI struct vector3 *vector3_refract(struct vector3 *self, const struct vector3 *normal, HYP_FLOAT eta)
+{
+	struct vector3 incident;
+	struct vector3 n;
+	HYP_FLOAT d;
+	HYP_FLOAT k;
+
+	if (!(hyp_normalize(vector3_set(&incident, self)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return vector3_zero(self);
+	}
+	if (!(hyp_normalize(vector3_set(&n, normal)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return vector3_set(self, &incident);
+	}
+
+	/* the cosine of the angle of incidence is -d; k is the square of the
+	 * cosine of the angle of refraction
+	 */
+	d = vector3_dot_product(&n, &incident);
+	k = HYP_FLOAT_C(1.0) - eta * eta * (HYP_FLOAT_C(1.0) - d * d);
+	if (k < HYP_FLOAT_C(0.0)) {
+		return vector3_zero(self);
+	}
+
+	/* eta incident - (eta d + sqrt(k)) n */
+	vector3_multiplyf(vector3_set(self, &incident), eta);
+	return vector3_subtract(self, vector3_multiplyf(&n, eta * d + HYP_SQRT(k)));
 }
 
 
