@@ -29,7 +29,15 @@ static int near_and_far(const struct matrix4 *m, HYP_FLOAT zNear, HYP_FLOAT zFar
 int main(void)
 {
 	struct matrix4 m;
+	struct vector4 viewport;
+	struct vector3 v;
+	struct vector3 w;
 	HYP_FLOAT fovy = HYP_TAU / HYP_FLOAT_C(4.0);
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT far_tolerance = HYP_FLOAT_C(1e-4);
+#else
+	const HYP_FLOAT far_tolerance = HYP_FLOAT_C(1e-12);
+#endif
 
 	matrix4_projection_perspective_fovy_rh(&m, fovy, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
 	if (!near_and_far(&m, -HYP_FLOAT_C(1.0), -HYP_FLOAT_C(100.0))) {
@@ -77,6 +85,22 @@ int main(void)
 	matrix4_projection_perspective_fovy_infinite_lh(&m, fovy, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
 	if (!near_and_far(&m, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1e6))) {
 		printf("infinite perspective lh depth\n");
+		return 1;
+	}
+
+	/* window depth is 0 to 1 with either convention */
+	matrix4_projection_perspective_fovy_rh(&m, fovy, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	vector4_setf4(&viewport, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(640.0), HYP_FLOAT_C(480.0));
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0));
+	vector3_setf3(&w, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(100.0));
+	if (!scalar_equalsf(vector3_project_to_window(&v, &m, &viewport)->z, HYP_FLOAT_C(0.0))
+	    || !scalar_equalsf(vector3_project_to_window(&w, &m, &viewport)->z, HYP_FLOAT_C(1.0))) {
+		printf("window depth\n");
+		return 1;
+	}
+	/* at the far plane the rounding is magnified by far / near = 100 */
+	if (!(HYP_ABS(vector3_unproject_from_window(&w, &m, &viewport)->z + HYP_FLOAT_C(100.0)) < far_tolerance * HYP_FLOAT_C(100.0))) {
+		printf("window depth back\n");
 		return 1;
 	}
 

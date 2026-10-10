@@ -344,6 +344,70 @@ static const char *test_matrix4_projection_perspective_infinite(void)
 }
 
 
+static const char *test_vector3_project_to_window(void)
+{
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT far_tolerance = HYP_FLOAT_C(1e-4);
+#else
+	const HYP_FLOAT far_tolerance = HYP_FLOAT_C(1e-12);
+#endif
+	struct matrix4 m;
+	struct matrix4 view;
+	struct vector4 viewport;
+	struct vector3 eye;
+	struct vector3 v;
+	struct vector3 point;
+	struct vector3 expected;
+
+	/* 90 degrees, aspect 2, near 1, far 100, in an 800 by 400 viewport at (10, 20) */
+	matrix4_projection_perspective_fovy_rh(&m, HYP_TAU / HYP_FLOAT_C(4.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(100.0));
+	vector4_setf4(&viewport, HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(800.0), HYP_FLOAT_C(400.0));
+
+	/* the near top right corner, the far bottom left corner and the center */
+	vector3_setf3(&v, HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	test_assert(vector3_project_to_window(&v, &m, &viewport) == &v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(810.0), HYP_FLOAT_C(420.0), HYP_FLOAT_C(0.0))));
+	vector3_setf3(&v, -HYP_FLOAT_C(200.0), -HYP_FLOAT_C(100.0), -HYP_FLOAT_C(100.0));
+	vector3_project_to_window(&v, &m, &viewport);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(1.0))));
+
+	/* back from the window: depth 0 is the near plane, 1 the far plane */
+	vector3_setf3(&v, HYP_FLOAT_C(410.0), HYP_FLOAT_C(220.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_unproject_from_window(&v, &m, &viewport) == &v);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0))));
+	/* at the far plane w = 1 - 0.99, so the rounding of the matrix is magnified
+	 * by far / near = 100: a relative tolerance of 100 times a few epsilons
+	 */
+	vector3_setf3(&v, HYP_FLOAT_C(10.0), HYP_FLOAT_C(20.0), HYP_FLOAT_C(1.0));
+	vector3_unproject_from_window(&v, &m, &viewport);
+	vector3_setf3(&expected, -HYP_FLOAT_C(200.0), -HYP_FLOAT_C(100.0), -HYP_FLOAT_C(100.0));
+	test_assert(vector3_distance(&v, &expected) < far_tolerance * vector3_magnitude(&expected));
+
+	/* a world point through a camera and back */
+	vector3_setf3(&eye, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(10.0));
+	matrix4_view_lookat_rh(&view, &eye, HYP_VECTOR3_ZERO, HYP_VECTOR3_UNIT_Y);
+	matrix4_multiply(&view, &m); /* m * view */
+	vector3_setf3(&point, HYP_FLOAT_C(0.5), -HYP_FLOAT_C(1.5), HYP_FLOAT_C(2.0));
+	vector3_set(&v, &point);
+	vector3_project_to_window(&v, &view, &viewport);
+	test_assert(v.z > HYP_FLOAT_C(0.0) && v.z < HYP_FLOAT_C(1.0));
+	vector3_unproject_from_window(&v, &view, &viewport);
+	test_assert(vector3_equals(&v, &point));
+
+	/* a point in the plane of the eye has no window position; a matrix
+	 * with no inverse cannot be undone: NULL, and v is unchanged
+	 */
+	vector3_setf3(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_project_to_window(&v, &m, &viewport) == NULL);
+	test_assert(vector3_equals(&v, vector3_setf3(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+	matrix4_zero(&m);
+	test_assert(vector3_unproject_from_window(&v, &m, &viewport) == NULL);
+	test_assert(vector3_equals(&v, &expected));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_projection_ortho3d(void)
 {
 	struct matrix4 m;
@@ -602,6 +666,7 @@ static const char *experimental_all_tests(void)
 	run_test(test_matrix4_projection_left_handed);
 	run_test(test_matrix4_projection_frustum);
 	run_test(test_matrix4_projection_perspective_infinite);
+	run_test(test_vector3_project_to_window);
 	run_test(test_quaternion_angle_between);
 	run_test(test_quaternion_difference);
 

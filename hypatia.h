@@ -952,6 +952,8 @@ HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_rh(struct ma
 HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_infinite_lh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear);
 HYPAPI struct matrix4 *matrix4_projection_frustum_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
+HYPAPI struct vector3 *vector3_project_to_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport);
+HYPAPI struct vector3 *vector3_unproject_from_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport);
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_view_lookat_lh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
@@ -5616,6 +5618,78 @@ HYPAPI struct matrix4 *matrix4_projection_frustum_lh(struct matrix4 *self, HYP_F
 	self->r32 = HYP_FLOAT_C(1.0); /* w = z */
 
 	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Maps the point self to window coordinates: transform (projection *
+ * view * model, applied as M * v), the divide by w, then the viewport (x, y,
+ * width, height).  Window x and y grow right and up from (x, y); window depth
+ * is 0 at the near plane and 1 at the far plane with either depth convention.
+ *
+ * Returns NULL, and leaves self unchanged, when w is exactly 0 (a point in
+ * the plane of the eye).
+ */
+HYPAPI struct vector3 *vector3_project_to_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport)
+{
+	struct vector4 point;
+	struct vector4 clip;
+
+	vector4_setf4(&point, self->x, self->y, self->z, HYP_FLOAT_C(1.0));
+	matrix4_multiplyv4(transform, &point, &clip);
+	/* w exactly 0 (written without == for -Wfloat-equal; NaN also returns NULL) */
+	if (!(clip.w < HYP_FLOAT_C(0.0)) && !(clip.w > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	self->x = viewport->x + viewport->z * (clip.x / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+	self->y = viewport->y + viewport->w * (clip.y / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	self->z = (clip.z / clip.w + HYP_FLOAT_C(1.0)) / HYP_FLOAT_C(2.0);
+#else
+	self->z = clip.z / clip.w;
+#endif
+
+	return self;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Maps window coordinates back to a point: the inverse of
+ * vector3_project_to_window for the same transform and viewport.  A window
+ * depth of 0 gives the point on the near plane, 1 the point on the far plane.
+ *
+ * Returns NULL, and leaves self unchanged, when transform has no inverse or the
+ * point is at infinity (w exactly 0).
+ */
+HYPAPI struct vector3 *vector3_unproject_from_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport)
+{
+	struct matrix4 inverse;
+	struct vector4 ndc;
+	struct vector4 point;
+
+	if (matrix4_inverse(transform, &inverse) == NULL) {
+		return NULL;
+	}
+
+	ndc.x = HYP_FLOAT_C(2.0) * (self->x - viewport->x) / viewport->z - HYP_FLOAT_C(1.0);
+	ndc.y = HYP_FLOAT_C(2.0) * (self->y - viewport->y) / viewport->w - HYP_FLOAT_C(1.0);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+	ndc.z = HYP_FLOAT_C(2.0) * self->z - HYP_FLOAT_C(1.0);
+#else
+	ndc.z = self->z;
+#endif
+	ndc.w = HYP_FLOAT_C(1.0);
+
+	matrix4_multiplyv4(&inverse, &ndc, &point);
+	/* w exactly 0 (written without == for -Wfloat-equal; NaN also returns NULL) */
+	if (!(point.w < HYP_FLOAT_C(0.0)) && !(point.w > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
+
+	return vector3_setf3(self, point.x / point.w, point.y / point.w, point.z / point.w);
 }
 
 
