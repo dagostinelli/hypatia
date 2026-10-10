@@ -187,6 +187,17 @@ Coding Standard
 * Make a new check fail once before trusting it
 * One topic per commit; a fix ships with the check that enforces it
 * No false steps in the history; every commit builds and passes
+* Don't loosen a test to make it pass; a failing test is a finding
+
+Numerical principles:
+
+* Every input has a defined result: zero, tiny, huge, infinite and NaN components, and degenerate geometry (parallel or opposite vectors, eye == target, a zero axis)
+* Decide on exact conditions, not tolerances: only an exactly zero determinant has no inverse, only an exactly zero vector cannot be normalized
+* Choose the formula that keeps its digits in the hard cases: atan2 rather than acos for angles, differences of unit vectors rather than 1 - dot
+* Scale before squaring so that lengths neither overflow nor underflow; divide by a value rather than multiply by a reciprocal that can overflow
+* A function of rotations gives the same result for q and -q
+* Measure precision instead of assuming it: the error in ulps against a reference in higher precision, on random and on hard inputs, with the reference itself checked a second way
+* Compare with other libraries on the same inputs, and publish the commands that reproduce each claim
 
 Unit Tests
 --------------------------------
