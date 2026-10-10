@@ -1992,14 +1992,15 @@ HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const 
 	struct quaternion unit;
 	struct vector3 u;
 	struct vector3 uv;
-	struct vector3 uuv;
 	HYP_FLOAT norm = quaternion_norm(qT);
-	HYP_FLOAT k;
+	HYP_FLOAT parallel;
+	HYP_FLOAT along;
+	HYP_FLOAT across;
 
-	/* v + 2 / |q|^2 (w (u x v) + u x (u x v)), with u the vector part: the
-	 * rotation by q / |q|, which q * v * conjugate(q) also scales by |q|^2.
-	 * Outside the normal range of |q|^2 (zero, overflow, underflow, NaN)
-	 * normalize q first.
+	/* (2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) / |q|^2, with u the vector
+	 * part: the rotation by q / |q|, which q * v * conjugate(q) also scales by
+	 * |q|^2.  Outside the normal range of |q|^2 (zero, overflow, underflow,
+	 * NaN) normalize q first.
 	 */
 	quaternion_set(&unit, qT);
 	if (!(norm > HYP_FLOAT_C(1e-30)) || !(norm < HYP_FLOAT_C(1e30))) {
@@ -2008,15 +2009,16 @@ HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const 
 		}
 		norm = HYP_FLOAT_C(1.0);
 	}
-	k = HYP_FLOAT_C(2.0) / norm;
 
 	vector3_setf3(&u, unit.x, unit.y, unit.z);
 	vector3_cross_product(&uv, &u, self);
-	vector3_cross_product(&uuv, &u, &uv);
+	parallel = HYP_FLOAT_C(2.0) * vector3_dot_product(&u, self);
+	along = unit.w * unit.w - vector3_dot_product(&u, &u);
+	across = HYP_FLOAT_C(2.0) * unit.w;
 
-	self->x += k * (unit.w * uv.x + uuv.x);
-	self->y += k * (unit.w * uv.y + uuv.y);
-	self->z += k * (unit.w * uv.z + uuv.z);
+	self->x = (parallel * u.x + along * self->x + across * uv.x) / norm;
+	self->y = (parallel * u.y + along * self->y + across * uv.y) / norm;
+	self->z = (parallel * u.z + along * self->z + across * uv.z) / norm;
 
 	return self;
 }
