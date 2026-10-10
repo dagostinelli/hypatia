@@ -8,16 +8,16 @@ Mean error within 2% of the best of the other libraries ("best or tied"), more t
 |---|---|---|---|---|---|---|---|
 | default seed | double | master | 13 | 0 | 24 | 15 | 37 |
 | default seed | double | before | 19 | 7 | 22 | 0 | 41 |
-| default seed | double | now | 32 | 11 | 9 | 0 | 41 |
+| default seed | double | now | 36 | 14 | 10 | 0 | 46 |
 | default seed | single | master | 16 | 1 | 21 | 11 | 37 |
 | default seed | single | before | 19 | 5 | 22 | 0 | 41 |
-| default seed | single | now | 32 | 10 | 9 | 0 | 41 |
+| default seed | single | now | 36 | 13 | 10 | 0 | 46 |
 | COMPARE_SEED=7 | double | master | 14 | 0 | 23 | 14 | 37 |
 | COMPARE_SEED=7 | double | before | 20 | 7 | 21 | 0 | 41 |
-| COMPARE_SEED=7 | double | now | 32 | 10 | 9 | 0 | 41 |
+| COMPARE_SEED=7 | double | now | 37 | 14 | 9 | 0 | 46 |
 | COMPARE_SEED=7 | single | master | 16 | 1 | 21 | 11 | 37 |
 | COMPARE_SEED=7 | single | before | 19 | 6 | 22 | 0 | 41 |
-| COMPARE_SEED=7 | single | now | 31 | 11 | 10 | 0 | 41 |
+| COMPARE_SEED=7 | single | now | 36 | 14 | 10 | 0 | 46 |
 
 ## Where hypatia now is ahead (double, default seed)
 
@@ -29,8 +29,11 @@ Ratio of the mean errors, with the default seed and with COMPARE_SEED=7.
 | `quaternion_get_rotation_tov3` | 1e-3 rad from opposite (landing error) | 2.21 / 0.35 | 4.08e+03 / 639 (Eigen) | 1.83e+03 | 1.83e+03 |
 | `quaternion_angle_between` | 1e-4 rad apart | 4.02e+03 / 205 | 9.69e+03 / 1.77e+03 (Eigen) | 8.63 | 8.59 |
 | `quaternion_get_rotation_tov3` | random (landing error) | 2.21 / 0.538 | 116 / 0.864 (Eigen) | 1.61 | 1.64 |
+| `vector3_reflect` | random (relative to the length of v) | 4.13 / 0.458 | 4.48 / 0.657 (GLM) | 1.43 | 1.44 |
+| `vector3_unproject_from_window` | random camera, window depth 0 .. 0.9 | 86.9 / 1.86 | 100 / 2.17 (GLM) | 1.17 | 1.15 |
 | `matrix4_view_lookat_rh` | random (error * sin(view, up)) | 2.01 / 0.407 | 2.31 / 0.45 (GLM) | 1.11 | 1.1 |
 | `vector3_rotate_by_quaternion` | unit q | 4.21 / 0.622 | 3.57 / 0.684 (Eigen) | 1.1 | 1.1 |
+| `vector3_refract` | random, eta 0.5 .. 2 | 60.3 / 0.384 | 60.3 / 0.413 (GLM) | 1.08 | 1.08 |
 | `matrix4_inverse` | rotation, scale and translation (error / condition number) | 0.179 / 0.0108 | 0.169 / 0.0114 (Eigen) | 1.06 | 1.05 |
 | `matrix3_inverse` | random entries (error / condition number) | 0.555 / 0.0749 | 0.555 / 0.0784 (GLM) | 1.05 | 1.04 |
 | `matrix4_set_from_quaternion` | unit q | 2.69 / 0.581 | 2.26 / 0.598 (GLM) | 1.03 | 1.03 |
@@ -50,6 +53,7 @@ Ratio of the mean errors, with the default seed and with COMPARE_SEED=7.
 | `quaternion_set_from_matrix4` | near half turns (pi - 1e-3) | 1.66 / 0.332 | 1.41 / 0.303 (GLM) | 1.1 | 1.08 |
 | `quaternion_set_from_matrix4` | random rotation | 1.8 / 0.357 | 1.45 / 0.326 (GLM) | 1.1 | 1.08 |
 | `vector3_normalize` | components 1e-20 .. 1e20 (single 1e-15 .. 1e15) | 1.14 / 0.131 | 1.14 / 0.124 (Eigen) | 1.06 | 1.06 |
+| `quaternion_set_look_rotation_rh` | random | 12.3 / 0.436 | 14.8 / 0.417 (GLM) | 1.05 | 1.63e-11 |
 | `quaternion_slerp` | 1e-3 rad apart | 2 / 0.518 | 2.1 / 0.496 (Eigen) | 1.04 | 1.04 |
 | `quaternion_slerp` | random | 1.74 / 0.468 | 1.62 / 0.457 (Eigen) | 1.02 | 1.02 |
 
@@ -62,9 +66,12 @@ Ratio of the mean errors, with the default seed and with COMPARE_SEED=7.
 | `quaternion_get_rotation_tov3` | 1e-3 rad from opposite (landing error) | 2.23 / 0.348 | 4.39e+03 / 942 (GLM) | 2.71e+03 | 2.67e+03 |
 | `quaternion_angle_between` | 1e-4 rad apart | 4.25e+03 / 207 | 1.19e+04 / 1.92e+03 (Eigen) | 9.28 | 9.19 |
 | `quaternion_get_rotation_tov3` | random (landing error) | 2.58 / 0.536 | 48.8 / 0.863 (Eigen) | 1.61 | 1.63 |
+| `vector3_reflect` | random (relative to the length of v) | 3.59 / 0.466 | 4.41 / 0.664 (GLM) | 1.42 | 1.43 |
+| `vector3_unproject_from_window` | random camera, window depth 0 .. 0.9 | 35.4 / 1.86 | 58.1 / 2.16 (GLM) | 1.16 | 1.16 |
 | `vector3_rotate_by_quaternion` | unit q | 3.06 / 0.62 | 3.98 / 0.689 (Eigen) | 1.11 | 1.1 |
 | `vector3_rotate_by_quaternion` | q of length 1 +- 1e-6 (drifted) | 3.24 / 0.649 | 3.77 / 0.717 (cglm) | 1.1 | 1.11 |
 | `matrix4_view_lookat_rh` | random (error * sin(view, up)) | 1.94 / 0.416 | 2.54 / 0.458 (GLM) | 1.1 | 1.09 |
+| `vector3_refract` | random, eta 0.5 .. 2 | 143 / 0.385 | 186 / 0.421 (GLM) | 1.09 | 1.08 |
 | `matrix4_inverse` | rotation, scale and translation (error / condition number) | 0.185 / 0.0109 | 0.186 / 0.0115 (Eigen) | 1.06 | 1.06 |
 | `matrix3_inverse` | random entries (error / condition number) | 0.794 / 0.0753 | 0.794 / 0.0788 (GLM) | 1.05 | 1.05 |
 | `quaternion_get_axis_anglev3` | random (axis * angle) | 1.35 / 0.384 | 1.45 / 0.396 (Eigen) | 1.03 | 1.03 |
@@ -84,6 +91,7 @@ Ratio of the mean errors, with the default seed and with COMPARE_SEED=7.
 | `quaternion_slerp` | 1e-3 rad apart | 1.67 / 0.474 | 1.64 / 0.427 (Eigen) | 1.11 | 1.12 |
 | `quaternion_set_from_matrix4` | random rotation | 1.81 / 0.356 | 1.31 / 0.328 (GLM) | 1.09 | 1.09 |
 | `quaternion_slerp` | 1e-6 rad apart | 1.47 / 0.376 | 1.25 / 0.358 (Eigen) | 1.05 | 1.05 |
+| `quaternion_set_look_rotation_rh` | random | 7.7 / 0.436 | 18.1 / 0.417 (GLM) | 1.05 | 1 |
 | `quaternion_slerp` | random | 1.85 / 0.478 | 1.85 / 0.468 (Eigen) | 1.02 | 1.02 |
 
 ## Where now is less precise than master (default seed)
@@ -105,8 +113,16 @@ Relative change of each mean error between the default seed and COMPARE_SEED=7, 
 
 | precision | measurements | median change | 90th percentile | largest |
 |---|---|---|---|---|
-| double | 176 | 0.4% | 1.2% | 5.4% |
-| single | 217 | 0.44% | 1.1% | 4.5% |
+| double | 186 | 0.4% | 1.3% | 1e+02% |
+| single | 229 | 0.44% | 1.2% | 99% |
+
+The measurements whose mean changes by more than 5%:
+
+| precision | library | function | inputs | default seed | COMPARE_SEED=7 |
+|---|---|---|---|---|---|
+| double | hypatia master | `quaternion_angle_between` | random | 610 / 0.845 | 398 / 0.799 |
+| double | GLM | `quaternion_set_look_rotation_rh` | random | 14.8 / 0.417 | 5.36e+14 / 2.68e+10 |
+| single | GLM | `quaternion_set_look_rotation_rh` | random | 18.1 / 0.417 | 9.99e+05 / 50.4 |
 
 ## All measurements (double, default seed)
 
@@ -155,6 +171,11 @@ Largest / mean error in ulps.  Bold: the smallest mean among now and the other l
 | quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 4e+09 / 3.56e+09 | 1.58 / 0.321 | 1.54 / 0.275 | 0.666 / 0.163 | **0.636 / 0.159** |
 | quaternion_angle_between | random | 610 / 0.845 | 7.65 / 0.361 | 2.09 / 0.329 |  | **2.9 / 0.257** |
 | quaternion_angle_between | 1e-4 rad apart | 9.87e+08 / 1.71e+08 | 1.62e+04 / 2.1e+03 | **4.02e+03 / 205** |  | 9.69e+03 / 1.77e+03 |
+| vector3_reflect | random (relative to the length of v) |  |  | **4.13 / 0.458** | 4.48 / 0.657 |  |
+| vector3_refract | random, eta 0.5 .. 2 |  |  | **60.3 / 0.384** | 60.3 / 0.413 |  |
+| quaternion_set_look_rotation_rh | random |  |  | 12.3 / 0.436 | **14.8 / 0.417** |  |
+| vector3_project_to_window | random camera, a point in the view |  |  | **260 / 2.2** | **260 / 2.2** |  |
+| vector3_unproject_from_window | random camera, window depth 0 .. 0.9 |  |  | **86.9 / 1.86** | 100 / 2.17 |  |
 
 ## All measurements (single, default seed)
 
@@ -203,6 +224,11 @@ Largest / mean error in ulps.  Bold: the smallest mean among now and the other l
 | quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 7.69 / 6.64 | 1.63 / 0.298 | 1.41 / 0.259 | 8.73 / 8.39 | **0.686 / 0.159** | 8.73 / 8.39 |
 | quaternion_angle_between | random | 169 / 0.781 | 8.11 / 0.361 | 1.69 / 0.333 |  | **3.46 / 0.273** |  |
 | quaternion_angle_between | 1e-4 rad apart | inf | 1.7e+04 / 2.12e+03 | **4.25e+03 / 207** |  | 1.19e+04 / 1.92e+03 |  |
+| vector3_reflect | random (relative to the length of v) |  |  | **3.59 / 0.466** | 4.41 / 0.664 |  | 4.41 / 0.664 |
+| vector3_refract | random, eta 0.5 .. 2 |  |  | **143 / 0.385** | 186 / 0.421 |  | 2.5e+07 / 9.32e+06 |
+| quaternion_set_look_rotation_rh | random |  |  | 7.7 / 0.436 | **18.1 / 0.417** |  | 18.1 / 0.434 |
+| vector3_project_to_window | random camera, a point in the view |  |  | **275 / 2.26** | **275 / 2.26** |  |  |
+| vector3_unproject_from_window | random camera, window depth 0 .. 0.9 |  |  | **35.4 / 1.86** | 58.1 / 2.16 |  |  |
 
 ## Oracle check (now, default seed)
 
@@ -210,25 +236,25 @@ double:
 
 | reference | largest disagreement |
 |---|---|
-| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 0.000267 |
-| vector rotation: quaternion product against the rotation matrix | 0.00175 |
-| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 0.00129 |
-| slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 0.00132 |
-| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.378 |
-| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.309 |
-| angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128 | 0 |
-| axis-angle matrix: Rodrigues against through a quaternion | 0.00359 |
+| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 0.000512 |
+| vector rotation: quaternion product against the rotation matrix | 0.00205 |
+| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 0.0014 |
+| slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 0.00125 |
+| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.376 |
+| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.351 |
+| angle between quaternions 1e-4 rad apart: from a - b and a + b against from a conj(b), both in _Float128 | 0 |
+| axis-angle matrix: Rodrigues against through a quaternion | 0.00346 |
 
 single:
 
 | reference | largest disagreement |
 |---|---|
-| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 4.35e-13 |
-| vector rotation: quaternion product against the rotation matrix | 3.12e-12 |
-| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 2.48e-12 |
+| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 4.26e-13 |
+| vector rotation: quaternion product against the rotation matrix | 2.97e-12 |
+| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 2.99e-12 |
 | slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 2.44e-12 |
-| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.399 |
-| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.321 |
-| angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128 | 0 |
-| axis-angle matrix: Rodrigues against through a quaternion | 4.94e-12 |
+| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.355 |
+| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.31 |
+| angle between quaternions 1e-4 rad apart: from a - b and a + b against from a conj(b), both in _Float128 | 0 |
+| axis-angle matrix: Rodrigues against through a quaternion | 4.9e-12 |
 
