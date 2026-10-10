@@ -20,6 +20,7 @@ These experimental functions give wrong results; do not use them.
 
 Documentation and tests:
 
+* Doxygen documents the functions from the implementation.
 * The README has a coding standard and the numerical principles.
 * Tests for the matrix4 multiply properties, quaternion_inverse with unit
   and non-unit quaternions, and the slerp shortest arc.
