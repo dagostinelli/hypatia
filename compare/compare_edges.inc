@@ -164,4 +164,78 @@ static void edge_cases()
 		matrix4_projection_perspective_fovy_rh(&h, 1, 1, 1, 1);
 		edge("matrix4_projection_perspective_fovy_rh", "zNear == zFar", sm4(h), "GLM " + sm4(h4(GLM_PERSP_RH((H)1, (H)1, (H)1, (H)1))));
 	}
+
+	/* rotation by a quaternion that is not unit length, and axes that are not
+	 * unit length: each library's own result applied to X
+	 */
+	{
+		struct quaternion q2, qz;
+		struct vector3 x, h;
+		vector3_setf3(&x, 1, 0, 0);
+		quaternion_set_from_axis_anglev3(&q2, HYP_VECTOR3_UNIT_Z, (H)(PI / 2));
+		quaternion_multiplyf(&q2, 2);
+		quaternion_setf4(&qz, 0, 0, 0, 0);
+		const struct quaternion *qs[2] = {&q2, &qz};
+		const char *qn[2] = {"X by 2 * (quarter turn about Z)", "X by the zero quaternion"};
+		for (int i = 0; i < 2; i++) {
+			h = x;
+			vector3_rotate_by_quaternion(&h, qs[i]);
+			EV3 e = eq(*qs[i]) * ev(x);
+			std::string o = "GLM q * v " + gs3(gq(*qs[i]) * gv(x)) + "; Eigen q * v " + gs3(V3(e.x(), e.y(), e.z()));
+#ifdef HAVE_CGLM
+			versor c = {qs[i]->x, qs[i]->y, qs[i]->z, qs[i]->w};
+			vec3 cv = {1, 0, 0}, out;
+			glm_quat_rotatev(c, cv, out);
+			o += "; cglm glm_quat_rotatev " + sv(out, 3);
+#endif
+			edge("vector3_rotate_by_quaternion", qn[i], sv(h.v, 3), o);
+		}
+
+		struct vector3 axes[2];
+		vector3_setf3(&axes[0], 0, 0, 10);
+		vector3_setf3(&axes[1], 0, 0, 0);
+		const char *an[2] = {"quarter turn about (0, 0, 10), applied to X", "quarter turn about the zero axis, applied to X"};
+		for (int i = 0; i < 2; i++) {
+			H a = (H)(PI / 2);
+			/* matrices */
+			struct matrix4 hm;
+			matrix4_set_from_axisv3_angle(&hm, &axes[i], a);
+			h = x;
+			vector3_multiplym4(&h, &hm);
+			M4 gm = glm::rotate(M4(1), a, gv(axes[i]));
+			Eigen::Matrix<H, 3, 3> em = Eigen::AngleAxis<H>(a, ev(axes[i])).toRotationMatrix();
+			EV3 ex = em * ev(x);
+			std::string o = "GLM rotate " + gs3(V3(gm * V4(gv(x), 1))) + "; Eigen AngleAxis matrix " + gs3(V3(ex.x(), ex.y(), ex.z()));
+#ifdef HAVE_CGLM
+			mat4 cm;
+			vec3 cax = {axes[i].x, axes[i].y, axes[i].z};
+			glm_rotate_make(cm, a, cax);
+			M4 g;
+			std::memcpy(&g[0][0], cm, sizeof cm);
+			o += "; cglm glm_rotate_make " + gs3(V3(g * V4(gv(x), 1)));
+#endif
+			edge("matrix4_set_from_axisv3_angle", an[i], sv(h.v, 3), o);
+
+			/* quaternions: the quaternion, its length, and X rotated by it */
+			struct quaternion hq_;
+			quaternion_set_from_axis_anglev3(&hq_, &axes[i], a);
+			h = x;
+			vector3_rotate_by_quaternion(&h, &hq_);
+			Q gq_ = glm::angleAxis(a, gv(axes[i]));
+			EQ eq_(Eigen::AngleAxis<H>(a, ev(axes[i])));
+			EV3 eqx = eq_ * ev(x);
+			o = "GLM angleAxis " + gsq(gq_) + " length " + f(glm::length(gq_)) + ", X -> " + gs3(gq_ * gv(x)) +
+			    "; Eigen AngleAxis " + sq(hq(eq_)) + " length " + f(eq_.norm()) + ", X -> " + gs3(V3(eqx.x(), eqx.y(), eqx.z()));
+#ifdef HAVE_CGLM
+			versor cq;
+			vec3 cax2 = {axes[i].x, axes[i].y, axes[i].z}, cv2 = {1, 0, 0}, out2;
+			glm_quatv(cq, a, cax2);
+			glm_quat_rotatev(cq, cv2, out2);
+			struct quaternion cqh;
+			quaternion_setf4(&cqh, cq[0], cq[1], cq[2], cq[3]);
+			o += "; cglm glm_quatv " + sq(cqh) + " length " + f(quaternion_magnitude(&cqh)) + ", X -> " + sv(out2, 3);
+#endif
+			edge("quaternion_set_from_axis_anglev3", an[i], sq(hq_) + " length " + f(quaternion_magnitude(&hq_)) + ", X -> " + sv(h.v, 3), o);
+		}
+	}
 }
