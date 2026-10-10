@@ -3,8 +3,8 @@
 
 static volatile H zero_v = 0;
 
-static std::string gs3(const V3 &v) { struct vector3 h = hv(v); return sv(h.v, 3); }
-static std::string gsq(const Q &q) { return sq(hq(q)); }
+[[maybe_unused]] static std::string gs3(const V3 &v) { struct vector3 h = hv(v); return sv(h.v, 3); }
+[[maybe_unused]] static std::string gsq(const Q &q) { return sq(hq(q)); }
 
 #ifndef PRECISION_ONLY
 static void edge_cases()

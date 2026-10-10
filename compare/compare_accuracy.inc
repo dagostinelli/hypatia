@@ -3,14 +3,14 @@
 // libraries disagree, which one is closer to the exact answer
 
 /* a row with the largest error of one library over the inputs */
-static void acc_row(const char *area, const std::string &test, const char *note, double maxerr)
+[[maybe_unused]] static void acc_row(const char *area, const std::string &test, const char *note, double maxerr)
 {
 	begin(area, test.c_str(), "long double", note);
 	cur->n = N;
 	cur->maxerr = maxerr;
 }
 
-static double oracle_angle2(const struct vector2 &a, const struct vector2 &b)
+[[maybe_unused]] static double oracle_angle2(const struct vector2 &a, const struct vector2 &b)
 {
 	L ax = a.x, ay = a.y, bx = b.x, by = b.y;
 	return (double)std::atan2(std::fabs(ax * by - ay * bx), ax * bx + ay * by);
@@ -42,9 +42,9 @@ static double landing_error(const struct vector3 &from, const struct vector3 &to
 	return (double)std::sqrt(ex * ex + ey * ey + ez * ez);
 }
 
-static int zero_rcond;
+[[maybe_unused]] static int zero_rcond;
 
-static double rc_l(const struct matrix4 &a)
+[[maybe_unused]] static double rc_l(const struct matrix4 &a)
 {
 	double d[16], inv[16], det, rc;
 	dbl<16>(a.m, d);
@@ -93,7 +93,10 @@ static void accuracy()
 	{
 		const char *notes[3] = {"random", "1e-3 rad from opposite", "exactly opposite (to = -2 from)"};
 		for (int kind = 0; kind < 3; kind++) {
-			double eh = 0, eg = 0, ee = 0, ec = 0;
+			double eh = 0, eg = 0, ee = 0;
+#ifdef HAVE_CGLM
+			double ec = 0;
+#endif
 			for (int i = 0; i < N; i++) {
 				struct vector3 a = rv3(), b = rv3();
 				if (kind == 1) {
