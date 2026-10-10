@@ -118,7 +118,7 @@ Results that differ from 2.0:
 * `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
 * Normalizing leaves only an exactly zero vector unchanged (2.0: anything shorter than 1e-5); `vector2_normalize` no longer gives NaN.
-* `quaternion_inverse` and `quaternion_lerp` have no shortcuts near 0 or 1.
+* `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1; with a negative dot product slerp ends at -end, the same rotation as end.
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.

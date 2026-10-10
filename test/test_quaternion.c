@@ -962,8 +962,54 @@ static const char *test_quaternion_no_near_shortcuts(void)
 
 	return NULL;
 }
+
+
+static const char *test_quaternion_slerp_negative_dot(void)
+{
+	struct quaternion start;
+	struct quaternion end;
+	struct quaternion r;
+	struct quaternion step;
+
+	/* end is a quarter turn about Z written with w < 0, so start . end < 0 */
+	quaternion_identity(&start);
+	quaternion_negate(quaternion_set_from_axis_anglev3(&end, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0)));
+	test_assert(quaternion_dot_product(&start, &end) < HYP_FLOAT_C(0.0));
+
+	/* t = 0 is start exactly, and a small t stays next to it */
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(0.0), &r);
+	test_assert(quaternion_equals(&r, &start));
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(0.001), &r);
+	quaternion_subtract(quaternion_set(&step, &r), &start);
+	test_assert(quaternion_magnitude(&step) < HYP_FLOAT_C(0.01));
+
+	/* t = 1 is the rotation of end (as end or -end) */
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(1.0), &r);
+	test_assert(scalar_equalsf(quaternion_angle_between(&r, &end), HYP_FLOAT_C(0.0)));
+
+	/* a tiny t moves away from start */
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(5e-6), &r);
+	test_assert(HYP_ABS(r.z) > HYP_FLOAT_C(0.0));
+
+	return NULL;
+}
+
+static const char *test_quaternion_slerp_dot_above_one(void)
+{
+	struct quaternion q, qR;
+
+	/* slightly longer than unit: the dot product is above 1 */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.00004));
+	quaternion_slerp(&q, &q, HYP_FLOAT_C(0.5), &qR);
+	test_assert(quaternion_equals(&qR, &q));
+
+	return NULL;
+}
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_slerp_dot_above_one);
+	run_test(test_quaternion_slerp_negative_dot);
 	run_test(test_quaternion_no_near_shortcuts);
 	run_test(test_quaternion_normalize_and_inverse_small);
 	run_test(test_quaternion_set_random_unit_scripted);
