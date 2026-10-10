@@ -11,4 +11,5 @@ Tested: Eigen 3.4.0, commit [3147391](https://gitlab.com/libeigen/eigen/tree/314
 | [`q * v` does not rotate when q is not exactly unit length](05-quaternion-times-vector-not-unit.md) | wrong result for non-unit q; precision for drifted q | present in the latest release |
 | [`Quaternion::FromTwoVectors` with a zero vector returns a quaternion of length 0.71](06-fromtwovectors-zero-vector.md) | wrong result on degenerate input | present in the latest release |
 | [`AngleAxis` with an axis that is not unit length gives a scaled quaternion and a non-rotation matrix](07-angleaxis-axis-not-unit.md) | documented precondition, not checked | present in the latest release |
-| [Smaller precision differences: Eigen has 2% to 10% more rounding error in six functions](08-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: Eigen has 2% to 10% more rounding error in seven measurements of six functions](08-precision-small-differences.md) | precision | present in the latest release |
+| [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |

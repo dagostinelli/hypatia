@@ -17,8 +17,9 @@ float `w` rounds to exactly 1, `1 - w*w` is 0, and `glm::axis` returns its fallb
 (0, 0, 1) whatever the actual axis: for a rotation of 1e-4 rad about X it returns Z.
 `axis * angle` (the rotation vector) inherits the error: 1.2e7 double epsilons in the mean
 over random rotations of 1e-4 rad.  On random rotations of any size the largest error is 70
-epsilons (mean 0.65), against 1.33 (mean 0.38) with hypatia.  `glm::angle` itself is accurate here (it switches to
-asin), so the error is only in the axis.
+epsilons (mean 0.65), against 1.33 (mean 0.38) with hypatia.  `glm::angle` itself is
+accurate here (for `|w|` near 1 it uses `asin` of the length of the vector part; the
+program prints it), so the error is in the axis.
 
 ## Reproduction
 
@@ -34,7 +35,7 @@ int main()
 {
 	glm::dquat q = glm::angleAxis(1e-4, glm::dvec3(0, 0, 1));
 	glm::dvec3 axis = glm::axis(q);
-	std::printf("double: length of glm::axis = %.17g\n", glm::length(axis));
+	std::printf("double: length of glm::axis = %.17g, glm::angle = %.17g\n", glm::length(axis), glm::angle(q));
 
 	glm::quat qf = glm::angleAxis(1e-4f, glm::vec3(1, 0, 0));
 	glm::vec3 af = glm::axis(qf);
@@ -45,7 +46,7 @@ int main()
 Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
-double: length of glm::axis = 1.000000002622069
+double: length of glm::axis = 1.000000002622069, glm::angle = 0.0001
 float, 1e-4 rad about X: glm::axis = (0, 0, 1)
 ```
 

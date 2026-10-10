@@ -58,7 +58,7 @@ From `compare/results/precision/summary.md`, default seed:
     sign error (fixed in cglm 0.9.5), and GLM's `quatLookAt` fails when up is nearly
     parallel to the view direction (below).
 - **Reports:** every case where another library is wrong or less precise is written up as
-  an issue report with a program that shows it, in `docs/reports/` (38 reports; 37 still
+  an issue report with a program that shows it, in `docs/reports/` (43 reports; 42 still
   present in the latest releases).
 - **Regressions:** now is less precise than master in six measurements, by 5% to 15% in
   the mean.  They are listed below with the reason.

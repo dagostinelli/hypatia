@@ -49,8 +49,8 @@ Expected: (0, 0, 0), and (0, 2, 0).
 
 ## How hypatia does it
 
-`vector3_project` divides by |b|^2 when it is in the normal range, projects onto the unit
-vector (scaled normalization) otherwise, and gives the zero vector for `b = 0`.
+`vector3_project` divides by |b|^2 when it is between 1e-30 and 1e30, projects onto the
+unit vector (scaled normalization) otherwise, and gives the zero vector for `b = 0`.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
@@ -80,8 +80,8 @@ project((1, 2, 3), (0, 1e-25, 0)) = (0, 2, 0)
 
 ## Suggested fix
 
-Return the zero vector when `norm2(b)` is zero; outside the normal range, normalize `b`
-with scaling and use `dot(a, b) b`.
+Return the zero vector when `b` is zero; when `norm2(b)` is outside a safe range such as
+1e-30 to 1e30, normalize `b` with scaling and use `dot(a, b) b`.
 
 ## Checking
 

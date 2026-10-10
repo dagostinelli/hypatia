@@ -12,7 +12,9 @@
 
 `lookAt` normalizes `center - eye` and `cross(f, up)`.  When the eye is at the target the
 first is the zero vector; when the camera looks straight along `up` the second is.  Either
-way `normalize` returns NaN and most of the view matrix is NaN.  A camera that reaches its
+way `normalize` returns NaN.  With the eye at the target 12 of the 16 entries of the view
+matrix are NaN (the first three rows); looking along up, half of the view matrix is NaN
+(8 entries, the first two rows).  A camera that reaches its
 target or looks straight up or down is common in interactive code; NaN in the view matrix
 corrupts every vertex.
 
@@ -108,4 +110,6 @@ up axis when `cross(f, up)` vanishes).
 
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/13-lookat-degenerate-nan.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/13-lookat-degenerate-nan.md` builds both programs above and compares their output with this report.  The full
+matrices are in `results/double.md`, "Edge cases", `matrix4_view_lookat_rh` rows "eye ==
+target" and "looking along up".

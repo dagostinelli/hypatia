@@ -20,5 +20,7 @@ Tested: GLM 1.0.1, commit [0af55cc](https://github.com/g-truc/glm/tree/0af55ccec
 | [`glm::rotation` with a zero vector is NaN](14-rotation-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angleAxis` and `glm::rotate` disagree on axes that are not unit length, and fail on a zero axis](15-axis-angle-zero-or-not-unit-axis.md) | inconsistent API; NaN on degenerate input | present in the latest release |
 | [`glm::inverse` of a singular matrix returns NaN with no way to tell](16-inverse-singular-matrix-nan.md) | NaN on degenerate input; no error report | present in the latest release |
-| [`glm::normalize` rounds twice: about 15% to 75% more error than dividing by the length](17-normalize-two-roundings.md) | precision | present in the latest release |
-| [Smaller precision differences: GLM has 2% to 21% more rounding error in thirteen measurements](18-precision-small-differences.md) | precision | present in the latest release |
+| [`glm::normalize` rounds three times instead of twice: more error than dividing by the length](17-normalize-two-roundings.md) | precision | present in the latest release |
+| [Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements](18-precision-small-differences.md) | precision | present in the latest release |
+| [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
+| [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |

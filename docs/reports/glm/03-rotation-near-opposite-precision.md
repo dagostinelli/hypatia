@@ -85,9 +85,15 @@ Expected: an error of a few epsilons, as for other inputs.
 
 ```
 rotationAxis = cross(orig, dest);
+
 T s = sqrt((T(1) + cosTheta) * static_cast<T>(2));
 T invs = static_cast<T>(1) / s;
-return qua<T, Q>::wxyz(s * 0.5f, rotationAxis.x * invs, ...);
+
+return qua<T, Q>::wxyz(
+	s * static_cast<T>(0.5f),
+	rotationAxis.x * invs,
+	rotationAxis.y * invs,
+	rotationAxis.z * invs);
 ```
 
 For nearly opposite unit vectors `cosTheta` is close to -1 and `1 + cosTheta` keeps only

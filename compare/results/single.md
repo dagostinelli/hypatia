@@ -187,7 +187,7 @@ Tolerance 2e-05 (difference relative to max(1, |reference|)); 2000 random inputs
 | quaternion_nlerp | glm::normalize(glm::lerp) | 2000 | 0 | 1.78813934e-07 |  |  |
 | quaternion_slerp | glm::slerp | 2000 | 0 | 1.78813934e-07 |  | components |
 | quaternion_slerp | Eigen slerp | 2000 | 0 | 1.78813934e-07 |  | components |
-| quaternion_slerp | cglm glm_quat_slerp | 2000 | 0 | 1.90734863e-06 |  | as a rotation (cglm does not take the shortest arc) |
+| quaternion_slerp | cglm glm_quat_slerp | 2000 | 0 | 1.90734863e-06 |  | as a rotation |
 | quaternion_slerp | glm::slerp | 2000 | 0 | 2.38418579e-07 |  | nearly the same: 1e-3 rad apart |
 | quaternion_set_look_rotation_rh | glm::quatLookAtRH(normalize(d), up) | 2000 | 0 | 8.19563866e-07 |  |  |
 | quaternion_set_look_rotation_lh | glm::quatLookAtLH(normalize(d), up) | 2000 | 0 | 7.74860382e-07 |  |  |
@@ -263,7 +263,7 @@ Tolerance 2e-05 (difference relative to max(1, |reference|)); 2000 random inputs
 | quaternion_get_rotation_tov3 | a, zero | (x 0, y 0, z 0, w 1) | GLM (x -nan, y -nan, z -nan, w -nan); Eigen (x 0, y 0, z 0, w 0.707106769) |
 | matrix4_inverse | singular (1 .. 16) | NULL | GLM (-nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan); determinant: hypatia 0, GLM 0 |
 | matrix4_inverse | nearly singular | NULL | LAPACK rcond (double) see table; GLM determinant 0 |
-| matrix4_transformation_decompose | zero scale on x | 0 (fails) | GLM false, scale (-5.41779469e-33, 4.59163468e-41, -1.19141486e-14) |
+| matrix4_transformation_decompose | zero scale on x | 0 (fails) | GLM false, scale (-2.29667174e-10, 4.59121429e-41, 0.963383675) |
 | matrix4_view_lookat_rh | eye == target | (0, 0, 0, -0, 0, 0, 0, -0, -0, -0, -0, 0, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, nan, nan, nan, -nan, 0, 0, 0, 1) |
 | matrix4_view_lookat_rh | looking along up | (0, 0, 0, -0, 0, 0, 0, -0, -0, -1, -0, 2, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, -0, -1, -0, 2, 0, 0, 0, 1) |
 | matrix4_projection_perspective_fovy_rh | zNear == zFar | (1.83048773, 0, 0, 0, 0, 1.83048773, 0, 0, 0, 0, inf, inf, 0, 0, -1, 0) | GLM (1.83048773, 0, 0, 0, 0, 1.83048773, 0, 0, 0, 0, inf, -inf, 0, 0, -1, 0) |

@@ -53,7 +53,7 @@ Expected: (0, 1, 0) from both, and the identity for the zero axis; or an asserti
 
 ## Cause
 
-[`Geometry/AngleAxis.h` lines 218-226](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/AngleAxis.h#L218-L226) and
+[`Geometry/AngleAxis.h` lines 218-243](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/AngleAxis.h#L218-L243) and
 [`Geometry/Quaternion.h` lines 561-569](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L561-L569) use
 `m_axis` as given.  The class documentation warns: "the axis vector must be normalized".
 

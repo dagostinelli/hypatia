@@ -64,8 +64,18 @@ Expected: a rotation that takes `a` onto `b` to within float precision (about 1e
 unless `CGLM_USE_DEFAULT_EPSILON` is set:
 
 ```
-if (cos_theta >= 1.f - GLM_FLT_EPSILON) { glm_quat_identity(dest); return; }
-if (cos_theta < -1.f + GLM_FLT_EPSILON) { glm_vec3_ortho(a, axis); cos_half_theta = 0.f; }
+cos_theta = glm_vec3_dot(a, b);
+if (cos_theta >= 1.f - GLM_FLT_EPSILON) {  /*  a ∥ b  */
+  glm_quat_identity(dest);
+  return;
+}
+if (cos_theta < -1.f + GLM_FLT_EPSILON) {  /*  angle(a, b) = π  */
+  glm_vec3_ortho(a, axis);
+  cos_half_theta = 0.f;                    /*  cos π/2 */
+} else {
+  glm_vec3_cross(a, b, axis);
+  cos_half_theta = 1.0f + cos_theta;       /*  cos 0 + cos θ  */
+}
 ```
 
 A threshold on the cosine is a threshold on the square of the angle.

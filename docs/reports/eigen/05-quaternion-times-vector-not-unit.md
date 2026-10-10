@@ -31,6 +31,8 @@ int main()
 	Eigen::Quaterniond twice(2 * quarter.coeffs());
 	Eigen::Vector3d r = twice * Eigen::Vector3d::UnitX();
 	std::printf("2q * X = (%g, %g, %g)\n", r.x(), r.y(), r.z());
+	Eigen::Vector3d m = twice.toRotationMatrix() * Eigen::Vector3d::UnitX();
+	std::printf("2q.toRotationMatrix() * X = (%g, %g, %g)\n", m.x(), m.y(), m.z());
 
 	Eigen::Quaterniond drifted((1 + 1e-6) * quarter.coeffs());
 	Eigen::Vector3d d = drifted * Eigen::Vector3d::UnitX();
@@ -42,10 +44,11 @@ Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
 2q * X = (-3, 4, 0)
+2q.toRotationMatrix() * X = (-3, 4, 0)
 q (length 1 + 1e-6) * X = (-2.0000009997023227e-06, 1.0000020000009999, 0), length 1.0000020000029999
 ```
 
-Expected: (0, 1, 0) in both cases.
+Expected: (0, 1, 0) in every case.
 
 ## Cause
 
@@ -60,8 +63,9 @@ return v + this->w() * uv + this->vec().cross(uv);
 ## How hypatia does it
 
 `vector3_rotate_by_quaternion` evaluates `(2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) /
-|q|^2`: the rotation by `q / |q|` for any length, at the cost of one division, with no
-separate normalization.  The zero quaternion leaves the vector unchanged.
+|q|^2`: the rotation by `q / |q|` for any length.  When `|q|^2` is between 1e-30 and 1e30
+that costs one division, with no separate normalization; otherwise it normalizes q first.
+The zero quaternion leaves the vector unchanged.
 
 ```c
 #define HYPATIA_IMPLEMENTATION

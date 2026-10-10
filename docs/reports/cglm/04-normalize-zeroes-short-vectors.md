@@ -15,9 +15,12 @@
 difference of nearby points); their direction is representable and lost.  Above about 1e19
 the squared length overflows to inf and the result is zero as well; a NaN component makes
 every component NaN.  Every cglm function that normalizes (rotation axes, `glm_quatv`,
-`glm_rotate_make`, `glm_quat_imagn`) inherits this.  For components spread from 1e-15 to
-1e15 the harness measures a mean error of 1.7e5 epsilons (largest 8.4e6), against 0.085
-with hypatia.
+`glm_rotate_make`, `glm_quat_imagn`) inherits this.  `glm_vec4_normalize` compares the
+length with `FLT_EPSILON` the same way on its scalar path; its SSE and WebAssembly paths
+compare the squared length, which zeroes every 4-vector shorter than 3.45e-4
+([14](14-vec4-normalize-sse-threshold.md)).  For components spread from 1e-15 to 1e15 the
+harness measures a mean error of 1.7e5 epsilons (largest 8.4e6), against 0.085 with
+hypatia.
 
 ## Reproduction
 
@@ -70,10 +73,10 @@ threshold on a length it has no meaning.  `glm_vec3_norm` squares the components
 
 ## How hypatia does it
 
-`vector3_normalize` (all hypatia normalizations use `hyp_normalize`) leaves only an exactly
-zero vector unchanged.  When the sum of the squares is out of range it divides by the
-largest component first, so short and long vectors normalize as accurately as others.  A
-vector with a NaN component is left unchanged.
+`vector3_normalize` (all hypatia normalizations use `hyp_normalize`) leaves unchanged only
+an exactly zero vector, or one with a NaN component.  When the sum of the squares is not
+between 1e-30 and 1e30 it divides by the largest component first, so short and long
+vectors normalize as accurately as others.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
@@ -105,9 +108,10 @@ normalize(NaN, 1, 0)        = (nan, 1, 0)
 
 ## Suggested fix
 
-Return early only for a norm of exactly zero; when `dot(v, v)` is outside the normal float
-range, divide by the largest component first.  Dividing by `norm` instead of multiplying by
-`1.0f / norm` also removes a rounding ([12](12-precision-small-differences.md)).
+Return early only for a norm of exactly zero; when `dot(v, v)` is outside a safe range
+such as 1e-30 to 1e30, divide by the largest component first.  Dividing by `norm` instead
+of multiplying by `1.0f / norm` also removes a rounding
+([12](12-precision-small-differences.md)).
 
 ## Checking
 

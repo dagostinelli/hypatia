@@ -15,7 +15,8 @@
 about 0.003 rad of the view direction the clamp applies, the right axis is shorter than 1,
 and the matrix passed to `quat_cast` is not a rotation.  For a direction 1e-4 rad from up
 the result has length 0.72 and does not look along the direction.  In the comparison
-harness one random input of 20000 gave an error of 5e14 epsilons.
+harness run with `COMPARE_SEED=7`, one random input of 20000 gave an error of 5e14
+epsilons.
 
 ## Reproduction
 
@@ -67,11 +68,15 @@ it is short too.
 
 ## How hypatia does it
 
-`quaternion_set_look_rotation_rh` (and `_lh`) normalizes the right axis exactly (scaled
-normalization, no clamp), so the matrix is a rotation for any up that is not exactly
-parallel.  When up is zero or exactly parallel to the direction there is no right axis;
-the result is then the shortest rotation from -Z to the direction
-(`quaternion_get_rotation_tov3`), still a unit quaternion.
+`quaternion_set_look_rotation_rh` (and `_lh`) normalizes the right axis without a clamp
+(`hyp_normalize`, which scales first when needed), so the matrix is a rotation for any up
+that is not exactly parallel.  As up approaches the direction, the cross product that
+gives the right axis loses relative accuracy, so the result stays a unit quaternion whose
+accuracy degrades gradually instead of failing (largest error 18.9 epsilons in the harness
+with `COMPARE_SEED=7`).  When up is zero or exactly parallel to the direction there is no
+right axis; the result is then the shortest rotation from -Z to the direction (from +Z for
+`quaternion_set_look_rotation_lh`), from `quaternion_get_rotation_tov3`, still a unit
+quaternion.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -111,5 +116,5 @@ example with `rotation(vec3(0, 0, -1), direction)` once that function is fixed
 
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/05-quatlookat-up-nearly-parallel.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.s7.md`, `quaternion_set_look_rotation_rh`
-(GLM largest 5.36e14 epsilons; hypatia 18.9).
+`compare/check_reports.py docs/reports/glm/05-quatlookat-up-nearly-parallel.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.s7.md` (the run with `COMPARE_SEED=7`),
+`quaternion_set_look_rotation_rh` (GLM largest 5.36e14 epsilons; hypatia 18.9).

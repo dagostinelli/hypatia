@@ -1,4 +1,4 @@
-# `glm_vec3_refract` has a sign error: it never gives the refracted direction
+# `glm_vec3_refract` has a sign error: it gives the refracted direction only at normal incidence
 
 | | |
 |---|---|
@@ -11,10 +11,12 @@
 ## Summary
 
 `glm_vec3_refract` computes `k = 1 + eta^2 - (eta n.v)^2`; Snell's law gives
-`k = 1 - eta^2 + (eta n.v)^2`, i.e. `1 - eta^2 (1 - (n.v)^2)`.  The result is wrong for
-every input: with `eta = 1` (no change of medium) a ray at 45 degrees comes out at
-(0.707, -1.225, 0), not even of unit length, instead of passing straight through; total
-internal reflection is never detected for the cases where it happens.  In the comparison
+`k = 1 - eta^2 + (eta n.v)^2`, i.e. `1 - eta^2 (1 - (n.v)^2)`.  The two agree only when
+`(n.v)^2 = 1`, at normal incidence (`v = -n` gives the right answer); the result is wrong
+for every other input.  With `eta = 1` (no change of medium) a ray at 45 degrees comes out
+at (0.707, -1.225, 0), not even of unit length, instead of passing straight through.
+cglm's `k` is never below 1, so total internal reflection is never detected for the cases
+where it happens.  In the comparison
 harness cglm disagrees with GLM and hypatia on all 2000 random inputs.
 
 ## Reproduction
@@ -34,6 +36,9 @@ int main(void)
 	printf("eta 1:     (%.6f, %.6f, %g), length %.6f\n", r[0], r[1], r[2], glm_vec3_norm(r));
 	glm_vec3_refract(v, n, 1.0f / 1.5f, r);
 	printf("eta 1/1.5: (%.6f, %.6f, %g), length %.6f\n", r[0], r[1], r[2], glm_vec3_norm(r));
+	glm_vec3_negate_to(n, v);  /* normal incidence */
+	glm_vec3_refract(v, n, 1.0f / 1.5f, r);
+	printf("v = -n:    (%g, %.6f, %g), length %.6f\n", r[0], r[1], r[2], glm_vec3_norm(r));
 	return 0;
 }
 ```
@@ -43,9 +48,11 @@ Output (x86-64, gcc 13.3, `-O2`):
 ```text
 eta 1:     (0.707107, -1.224745, 0), length 1.414214
 eta 1/1.5: (0.471405, -1.105542, 0), length 1.201850
+v = -n:    (-0, -1.000000, -0), length 1.000000
 ```
 
-Expected: (0.707107, -0.707107, 0) for eta 1; (0.471405, -0.881917, 0), of unit length, for eta 1/1.5.
+Expected: (0.707107, -0.707107, 0) for eta 1; (0.471405, -0.881917, 0), of unit length, for
+eta 1/1.5; (0, -1, 0) for normal incidence, which cglm gets right.
 
 ## Cause
 
@@ -84,6 +91,8 @@ int main(void)
 	printf("eta 1:     (%.6f, %.6f, %g), length %.6f\n", v.x, v.y, v.z, vector3_magnitude(&v));
 	vector3_refract(vector3_setf3(&v, 0.70710678f, -0.70710678f, 0), &n, 1.0f / 1.5f);
 	printf("eta 1/1.5: (%.6f, %.6f, %g), length %.6f\n", v.x, v.y, v.z, vector3_magnitude(&v));
+	vector3_refract(vector3_setf3(&v, 0, -1, 0), &n, 1.0f / 1.5f);
+	printf("v = -n:    (%g, %.6f, %g), length %.6f\n", v.x, v.y, v.z, vector3_magnitude(&v));
 	return 0;
 }
 ```
@@ -91,6 +100,7 @@ int main(void)
 ```text
 eta 1:     (0.707107, -0.707107, 0), length 1.000000
 eta 1/1.5: (0.471405, -0.881917, 0), length 1.000000
+v = -n:    (0, -1.000000, 0), length 1.000000
 ```
 
 ## Suggested fix
@@ -100,5 +110,5 @@ eta 1/1.5: (0.471405, -0.881917, 0), length 1.000000
 ## Checking
 
 `compare/check_reports.py docs/reports/cglm/01-refract-sign-error.md` builds both programs above and compares their output with this report. The harness: `results/single.md`, `vector3_refract` against `cglm glm_vec3_refract`
-(2000 of 2000 inputs differ), and `results/precision/now.single.md` (cglm 9.2e6 epsilons in
-the mean, hypatia 0.385).
+(2000 of 2000 inputs differ), and `results/precision/now.single.md`, `vector3_refract`
+(cglm 9.32e6 epsilons in the mean, hypatia 0.385).

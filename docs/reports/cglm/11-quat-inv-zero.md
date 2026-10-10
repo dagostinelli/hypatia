@@ -50,9 +50,9 @@ Expected: a defined value for the zero quaternion (it has no inverse), and w = 1
 
 ## How hypatia does it
 
-`quaternion_inverse` divides the conjugate by |q|^2 in the normal range and otherwise
-computes `(q / |q|) / |q|` with scaled normalization; the zero quaternion is left
-unchanged.
+`quaternion_inverse` divides the conjugate by |q|^2 when it is between 1e-30 and 1e30, and
+otherwise computes `(q / |q|) / |q|` with scaled normalization; the zero quaternion is
+left unchanged.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
@@ -81,9 +81,9 @@ inv(w = 1e-25) = (-0, -0, -0, 1e+25)
 
 ## Suggested fix
 
-Check the squared norm: zero, return the input; out of the normal range, divide by the
-length twice.  Dividing instead of multiplying by the reciprocal also removes a rounding
-([12](12-precision-small-differences.md)).
+Check the squared norm: zero, return the input; outside a safe range such as 1e-30 to
+1e30, divide by the length twice.  Dividing instead of multiplying by the reciprocal also
+removes a rounding ([12](12-precision-small-differences.md)).
 
 ## Checking
 

@@ -25,7 +25,7 @@ The outputs were produced on x86-64 Linux with gcc 13.3 at `-O2` (no `-ffast-mat
 Other platforms can differ in the last digits printed.  The measurements quoted from the
 comparison harness come from `compare/results/` (see `docs/comparison.md`).
 
-## GLM (18 reports)
+## GLM (20 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -45,10 +45,12 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm::rotation` with a zero vector is NaN](glm/14-rotation-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angleAxis` and `glm::rotate` disagree on axes that are not unit length, and fail on a zero axis](glm/15-axis-angle-zero-or-not-unit-axis.md) | inconsistent API; NaN on degenerate input | present in the latest release |
 | [`glm::inverse` of a singular matrix returns NaN with no way to tell](glm/16-inverse-singular-matrix-nan.md) | NaN on degenerate input; no error report | present in the latest release |
-| [`glm::normalize` rounds twice: about 15% to 75% more error than dividing by the length](glm/17-normalize-two-roundings.md) | precision | present in the latest release |
-| [Smaller precision differences: GLM has 2% to 21% more rounding error in thirteen measurements](glm/18-precision-small-differences.md) | precision | present in the latest release |
+| [`glm::normalize` rounds three times instead of twice: more error than dividing by the length](glm/17-normalize-two-roundings.md) | precision | present in the latest release |
+| [Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements](glm/18-precision-small-differences.md) | precision | present in the latest release |
+| [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](glm/19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
+| [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](glm/20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
 
-## Eigen (8 reports)
+## Eigen (9 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -59,21 +61,24 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`q * v` does not rotate when q is not exactly unit length](eigen/05-quaternion-times-vector-not-unit.md) | wrong result for non-unit q; precision for drifted q | present in the latest release |
 | [`Quaternion::FromTwoVectors` with a zero vector returns a quaternion of length 0.71](eigen/06-fromtwovectors-zero-vector.md) | wrong result on degenerate input | present in the latest release |
 | [`AngleAxis` with an axis that is not unit length gives a scaled quaternion and a non-rotation matrix](eigen/07-angleaxis-axis-not-unit.md) | documented precondition, not checked | present in the latest release |
-| [Smaller precision differences: Eigen has 2% to 10% more rounding error in six functions](eigen/08-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: Eigen has 2% to 10% more rounding error in seven measurements of six functions](eigen/08-precision-small-differences.md) | precision | present in the latest release |
+| [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](eigen/09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |
 
-## cglm (12 reports)
+## cglm (14 reports)
 
 | report | kind | status |
 |---|---|---|
-| [`glm_vec3_refract` has a sign error: it never gives the refracted direction](cglm/01-refract-sign-error.md) | wrong result | fixed upstream (0.9.5) |
+| [`glm_vec3_refract` has a sign error: it gives the refracted direction only at normal incidence](cglm/01-refract-sign-error.md) | wrong result | fixed upstream |
 | [`glm_quat_slerp` returns a near-zero quaternion for nearly equal rotations of opposite sign](cglm/02-slerp-fallback-ignores-sign.md) | wrong result | present in the latest release |
-| [`glm_quat_slerp` is inaccurate for small angles: an unnormalized lerp and acos](cglm/03-slerp-small-angles.md) | precision | present in the latest release |
+| [`glm_quat_slerp` returns its first argument when the dot product rounds to 1](cglm/03-slerp-small-angles.md) | precision | present in the latest release |
 | [`glm_vec3_normalize` sets every vector shorter than 1.19e-7 to zero, and long vectors overflow](cglm/04-normalize-zeroes-short-vectors.md) | wrong result | present in the latest release |
 | [`glm_quat_from_vecs` returns the identity for vectors up to 0.26 degrees apart, and a wrong half turn near opposite](cglm/05-quat-from-vecs-thresholds.md) | wrong result | present in the latest release |
 | [`glm_rotate_make` with a zero (or short) axis returns a matrix that is not a rotation](cglm/06-rotate-make-zero-axis.md) | wrong result on degenerate input | present in the latest release |
 | [`glm_quatv` with a zero (or short) axis returns a quaternion of length cos(angle/2)](cglm/07-quatv-zero-axis.md) | wrong result on degenerate input | present in the latest release |
 | [`glm_quat_for` returns a quaternion of length 0.71 when up is parallel to the direction](cglm/08-quat-for-up-parallel.md) | wrong result on degenerate input | present in the latest release |
-| [`glm_vec3_angle` returns 0 for vectors up to 4.9e-4 rad apart, and NaN for a zero vector](cglm/09-vec3-angle-acos.md) | precision; NaN on degenerate input | present in the latest release |
+| [`glm_vec3_angle` returns 0 for vectors up to about 6e-4 rad apart, and NaN for a zero vector](cglm/09-vec3-angle-acos.md) | precision; NaN on degenerate input | present in the latest release |
 | [`glm_vec3_proj` onto the zero vector is NaN](cglm/10-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm_quat_inv` of the zero quaternion is NaN; tiny and huge quaternions overflow](cglm/11-quat-inv-zero.md) | NaN on degenerate input | present in the latest release |
-| [Smaller precision differences: cglm has more rounding error than hypatia in fifteen measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
+| [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
+| [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |

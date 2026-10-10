@@ -49,7 +49,7 @@ Expected: X unchanged for the zero axis (no rotation), and (0, 1, 0) for the axi
 
 ## Cause
 
-[`affine.h` lines 128-140](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/affine.h#L128-L140): `glm_vec3_normalize_to(axis, axisn)`
+[`affine.h` lines 128-148](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/affine.h#L128-L148): `glm_vec3_normalize_to(axis, axisn)`
 followed by the Rodrigues terms, which reduce to `c I` when `axisn` is zero.
 
 ## How hypatia does it

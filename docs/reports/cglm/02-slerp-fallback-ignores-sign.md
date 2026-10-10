@@ -13,7 +13,7 @@
 `glm_quat_slerp` negates `from` when the dot product is negative (to take the shorter arc),
 but its fallback for small angles (`sinTheta < 0.001`) interpolates between the original
 `from` and `to`, ignoring the negation.  For two quaternions that describe nearly the same
-rotation with opposite signs (q and -q', which happens whenever quaternions come from
+rotation with opposite signs (q and -q', which can happen when quaternions come from
 different computations), the halfway point is close to the zero quaternion: length 0.00025
 in the example.  Normalized, it is an arbitrary rotation.
 
@@ -43,24 +43,38 @@ Output (x86-64, gcc 13.3, `-O2`):
 slerp(a, -b, 0.5) = (0, 0, -0.000219375, 0.000119925), length 0.000250014
 ```
 
-Expected: the rotation by 1.0005 rad about Z: (0, 0, 0.47965, 0.87745) or its negative, of unit length.
+Expected: the rotation by 1.0005 rad about Z: (0, 0, 0.479645, 0.877463) or its negative,
+of unit length.
 
 ## Cause
 
 [`quat.h` lines 715-734](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L715-L734):
 
 ```
+cosTheta = glm_quat_dot(from, to);
+glm_quat_copy(from, q1);
+
+if (fabsf(cosTheta) >= 1.0f) {
+  glm_quat_copy(q1, dest);
+  return;
+}
+
 if (cosTheta < 0.0f) {
-  glm_vec4_negate(q1);          /* q1 is the copy of from */
+  glm_vec4_negate(q1);
   cosTheta = -cosTheta;
 }
+
 sinTheta = sqrtf(1.0f - cosTheta * cosTheta);
+
 /* LERP to avoid zero division */
 if (fabsf(sinTheta) < 0.001f) {
-  glm_quat_lerp(from, to, t, dest);   /* from, not q1 */
+  glm_quat_lerp(from, to, t, dest);
   return;
 }
 ```
+
+`q1` is the copy of `from` that is negated; the fallback passes `from` and `to` to
+`glm_quat_lerp`, not `q1`.
 
 ## How hypatia does it
 

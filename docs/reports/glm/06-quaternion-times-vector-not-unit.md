@@ -70,8 +70,9 @@ This is `q v q*` expanded with `|q| = 1` substituted.  Without that substitution
 
 `vector3_rotate_by_quaternion` evaluates `(2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) /
 |q|^2`, which is the rotation by `q / |q|` for any length of q, with no extra
-normalization step.  Outside the normal range of |q|^2 it normalizes q first; the zero
-quaternion leaves the vector unchanged.  It agrees with `matrix4_set_from_quaternion`.
+normalization step.  When |q|^2 is not between 1e-30 and 1e30 it normalizes q first; the
+zero quaternion leaves the vector unchanged.  It agrees with
+`matrix4_set_from_quaternion`.
 
 ```c
 #define HYPATIA_IMPLEMENTATION

@@ -11,10 +11,10 @@
 ## Summary
 
 `glm::mix` interpolates on the 4D sphere without taking the shorter arc.  For `q` and `-q`
-(the same rotation) the angle between them is pi and `sin(angle)` is 1.2e-16, so
-`(sin(a pi) x + sin((1-a) pi) y) / sin(pi)` cancels to 0: halfway, the result is the zero
-quaternion, which is not a rotation.  For quaternions that are nearly opposite on the
-sphere (nearly the same rotation) the division by a tiny `sin(angle)` amplifies rounding.
+(the same rotation) the dot product is -1, the angle is `acos(-1)`, the double nearest pi,
+and `sin(angle)` is 1.2e-16 (the program below prints both).  Halfway, the numerator
+`sin(angle / 2) x + sin(angle / 2) y` cancels to 0 because `y = -x`: the result is the
+zero quaternion, which is not a rotation.
 
 ## Reproduction
 
@@ -29,6 +29,8 @@ sphere (nearly the same rotation) the division by a tiny `sin(angle)` amplifies 
 int main()
 {
 	glm::dquat q = glm::angleAxis(1.0, glm::dvec3(0, 0, 1));
+	double c = glm::dot(q, -q);
+	std::printf("dot(q, -q) = %.17g, sin(acos(dot)) = %g\n", c, std::sin(std::acos(c)));
 	glm::dquat r = glm::mix(q, -q, 0.5);
 	std::printf("mix(q, -q, 0.5) = (w %g, x %g, y %g, z %g), length %g\n", r.w, r.x, r.y, r.z, glm::length(r));
 
@@ -40,6 +42,7 @@ int main()
 Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
+dot(q, -q) = -1, sin(acos(dot)) = 1.22465e-16
 mix(q, -q, 0.5) = (w 0, x 0, y 0, z 0), length 0
 slerp(q, -q, 0.5) = (w 0.877582562, x 0, y 0, z 0.479425539)
 ```
@@ -58,8 +61,10 @@ result at a = 0.5 for opposite inputs is not a unit quaternion at all.
 
 `quaternion_slerp` always takes the shorter arc (it moves toward `-end` when the dot
 product is negative), and measures the angle as `2 atan2(|s - t|, |s + t|)` of the unit
-quaternions, which is accurate for every angle; there is no division by a vanishing sine.
-hypatia has no long-arc interpolation.
+quaternions, which is accurate for every angle.  It divides by `sin(theta)` for every
+nonzero angle; that is safe because theta is accurate.  For `q` and `-q` the sign flip
+makes the target equal to `q`, theta is exactly 0, and the lerp branch runs.
+`quaternion_slerp` has no long-arc interpolation.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -89,8 +94,7 @@ slerp(q, -q, 0.5) = (w 0.877582562, x 0, y 0, z 0.479425539), length 1
 
 Special-case `cosTheta < -1 + epsilon` (the quaternions are the same rotation; return `x`,
 or rotate about any axis perpendicular in 4D if a long-arc path is wanted), or point users
-of `mix` to `slerp`.  At least document that `mix` of nearly opposite quaternions is
-unstable.
+of `mix` to `slerp`.  At least document that `mix` of opposite quaternions returns zero.
 
 ## Checking
 
