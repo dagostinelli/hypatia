@@ -426,7 +426,7 @@ static const char *test_vector3_rotate_by_matrix_xy_quarter_turn(void)
 	matrix4_make_transformation_rotationf_x(&m, HYP_TAU / HYP_FLOAT_C(4.0));
 	vector3_set(&r, HYP_VECTOR3_UNIT_Y);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
 
 	return NULL;
@@ -441,7 +441,7 @@ static const char *test_vector3_rotate_by_matrix_yx_quarter_turn(void)
 	matrix4_make_transformation_rotationf_y(&m, HYP_TAU / HYP_FLOAT_C(4.0));
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
 	return NULL;
 }
@@ -455,7 +455,7 @@ static const char *test_vector3_rotate_by_matrix_zx_quarter_turn(void)
 	matrix4_make_transformation_rotationf_z(&m, HYP_TAU / HYP_FLOAT_C(4.0));
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
 	return NULL;
 }
@@ -470,7 +470,7 @@ static const char *test_matrix4_rotatev3_xz_quarter_turn(void)
 	matrix4_identity(&m);
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
 	return NULL;
 }
@@ -485,7 +485,7 @@ static const char *test_matrix4_rotatev3_xz_quarter_turn_opposite(void)
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Z, -(HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
 	return NULL;
 }
@@ -500,7 +500,7 @@ static const char *test_matrix4_rotatev3_xy_quarter_turn(void)
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Y, HYP_TAU / HYP_FLOAT_C(4.0));
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
 	return NULL;
 }
@@ -515,7 +515,7 @@ static const char *test_matrix4_rotatev3_xy_quarter_turn_opposite(void)
 	matrix4_rotatev3(&m, HYP_VECTOR3_UNIT_Y, -(HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_set(&r, HYP_VECTOR3_UNIT_X);
 	vector3_multiplym4(&r, &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
 	return NULL;
 }
@@ -529,7 +529,7 @@ static const char *test_matrix4_set_from_quaternion_xy_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
 
 	return NULL;
 }
@@ -543,7 +543,7 @@ static const char *test_matrix4_set_from_quaternion_xz_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
 	return NULL;
 }
@@ -557,7 +557,7 @@ static const char *test_matrix4_set_from_quaternion_yx_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z_NEGATIVE));
 
 	return NULL;
 }
@@ -571,7 +571,7 @@ static const char *test_matrix4_set_from_quaternion_yz_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Y, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Z), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
 
 	return NULL;
 }
@@ -585,7 +585,7 @@ static const char *test_matrix4_set_from_quaternion_zx_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_X), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
 
 	return NULL;
 }
@@ -599,7 +599,7 @@ static const char *test_matrix4_set_from_quaternion_zy_quarter_turn(void)
 
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
+	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X_NEGATIVE));
 
 	return NULL;
 }
@@ -614,6 +614,47 @@ static const char *test_matrix4_set_from_quaternion_xy_half_turn(void)
 	matrix4_make_transformation_rotationq(&m, quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_TAU / HYP_FLOAT_C(2.0)));
 	vector3_multiplym4(vector3_set(&r, HYP_VECTOR3_UNIT_Y), &m);
 	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+
+	return NULL;
+}
+
+
+/* rotationq and set_from_quaternion_EXP agree with set_from_axisf3_angle_EXP */
+static int quaternion_builders_agree(HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle)
+{
+	struct matrix4 reference;
+	struct matrix4 m;
+	struct quaternion q;
+	struct vector3 axis;
+
+	vector3_setf3(&axis, x, y, z);
+	quaternion_set_from_axis_anglev3(&q, &axis, angle);
+	matrix4_set_from_axisf3_angle(&reference, x, y, z, angle);
+
+	return matrix4_equals(matrix4_make_transformation_rotationq(&m, &q), &reference) &&
+		matrix4_equals(matrix4_set_from_quaternion(&m, &q), &reference);
+}
+
+
+static const char *test_matrix4_rotation_builders_agree(void)
+{
+	struct matrix4 reference;
+	struct matrix4 m;
+	HYP_FLOAT third = HYP_SQRT(HYP_FLOAT_C(1.0) / HYP_FLOAT_C(3.0));
+
+	/* rotationf_x/_y/_z agree with the axis-angle builder on their axis */
+	matrix4_set_from_axisf3_angle(&reference, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.7));
+	test_assert(matrix4_equals(matrix4_make_transformation_rotationf_x(&m, HYP_FLOAT_C(0.7)), &reference));
+	matrix4_set_from_axisf3_angle(&reference, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(2.0));
+	test_assert(matrix4_equals(matrix4_make_transformation_rotationf_y(&m, -HYP_FLOAT_C(2.0)), &reference));
+	matrix4_set_from_axisf3_angle(&reference, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0));
+	test_assert(matrix4_equals(matrix4_make_transformation_rotationf_z(&m, HYP_FLOAT_C(3.0)), &reference));
+
+	/* the quaternion builders agree with it on any axis */
+	test_assert(quaternion_builders_agree(HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.7)));
+	test_assert(quaternion_builders_agree(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(2.0)));
+	test_assert(quaternion_builders_agree(HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0)));
+	test_assert(quaternion_builders_agree(third, -third, third, HYP_FLOAT_C(1.1)));
 
 	return NULL;
 }
@@ -684,8 +725,8 @@ static const char *test_matrix4_match_transformation_matrix_quaternion(void)
 	vector3_rotate_by_quaternion(vector3_set(&vQ, HYP_VECTOR3_UNIT_Z), &q);
 	test_assert(vector3_equals(&vQ, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
-	matrix4_make_transformation_rotationf_z(&m, HYP_TAU / HYP_FLOAT_C(4.0));
-	vector3_set(&vM, HYP_VECTOR3_UNIT_X);
+	matrix4_make_transformation_rotationf_x(&m, HYP_TAU / HYP_FLOAT_C(4.0));
+	vector3_set(&vM, HYP_VECTOR3_UNIT_Z);
 	vector3_multiplym4(&vM, &m);
 	test_assert(vector3_equals(&vM, HYP_VECTOR3_UNIT_Y_NEGATIVE));
 
@@ -702,7 +743,7 @@ static const char *test_matrix4_transform_3d(void)
 
 	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
-	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 expectedPosition = {.v = {-HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 	struct vector3 translation = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 
 	/* modelMatrix */
@@ -734,7 +775,7 @@ static const char *test_matrix4_transform_3d_combined(void)
 
 	struct vector3 startingPosition = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 	struct vector3 scale = {.v = {HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1), HYP_FLOAT_C(0.1)}};
-	struct vector3 expectedPosition = {.v = {HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct vector3 expectedPosition = {.v = {-HYP_FLOAT_C(1.1), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
 	struct vector3 translation = {.v = {HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)}};
 
 	matrix4_identity(&worldMatrix);
@@ -1091,6 +1132,7 @@ static const char *matrix4_all_tests(void)
 
 	run_test(test_matrix4_match_transformation_matrix_quaternion);
 	run_test(test_matrix4_normal_matrix);
+	run_test(test_matrix4_rotation_builders_agree);
 	run_test(test_matrix4_transform_3d);
 	run_test(test_matrix4_transform_3d_combined);
 

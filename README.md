@@ -115,6 +115,7 @@ Changes in 2.1
 --------------
 Results that differ from 2.0:
 
+* The matrix4 rotations (`matrix4_make_transformation_rotationf_x/_y/_z`, `_rotationq`, `matrix4_rotatev3`) follow the right-hand rule; in 2.0 they turned the other way.
 * `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
 * `quaternion_get_rotation_tov3` returns a unit quaternion for vectors of any length; `quaternion_get_axis_anglev3` is accurate for small rotations and returns a unit axis and an angle in [0, pi].

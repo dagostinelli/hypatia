@@ -19,11 +19,11 @@
  *   after scale(2,2,2):      (2, 0, 0)
  *   after translate(3,4,5):  (5, 4, 5)
  *   after rotate 45 deg Y:   Ry * (5,4,5)
- *     The library's Y rotation: x' = x*cos - z*sin, z' = x*sin + z*cos
- *     (verified: 90 deg maps X -> Z in existing tests)
- *     x' = 5*cos45 - 5*sin45 = 0
+ *     Right-hand rule about Y: x' = x*cos + z*sin, z' = -x*sin + z*cos
+ *     (90 deg maps X -> -Z)
+ *     x' = 5*cos45 + 5*sin45 = 10*cos45 ~ 7.07107
  *     y' = 4
- *     z' = 5*sin45 + 5*cos45 = 10*cos45 ~ 7.07107
+ *     z' = -5*sin45 + 5*cos45 = 0
  */
 static const char *test_integration_trs_roundtrip(void)
 {
@@ -50,13 +50,13 @@ static const char *test_integration_trs_roundtrip(void)
 	vector3_multiplym4(&v, &combined);
 
 	/* expected: scale -> (2,0,0), translate -> (5,4,5), rotate Y 45:
-	 *   x' = 5*cos45 - 5*sin45 = 0
+	 *   x' = 5*cos45 + 5*sin45 = 10*cos45
 	 *   y' = 4
-	 *   z' = 5*sin45 + 5*cos45 = 10*cos45
+	 *   z' = -5*sin45 + 5*cos45 = 0
 	 */
-	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(5.0) * c - HYP_FLOAT_C(5.0) * s));
+	test_assert(scalar_equalsf(v.x, HYP_FLOAT_C(5.0) * c + HYP_FLOAT_C(5.0) * s));
 	test_assert(scalar_equalsf(v.y, HYP_FLOAT_C(4.0)));
-	test_assert(scalar_equalsf(v.z, HYP_FLOAT_C(5.0) * s + HYP_FLOAT_C(5.0) * c));
+	test_assert(scalar_equalsf(v.z, -HYP_FLOAT_C(5.0) * s + HYP_FLOAT_C(5.0) * c));
 
 	/* decompose a scale-only matrix to verify decompose works for that case
 	 * (the full TRS combined matrix mixes rotation into the translation
@@ -80,16 +80,9 @@ static const char *test_integration_trs_roundtrip(void)
 /**
  * Test 2: Quaternion-Matrix rotation equivalence
  *
- * The library's direct quaternion rotation (vector3_rotate_by_quaternion)
- * and the matrix built from that quaternion (matrix4_make_transformation_rotationq)
- * produce opposite-handed rotations for the same angle.  This is demonstrated
- * by the existing tests:
- *   - quaternion Z TAU/4 on X -> +Y
- *   - matrix-from-quaternion Z TAU/4 on X -> -Y
- *
- * We verify that both paths produce consistent (negated-angle-equivalent)
- * results: rotating by +angle via quaternion equals rotating by -angle via
- * the matrix (and vice-versa).
+ * The direct quaternion rotation (vector3_rotate_by_quaternion) and the
+ * matrix built from the same quaternion (matrix4_make_transformation_rotationq)
+ * rotate a vector the same way: both follow the right-hand rule.
  */
 static const char *test_integration_quaternion_matrix_rotation_equivalence(void)
 {
@@ -97,41 +90,20 @@ static const char *test_integration_quaternion_matrix_rotation_equivalence(void)
 	struct matrix4 m;
 	struct vector3 vQ, vM;
 
-	/* 90 degrees around Z */
+	/* +90 and -90 degrees around Z, applied to X */
 	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
 	matrix4_make_transformation_rotationq(&m, &q);
-
-	/* rotate (1,0,0) via quaternion */
-	vector3_set(&vQ, HYP_VECTOR3_UNIT_X);
-	vector3_rotate_by_quaternion(&vQ, &q);
-
-	/* rotate (1,0,0) via matrix */
-	vector3_set(&vM, HYP_VECTOR3_UNIT_X);
-	vector3_multiplym4(&vM, &m);
-
-	/* quaternion gives (0,1,0), matrix gives (0,-1,0) --
-	 * they are the negation of each other in the rotated components
-	 */
+	vector3_rotate_by_quaternion(vector3_set(&vQ, HYP_VECTOR3_UNIT_X), &q);
+	vector3_multiplym4(vector3_set(&vM, HYP_VECTOR3_UNIT_X), &m);
 	test_assert(vector3_equals(&vQ, HYP_VECTOR3_UNIT_Y));
-	test_assert(vector3_equals(&vM, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+	test_assert(vector3_equals(&vM, &vQ));
 
-	/* Now verify: matrix built from the negated-angle quaternion matches
-	 * the direct quaternion rotation with the original angle
-	 */
-	{
-		struct quaternion qNeg;
-		struct matrix4 mNeg;
-		struct vector3 vMNeg;
-
-		quaternion_set_from_axis_anglev3(&qNeg, HYP_VECTOR3_UNIT_Z, -(HYP_TAU / HYP_FLOAT_C(4.0)));
-		matrix4_make_transformation_rotationq(&mNeg, &qNeg);
-
-		vector3_set(&vMNeg, HYP_VECTOR3_UNIT_X);
-		vector3_multiplym4(&vMNeg, &mNeg);
-
-		/* matrix with -angle should match quaternion with +angle */
-		test_assert(vector3_equals(&vMNeg, &vQ));
-	}
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, -(HYP_TAU / HYP_FLOAT_C(4.0)));
+	matrix4_make_transformation_rotationq(&m, &q);
+	vector3_rotate_by_quaternion(vector3_set(&vQ, HYP_VECTOR3_UNIT_X), &q);
+	vector3_multiplym4(vector3_set(&vM, HYP_VECTOR3_UNIT_X), &m);
+	test_assert(vector3_equals(&vQ, HYP_VECTOR3_UNIT_Y_NEGATIVE));
+	test_assert(vector3_equals(&vM, &vQ));
 
 	return NULL;
 }
@@ -268,6 +240,63 @@ static const char *test_integration_vector2_matrix3_rotation(void)
 
 
 /**
+ * Round trips over random rotations (the test random source is the same on
+ * every platform): quaternion -> axis-angle -> quaternion, quaternion ->
+ * matrix -> quaternion, the quaternion and its matrix applied to a vector,
+ * and invert(invert(M)) = M and M * invert(M) = I for random TRS matrices.
+ */
+static const char *test_integration_random_round_trips(void)
+{
+	struct quaternion q;
+	struct quaternion q2;
+	struct matrix4 m;
+	struct matrix4 inverse;
+	struct matrix4 back;
+	struct matrix4 identity;
+	struct vector3 axis;
+	struct vector3 v;
+	struct vector3 vQ;
+	struct vector3 vM;
+	struct vector3 scale;
+	struct vector3 translation;
+	HYP_FLOAT angle;
+	int i;
+
+	matrix4_identity(&identity);
+
+	for (i = 0; i < 200; i++) {
+		quaternion_set_random_unit(&q);
+		vector3_set_random_unit(&v);
+
+		/* axis-angle */
+		quaternion_get_axis_anglev3(&q, &axis, &angle);
+		quaternion_set_from_axis_anglev3(&q2, &axis, angle);
+		test_assert(scalar_equalsf(quaternion_angle_between(&q, &q2), HYP_FLOAT_C(0.0)));
+
+		/* matrix: the same rotation applied, and back to a quaternion */
+		matrix4_make_transformation_rotationq(&m, &q);
+		vector3_rotate_by_quaternion(vector3_set(&vQ, &v), &q);
+		matrix4_multiplyv3(&m, &v, &vM);
+		test_assert(vector3_equals(&vQ, &vM));
+		matrix4_transformation_decompose(&m, &scale, &q2, &translation);
+		test_assert(scalar_equalsf(quaternion_angle_between(&q, &q2), HYP_FLOAT_C(0.0)));
+
+		/* inverse */
+		vector3_setf3(&scale, scalar_random_rangef(HYP_FLOAT_C(0.5), HYP_FLOAT_C(2.0)), scalar_random_rangef(HYP_FLOAT_C(0.5), HYP_FLOAT_C(2.0)), scalar_random_rangef(HYP_FLOAT_C(0.5), HYP_FLOAT_C(2.0)));
+		vector3_setf3(&translation, scalar_random_rangef(-HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)), scalar_random_rangef(-HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)), scalar_random_rangef(-HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0)));
+		matrix4_transformation_compose(&m, &scale, &q, &translation);
+		test_assert(matrix4_inverse(&m, &inverse) != NULL);
+		test_assert(matrix4_inverse(&inverse, &back) != NULL);
+		test_assert(matrix4_equals(&back, &m));
+		matrix4_multiply(&inverse, &m);
+		test_assert(matrix4_equals(&inverse, &identity));
+	}
+
+	return NULL;
+}
+
+
+/**
  * quaternion_rotate_by_euler_angles and matrix4_set_from_euler_anglesf3
  * rotate about X, then Y, then Z
  */
@@ -308,6 +337,7 @@ static const char *integration_all_tests(void)
 {
 	run_test(test_integration_trs_roundtrip);
 	run_test(test_integration_quaternion_matrix_rotation_equivalence);
+	run_test(test_integration_random_round_trips);
 	run_test(test_integration_rotate_by_euler_angles);
 	run_test(test_integration_matrix_multiply_chain);
 	run_test(test_integration_vector2_matrix2_rotation);
