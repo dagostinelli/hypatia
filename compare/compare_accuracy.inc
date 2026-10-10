@@ -52,6 +52,7 @@ static double rc_l(const struct matrix4 &a)
 	return rc;
 }
 
+#ifndef PRECISION_ONLY
 static void accuracy()
 {
 	const char *area = "accuracy against long double (largest error over the inputs)";
@@ -182,3 +183,4 @@ static void accuracy()
 		acc_row(area, "LAPACK dgecon estimate (double)", "condition up to 1e6; |log10(result / exact)|", rl);
 	}
 }
+#endif

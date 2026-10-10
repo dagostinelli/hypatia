@@ -1,6 +1,21 @@
 // SPDX-License-Identifier: MIT
 // matrix comparisons (included by compare.cpp)
 
+/* the GLM projections for the configured depth range */
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+#define GLM_PERSP_RH glm::perspectiveRH_NO
+#define GLM_PERSP_LH glm::perspectiveLH_NO
+#define GLM_ORTHO_RH glm::orthoRH_NO
+#define GLM_ORTHO_LH glm::orthoLH_NO
+#define DEPTH_NAME "_NO"
+#else
+#define GLM_PERSP_RH glm::perspectiveRH_ZO
+#define GLM_PERSP_LH glm::perspectiveLH_ZO
+#define GLM_ORTHO_RH glm::orthoRH_ZO
+#define GLM_ORTHO_LH glm::orthoLH_ZO
+#define DEPTH_NAME "_ZO"
+#endif
+
 /* LAPACK (double): inverse, determinant from the LU factors, and the
  * infinity-norm reciprocal condition estimate
  */
@@ -63,6 +78,7 @@ static double rel_to_max(const H *a, const LM4 &o)
 	return (double)(m / big);
 }
 
+#ifndef PRECISION_ONLY
 static void matrices()
 {
 	/* multiply: which order */
@@ -577,19 +593,6 @@ static void matrices()
 	}
 
 	/* projections and views */
-#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
-#define GLM_PERSP_RH glm::perspectiveRH_NO
-#define GLM_PERSP_LH glm::perspectiveLH_NO
-#define GLM_ORTHO_RH glm::orthoRH_NO
-#define GLM_ORTHO_LH glm::orthoLH_NO
-#define DEPTH_NAME "_NO"
-#else
-#define GLM_PERSP_RH glm::perspectiveRH_ZO
-#define GLM_PERSP_LH glm::perspectiveLH_ZO
-#define GLM_ORTHO_RH glm::orthoRH_ZO
-#define GLM_ORTHO_LH glm::orthoLH_ZO
-#define DEPTH_NAME "_ZO"
-#endif
 	begin("projections", "matrix4_projection_perspective_fovy_rh", "glm::perspectiveRH" DEPTH_NAME);
 	for (int i = 0; i < N; i++) {
 		H fovy = r(0.2, 2.5), aspect = r(0.5, 2.5), n = r(0.01, 2), fa = n + r(1, 1000);
@@ -669,3 +672,4 @@ static void matrices()
 	}
 #endif
 }
+#endif
