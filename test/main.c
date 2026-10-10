@@ -4,11 +4,12 @@
 #include <float.h> /* LDBL_MAX_EXP */
 #include <hypatia.h>
 
-/* long double with the 15-bit exponent of x87 extended and IEEE quad, which
- * reaches about 1e4932; elsewhere long double has the range of double
+/* the 15-bit exponent of x87 extended and IEEE quad, which reaches about
+ * 1e4932: _Float128, and long double where it is one of the two; elsewhere
+ * long double has the range of double
  */
-#if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && LDBL_MAX_EXP >= 16384
-#	define TEST_LONG_DOUBLE_RANGE
+#if defined(HYPATIA_QUAD_PRECISION_FLOATS) || (defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && LDBL_MAX_EXP >= 16384)
+#	define TEST_WIDE_RANGE
 #endif
 
 #define UNUSED_VARIABLE(x) ((void)(x))

@@ -21,6 +21,9 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 	# after -std=c90 in CMAKE_C_FLAGS on the compile line, so it wins
 	SET(HYP_LONG_DOUBLE_PRECISION_FLAGS -std=c99 -Wdouble-promotion)
 
+	# GCC has _Float128 and the f128 suffix in every -std mode, -std=c90 too
+	SET(HYP_QUAD_PRECISION_FLAGS -Wdouble-promotion)
+
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		SET(HYP_SINGLE_PRECISION_FLAGS -Wdouble-promotion)
 	endif()

@@ -88,6 +88,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYPATIA_SINGLE_PRECISION_FLOATS` | `HYP_FLOAT` is `float` instead of `double`. | |
 | `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` | `HYP_FLOAT` is `long double` instead of `double`.  Needs the C99 math functions (`sinl`, `cosl`, ...).  On MSVC and on macOS arm64, `long double` is the same as `double`. | |
+| `HYPATIA_QUAD_PRECISION_FLOATS` | `HYP_FLOAT` is `_Float128` (IEEE binary128, emulated in software on most machines) instead of `double`.  Needs `_Float128` and the `f128` math functions (`sinf128`, `cosf128`, ...): GCC 7 or later with glibc 2.26 or later, on x86 or AArch64 Linux.  `hypatia.h` defines `__STDC_WANT_IEC_60559_TYPES_EXT__` before it includes `<math.h>`; a file that includes `<math.h>` first must define it before that include. | |
 | `HYP_EPSILON` | The tolerance of the `*_equals` functions: absolute for values up to 1 in size, relative above 1. | `1E-5` |
 
 **Standard library**
@@ -96,7 +97,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_STDIO` | Leaves out `<stdio.h>` and the `hyp_*_print` debug functions. | |
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all eight math macros below. | |
-| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT`; `sqrtl`, `fmodl`, ... with `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` |
+| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT`; `sqrtl`, `fmodl`, ... with `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`; `sqrtf128`, `fmodf128`, ... with `HYPATIA_QUAD_PRECISION_FLOATS` |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset`. | `memset` from `<string.h>` |
 | `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source of `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX`; define both or neither. | `rand()`, `RAND_MAX` |
 
@@ -165,12 +166,13 @@ Conventions:
 New in 2.1:
 
 * Long double precision: `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`.
+* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`.
 
 Coding Standard
 ---------------
 
 * Mathematical correctness comes first; a design choice that conflicts with it is a bug
-* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, <stdint.h> / uint8_t, and the C99 math functions in long double mode)
+* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, <stdint.h> / uint8_t, the C99 math functions in long double mode, and _Float128 with its f128 literals and math functions in quad mode)
 * Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement

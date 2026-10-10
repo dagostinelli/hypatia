@@ -109,7 +109,7 @@ static const char *test_matrix4_transformation_decompose_short_and_long(void)
 	struct quaternion out_rotation;
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-20), HYP_FLOAT_C(1e20) };
-#elif defined(TEST_LONG_DOUBLE_RANGE)
+#elif defined(TEST_WIDE_RANGE)
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-2470), HYP_FLOAT_C(1e2470) };
 #else
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-160), HYP_FLOAT_C(1e160) };

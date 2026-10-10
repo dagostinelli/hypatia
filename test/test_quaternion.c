@@ -889,7 +889,7 @@ static const char *test_quaternion_get_rotation_tov3_short_vectors(void)
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	vector3_setf3(&from, HYP_FLOAT_C(1e-30), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
 	vector3_setf3(&to, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e30), HYP_FLOAT_C(0.0));
-#elif defined(TEST_LONG_DOUBLE_RANGE)
+#elif defined(TEST_WIDE_RANGE)
 	vector3_setf3(&from, HYP_FLOAT_C(1e-2500), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
 	vector3_setf3(&to, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e2500), HYP_FLOAT_C(0.0));
 #else
@@ -1196,7 +1196,7 @@ static const char *test_quaternion_short_and_long(void)
 	HYP_FLOAT angle;
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
-#elif defined(TEST_LONG_DOUBLE_RANGE)
+#elif defined(TEST_WIDE_RANGE)
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-2500), HYP_FLOAT_C(1e2500) };
 #else
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
