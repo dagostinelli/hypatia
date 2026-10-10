@@ -124,6 +124,7 @@ Results that differ from 2.0:
 * `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1; with a negative dot product slerp ends at -end, the same rotation as end.
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
+* `HYP_WRAP` wraps into [start, limit) for any start.
 * The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.
 
 Documentation
@@ -137,6 +138,8 @@ Can I trust this math library?
 ------------------------------
 A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
 
+Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
+
 A word about convention
 -----------------------
 
@@ -144,7 +147,14 @@ Hypatia uses verbose names. In pure-C code, math-related function names seem to 
 
 As an experiment, some \#defines have been added to alias the verbose names. (mat4, vec3, vec4, quat, etc)  At this point, the primary API is the verbose names and the experimental API has some of the shorter, cryptic names. In fact, only a small portion of the entire API has been aliased in this way.  My intention to keep one and toss the other. I would like your feedback about that.
 
-Rotations follow the right-hand rule: a positive angle turns counterclockwise when the axis points toward the viewer.
+Conventions:
+
+* Rotations follow the right-hand rule: a positive angle turns counterclockwise when the axis points toward the viewer.  Angles are in radians.
+* Most functions change their first argument in place and return it, so calls can be chained; the others write their result to a parameter named `vR`, `mR` or `qR`.
+* A matrix is applied to a vector as M * v (`matrix4_multiplyv3`, `matrix3_multiplyv2`, `vector3_multiplym4`, ...).  `rRC` is row R, column C, and `cCR` is the same element named column first; `m[]` numbers the elements row by row.  Translation is in the last column (`r03`, `r13`, `r23` in a matrix4; `r02`, `r12` in a matrix3).
+* `matrixN_multiply(self, mT)` sets self to mT * self: mT is applied after self.
+* The `_rh` projection and view functions are right-handed (the camera looks down -Z) and the `_lh` ones left-handed (+Z).  Depth maps to 0 at the near plane and 1 at the far plane, or -1 to 1 with `HYP_DEPTH_MINUS_ONE_TO_ONE`.
+* Quaternions are (x, y, z, w) with w the real part.  A unit quaternion is a rotation, and q and -q are the same rotation.
 
 Coding Standard
 ---------------
