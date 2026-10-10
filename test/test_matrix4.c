@@ -1044,10 +1044,38 @@ static const char *test_matrix4_euler_angles_agree_with_quaternion(void)
 	return NULL;
 }
 
+
+static const char *test_matrix4_reciprocal_condition(void)
+{
+	struct matrix4 identity = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix4 scaled = {.m = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix4 singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct matrix4 nearly_singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.5), HYP_FLOAT_C(1.5), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.5001)}};
+	struct matrix4 small;
+
+	/* a multiple of the identity is perfectly conditioned, however small */
+	matrix4_identity(&small);
+	small.r00 = HYP_FLOAT_C(0.01);
+	small.r11 = HYP_FLOAT_C(0.01);
+	small.r22 = HYP_FLOAT_C(0.01);
+	small.r33 = HYP_FLOAT_C(0.01);
+	test_assert(scalar_equalsf(matrix4_reciprocal_condition(&small), HYP_FLOAT_C(1.0)));
+
+	test_assert(scalar_equalsf(matrix4_reciprocal_condition(&identity), HYP_FLOAT_C(1.0)));
+	test_assert(scalar_equalsf(matrix4_reciprocal_condition(&scaled), HYP_FLOAT_C(0.5)));
+	test_assert(scalar_equalsf(matrix4_reciprocal_condition(&singular), HYP_FLOAT_C(0.0)));
+	test_assert(matrix4_reciprocal_condition(&nearly_singular) < HYP_FLOAT_C(0.001));
+	test_assert(matrix4_reciprocal_condition(&nearly_singular) > HYP_FLOAT_C(0.0));
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
 	run_test(test_matrix4_rotations_agree_with_quaternion);
 	run_test(test_matrix4_euler_angles_agree_with_quaternion);
+	run_test(test_matrix4_reciprocal_condition);
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);
 	run_test(test_matrix4_multiply_identity);
