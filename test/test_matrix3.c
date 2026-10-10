@@ -530,8 +530,26 @@ static const char *test_matrix3_rotate_diagonal_vector(void)
 	return NULL;
 }
 
+static const char *test_matrix3_reciprocal_condition(void)
+{
+	struct matrix3 identity = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix3 scaled = {.m = {HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)}};
+	struct matrix3 singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)}};
+	struct matrix3 nearly_singular = {.m = {HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5), HYP_FLOAT_C(1.5), HYP_FLOAT_C(1.5), HYP_FLOAT_C(0.5001)}};
+
+	test_assert(scalar_equalsf(matrix3_reciprocal_condition(&identity), HYP_FLOAT_C(1.0)));
+	test_assert(scalar_equalsf(matrix3_reciprocal_condition(&scaled), HYP_FLOAT_C(0.5)));
+	test_assert(scalar_equalsf(matrix3_reciprocal_condition(&singular), HYP_FLOAT_C(0.0)));
+	test_assert(matrix3_reciprocal_condition(&nearly_singular) < HYP_FLOAT_C(0.001));
+	test_assert(matrix3_reciprocal_condition(&nearly_singular) > HYP_FLOAT_C(0.0));
+
+	return NULL;
+}
+
+
 static const char *matrix3_all_tests(void)
 {
+	run_test(test_matrix3_reciprocal_condition);
 	run_test(test_matrix3_zero);
 	run_test(test_matrix3_equals);
 	run_test(test_matrix3_multiply_identity);
