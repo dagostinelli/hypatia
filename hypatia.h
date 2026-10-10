@@ -3933,6 +3933,7 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	HYP_FLOAT c[6];
 	HYP_FLOAT determinant;
 	struct matrix4 inverse;
+	uint8_t i;
 
 	determinant = hyp_matrix4_minors(self, s, c);
 
@@ -3964,7 +3965,14 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	inverse.r32 = -self->r30 * s[3] + self->r31 * s[1] - self->r32 * s[0];
 	inverse.r33 = self->r20 * s[3] - self->r21 * s[1] + self->r22 * s[0];
 
-	return matrix4_multiplyf(matrix4_set(mR, &inverse), HYP_FLOAT_C(1.0) / determinant);
+	/* divide rather than multiply by 1 / determinant, which overflows when the
+	 * determinant is very small and the inverse is not
+	 */
+	for (i = 0; i < 16; i++) {
+		mR->m[i] = inverse.m[i] / determinant;
+	}
+
+	return mR;
 }
 
 

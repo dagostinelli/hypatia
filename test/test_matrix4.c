@@ -1150,8 +1150,34 @@ static const char *test_matrix4_inverse_ill_conditioned(void)
 }
 
 
+static const char *test_matrix4_inverse_small_determinant(void)
+{
+	/* the determinant (scale^4) is tiny and 1 / determinant overflows, but
+	 * the inverse is 1 / scale times the identity
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-10);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-3);
+#else
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-78);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
+#endif
+	struct matrix4 m;
+	struct matrix4 inverse;
+
+	matrix4_multiplyf(matrix4_identity(&m), scale);
+	test_assert(matrix4_inverse(&m, &inverse) != NULL);
+	test_assert(HYP_ABS(inverse.r00 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r33 * scale - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(inverse.r01) < tolerance);
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
+	run_test(test_matrix4_inverse_small_determinant);
 	run_test(test_matrix4_inverse_ill_conditioned);
 	run_test(test_matrix4_set_from_axis_angle_any_length);
 	run_test(test_matrix4_reciprocal_condition);
