@@ -9,6 +9,7 @@ static double oracle_angle3(const struct vector3 &a, const struct vector3 &b)
 	return (double)std::atan2(std::sqrt(cx * cx + cy * cy + cz * cz), ax * bx + ay * by + az * bz);
 }
 
+#ifndef PRECISION_ONLY
 static void vectors()
 {
 	/* normalize */
@@ -292,3 +293,4 @@ static void vectors()
 		check(err_v(h.v, g.v, 2), [&] { return sv(a.v, 2) + " by " + sm3(m) + " -> " + sv(h.v, 2) + " vs " + sv(g.v, 2); });
 	}
 }
+#endif

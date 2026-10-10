@@ -6,6 +6,7 @@ static volatile H zero_v = 0;
 static std::string gs3(const V3 &v) { struct vector3 h = hv(v); return sv(h.v, 3); }
 static std::string gsq(const Q &q) { return sq(hq(q)); }
 
+#ifndef PRECISION_ONLY
 static void edge_cases()
 {
 	const H nan = zero_v / zero_v, inf = 1 / zero_v;
@@ -239,3 +240,4 @@ static void edge_cases()
 		}
 	}
 }
+#endif
