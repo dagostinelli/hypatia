@@ -61,7 +61,7 @@ static struct matrix4 rm4_cond(double k)
 }
 
 /* the inverse in long double from the matrix as stored */
-static LM4 oracle_inverse(const struct matrix4 &m)
+[[maybe_unused]] static LM4 oracle_inverse(const struct matrix4 &m)
 {
 	LM4 l;
 	for (int i = 0; i < 16; i++)
@@ -70,7 +70,7 @@ static LM4 oracle_inverse(const struct matrix4 &m)
 }
 
 /* the largest element error relative to the largest element of the oracle */
-static double rel_to_max(const H *a, const LM4 &o)
+[[maybe_unused]] static double rel_to_max(const H *a, const LM4 &o)
 {
 	L big = o.cwiseAbs().maxCoeff(), m = 0;
 	for (int i = 0; i < 16; i++)
@@ -266,7 +266,10 @@ static void matrices()
 	for (int k = 0; k <= 6; k += 3) {
 		static char note[3][64];
 		std::snprintf(note[k / 3], sizeof note[0], "condition ~1e%d; error relative to the largest element", k);
-		double worst_h = 0, worst_g = 0, worst_e = 0, worst_l = 0, worst_c = 0;
+		double worst_h = 0, worst_g = 0, worst_e = 0, worst_l = 0;
+#ifdef HAVE_CGLM
+		double worst_c = 0;
+#endif
 		for (int i = 0; i < N; i++) {
 			struct matrix4 a = rm4_cond(k), h;
 			LM4 o = oracle_inverse(a);

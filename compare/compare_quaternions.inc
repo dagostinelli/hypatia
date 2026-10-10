@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: MIT
 // quaternion comparisons (included by compare.cpp)
 
-/* the rotation angle from a to b in long double, in [0, pi] */
-static double oracle_rotation_angle(const struct quaternion &a, const struct quaternion &b)
+/* the rotation angle from a to b, in [0, pi], computed in _Float128: the
+ * differences of the unit quaternions lose ~1e-34 instead of the 1e-19 of
+ * long double, which near zero angles is 1e-15 relative to the angle
+ */
+static L oracle_rotation_angle(const struct quaternion &a, const struct quaternion &b)
 {
-	L na = std::sqrt((L)a.x * a.x + (L)a.y * a.y + (L)a.z * a.z + (L)a.w * a.w);
-	L nb = std::sqrt((L)b.x * b.x + (L)b.y * b.y + (L)b.z * b.z + (L)b.w * b.w);
-	L s = 0, c = 0;
+	typedef _Float128 Q128;
+	Q128 na = sqrtf128((Q128)a.x * a.x + (Q128)a.y * a.y + (Q128)a.z * a.z + (Q128)a.w * a.w);
+	Q128 nb = sqrtf128((Q128)b.x * b.x + (Q128)b.y * b.y + (Q128)b.z * b.z + (Q128)b.w * b.w);
+	Q128 s = 0, c = 0;
 	/* |a - b| and |a + b| for the unit versions, with the sign that gives d >= 0 */
-	L sign = ((L)a.x * b.x + (L)a.y * b.y + (L)a.z * b.z + (L)a.w * b.w) < 0 ? -1 : 1;
+	Q128 sign = ((Q128)a.x * b.x + (Q128)a.y * b.y + (Q128)a.z * b.z + (Q128)a.w * b.w) < 0 ? -1 : 1;
 	for (int i = 0; i < 4; i++) {
-		L u = a.q[i] / na, v = sign * b.q[i] / nb;
+		Q128 u = a.q[i] / na, v = sign * b.q[i] / nb;
 		s += (u - v) * (u - v);
 		c += (u + v) * (u + v);
 	}
-	return (double)(4 * std::atan2(std::sqrt(s), std::sqrt(c)));
+	return (L)(4 * atan2f128(sqrtf128(s), sqrtf128(c)));
 }
 
 #ifndef PRECISION_ONLY
