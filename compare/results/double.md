@@ -21,7 +21,7 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | vector3_find_normal_axis_between | glm::normalize(glm::cross) | 2000 | 0 | 1.11022302e-16 |  |  |
 | vector3_angle_between | glm::angle(normalize, normalize) | 2000 | 0 | 3.66373598e-15 |  | GLM's acos loses accuracy near 0 and pi: see the accuracy table |
 | vector3_angle_between | long double atan2(|a x b|, a . b) | 2000 | 0 | 1.57009246e-16 |  | a and 3a: parallel |
-| vector3_angle_between | long double atan2(|a x b|, a . b) | 2000 | 0 | 9.80660865e-19 |  | 1e-4 rad apart |
+| vector3_angle_between | long double atan2(|a x b|, a . b) | 2000 | 0 | 7.45117943e-19 |  | 1e-4 rad apart |
 | vector2_angle_between | glm::angle(normalize, normalize) | 2000 | 0 | 1.56943685e-12 |  | GLM's acos loses accuracy near 0 and pi: see the accuracy table |
 | vector2_angle_between | 0 | 2000 | 0 | 1.66533454e-16 |  | a and 3a: parallel |
 | vector3_lerp | glm::mix | 2000 | 0 | 0 |  |  |
@@ -31,10 +31,10 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | vector2_project | glm::proj | 2000 | 0 | 0 |  |  |
 | vector3_project | glm::proj | 2000 | 0 | 0 |  |  |
 | vector4_project | glm::proj | 2000 | 0 | 6.32391303e-16 |  |  |
-| vector3_rotate_by_quaternion | glm q * v | 2000 | 0 | 4.16333634e-15 |  |  |
-| vector3_rotate_by_quaternion | Eigen q * v | 2000 | 0 | 5.66213743e-15 |  |  |
-| vector3_rotate_by_quaternion | glm q * v | 2000 | 0 | 6.34214903e-15 |  | q not unit length |
-| vector3_reflect_by_quaternion | glm q * (v, 0) * q (as documented) | 2000 | 0 | 1.11022302e-15 |  |  |
+| vector3_rotate_by_quaternion | glm q * v | 2000 | 0 | 3.10862447e-15 |  |  |
+| vector3_rotate_by_quaternion | Eigen q * v | 2000 | 0 | 4.16333634e-15 |  |  |
+| vector3_rotate_by_quaternion | glm q * v | 2000 | 0 | 5.39845946e-15 |  | q not unit length |
+| vector3_reflect_by_quaternion | glm q * (v, 0) * q (as documented) | 2000 | 0 | 1.94289029e-15 |  |  |
 | vector3_multiplym4 | glm (M * (v, 1)).xyz | 2000 | 0 | 2.66453526e-15 |  |  |
 | vector2_multiplym2 | glm M * v | 2000 | 0 | 0 |  |  |
 | vector2_multiplym3 | glm (M * (v, 1)).xy | 2000 | 0 | 0 |  |  |
@@ -86,7 +86,7 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | test | compared with | n | over tol | max diff | worst case | note |
 |---|---|---|---|---|---|---|
 | matrix4_reciprocal_condition | 1 / (norm(A) norm(A^-1)), infinity norm, in long double | 2000 | 0 | 2.59224605e-13 |  | relative error up to 1e-2 (single) or 1e-5 (double); single precision is limited by the float inverse: see the accuracy table |
-| matrix4_normal_matrix | glm::inverseTranspose(mat3(M)) | 2000 | 0 | 4.9721211e-16 |  |  |
+| matrix4_normal_matrix | glm::inverseTranspose(mat3(M)) | 2000 | 0 | 4.77731266e-16 |  |  |
 
 ## matrix builders
 
@@ -99,17 +99,17 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | matrix4_make_transformation_rotationf_z | glm::rotate(I, a, axis) | 2000 | 0 | 1.11022302e-16 |  |  |
 | matrix4_set_from_axisv3_angle | glm::rotate(I, a, axis) | 2000 | 0 | 6.66133815e-16 |  |  |
 | matrix4_set_from_axisv3_angle | glm::rotate(I, a, axis) | 2000 | 0 | 6.66133815e-16 |  | axis not unit length |
-| matrix4_set_from_quaternion | glm::mat4_cast | 2000 | 0 | 1.11022302e-15 |  |  |
-| matrix4_set_from_quaternion | glm::mat4_cast(normalize(q)) | 2000 | 0 | 9.99200722e-16 |  | q not unit length |
-| matrix4_make_transformation_rotationq | Eigen toRotationMatrix | 2000 | 0 | 1.22124533e-15 |  |  |
+| matrix4_set_from_quaternion | glm::mat4_cast | 2000 | 0 | 6.66133815e-16 |  |  |
+| matrix4_set_from_quaternion | glm::mat4_cast(normalize(q)) | 2000 | 0 | 1.11022302e-15 |  | q not unit length |
+| matrix4_make_transformation_rotationq | Eigen toRotationMatrix | 2000 | 0 | 7.77156117e-16 |  |  |
 | matrix4_set_from_euler_anglesf3(x, y, z) | glm::eulerAngleZYX(z, y, x) = Rz Ry Rx | 2000 | 0 | 2.22044605e-16 |  | X first, then Y, then Z |
 | matrix4_set_from_euler_anglesf3(x, y, z) | glm::eulerAngleXYZ(x, y, z) | 2000 | **2000** | 1.99960795 | -1.06088764, 4.7057751, -2.05367739 -> (0.00307101823, 0.0270332006, 0.999629819, 0, 0.00585761092, -0.999617869, 0.027014882, 0, 0.999978128, 0.00577247935, -0.00322819467, 0, 0, 0, 0, 1) | for reference: GLM's XYZ is Rx Ry Rz |
 | matrix4_make_transformation_rotationv3(v) | glm::eulerAngleZYX(v.z, v.y, v.x) | 2000 | 0 | 2.22044605e-16 |  |  |
 | matrix4_translatev3(M, v) | glm T(v) * M | 2000 | 0 | 0 |  | applies the translation after M |
-| matrix4_translatev3(M, v) | glm::translate(M, v) = M * T(v) | 2000 | **2000** | 19.2141853 | (0.475496644, -0.0460960047, -0.409483266, -2.2477367, 0.0260637577, -0.437770007, 0.980424671, -6.82068125, -0.117215499, -0.284334641, -1.44310581, -9.95914538, 0, 0, 0, 1), (7.45161481, 7.37769133, -9.0808033) -> (0.475496644, -0.0460960047, -0.409483266, 5.20387811, 0.0260637577, -0.437770007, 0.980424671, 0.557010077, -0.117215499, -0.284334641, -1.44310581, -19.0399487, 0, 0, 0, 1) | for reference: GLM applies it before M |
-| matrix4_rotatev3(M, axis, a) | glm R * M | 2000 | 0 | 5.49678293e-15 |  |  |
+| matrix4_translatev3(M, v) | glm::translate(M, v) = M * T(v) | 2000 | **2000** | 19.389856 | (0.863834855, 1.08533009, -1.74405028, 3.49395915, -0.674963809, -0.466392093, -3.33620899, 9.41103646, -1.66444404, 0.752409642, 0.44774645, -4.3249381, 0, 0, 0, 1), (9.38435997, 9.95892459, -0.463980407) -> (0.863834855, 1.08533009, -1.74405028, 12.8783191, -0.674963809, -0.466392093, -3.33620899, 19.369961, -1.66444404, 0.752409642, 0.44774645, -4.78891851, 0, 0, 0, 1) | for reference: GLM applies it before M |
+| matrix4_rotatev3(M, axis, a) | glm R * M | 2000 | 0 | 5.99520433e-15 |  |  |
 | matrix4_scalev3(M, v) | glm S * M | 2000 | 0 | 0 |  |  |
-| matrix4_transformation_compose(s, q, t) | glm T * R * S | 2000 | 0 | 2.66453526e-15 |  |  |
+| matrix4_transformation_compose(s, q, t) | glm T * R * S | 2000 | 0 | 1.77635684e-15 |  |  |
 | matrix4_transformation_decompose | glm::decompose | 2000 | 0 | 3.33066907e-16 |  | scale, rotation (q or -q), translation |
 | matrix3_make_transformation_rotationf_z | glm::rotate(mat3(1), a) | 2000 | 0 | 0 |  |  |
 | matrix3_make_transformation_translationv2 | glm::translate(mat3(1), v) | 2000 | 0 | 0 |  |  |
@@ -127,8 +127,8 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | matrix4_projection_perspective_fovy_lh | glm::perspectiveLH_ZO | 2000 | 0 | 2.54800087e-16 |  |  |
 | matrix4_projection_ortho3d_rh | glm::orthoRH_ZO | 2000 | 0 | 0 |  |  |
 | matrix4_projection_ortho3d_lh | glm::orthoLH_ZO | 2000 | 0 | 0 |  |  |
-| matrix4_view_lookat_rh | glm::lookAtRH | 2000 | 0 | 2.72502976e-15 |  |  |
-| matrix4_view_lookat_lh | glm::lookAtLH | 2000 | 0 | 7.99360578e-15 |  |  |
+| matrix4_view_lookat_rh | glm::lookAtRH | 2000 | 0 | 3.33066907e-15 |  |  |
+| matrix4_view_lookat_lh | glm::lookAtLH | 2000 | 0 | 3.55271368e-15 |  |  |
 
 ## quaternions
 
@@ -138,34 +138,34 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | quaternion_multiply(a, b) | Eigen a * b | 2000 | 0 | 1.33226763e-15 |  |  |
 | quaternion_multiplyv3(q, v) | glm q * (v, 0) | 2000 | 0 | 1.77635684e-15 |  |  |
 | quaternion_conjugate | glm::conjugate | 2000 | 0 | 0 |  |  |
-| quaternion_inverse | glm::inverse | 2000 | 0 | 3.11524432e-16 |  | not unit length |
-| quaternion_inverse | Eigen inverse | 2000 | 0 | 3.80698202e-16 |  | not unit length |
+| quaternion_inverse | glm::inverse | 2000 | 0 | 3.04081838e-16 |  | not unit length |
+| quaternion_inverse | Eigen inverse | 2000 | 0 | 3.0170938e-16 |  | not unit length |
 | quaternion_normalize | glm::normalize | 2000 | 0 | 2.22044605e-16 |  |  |
-| quaternion_dot_product, norm, magnitude | glm::dot, dot(q, q), glm::length | 2000 | 0 | 1.22124533e-15 |  |  |
-| quaternion_set_from_axis_anglev3 | glm::angleAxis | 2000 | 0 | 2.22044605e-16 |  |  |
+| quaternion_dot_product, norm, magnitude | glm::dot, dot(q, q), glm::length | 2000 | 0 | 1.33226763e-15 |  |  |
+| quaternion_set_from_axis_anglev3 | glm::angleAxis | 2000 | 0 | 1.11022302e-16 |  |  |
 | quaternion_set_from_axis_anglev3 | Eigen AngleAxis | 2000 | 0 | 2.22044605e-16 |  |  |
 | quaternion_set_from_axis_anglev3 | glm::angleAxis(a, normalize(axis)) | 2000 | 0 | 2.22044605e-16 |  | axis not unit length |
 | quaternion_get_axis_anglev3 | glm::axis, glm::angle | 2000 | 0 | 2.22044605e-16 |  | as a rotation: rebuilt with angleAxis, q or -q |
-| quaternion_get_axis_anglev3 | glm::angle | 2000 | **986** | 0.905763658 | (x 0.22164734, y 0.0480002748, z -0.141422102, w -0.963622446) -> 0.541111987 vs 5.74207332 | the angle itself (hypatia [0, pi], GLM [0, 2 pi]) |
+| quaternion_get_axis_anglev3 | glm::angle | 2000 | **1018** | 0.935361131 | (x 0.133007495, y -0.119050847, z -0.0638631049, w -0.98186425) -> 0.381479582 vs 5.90170572 | the angle itself (hypatia [0, pi], GLM [0, 2 pi]) |
 | quaternion_get_axis_anglev3 | Eigen AngleAxis(q) | 2000 | 0 | 2.22044605e-16 |  | as a rotation |
 | quaternion_set_from_euler_anglesf3(x, y, z) | glm::quat(vec3(x, y, z)) | 2000 | 0 | 2.22044605e-16 |  | as a rotation |
 | quaternion_set_from_euler_anglesf3(x, y, z) | matrix4_set_from_euler_anglesf3(x, y, z) | 2000 | 0 | 5.55111512e-16 |  | the matrix of the quaternion |
 | quaternion_get_euler_anglesf3 | glm::eulerAngles | 2000 | 0 | 2.156139e-15 |  | angles; |y| < 1.5 |
 | quaternion_get_euler_anglesf3 | the angles given to quaternion_set_from_euler_anglesf3 | 2000 | 0 | 4.66033831e-18 |  | round trip; |y| < 1.5 |
 | quaternion_set_from_matrix4 | glm::quat_cast | 2000 | 0 | 4.4408921e-16 |  | q or -q |
-| quaternion_set_from_matrix4 | Eigen Quaternion(Matrix3) | 2000 | 0 | 4.4408921e-16 |  | q or -q |
+| quaternion_set_from_matrix4 | Eigen Quaternion(Matrix3) | 2000 | 0 | 3.33066907e-16 |  | q or -q |
 | quaternion_lerp | glm::lerp | 2000 | 0 | 0 |  |  |
 | quaternion_nlerp | glm::normalize(glm::lerp) | 2000 | 0 | 2.22044605e-16 |  |  |
 | quaternion_slerp | glm::slerp | 2000 | 0 | 3.33066907e-16 |  | components |
 | quaternion_slerp | Eigen slerp | 2000 | 0 | 3.33066907e-16 |  | components |
-| quaternion_slerp | glm::slerp | 2000 | 0 | 4.4408921e-16 |  | nearly the same: 1e-3 rad apart |
+| quaternion_slerp | glm::slerp | 2000 | 0 | 3.33066907e-16 |  | nearly the same: 1e-3 rad apart |
 | quaternion_get_rotation_tov3 | glm::rotation(normalize(a), normalize(b)) | 2000 | 0 | 2.91211499e-13 |  | near opposite GLM is less accurate: see the accuracy table |
 | quaternion_get_rotation_tov3 | Eigen FromTwoVectors | 2000 | 0 | 2.55684363e-13 |  | near opposite Eigen is less accurate: see the accuracy table |
-| quaternion_get_rotation_tov3 | Eigen FromTwoVectors | 2000 | 0 | 4.4408921e-16 |  | nearly opposite: 1e-3 rad from opposite; rotating a must give b |
-| quaternion_angle_between | Eigen angularDistance | 2000 | 0 | 3.96626121e-16 |  |  |
-| quaternion_angle_between | long double | 2000 | 0 | 1.2950795e-18 |  | 1e-4 rad apart |
-| quaternion_difference | min(|a - b|^2, |a + b|^2) | 2000 | 0 | 2.28965056e-16 |  |  |
-| quaternion_rotate_by_quaternion(a, b) | glm::normalize(a * b) | 2000 | 0 | 3.33066907e-16 |  |  |
+| quaternion_get_rotation_tov3 | Eigen FromTwoVectors | 2000 | 0 | 3.33066907e-16 |  | nearly opposite: 1e-3 rad from opposite; rotating a must give b |
+| quaternion_angle_between | Eigen angularDistance | 2000 | 0 | 4.61038042e-16 |  |  |
+| quaternion_angle_between | long double | 2000 | 0 | 1.10114283e-18 |  | 1e-4 rad apart |
+| quaternion_difference | min(|a - b|^2, |a + b|^2) | 2000 | 0 | 3.13197305e-16 |  |  |
+| quaternion_rotate_by_quaternion(a, b) | glm::normalize(a * b) | 2000 | 0 | 2.22044605e-16 |  |  |
 | quaternion_rotate_by_axis_angle(q, axis, a) | glm::rotate(q, a, axis) = q * angleAxis | 2000 | 0 | 3.33066907e-16 |  |  |
 | quaternion_rotate_by_euler_angles(q, x, y, z) | q * glm::quat(vec3(x, y, z)) | 2000 | 0 | 3.33066907e-16 |  | as a rotation |
 
@@ -188,9 +188,9 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | quaternion_get_rotation_tov3 | long double | 2000 | 0 | 4.29095668e-16 |  | random |
 | glm::rotation | long double | 2000 | 0 | 8.80764804e-15 |  | random |
 | Eigen FromTwoVectors | long double | 2000 | 0 | 8.85783886e-15 |  | random |
-| quaternion_get_rotation_tov3 | long double | 2000 | 0 | 5.49969356e-16 |  | 1e-3 rad from opposite |
-| glm::rotation | long double | 2000 | 0 | 2.71147284e-13 |  | 1e-3 rad from opposite |
-| Eigen FromTwoVectors | long double | 2000 | 0 | 3.7868123e-13 |  | 1e-3 rad from opposite |
+| quaternion_get_rotation_tov3 | long double | 2000 | 0 | 5.23609297e-16 |  | 1e-3 rad from opposite |
+| glm::rotation | long double | 2000 | 0 | 3.34585435e-13 |  | 1e-3 rad from opposite |
+| Eigen FromTwoVectors | long double | 2000 | 0 | 3.51097767e-13 |  | 1e-3 rad from opposite |
 | quaternion_get_rotation_tov3 | long double | 2000 | 0 | 2.84036346e-16 |  | exactly opposite (to = -2 from) |
 | glm::rotation | long double | 2000 | 0 | 2 |  | exactly opposite (to = -2 from) |
 | Eigen FromTwoVectors | long double | 2000 | 0 | 2.98023224e-08 |  | exactly opposite (to = -2 from) |
@@ -239,48 +239,63 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 
 ## Precision against long double
 
-Largest / mean error in units of the double epsilon (relative to the largest component of the exact result, or to the size of the terms where noted), over 20000 inputs.  Lower is better; the best of each row is in bold.
+Largest / mean error in units of the double epsilon (relative to the largest component of the exact result, or to the size of the terms where noted), over 20000 inputs.  Lower is better; in bold, the smallest mean of each row and the means within 2% of it.
 
 | function | inputs | hypatia | GLM | Eigen | cglm |
 |---|---|---|---|---|---|
-| vector3_normalize | random | **1.12 / 0.32** | 1.29 / 0.37 | **1.12 / 0.32** |  |
-| vector3_normalize | components 1e-20 .. 1e20 (single 1e-15 .. 1e15) | 1.21 / 0.13 | **1.13 / 0.19** | 1.21 / 0.12 |  |
-| vector3_normalize | one large, two small (1, 1e-5, 1e-5) | **1.17 / 0.25** | 1.32 / 0.31 | **1.17 / 0.25** |  |
-| vector3_magnitude | random | **0.948 / 0.22** | **0.948 / 0.22** | **0.948 / 0.22** |  |
+| vector3_normalize | random | **1.12 / 0.322** | 1.29 / 0.373 | **1.12 / 0.322** |  |
+| vector3_normalize | components 1e-20 .. 1e20 (single 1e-15 .. 1e15) | 1.21 / 0.131 | 1.13 / 0.186 | **1.21 / 0.123** |  |
+| vector3_normalize | one large, two small (1, 1e-5, 1e-5) | **1.17 / 0.25** | 1.32 / 0.308 | **1.17 / 0.25** |  |
+| vector3_magnitude | random | **0.948 / 0.219** | **0.948 / 0.219** | **0.948 / 0.219** |  |
 | vector3_dot_product | random | **1.15 / 0.16** | **1.15 / 0.16** | **1.15 / 0.16** |  |
-| vector3_dot_product | nearly perpendicular | **0.582 / 0.091** | **0.582 / 0.091** | **0.582 / 0.091** |  |
-| vector3_cross_product | random | **0.813 / 0.2** | **0.813 / 0.2** | **0.813 / 0.2** |  |
+| vector3_dot_product | nearly perpendicular | **0.582 / 0.0914** | **0.582 / 0.0914** | **0.582 / 0.0914** |  |
+| vector3_cross_product | random | **0.813 / 0.196** | **0.813 / 0.196** | **0.813 / 0.196** |  |
 | vector3_cross_product | nearly parallel (1e-4 rad) | **0.446 / 0.11** | **0.446 / 0.11** | **0.446 / 0.11** |  |
-| vector3_project | random | **1.64 / 0.21** | **1.64 / 0.21** |  |  |
-| vector3_rotate_by_quaternion | unit q | **3.48 / 0.64** | 5.12 / 0.94 | 5.17 / 0.93 |  |
-| vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | **3 / 0.65** | 2.19e+10 / 6.1e+09 | 2.19e+10 / 6.1e+09 |  |
-| matrix4_multiply | random | **1.33 / 0.37** | **1.33 / 0.37** | **1.33 / 0.37** |  |
-| matrix4_inverse | random entries (error / condition number) | 0.842 / 0.063 | **0.467 / 0.064** | 0.707 / 0.064 |  |
-| matrix4_inverse | rotation, scale and translation (error / condition number) | 0.191 / 0.011 | **0.159 / 0.012** | 0.168 / 0.011 |  |
-| matrix4_inverse | condition ~1e4 (error / condition number) | **13.5 / 0.96** | 16.7 / 1 | 16.2 / 0.97 |  |
-| matrix3_inverse | random entries (error / condition number) | 0.583 / 0.075 | **0.555 / 0.078** | **0.555 / 0.078** |  |
-| matrix4_determinant | random entries | 2.92 / 0.26 | **2.56 / 0.26** | 2.71 / 0.26 |  |
-| matrix4_normal_matrix | rotation, scale and translation | **1.91 / 0.38** | 1.97 / 0.38 |  |  |
-| matrix4_set_from_axisv3_angle | random | **3.2 / 0.57** | 4.78 / 0.71 | 3.39 / 0.57 |  |
-| matrix4_set_from_axisv3_angle | angle 1e-4 | **0.368 / 0.23** | **0.368 / 0.23** | **0.368 / 0.23** |  |
-| matrix4_set_from_quaternion | unit q | **2.67 / 0.62** | 4.83 / 0.91 | 4.83 / 0.91 |  |
-| matrix4_set_from_euler_anglesf3 | random | **1.14 / 0.39** | 1.26 / 0.39 |  |  |
-| matrix4_projection_perspective_fovy_rh | random | 1.23 / 0.35 | **1.16 / 0.36** |  |  |
-| matrix4_view_lookat_rh | random (error * sin(view, up)) | **1.77 / 0.41** | 2.23 / 0.45 |  |  |
-| quaternion_multiply | random | 0.941 / 0.29 | 1.12 / 0.3 | **0.936 / 0.29** |  |
-| quaternion_normalize | random length | **1.16 / 0.33** | 1.37 / 0.39 | 1.18 / 0.33 |  |
-| quaternion_inverse | random length | **1.34 / 0.39** | 1.4 / 0.39 | 1.37 / 0.39 |  |
-| quaternion_set_from_axis_anglev3 | random | **1.34 / 0.32** | 1.4 / 0.29 | 1.4 / 0.29 |  |
+| vector3_project | random | **1.64 / 0.211** | **1.64 / 0.211** |  |  |
+| vector3_rotate_by_quaternion | unit q | **3.33 / 0.621** | 3.5 / 0.685 | 3.27 / 0.684 |  |
+| vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | **3.1 / 0.656** | 2.2e+10 / 6.09e+09 | 2.2e+10 / 6.09e+09 |  |
+| matrix4_multiply | random | **1.33 / 0.366** | **1.33 / 0.366** | **1.33 / 0.366** |  |
+| matrix4_inverse | random entries (error / condition number) | **0.842 / 0.0626** | 0.467 / 0.0644 | 0.707 / 0.0642 |  |
+| matrix4_inverse | rotation, scale and translation (error / condition number) | **0.156 / 0.0109** | 0.203 / 0.0118 | 0.149 / 0.0116 |  |
+| matrix4_inverse | condition ~1e4 (error / condition number) | **13.5 / 0.963** | 16.7 / 1.02 | **16.2 / 0.968** |  |
+| matrix3_inverse | random entries (error / condition number) | **0.583 / 0.0746** | 0.555 / 0.078 | 0.555 / 0.0784 |  |
+| matrix4_determinant | random entries | **2.92 / 0.262** | **2.56 / 0.262** | **2.71 / 0.26** |  |
+| matrix4_normal_matrix | rotation, scale and translation | **1.95 / 0.38** | **1.83 / 0.381** |  |  |
+| matrix4_set_from_axisv3_angle | random | 2.53 / 0.501 | 4.88 / 0.608 | **2.05 / 0.442** |  |
+| matrix4_set_from_axisv3_angle | angle 1e-4 | **0.368 / 0.229** | **0.368 / 0.229** | **0.368 / 0.229** |  |
+| matrix4_set_from_quaternion | unit q | **2.67 / 0.578** | 2.32 / 0.594 | 2.32 / 0.594 |  |
+| matrix4_set_from_euler_anglesf3 | random | **1.14 / 0.391** | **1.26 / 0.389** |  |  |
+| matrix4_projection_perspective_fovy_rh | random | **1.23 / 0.348** | 1.16 / 0.356 |  |  |
+| matrix4_view_lookat_rh | random (error * sin(view, up)) | **1.71 / 0.411** | 2.56 / 0.452 |  |  |
+| quaternion_multiply | random | **0.986 / 0.289** | 1.05 / 0.3 | **1.02 / 0.289** |  |
+| quaternion_normalize | random length | **1.18 / 0.278** | 1.4 / 0.352 | **1.15 / 0.278** |  |
+| quaternion_inverse | random length | **1.37 / 0.386** | **1.41 / 0.387** | **1.52 / 0.387** |  |
+| quaternion_set_from_axis_anglev3 | random | 1.33 / 0.302 | **1.01 / 0.239** | **1.01 / 0.239** |  |
 | quaternion_set_from_axis_anglev3 | angle 1e-4 | **0.033 / 0.033** | **0.033 / 0.033** | **0.033 / 0.033** |  |
-| quaternion_get_axis_anglev3 | random (axis * angle) | **1.33 / 0.38** | 37.2 / 0.69 | **1.33 / 0.38** |  |
-| quaternion_get_axis_anglev3 | angle 1e-4 (axis * angle) | **1.04 / 0.35** | 1.18e+07 / 1.2e+07 | **1.04 / 0.35** |  |
-| quaternion_set_from_matrix4 | random rotation | **2.05 / 0.4** | 4.46 / 0.44 | 2.57 / 0.4 |  |
-| quaternion_set_from_matrix4 | near half turns (pi - 1e-3) | 1.54 / 0.33 | **1.38 / 0.3** | **1.38 / 0.3** |  |
-| quaternion_slerp | random | **1.93 / 0.52** | 2.11 / 0.53 | 2.24 / 0.5 |  |
-| quaternion_slerp | 1e-3 rad apart | **2.31 / 0.57** | 2.49 / 0.55 | 2.48 / 0.52 |  |
-| quaternion_slerp | 1e-6 rad apart | **2.11 / 0.55** | 2.29 / 0.57 | 2.24 / 0.54 |  |
-| quaternion_get_rotation_tov3 | random (landing error) | **2.13 / 0.54** | 65.9 / 0.94 | 65.2 / 0.85 |  |
-| quaternion_get_rotation_tov3 | 1e-3 rad from opposite (landing error) | **2.12 / 0.35** | 4.08e+03 / 8.4e+02 | 4.08e+03 / 6.4e+02 |  |
-| quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 1.39 / 0.28 | 0.687 / 0.16 | **0.616 / 0.16** |  |
-| quaternion_angle_between | random | **2.09 / 0.33** |  | 6.26 / 0.26 |  |
-| quaternion_angle_between | 1e-4 rad apart | **6.18e+03 / 2.2e+02** |  | 9.71e+03 / 1.8e+03 |  |
+| quaternion_get_axis_anglev3 | random (axis * angle) | **1.32 / 0.385** | 23.5 / 0.649 | **1.32 / 0.385** |  |
+| quaternion_get_axis_anglev3 | angle 1e-4 (axis * angle) | **1.03 / 0.347** | 1.18e+07 / 1.18e+07 | **1.03 / 0.347** |  |
+| quaternion_set_from_matrix4 | random rotation | 1.65 / 0.355 | **1.77 / 0.325** | **1.65 / 0.33** |  |
+| quaternion_set_from_matrix4 | near half turns (pi - 1e-3) | 1.57 / 0.33 | **1.55 / 0.301** | **1.55 / 0.301** |  |
+| quaternion_slerp | random | 1.75 / 0.468 | 1.89 / 0.486 | **1.58 / 0.458** |  |
+| quaternion_slerp | 1e-3 rad apart | 2.08 / 0.517 | 1.97 / 0.536 | **2 / 0.496** |  |
+| quaternion_slerp | 1e-6 rad apart | **1.74 / 0.489** | 2.23 / 0.538 | 2.09 / 0.505 |  |
+| quaternion_get_rotation_tov3 | random (landing error) | **2.13 / 0.536** | 65.9 / 0.939 | 65.2 / 0.851 |  |
+| quaternion_get_rotation_tov3 | 1e-3 rad from opposite (landing error) | **2.12 / 0.349** | 4.08e+03 / 835 | 4.08e+03 / 636 |  |
+| quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 1.39 / 0.276 | **0.687 / 0.16** | **0.616 / 0.158** |  |
+| quaternion_angle_between | random | 1.73 / 0.331 |  | **3.47 / 0.257** |  |
+| quaternion_angle_between | 1e-4 rad apart | **3.84e+03 / 216** |  | 1.1e+04 / 1.78e+03 |  |
+
+### Oracle check
+
+Each reference against a second computation of it: the largest disagreement over 20000 inputs, in the units of the table above.
+
+| reference | largest disagreement |
+|---|---|
+| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 0.000263 |
+| vector rotation: quaternion product against the rotation matrix | 0.00168 |
+| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 0.00129 |
+| slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 0.00135 |
+| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.35 |
+| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.308 |
+| angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128 | 0 |
+| axis-angle matrix: Rodrigues against through a quaternion | 0.0032 |

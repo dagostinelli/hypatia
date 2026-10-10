@@ -1,130 +1,297 @@
-# How hypatia compares with GLM, Eigen and cglm
+# hypatia compared with GLM, Eigen and cglm
 
-This report compares hypatia with GLM 1.0.1, Eigen 3.4.0 and cglm 0.9.4 (single precision
-only; cglm has no double), and with LAPACK 3.12 for the inverse, determinant and condition
-number.  It covers three versions of hypatia:
+This report measures the precision and correctness of three versions of hypatia against
+GLM, Eigen and cglm, and explains how to check every number in it.  The generated
+results it quotes are committed in `compare/results/`; `compare/reproduce.sh`
+regenerates them.
 
-- **master**: 2.1.0-dev, before the correctness work;
-- **before**: correctness-h at 35049bd, after the bug fixes, before the precision work;
-- **now**: correctness-h at f30adff.
+| version | commit | what it is |
+|---|---|---|
+| master | 125ab87 | 2.1.0-dev, before the correctness work |
+| before | 35049bd | correctness-h after the bug fixes, before the precision work |
+| now | f30adff | correctness-h; the same `hypatia.h` as this branch (correctness-exp-glm) |
 
-The measurements come from the harness in `compare/` on this branch (see "Reproducing").
+| library | version | commit |
+|---|---|---|
+| GLM | 1.0.1 | 0af55ccecd98d4e5a8d1fad7de25ba429d60e863 |
+| Eigen | 3.4.0 | 3147391d946bb4b6c68edd901f2add6ac1f31f8c |
+| cglm | 0.9.4 (single precision only; cglm has no double) | 1796cc5ce298235b615dc7a4750b8c3ba56a05dd |
+| LAPACK | 3.12.0, Ubuntu liblapack3 3.12.0-3build1.1 (in the full comparison only) | |
 
 ## Summary
 
-- **Correctness.**  Every function now agrees with GLM, Eigen and cglm in double precision
-  to 1e-10 or better, except where the libraries use different conventions (listed
-  below).  On master, 11 of the measured functions gave wrong results: in 17 of the 38
-  double precision measurements master can take part in (13 of 38 in single).
-- **Precision.**  Ranked by the mean error over 20000 inputs, hypatia now is the most
-  precise of the four libraries, or tied with the best, in 34 of 41 measurements in both
-  double and single precision (33 of 41 with another random seed).  It is clearly ahead of
-  all of them (by more than 2% in the mean) in 10 in double and 11 in single.  Master
-  was best or tied in 12 to 14, and worse than the best library in 24 or 25.
-- **Where it trails**, the gap is 0.01 to 0.07 ulp in the mean in six cases; the seventh
-  is `quaternion_get_rotation_tov3` for vectors 1e-6 rad apart (0.28 against Eigen's
-  0.16 ulp).
+From `compare/results/precision/summary.md`, default seed:
 
-| | double: best or tied | double: worse than the best | single: best or tied | single: worse than the best |
+| | double: best or tied | ahead | behind | 1e6 ulps or more | single: best or tied | ahead | behind | 1e6 ulps or more |
+|---|---|---|---|---|---|---|---|---|
+| master | 13 of 37 | 0 | 24 | 15 | 16 of 37 | 1 | 21 | 11 |
+| before | 19 of 41 | 7 | 22 | 0 | 19 of 41 | 5 | 22 | 0 |
+| now | 32 of 41 | 11 | 9 | 0 | 32 of 41 | 10 | 9 | 0 |
+
+- **Best or tied:** hypatia's mean error is no more than 2% above the smallest mean of
+  GLM, Eigen and cglm on the same inputs.  **Ahead** and **behind** mean more than 2%
+  below or above it.  With a second seed (`COMPARE_SEED=7`) the counts for now are 32,
+  10 and 9 in double, and 31, 11 and 10 in single.
+- **The large margins are on near-degenerate inputs.**
+  - Rotations between nearly opposite vectors: mean error 1830 times lower than Eigen's.
+  - Quaternions that have drifted from unit length: GLM and Eigen assume unit length.
+  - The angle between nearly equal rotations: 8.6 times lower.
+
+  On random inputs the differences between the libraries are 2% to 60% in the mean,
+  i.e. fractions of an ulp.
+- **Behind:** the largest gap is `quaternion_get_rotation_tov3` for vectors 1e-6 rad
+  apart, a mean of 0.275 ulp against Eigen's 0.159.  The other eight are 2% to 28%
+  behind, each less than 0.1 ulp in the mean.
+- **Master:**
+  - fails all 13 known-answer checks, which before and now pass: 11 wrong results and
+    2 losses of precision (`compare/results/probe/`);
+  - an error of 1e6 ulps or more in 15 of 37 double measurements.
+- **Bug fixes:** each of 12 ships with a test that fails without the fix and passes with
+  it (`compare/results/verify_fixes.txt`).
+- **Regressions:** now is less precise than master in six measurements, by 5% to 15% in
+  the mean.  They are listed below with the reason.
+
+## How to check these results
+
+Three levels, from seconds to minutes.  All of them need git and a C compiler; the third
+also needs cmake, a C++17 compiler, python3 and LAPACK.
+
+1. **Known answers, no other library** (`compare/probe.c`).  There are 13 checks with
+   exact answers.  Each uses only the version's own functions; for example, a matrix is
+   applied with that version's own `matrix4_multiplyv3`.  So the checks don't depend on
+   a layout convention.
+
+   ```sh
+   cd compare
+   mkdir -p /tmp/master && git show 125ab87:hypatia.h > /tmp/master/hypatia.h
+   cc -std=c90 -I/tmp/master -DMASTER probe.c -lm && ./a.out    # -DMASTER: master's names
+   ```
+
+2. **The bug fixes** (`compare/verify_fixes.sh`).  For each fix commit, the script builds
+   and runs that commit's own test suite twice: with its `hypatia.h`, and with the
+   `hypatia.h` of the commit before it.  It prints the first failing assertion.
+
+3. **The precision tables** (`compare/reproduce.sh`, about 5 minutes).  The script:
+   - downloads GLM, cglm and Eigen and checks their commit hashes;
+   - takes `hypatia.h` for master, before and now from git;
+   - builds the harness for each version, with `-Wall -Wextra -Werror`;
+   - runs it in double and single precision with two seeds;
+   - runs the probe;
+   - writes `results/precision/summary.md` with `summarize.py` and the platform details
+     to `results/environment.txt`.
+
+   The counts and tables in this report come from that summary.  Other versions can be
+   measured with `MASTER=`, `BEFORE=` and `NOW=` (any git revision).
+
+The random generator is a self-contained xorshift64, so a run on another machine uses
+the same inputs.  The last digits of the results can still differ where the platform's
+`long double` or math library differ (see "Limits").
+
+## Method
+
+### Inputs
+
+Each precision measurement uses 20000 inputs: random values, and inputs that are hard
+for rounding.  The hard inputs are:
+- vectors nearly parallel, perpendicular or opposite;
+- rotations nearly equal or near a half turn;
+- matrices with condition number about 1e4;
+- components from 1e-20 to 1e20;
+- quaternions 1e-6 off unit length.
+
+The inputs are built in long double or with Eigen and rounded to the precision measured,
+without calling hypatia.  Every version and library gets the same rounded inputs.
+`summarize.py` checks this: the results of GLM, Eigen and cglm must be identical, digit
+for digit, in the runs against master, before and now, or it stops.
+
+### Reference
+
+The exact answer is computed from the rounded inputs in long double (64-bit mantissa on
+x86-64), mostly with Eigen.  There are three exceptions:
+- the quaternion of a rotation matrix is that of the nearest rotation (U Vᵀ of its SVD),
+  because a rounded rotation matrix is not exactly orthogonal;
+- the angle between two rotations is computed in _Float128;
+- the rotation between two vectors is judged by where it takes the first vector:
+  `landing_error` rotates the unit `from` by the normalized result and measures the
+  distance to the unit `to`, in long double.
+
+### Error
+
+The error is the largest component error, divided by the largest component of the
+reference, in units of the epsilon of the precision measured (ulps).  Three kinds of
+measurement are scaled differently:
+- dot and cross products, matrix products and determinants: relative to the size of the
+  terms (|a| |b|, or the row norms);
+- the inverse: divided by the condition number |A| |A⁻¹| (row-sum norm), which is how
+  much any algorithm can lose;
+- lookat: multiplied by the sine of the angle between view and up, for the same reason.
+
+Without these scalings a handful of nearly singular inputs dominate the numbers.
+Quaternions are compared up to sign, since q and −q are the same rotation.
+
+### Conventions
+
+Conventions are mapped before measuring, the same way for every library:
+- axis-angle results with an angle in (π, 2π) become 2π − angle about −axis (GLM and
+  master);
+- angles between rotations in (π, 2π) become 2π − angle (master);
+- Euler angles are compared with the matching GLM function (`eulerAngleZYX`).
+
+`compare/hyp_master.h` maps master's experimental names.  Master has no
+`vector3_project`, `matrix4_normal_matrix` or `quaternion_set_from_matrix4`; those rows
+are left out of its counts.
+
+### Aggregation and ranking
+
+Each cell is "largest / mean" over the 20000 inputs.  Rankings use the mean, because the
+largest error moves by 0.1 to 0.3 ulp from seed to seed.  A NaN counts as an infinite
+error.
+
+The 2% tie band is set against measured noise.  Between the two seeds, a library's mean
+moves by a median of 0.4%, 1.2% at the 90th percentile, and at most 5.4%.  The ratio of
+hypatia's mean to the best other library's moves much less, by at most 2% in double and
+3.5% in single, because both see the same inputs.  Read ratios below about 1.05 as ties.
+
+### Checking the reference
+
+The harness computes each reference a second way and reports the largest disagreement,
+in the units of the tables ("Oracle check" at the end of each results file).  Double
+precision:
+
+| reference | second computation | largest disagreement (ulps) |
+|---|---|---|
+| matrix4 inverse (cofactors, Eigen) | full-pivoting LU, per unit of condition | 0.0003 |
+| vector rotation (quaternion product) | the rotation matrix | 0.002 |
+| slerp 1e-3 and 1e-6 rad apart (Eigen, acos) | the atan2 form | 0.0015 |
+| axis-angle matrix (Rodrigues) | through a quaternion | 0.003 |
+| angle between rotations 1e-4 rad apart (\|a − b\|, \|a + b\|, in _Float128) | a b* in _Float128 | 0 |
+| quaternion from a rotation matrix (Eigen, long double) | the nearest rotation (SVD) | 2.26 (random), 0.54 (near half turns) |
+
+The check changed two references while this report was written:
+- **Angle between rotations.**  The earlier long double reference lost up to 7 ulps for
+  rotations 1e-4 rad apart, which is the size of the effect being measured.  It now uses
+  _Float128.
+- **Quaternion from a rotation matrix.**  The reference was Eigen's own method in long
+  double.  The methods differ by up to 2.3 ulps on a matrix that is not quite
+  orthogonal, and that reference favoured Eigen's method.  The reference is now the
+  nearest rotation; GLM is best under it, and hypatia moved from tied to behind (0.357
+  against 0.326).
+
+## Results
+
+### Where hypatia now is ahead (double)
+
+| function | inputs | now (largest / mean) | best other (largest / mean) | ratio of means |
 |---|---|---|---|---|
-| master | 12 | 25 | 13 | 24 |
-| before | 21 | 20 | 22 | 19 |
-| now | 34 | 7 | 34 | 7 |
+| `vector3_rotate_by_quaternion` | q of length 1 ± 1e-6 | 3.39 / 0.655 | 2.2e10 / 6.0e9 (GLM; Eigen the same) | 9.2e9 |
+| `quaternion_get_rotation_tov3` | 1e-3 rad from opposite | 2.21 / 0.35 | 4080 / 639 (Eigen) | 1830 |
+| `quaternion_angle_between` | 1e-4 rad apart | 4020 / 205 | 9690 / 1770 (Eigen) | 8.6 |
+| `quaternion_get_rotation_tov3` | random | 2.21 / 0.538 | 116 / 0.864 (Eigen) | 1.6 |
+| `matrix4_view_lookat_rh` | random | 2.01 / 0.407 | 2.31 / 0.45 (GLM) | 1.11 |
+| `vector3_rotate_by_quaternion` | unit q | 4.21 / 0.622 | 3.57 / 0.684 (Eigen) | 1.10 |
 
-(Mean error, within 2%.  Measurements where a version has no such function are left out
-of its count: master lacks `vector3_project`, `matrix4_normal_matrix` and
-`quaternion_set_from_matrix4`.)
+Five more are ahead by 2% to 6%: the inverses, `matrix4_set_from_quaternion`, and slerp
+1e-6 rad apart.  Single precision is similar.  All of them are in the summary.
 
-## Where hypatia is clearly ahead
+GLM and Eigen rotate a vector by q as if q had unit length.  For a q that has drifted to
+length 1 ± 1e-6, the result is scaled by |q|², which is the error in the first row.
+hypatia divides by |q|².
 
-Largest error over 20000 inputs, in ulps (units of the epsilon); the best of GLM, Eigen
-and cglm for comparison.
+### Where hypatia now is behind (double)
 
-| function | inputs | hypatia (largest / mean) | best other library | ratio |
+| function | inputs | now (largest / mean) | best other (largest / mean) | ratio of means |
 |---|---|---|---|---|
-| `quaternion_get_rotation_tov3` | 1e-3 rad from opposite | 2.21 / 0.35 | 4080 / 640 (Eigen) | 1850x |
-| `quaternion_get_rotation_tov3` | random | 2.21 / 0.54 | 116 / 0.96 (GLM) | 52x |
-| `vector3_rotate_by_quaternion` | q drifted to length 1 +- 1e-6 | 3.36 / 0.66 | 2.3e10 (GLM, Eigen: they assume a unit q) | |
-| `vector3_rotate_by_quaternion` | unit q | 3.03 / 0.64 | 5.78 / 0.93 (GLM) | 1.9x |
-| `quaternion_angle_between` | 1e-4 rad apart | 6190 / 220 | 9700 / 1800 (Eigen) | 1.6x |
-| `matrix4_set_from_quaternion` | unit q | 2.83 / 0.62 | 3.92 / 0.90 (GLM) | 1.4x |
-| `quaternion_angle_between` (single) | random | 1.65 / 0.33 | 7.49 / 0.28 (Eigen) | 4.5x |
+| `quaternion_get_rotation_tov3` | 1e-6 rad apart | 1.54 / 0.275 | 0.636 / 0.159 (Eigen) | 1.73 |
+| `quaternion_angle_between` | random | 2.09 / 0.329 | 2.9 / 0.257 (Eigen) | 1.28 |
+| `quaternion_set_from_axis_anglev3` | random | 1.32 / 0.30 | 0.897 / 0.238 (GLM) | 1.26 |
+| `matrix4_set_from_axisv3_angle` | random | 2.51 / 0.496 | 2.14 / 0.439 (Eigen) | 1.13 |
+| `quaternion_set_from_matrix4` | random; near half turns | 1.8 / 0.357; 1.66 / 0.332 | 1.45 / 0.326; 1.41 / 0.303 (GLM) | 1.10; 1.10 |
+| `vector3_normalize` | components 1e-20 to 1e20 | 1.14 / 0.131 | 1.14 / 0.124 (Eigen) | 1.06 |
+| `quaternion_slerp` | 1e-3 rad apart; random | 2 / 0.518; 1.74 / 0.468 | 2.1 / 0.496; 1.62 / 0.457 (Eigen) | 1.04; 1.02 |
 
-Against GLM alone the differences are larger in places: `glm::angle` of a quaternion
-loses all digits for small rotations (1.2e7 ulps for 1e-4 rad, hypatia 0.99), and
-`glm::angle` of two vectors loses up to 1e-11 near 0 and pi in double (hypatia 4e-16).
-`glm::rotation` gives no rotation at all for exactly opposite vectors.
+### Where now is less precise than master
 
-## Where hypatia trails
+| precision | function | inputs | master | now |
+|---|---|---|---|---|
+| double | `matrix4_set_from_axisv3_angle` | random | 2.14 / 0.439 | 2.51 / 0.496 |
+| double | `quaternion_set_from_axis_anglev3` | random | 1.32 / 0.285 | 1.32 / 0.30 |
+| single | `matrix4_set_from_axisv3_angle` | random | 2.21 / 0.443 | 2.69 / 0.503 |
+| single | `quaternion_set_from_axis_anglev3` | random | 1.31 / 0.286 | 1.47 / 0.304 |
+| single | `quaternion_slerp` | 1e-3 rad apart | 1.47 / 0.414 | 1.67 / 0.474 |
+| single | `quaternion_slerp` | 1e-6 rad apart | 1.25 / 0.358 | 1.47 / 0.376 |
 
-Double precision; single is similar.
+- **Axis-angle builders.**  They now accept an axis of any length (87032b1) and
+  normalize it, which adds a rounding when the axis is already unit.  Master required a
+  unit axis.
+- **Slerp, single precision.**  Master falls back to an unnormalized linear
+  interpolation when the dot product is within 1e-5 of 1.  At 1e-3 rad that error is
+  below float rounding.  In double the same shortcut is off by about 1e8 ulps (the probe
+  below).
 
-| function | inputs | hypatia mean | best other mean |
-|---|---|---|---|
-| `quaternion_get_rotation_tov3` | 1e-6 rad apart (landing error) | 0.28 | 0.16 (Eigen) |
-| `quaternion_set_from_matrix4` | near half turns | 0.33 | 0.30 (GLM, Eigen) |
-| `quaternion_slerp` | random, 1e-3 rad apart | 0.52, 0.57 | 0.50, 0.52 (Eigen) |
-| `quaternion_set_from_axis_anglev3` | random | 0.31 | 0.29 (GLM, Eigen) |
-| `quaternion_angle_between` | random (double) | 0.33 | 0.26 (Eigen) |
-| `vector3_normalize` | components from 1e-20 to 1e20 | 0.13 | 0.12 (Eigen) |
+### Master: known-answer checks
 
-In each of these the largest error is within 1 ulp of the best library's, except
-`quaternion_get_rotation_tov3` for vectors 1e-6 rad apart (1.5 against 0.67).
+From `compare/results/probe/master.txt`.  Before and now pass all 13.
 
-## What changed since master
+| check | master gives | expected |
+|---|---|---|
+| `vector3_normalize` of (1, 2, 2) × 1e-20 | the input unchanged | (1/3, 2/3, 2/3) |
+| `vector3_rotate_by_quaternion` keeps the length | 1.073 → 0.871 | 1.073 |
+| `matrix4_make_transformation_rotationq` applied with `matrix4_multiplyv3`, against `vector3_rotate_by_quaternion` with the same q | x → −y | x → y, as the quaternion |
+| `matrix4_set_from_euler_anglesf3_EXP(0, 0, a)` against `matrix4_set_from_axisv3_angle_EXP(z, a)` | rotates by −a | rotates by a, as the axis-angle matrix |
+| `matrix4_inverse` of diag(0.01, 0.01, 0.01, 1) (determinant 1e-6) | the identity | diag(100, 100, 100, 1) |
+| perspective, fovy 60°: a point on the top edge of the view | y / w = 0.15 | 1 |
+| lookat: where the eye (1, 2, 5) goes | (0, 0, 10.95) | the origin |
+| `quaternion_slerp(identity, 90° about z, 1e-6)` | the identity | a turn of 1.57e-6 rad |
+| `quaternion_slerp`, 1e-3 rad apart, t = 0.5: the length | 1 − 3.1e-8 | 1 |
+| `quaternion_get_rotation_tov3`, x to y | (0, 0, 1, 1) | (0, 0, 0.707, 0.707) |
+| `quaternion_get_rotation_tov3`, x to −x | (0, 0, 0, 0) | a half turn |
+| `quaternion_angle_between_EXP`, 1e-4 rad | relative error 2.9e-9 | 1e-4 |
+| `quaternion_get_axis_anglev3`, 1e-4 rad | relative error 5.6e-9 | 1e-4 |
 
-### Results that were wrong on master
+The causes are visible in master's source:
+- an absolute tolerance of 1e-5 (`scalar_equalsf`) used for decisions: a singular
+  determinant, t = 0 or 1, parallel quaternions, a zero vector;
+- `cot(fovy) / 2` where `cot(fovy / 2)` is meant;
+- a translation in lookat whose sign doesn't match its rotation;
+- `2 acos(w)` and `2 acos(dot)`, which lose half the digits near zero angles.
 
-These show as "wrong" in the tables (an error of 1e6 ulps or more).  The README's
-"Changes in 2.1" lists each fix.
+The last two checks are a loss of precision rather than a wrong result.
 
-| function on master | what was wrong |
-|---|---|
-| `vector3_rotate_by_quaternion` | wrong for vectors not perpendicular to the axis (a sign error) |
-| `matrix4_make_transformation_rotationq` | rotated the other way (left-handed) |
-| `matrix4_set_from_euler_anglesf3_EXP` | another order and direction |
-| `matrix4_projection_perspective_fovy_rh_EXP`, `matrix4_view_lookat_rh_EXP` | incorrect matrices |
-| `matrix4_inverse` | refused matrices with a determinant below 1e-5 (the condition ~1e4 matrices) |
-| `vector3_normalize` | left vectors shorter than 1e-5 unchanged |
-| `quaternion_get_axis_anglev3` | lost all digits for small rotations; for w < 0 it gave an angle above pi (the same rotation, counted as wrong here, which compares in [0, pi]) |
-| `quaternion_get_rotation_tov3` | wrong rotation for many vector pairs |
-| `quaternion_slerp` | shortcuts near 0 and 1 and a sign jump between q and -q |
-| `quaternion_angle_between_EXP` | did not treat q and -q as the same rotation |
+### The bug fixes, each with its test
 
-### Bugs the comparison found
+From `compare/results/verify_fixes.txt`: each fix commit's tests pass with the fix and
+fail with the `hypatia.h` of the commit before it.
 
-The comparison with the other libraries found these on correctness-h, each fixed with a
-test that failed before the fix:
+| commit | fix | first assertion that fails without it |
+|---|---|---|
+| 2700d4b | sign in `vector3_rotate_by_quaternion` | test/test_quaternion.c(229) |
+| 8b69e46 | matrix rotation builders follow the right-hand rule | test/test_quaternion.c(1180) |
+| 3ff02c7 | normalize anything but an exactly zero vector; scale before squaring | test/test_quaternion.c(947) |
+| 5ffe649 | only an exactly zero determinant has no inverse | test/test_matrix2.c(370) |
+| 9ebeeb8 | slerp: shortest arc, exact at the ends | test/test_quaternion.c(1004) |
+| f5137e6 | `get_rotation_tov3` and `get_axis_anglev3` accurate for any length | test/test_quaternion.c(1194) |
+| f1f9ad2 | `vector2/3_angle_between`: no NaN for parallel vectors | test/test_vector2.c(464) |
+| 735a70e | slerp: no linear shortcut below 0.009 rad | test/test_quaternion.c(1275) |
+| 87032b1 | rotate by a quaternion or an axis of any length | test/test_quaternion.c(1292) |
+| ed5c45a | `matrix4_inverse`: no overflow for very small matrices | test/test_matrix4.c(1170) |
+| 082ad4a | `matrix2/3_inverse`: the same | test/test_matrix2.c(495) |
+| 860b94d | `matrix4_inverse`: precision for ill-conditioned matrices | test/test_matrix4.c(1126) |
 
-- `vector2/3_angle_between` returned NaN for about half of all parallel vector pairs and
-  for every pair 1e-4 rad apart in single precision;
-- `quaternion_slerp` used a linear interpolation for angles under about 0.009 rad, off by
-  up to 2e-6 and not of unit length;
-- `vector3_rotate_by_quaternion` scaled the vector by |q|^2 for a quaternion that is not of
-  unit length, and the axis-angle functions changed the angle for an axis that is not of
-  unit length;
-- `matrix2/3/4_inverse` overflowed (inf) for very small invertible matrices;
-- `matrix4_inverse` computed the determinant separately from the cofactors (a 24-term
-  sum): for matrices with condition number 1e6 it was up to 150 times less precise than
-  GLM and Eigen, on random matrices about 2 times (per unit of condition number);
-- the doc comments of `matrixN_multiply` had the order backwards.
+The first six fix defects that are on master.  The last six fix defects that this
+comparison found in intermediate versions of correctness-h.
 
-### The precision work (before to now)
+### Earlier claims corrected
 
-- Normalizing divides once by the length when the sum of the squares is in range, as GLM
-  and Eigen do; the scaled path, which divided twice, is kept for tiny, huge, infinite and
-  NaN components.
-- `quaternion_inverse`, `vectorN_project` and `matrix4_set_from_quaternion` divide by |q|^2
-  or |v|^2 directly when it is in range.
-- `quaternion_norm` and `quaternion_multiply` sum in pairs.
-- `matrix4_inverse` and `matrix4_determinant` use 2x2 blocks, as Eigen does, and share the
-  determinant.  Per unit of condition number this is about level with the previous
-  version (mean 0.062 against 0.063 ulp on random matrices); against master (0.082) and in
-  the worst case (0.41 against 0.90 on master) it is better.  The commit message of
-  58eb5fb quotes a larger gain (mean 9 to 3.5 ulp); that figure was not divided by the
-  condition number and came from a few nearly singular matrices.
-- `vector3_rotate_by_quaternion` uses 2 (u.v) u + (w^2 - u.u) v + 2 w (u x v), over |q|^2.
-  It is also faster: 17 ns per call, 21 ns before any of these changes.
+- **The commit message of 58eb5fb** quotes a gain for `matrix4_inverse` from 9 to 3.5
+  ulps in the mean.  That figure was not divided by the condition number and came from
+  a few nearly singular matrices.  Per unit of condition the change is about level with
+  before: a mean of 0.0623 against 0.0631, and a largest error of 0.414 against 0.433.
+- **The first version of this report** counted now as best or tied in 34 of 41.  Three
+  corrections bring that to 32:
+  - the input generators called hypatia's own functions, so each version was measured
+    on slightly different inputs;
+  - master's angles were compared without the [0, π] mapping already applied to GLM;
+  - the two references above were replaced.
 
 ## Conventions that differ (not errors)
 
@@ -132,150 +299,60 @@ test that failed before the fix:
 |---|---|
 | `matrix4_set_from_euler_anglesf3(x, y, z)` rotates about X, then Y, then Z (Rz Ry Rx) | GLM `eulerAngleZYX(z, y, x)` and cglm `glm_euler_zyx` are the same; GLM `eulerAngleXYZ` and cglm `glm_euler_xyz` are Rx Ry Rz |
 | `matrix4_translatev3(M, v)` (and rotate, scale) applies the new transform after M | GLM `translate(M, v)` applies it before M |
-| `quaternion_get_axis_anglev3` gives an angle in [0, pi] | GLM `angle` gives [0, 2 pi] |
+| `quaternion_get_axis_anglev3` gives an angle in [0, π] | GLM `angle` gives [0, 2π] |
 | `quaternion_slerp` takes the shorter arc | GLM `slerp` and Eigen do too; cglm and GLM `mix` do not |
 
-## Edge cases
+## Agreement and edge cases
 
-Zero, tiny, huge, infinite and NaN input, and degenerate geometry (opposite vectors,
-eye == target, a zero axis): hypatia gives a defined result in each case (the input
-unchanged, the identity, or 0) where GLM usually gives NaN and Eigen and cglm vary.  The
-full table is in `compare/REPORT.md` and at the end of `compare/results/*.md`.
+The full comparison of now (`compare/results/double.md`, `single.md`) compares each
+function with its counterparts on 2000 random inputs.
+- **Agreement:** in double, every row agrees to 1e-10 except the three rows that compare
+  across the conventions above.
+- **Edge cases:** zero, tiny, huge, infinite and NaN input, and degenerate geometry
+  (opposite vectors, eye == target, a zero axis).  hypatia gives a defined result in
+  each case (the input unchanged, the identity, or 0) where GLM usually gives NaN, and
+  Eigen and cglm vary.
+- **GLM:** the same files show that `glm::rotation` doesn't rotate exactly opposite
+  vectors onto each other, and that `glm::angle` of two vectors is about 1e-12 off in
+  double near 0 and π (it uses acos).
 
-## Method and limits
+## Limits
 
-- Each measurement uses 20000 inputs from a fixed generator: random values, and inputs
-  that are hard for rounding (nearly parallel, nearly opposite, badly conditioned, very
-  small or large).  The same rounded inputs go to every library.
-- The exact answer is computed in long double (64-bit mantissa) from those inputs.  The
-  error is in units of the epsilon of the precision measured, relative to the largest
-  component of the exact result (to the size of the terms for dot and cross products,
-  products and determinants).
-- The inverse is measured per unit of the condition number (|A| |A^-1| in the row-sum
-  norm), and lookat per unit of 1 / sin of the angle between the view and up directions:
-  any algorithm can lose that much, and without it a few nearly singular inputs dominate
-  the numbers.
-- The largest error moves by 0.1 to 0.3 ulp between random seeds; the mean is stable.  The
-  counts above use the mean; with a second seed (`COMPARE_SEED=7`) they are 33 of 41 in both
-  precisions.
-- In single precision, `matrix4_reciprocal_condition` is limited by the float inverse: for
-  condition numbers near 1e6 it can be 17 times off, or 0 when the float determinant
-  rounds to zero.
-- `vector4_cross_product` and the remaining experimental functions have no counterpart and
-  are not compared.
+- **hypatia was tuned against this benchmark.**  The precision work chose formulas by
+  their results here, so other inputs could rank the libraries differently.  The
+  measurements, the input kinds and the 2% band were chosen by the same people who did
+  the work.
+- **The measurements are a selection:** 41 of them, of 25 functions.
+  `vector4_cross_product`, the remaining experimental functions and functions without a
+  counterpart in the other libraries are not measured.
+- **One platform:** x86-64 with SSE2, no FMA, gcc 13.3, `-O3` without `-ffast-math`
+  (`compare/results/environment.txt`).
+  - With FMA contraction, on ARM or with another compiler, the last digits of every
+    library change, and Eigen may take other vector paths.
+  - Where `long double` is the same as double (MSVC; macOS on ARM), the reference is no
+    more precise than the double results, and the double tables can't be reproduced
+    there.
+- **The reference is long double**, accurate to about 1e-19 relative, 2000 times finer
+  than a double ulp.  The oracle check covers the cases where that is not enough.
+- **cglm is float only**, so it appears in the single precision tables only.
+- **Most differences are small.**  On random inputs they are a few hundredths of an ulp:
+  real (they hold across seeds), but they rarely matter in practice.  The libraries
+  differ by orders of magnitude only on the near-degenerate inputs.
+- **Speed is not measured.**
 
-## Reproducing
+## Files
 
-```sh
-cd compare
-./fetch.sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/compare_double > results/double.md      # agreement, edge cases, precision
-./build/compare_single > results/single.md
-```
-
-For the master and before columns: `-DHYPATIA_DIR=<directory with that hypatia.h>` and
-`-DCOMPARE_DEFS="PRECISION_ONLY"` (with `;HYP_MASTER` for master, which maps the master
-names).  `COMPARE_SEED=n` picks another random sequence.
-
-## Appendix: the precision tables
-
-Largest / mean error in ulps over 20000 inputs (default seed).  Bold: the best of now,
-GLM, Eigen and cglm.  "wrong": master's result is wrong (1e6 ulps or more); "n/a": the
-version or library has no such function.
-### Double precision
-
-| function | inputs | master | before | now | GLM | Eigen |
-|---|---|---|---|---|---|---|
-| vector3_normalize | random | 1.09 / 0.32 | 1.12 / 0.35 | **1.09 / 0.32** | 1.34 / 0.37 | **1.09 / 0.32** |
-| vector3_normalize | components 1e-20 .. 1e20 (single 1e-15 .. 1e15) | wrong | 1.09 / 0.15 | **1.14 / 0.13** | 1.38 / 0.19 | **1.14 / 0.12** |
-| vector3_normalize | one large, two small (1, 1e-5, 1e-5) | 1.26 / 0.25 | 0.992 / 0.33 | **1.26 / 0.25** | 1.34 / 0.31 | **1.26 / 0.25** |
-| vector3_magnitude | random | 0.916 / 0.22 | 0.916 / 0.22 | **0.916 / 0.22** | **0.916 / 0.22** | **0.916 / 0.22** |
-| vector3_dot_product | random | 1.09 / 0.16 | 1.09 / 0.16 | **1.09 / 0.16** | **1.09 / 0.16** | **1.09 / 0.16** |
-| vector3_dot_product | nearly perpendicular | 0.61 / 0.09 | 0.61 / 0.09 | **0.61 / 0.09** | **0.61 / 0.09** | **0.61 / 0.09** |
-| vector3_cross_product | random | 0.802 / 0.2 | 0.802 / 0.2 | **0.802 / 0.2** | **0.802 / 0.2** | **0.802 / 0.2** |
-| vector3_cross_product | nearly parallel (1e-4 rad) | 0.462 / 0.11 | 0.462 / 0.11 | **0.462 / 0.11** | **0.462 / 0.11** | **0.462 / 0.11** |
-| vector3_project | random | n/a | 2.4 / 0.29 | **1.59 / 0.21** | **1.59 / 0.21** | n/a |
-| vector3_rotate_by_quaternion | unit q | wrong | 3 / 0.74 | **3.03 / 0.64** | 5.78 / 0.93 | 5.78 / 0.92 |
-| vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | wrong | 3.42 / 0.76 | **3.36 / 0.66** | 2.29e+10 / 6e+09 | 2.29e+10 / 6e+09 |
-| matrix4_multiply | random | 1.29 / 0.37 | 1.29 / 0.37 | **1.29 / 0.37** | **1.29 / 0.37** | **1.29 / 0.37** |
-| matrix4_inverse | random entries (error / condition number) | 0.9 / 0.082 | 0.433 / 0.063 | **0.414 / 0.062** | 0.523 / 0.064 | 0.481 / 0.064 |
-| matrix4_inverse | rotation, scale and translation (error / condition number) | 0.246 / 0.012 | 0.201 / 0.011 | **0.168 / 0.011** | 0.218 / 0.012 | 0.173 / 0.011 |
-| matrix4_inverse | condition ~1e4 (error / condition number) | wrong | 13.5 / 0.96 | 14 / 0.96 | **13.7 / 1** | 15.6 / 0.96 |
-| matrix3_inverse | random entries (error / condition number) | 0.555 / 0.078 | 0.555 / 0.075 | **0.555 / 0.075** | **0.555 / 0.078** | 0.642 / 0.079 |
-| matrix4_determinant | random entries | 3.49 / 0.35 | 3.4 / 0.26 | 3.4 / 0.26 | **2.7 / 0.26** | 2.99 / 0.26 |
-| matrix4_normal_matrix | rotation, scale and translation | n/a | 2.06 / 0.38 | **1.74 / 0.38** | 2.04 / 0.38 | n/a |
-| matrix4_set_from_axisv3_angle | random | 3.34 / 0.56 | 3.97 / 0.59 | **3.13 / 0.56** | 4.9 / 0.71 | 4.01 / 0.56 |
-| matrix4_set_from_axisv3_angle | angle 1e-4 | 0.368 / 0.23 | 0.368 / 0.23 | **0.368 / 0.23** | **0.368 / 0.23** | **0.368 / 0.23** |
-| matrix4_set_from_quaternion | unit q | wrong | 4.31 / 0.94 | **2.83 / 0.62** | 3.92 / 0.9 | 3.92 / 0.9 |
-| matrix4_set_from_euler_anglesf3 | random | wrong | 1.26 / 0.39 | 1.26 / 0.39 | **1.22 / 0.39** | n/a |
-| matrix4_projection_perspective_fovy_rh | random | wrong | 1.24 / 0.35 | 1.24 / 0.35 | **1.11 / 0.36** | n/a |
-| matrix4_view_lookat_rh | random (error * sin(view, up)) | wrong | 2.27 / 0.43 | **1.91 / 0.41** | 2.11 / 0.45 | n/a |
-| quaternion_multiply | random | 1.1 / 0.3 | 1.2 / 0.3 | **0.942 / 0.29** | 1.08 / 0.3 | 1.03 / 0.29 |
-| quaternion_normalize | random length | 1.25 / 0.34 | 1.17 / 0.35 | **1.18 / 0.33** | 1.47 / 0.39 | **1.18 / 0.33** |
-| quaternion_inverse | random length | 1.54 / 0.4 | 2.3 / 0.63 | 1.41 / 0.39 | 1.4 / 0.39 | **1.33 / 0.39** |
-| quaternion_set_from_axis_anglev3 | random | 1.39 / 0.32 | 1.65 / 0.39 | **1.32 / 0.31** | 1.51 / 0.29 | 1.51 / 0.29 |
-| quaternion_set_from_axis_anglev3 | angle 1e-4 | 0.033 / 0.033 | 0.533 / 0.53 | **0.033 / 0.033** | **0.033 / 0.033** | **0.033 / 0.033** |
-| quaternion_get_axis_anglev3 | random (axis * angle) | wrong | 1.49 / 0.42 | **1.43 / 0.39** | 49 / 0.7 | **1.43 / 0.39** |
-| quaternion_get_axis_anglev3 | angle 1e-4 (axis * angle) | wrong | 1.34 / 0.4 | **0.99 / 0.35** | 1.18e+07 / 1.2e+07 | **0.99 / 0.35** |
-| quaternion_set_from_matrix4 | random rotation | n/a | 1.72 / 0.43 | **1.98 / 0.4** | 3.39 / 0.44 | 2.42 / 0.4 |
-| quaternion_set_from_matrix4 | near half turns (pi - 1e-3) | n/a | 1.47 / 0.39 | 1.62 / 0.33 | **1.53 / 0.3** | **1.53 / 0.3** |
-| quaternion_slerp | random | wrong | 2.03 / 0.52 | 2 / 0.52 | 2.01 / 0.53 | **1.93 / 0.5** |
-| quaternion_slerp | 1e-3 rad apart | wrong | 2.15 / 0.57 | 2.21 / 0.57 | **2.2 / 0.55** | 2.4 / 0.52 |
-| quaternion_slerp | 1e-6 rad apart | 1.22e+04 / 94 | 2.26 / 0.55 | 2.52 / 0.55 | **2.26 / 0.58** | 2.36 / 0.54 |
-| quaternion_get_rotation_tov3 | random (landing error) | wrong | 2.75 / 0.61 | **2.21 / 0.54** | 116 / 0.96 | 116 / 0.86 |
-| quaternion_get_rotation_tov3 | 1e-3 rad from opposite (landing error) | wrong | 2.78 / 0.43 | **2.21 / 0.35** | 4.09e+03 / 8.4e+02 | 4.08e+03 / 6.4e+02 |
-| quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | wrong | 1.58 / 0.32 | 1.54 / 0.28 | 0.666 / 0.16 | **0.636 / 0.16** |
-| quaternion_angle_between | random | wrong | 7.38 / 0.35 | **2.87 / 0.33** | n/a | 2.99 / 0.26 |
-| quaternion_angle_between | 1e-4 rad apart | wrong | 1.49e+04 / 1.9e+03 | **6.19e+03 / 2.2e+02** | n/a | 9.7e+03 / 1.8e+03 |
-
-Best or tied with the best of GLM, Eigen: master 13 of 41 rows, before 22, now 31.
-
-### Single precision
-
-| function | inputs | master | before | now | GLM | Eigen | cglm |
-|---|---|---|---|---|---|---|---|
-| vector3_normalize | random | 1.22 / 0.32 | 1.11 / 0.35 | 1.22 / 0.32 | 1.29 / 0.37 | **1.11 / 0.32** | 1.29 / 0.37 |
-| vector3_normalize | components 1e-20 .. 1e20 (single 1e-15 .. 1e15) | wrong | 0.944 / 0.1 | **1.05 / 0.085** | 1.19 / 0.15 | **1.05 / 0.085** | 8.39e+06 / 1.7e+05 |
-| vector3_normalize | one large, two small (1, 1e-5, 1e-5) | 0.00293 / 0.00028 | 0.00293 / 0.00028 | **0.00293 / 0.00028** | 0.5 / 0.075 | **0.00293 / 0.00028** | 0.5 / 0.075 |
-| vector3_magnitude | random | 0.995 / 0.22 | 0.995 / 0.22 | 0.995 / 0.22 | 0.995 / 0.22 | **0.965 / 0.22** | 0.995 / 0.22 |
-| vector3_dot_product | random | 0.951 / 0.16 | 0.951 / 0.16 | 0.951 / 0.16 | 0.951 / 0.16 | **0.948 / 0.16** | 0.951 / 0.16 |
-| vector3_dot_product | nearly perpendicular | 0.557 / 0.091 | 0.557 / 0.091 | **0.557 / 0.091** | **0.557 / 0.091** | 0.56 / 0.091 | **0.557 / 0.091** |
-| vector3_cross_product | random | 0.791 / 0.2 | 0.791 / 0.2 | **0.791 / 0.2** | **0.791 / 0.2** | **0.791 / 0.2** | **0.791 / 0.2** |
-| vector3_cross_product | nearly parallel (1e-4 rad) | 0.45 / 0.11 | 0.45 / 0.11 | **0.45 / 0.11** | **0.45 / 0.11** | **0.45 / 0.11** | **0.45 / 0.11** |
-| vector3_project | random | n/a | 2 / 0.3 | **1.64 / 0.21** | **1.64 / 0.21** | n/a | n/a |
-| vector3_rotate_by_quaternion | unit q | wrong | 3 / 0.74 | **3.2 / 0.64** | 5.33 / 0.94 | 5.33 / 0.93 | 4.94 / 0.81 |
-| vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | wrong | 2.86 / 0.76 | **2.97 / 0.66** | 42.2 / 11 | 42.2 / 11 | 4.02 / 0.81 |
-| matrix4_multiply | random | 1.15 / 0.37 | 1.15 / 0.37 | **1.15 / 0.37** | **1.15 / 0.37** | **1.15 / 0.37** | **1.15 / 0.37** |
-| matrix4_inverse | random entries (error / condition number) | 1.18 / 0.082 | 0.4 / 0.063 | 0.582 / 0.062 | **0.405 / 0.065** | 0.602 / 0.064 | 0.411 / 0.064 |
-| matrix4_inverse | rotation, scale and translation (error / condition number) | 0.245 / 0.012 | 0.311 / 0.011 | 0.218 / 0.011 | 0.247 / 0.012 | **0.174 / 0.011** | 0.247 / 0.012 |
-| matrix4_inverse | condition ~1e4 (error / condition number) | 1.16e+03 / 5.2e+02 | 13.6 / 0.96 | **13.7 / 0.97** | 17.6 / 1 | 16 / 0.97 | 17.6 / 1 |
-| matrix3_inverse | random entries (error / condition number) | 0.794 / 0.079 | 0.794 / 0.075 | 0.794 / 0.075 | 0.794 / 0.079 | **0.578 / 0.079** | n/a |
-| matrix4_determinant | random entries | 3.11 / 0.35 | 3.37 / 0.27 | **2.81 / 0.26** | 3.39 / 0.26 | 3.16 / 0.26 | 3.39 / 0.26 |
-| matrix4_normal_matrix | rotation, scale and translation | n/a | 1.91 / 0.38 | 2.1 / 0.38 | **1.96 / 0.38** | n/a | n/a |
-| matrix4_set_from_axisv3_angle | random | 3.65 / 0.57 | 3.38 / 0.6 | **3.22 / 0.57** | 4.15 / 0.71 | 3.68 / 0.57 | 4.15 / 0.71 |
-| matrix4_set_from_axisv3_angle | angle 1e-4 | 0.0419 / 0.038 | 0.0419 / 0.038 | **0.0419 / 0.038** | **0.0419 / 0.038** | **0.0419 / 0.038** | **0.0419 / 0.038** |
-| matrix4_set_from_quaternion | unit q | wrong | 4.62 / 0.94 | **2.78 / 0.62** | 4.51 / 0.91 | 4.51 / 0.91 | 3.16 / 0.72 |
-| matrix4_set_from_euler_anglesf3 | random | wrong | 1.15 / 0.39 | **1.15 / 0.39** | 1.22 / 0.39 | n/a | 1.22 / 0.39 |
-| matrix4_projection_perspective_fovy_rh | random | wrong | 1.21 / 0.35 | 1.21 / 0.35 | **1.19 / 0.36** | n/a | 1.33 / 0.38 |
-| matrix4_view_lookat_rh | random (error * sin(view, up)) | wrong | 2.22 / 0.44 | **1.8 / 0.42** | 2.09 / 0.46 | n/a | 2.09 / 0.46 |
-| quaternion_multiply | random | 1.15 / 0.3 | 1.22 / 0.3 | **1.02 / 0.29** | 1.15 / 0.3 | 1.23 / 0.29 | 1.15 / 0.3 |
-| quaternion_normalize | random length | 1.25 / 0.34 | 1.08 / 0.35 | **1.14 / 0.33** | 1.34 / 0.39 | 1.19 / 0.33 | 1.19 / 0.33 |
-| quaternion_inverse | random length | 1.55 / 0.4 | 2.4 / 0.62 | 1.43 / 0.39 | **1.35 / 0.39** | 1.43 / 0.39 | 1.56 / 0.43 |
-| quaternion_set_from_axis_anglev3 | random | 1.45 / 0.32 | 1.54 / 0.39 | **1.34 / 0.32** | 1.5 / 0.29 | 1.5 / 0.29 | 1.82 / 0.35 |
-| quaternion_set_from_axis_anglev3 | angle 1e-4 | 0.0105 / 0.01 | 0.0105 / 0.01 | **0.0105 / 0.01** | **0.0105 / 0.01** | **0.0105 / 0.01** | **0.0105 / 0.01** |
-| quaternion_get_axis_anglev3 | random (axis * angle) | wrong | 1.5 / 0.42 | **1.37 / 0.38** | 36.5 / 0.75 | **1.37 / 0.4** | 8.76 / 0.71 |
-| quaternion_get_axis_anglev3 | angle 1e-4 (axis * angle) | wrong | 1.02 / 0.28 | **0.533 / 0.093** | 2.28e+07 / 1.2e+07 | **0.533 / 0.092** | 1.01 / 0.38 |
-| quaternion_set_from_matrix4 | random rotation | n/a | 1.68 / 0.43 | 2.19 / 0.4 | 3.5 / 0.44 | **2.12 / 0.4** | **2.12 / 0.42** |
-| quaternion_set_from_matrix4 | near half turns (pi - 1e-3) | n/a | 1.53 / 0.39 | 1.51 / 0.34 | **1.43 / 0.31** | **1.43 / 0.31** | 1.58 / 0.35 |
-| quaternion_slerp | random | 55.7 / 0.51 | 2.2 / 0.53 | 2.15 / 0.53 | 2.49 / 0.54 | **2.1 / 0.51** | 16.5 / 0.64 |
-| quaternion_slerp | 1e-3 rad apart | 1.86 / 0.49 | 2.02 / 0.53 | 1.98 / 0.53 | 2.05 / 0.55 | **1.93 / 0.46** | 6.82e+03 / 3.2e+02 |
-| quaternion_slerp | 1e-6 rad apart | 1.75 / 0.45 | 1.85 / 0.46 | **1.84 / 0.46** | 1.97 / 0.43 | 1.93 / 0.44 | 6.8 / 1.7 |
-| quaternion_get_rotation_tov3 | random (landing error) | wrong | 2.68 / 0.62 | **2.58 / 0.54** | 99.4 / 0.97 | 48.8 / 0.86 | 83.8 / 0.79 |
-| quaternion_get_rotation_tov3 | 1e-3 rad from opposite (landing error) | wrong | 2.73 / 0.43 | **2.23 / 0.35** | 4.39e+03 / 9.4e+02 | 1.8e+04 / 1.7e+04 | 8.39e+03 / 8.4e+03 |
-| quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 7.69 / 6.6 | 1.63 / 0.3 | 1.41 / 0.26 | 8.73 / 8.4 | **0.686 / 0.16** | 8.73 / 8.4 |
-| quaternion_angle_between | random | wrong | 4.16 / 0.35 | **1.65 / 0.33** | n/a | 7.49 / 0.28 | n/a |
-| quaternion_angle_between | 1e-4 rad apart | wrong | 1.54e+04 / 1.9e+03 | **6.3e+03 / 2.2e+02** | n/a | 1.17e+04 / 1.9e+03 | n/a |
-
-Best or tied with the best of GLM, Eigen, cglm: master 13 of 41 rows, before 22, now 27.
+| file | contents |
+|---|---|
+| `compare/reproduce.sh` | regenerates everything below |
+| `compare/fetch.sh` | downloads the other libraries at pinned commits |
+| `compare/verify_fixes.sh` | runs each fix's tests with and without the fix |
+| `compare/probe.c` | the known-answer checks |
+| `compare/summarize.py` | the counts and tables, from the precision results |
+| `compare/compare_precision.inc` | the precision measurements and the oracle check |
+| `compare/results/precision/summary.md` | every count and table, including the full precision tables per version and library |
+| `compare/results/precision/{master,before,now}.{double,single}[.s7].md` | the raw precision results per version, precision and seed |
+| `compare/results/probe/*.txt` | the probe, per version |
+| `compare/results/verify_fixes.txt` | the fixes |
+| `compare/results/{double,single,double_depth_no}.md` | the full comparison of now: agreement, edge cases, accuracy and precision |
+| `compare/results/environment.txt` | the platform, compilers, flags and commits |

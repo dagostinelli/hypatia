@@ -22,6 +22,7 @@ struct Acc {
 		sum += std::isinf(e) ? 0 : e;
 		n++;
 	}
+	double mean() const { return std::isinf(max) ? INFINITY : sum / n; }
 	std::string str() const
 	{
 		if (n == 0)
@@ -30,7 +31,7 @@ struct Acc {
 		if (std::isinf(max))
 			std::snprintf(b, sizeof b, "inf");
 		else
-			std::snprintf(b, sizeof b, "%.3g / %.2g", max, sum / n);
+			std::snprintf(b, sizeof b, "%.3g / %.3g", max, sum / n);
 		return b;
 	}
 };
@@ -110,18 +111,24 @@ static struct vector3 near_vector(const struct vector3 &v, double angle, bool op
 	LV3 w = a * std::cos((L)angle) + p * std::sin((L)angle);
 	if (opposite)
 		w = -w;
-	struct vector3 r;
-	vector3_setf3(&r, (H)w.x(), (H)w.y(), (H)w.z());
-	return r;
+	return mk3((H)w.x(), (H)w.y(), (H)w.z());
 }
 
 static struct quaternion near_quaternion(const struct quaternion &q, double angle)
 {
 	LQ d(Eigen::AngleAxis<L>((L)angle, lv(runit3())));
 	LQ r = lq(q) * d;
-	struct quaternion h;
-	quaternion_setf4(&h, (H)r.x(), (H)r.y(), (H)r.z(), (H)r.w());
-	return h;
+	return mkq((H)r.x(), (H)r.y(), (H)r.z(), (H)r.w());
+}
+
+/* the rotation matrix of a unit quaternion, in long double, rounded */
+static struct matrix4 rotation_matrix(const struct quaternion &q)
+{
+	LM3 l = lq(q).normalized().toRotationMatrix();
+	struct matrix4 m;
+	for (int i = 0; i < 16; i++)
+		m.m[i] = (H)(i / 4 < 3 && i % 4 < 3 ? l(i / 4, i % 4) : i == 15 ? 1 : 0);
+	return m;
 }
 
 /* the row-sum (infinity) norm */
@@ -156,7 +163,7 @@ static void precision()
 				for (int k = 0; k < 3; k++)
 					v.v[k] = (H)(std::pow(10.0, r(-e, e)) * (rnd() < 0.5 ? -1 : 1));
 			} else if (kind == 2) {
-				vector3_setf3(&v, r(0.5, 2), r(-1e-5, 1e-5), r(-1e-5, 1e-5));
+				v = mk3(r(0.5, 2), r(-1e-5, 1e-5), r(-1e-5, 1e-5));
 			}
 			LV3 o3 = lv(v).normalized();
 			L o[3] = {o3.x(), o3.y(), o3.z()};
@@ -195,7 +202,7 @@ static void precision()
 			if (kind) {
 				LV3 p = lv(a).cross(lv(rv3())).normalized() * (L)r(1, 10);
 				LV3 q = p + lv(a).normalized() * (L)1e-4;
-				vector3_setf3(&b, (H)q.x(), (H)q.y(), (H)q.z());
+				b = mk3((H)q.x(), (H)q.y(), (H)q.z());
 			}
 			L o = lv(a).dot(lv(b));
 			/* relative to |a| |b|: the size of the terms */
@@ -214,7 +221,8 @@ static void precision()
 			struct vector3 a = rv3(), b = rv3(), h;
 			if (kind) {
 				b = near_vector(a, 1e-4, false);
-				vector3_multiplyf(&b, r(1, 10));
+				H s = r(1, 10);
+				b = mk3(b.x * s, b.y * s, b.z * s);
 			}
 			LV3 o3 = lv(a).cross(lv(b));
 			L o[3] = {o3.x(), o3.y(), o3.z()};
@@ -236,12 +244,13 @@ static void precision()
 	{
 		PRow &w = prow("vector3_project", "random");
 		for (int i = 0; i < N; i++) {
-			struct vector3 a = rv3(), b = rv3(), h = a;
+			struct vector3 a = rv3(), b = rv3();
 			LV3 ob = lv(b);
 			LV3 o3 = ob * (lv(a).dot(ob) / ob.dot(ob));
 			L o[3] = {o3.x(), o3.y(), o3.z()};
 			L scale = lv(a).norm();
 #ifndef HYP_MASTER
+			struct vector3 h = a;
 			vector3_project(&h, &b);
 			w.h.add(ulps(h.v, o, 3, scale));
 #endif
@@ -255,7 +264,10 @@ static void precision()
 			struct vector3 v = rv3(), h = v;
 			struct quaternion q = rq_unit();
 			if (kind)
-				quaternion_multiplyf(&q, (H)(1 + r(-1e-6, 1e-6)));
+			{
+				H s = (H)(1 + r(-1e-6, 1e-6));
+				q = mkq(q.x * s, q.y * s, q.z * s, q.w * s);
+			}
 			LV3 o3 = lq(q).normalized() * lv(v);
 			L o[3] = {o3.x(), o3.y(), o3.z()};
 			vector3_rotate_by_quaternion(&h, &q);
@@ -390,10 +402,11 @@ static void precision()
 	{
 		PRow &w = prow("matrix4_normal_matrix", "rotation, scale and translation");
 		for (int i = 0; i < N; i++) {
-			struct matrix4 a = rtrs(), h;
+			struct matrix4 a = rtrs();
 			L o[16];
 			lrow(l4(lm(a).block<3, 3>(0, 0).inverse().transpose()), o);
 #ifndef HYP_MASTER
+			struct matrix4 h;
 			matrix4_normal_matrix(&a, &h);
 			w.h.add(ulps(h.m, o, 16));
 #endif
@@ -633,9 +646,7 @@ static void precision()
 		for (int i = 0; i < N; i++) {
 			struct quaternion q = rq_unit();
 			if (kind) {
-				struct quaternion id;
-				quaternion_identity(&id);
-				q = near_quaternion(id, 1e-4);
+				q = near_quaternion(mkq(0, 0, 0, 1), 1e-4);
 			}
 			/* the rotation vector: axis * angle with the angle in [0, pi] */
 			LQ l = lq(q);
@@ -647,6 +658,13 @@ static void precision()
 			struct vector3 axis;
 			H angle;
 			quaternion_get_axis_anglev3(&q, &axis, &angle);
+			/* an angle in (pi, 2 pi) about the axis is the same rotation as
+			 * 2 pi - angle about -axis: mapped to [0, pi] for every library
+			 */
+			if (angle > (H)PI) {
+				angle = (H)(2 * PI) - angle;
+				axis = mk3(-axis.x, -axis.y, -axis.z);
+			}
 			H hv3[3] = {axis.x * angle, axis.y * angle, axis.z * angle};
 			w.h.add(ulps(hv3, o, 3));
 			H ga = glm::angle(gq(q));
@@ -677,17 +695,21 @@ static void precision()
 	for (int kind = 0; kind < 2; kind++) {
 		PRow &w = prow("quaternion_set_from_matrix4", kind ? "near half turns (pi - 1e-3)" : "random rotation");
 		for (int i = 0; i < N; i++) {
-			struct quaternion q = rq_unit(), h;
+			struct quaternion q = rq_unit();
 			if (kind) {
 				struct vector3 axis = runit3();
-				quaternion_set_from_axis_anglev3(&q, &axis, (H)(PI - 1e-3));
+				LQ l(Eigen::AngleAxis<L>(PI - 1e-3L, lv(axis)));
+				q = mkq((H)l.x(), (H)l.y(), (H)l.z(), (H)l.w());
 			}
-			struct matrix4 m;
-			matrix4_set_from_quaternion(&m, &q);
-			/* the exact quaternion of the rounded matrix */
-			LQ o(LM3(lm(m).block<3, 3>(0, 0)));
+			struct matrix4 m = rotation_matrix(q);
+			/* the rounded matrix is not exactly orthogonal: the reference is the
+			 * quaternion of the nearest rotation, U V^T of its SVD
+			 */
+			Eigen::JacobiSVD<LM3> svd(LM3(lm(m).block<3, 3>(0, 0)), Eigen::ComputeFullU | Eigen::ComputeFullV);
+			LQ o(LM3(svd.matrixU() * svd.matrixV().transpose()));
 			o.normalize();
 #ifndef HYP_MASTER
+			struct quaternion h;
 			quaternion_set_from_matrix4(&h, &m);
 			w.h.add(ulpq(h.q, o));
 #endif
@@ -739,11 +761,11 @@ static void precision()
 			w.g.add(landing_error(a, b, hq(glm::rotation(glm::normalize(gv(a)), glm::normalize(gv(b))))) / EPS);
 			w.e.add(landing_error(a, b, hq(EQ(EQ::FromTwoVectors(ev(a), ev(b))))) / EPS);
 #ifdef HAVE_CGLM
-			struct vector3 na = a, nb = b;
-			vector3_normalize(&na);
-			vector3_normalize(&nb);
+			vec3 na = {a.x, a.y, a.z}, nb = {b.x, b.y, b.z};
+			glm_vec3_normalize(na);
+			glm_vec3_normalize(nb);
 			versor c;
-			glm_quat_from_vecs(na.v, nb.v, c);
+			glm_quat_from_vecs(na, nb, c);
 			struct quaternion cq;
 			quaternion_setf4(&cq, c[0], c[1], c[2], c[3]);
 			w.c.add(landing_error(a, b, cq) / EPS);
@@ -754,28 +776,145 @@ static void precision()
 		PRow &w = prow("quaternion_angle_between", kind ? "1e-4 rad apart" : "random");
 		for (int i = 0; i < N; i++) {
 			struct quaternion a = rq_unit(), b = kind ? near_quaternion(a, 1e-4) : rq_unit();
-			L o = lq(a).normalized().angularDistance(lq(b).normalized());
-			w.h.add(ulp1(quaternion_angle_between(&a, &b), o));
+			L o = oracle_rotation_angle(a, b);
+			/* an angle in (pi, 2 pi), as on master, is the same rotation as 2 pi - angle */
+			H ha = quaternion_angle_between(&a, &b);
+			if (ha > (H)PI)
+				ha = (H)(2 * PI) - ha;
+			w.h.add(ulp1(ha, o));
 			w.e.add(ulp1(eq(a).angularDistance(eq(b)), o));
 		}
 	}
 
+	/* oracle check: each reference computed a second way; the largest
+	 * disagreement, in the units of the table, estimates how much of a
+	 * measured error can come from the reference itself
+	 */
+	struct OCheck {
+		const char *what;
+		double max;
+	};
+	std::vector<OCheck> checks;
+	{
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct matrix4 a = rm4();
+			LM4 l = lm(a), x = l.inverse(), y = Eigen::FullPivLU<LM4>(l).inverse();
+			L o[16], v[16];
+			lrow(x, o);
+			lrow(y, v);
+			double k = (double)(row_norm(l) * row_norm(x));
+			m = std::max(m, ulps(v, o, 16) / k);
+		}
+		checks.push_back({"matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition", m});
+	}
+	{
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct quaternion q = rq_unit();
+			struct vector3 v = rv3();
+			LQ lq_ = lq(q).normalized();
+			LV3 x = lq_ * lv(v), y = lq_.toRotationMatrix() * lv(v);
+			L o[3] = {x.x(), x.y(), x.z()}, w[3] = {y.x(), y.y(), y.z()};
+			m = std::max(m, ulps(w, o, 3));
+		}
+		checks.push_back({"vector rotation: quaternion product against the rotation matrix", m});
+	}
+	for (int kind = 0; kind < 2; kind++) {
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct quaternion a = rq_unit(), b = near_quaternion(a, kind ? 1e-6 : 1e-3);
+			LQ la = lq(a).normalized(), lb = lq(b).normalized();
+			L t = rnd();
+			LQ x = la.slerp(t, lb);
+			if (la.dot(lb) < 0)
+				lb.coeffs() = -lb.coeffs();
+			L th = 2 * std::atan2((la.coeffs() - lb.coeffs()).norm(), (la.coeffs() + lb.coeffs()).norm());
+			LV4 y = (std::sin((1 - t) * th) * la.coeffs() + std::sin(t * th) * lb.coeffs()) / std::sin(th);
+			L o[4] = {x.x(), x.y(), x.z(), x.w()}, w[4] = {y(0), y(1), y(2), y(3)};
+			m = std::max(m, ulps(w, o, 4));
+		}
+		checks.push_back({kind ? "slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form" : "slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form", m});
+	}
+	for (int kind = 0; kind < 2; kind++) {
+		/* the rounded matrix is not exactly orthogonal, so each method of reading
+		 * a quaternion from it gives a slightly different answer; this measures
+		 * that ambiguity against the quaternion of the nearest rotation
+		 */
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct quaternion q = rq_unit();
+			if (kind) {
+				struct vector3 axis = runit3();
+				LQ l(Eigen::AngleAxis<L>(PI - 1e-3L, lv(axis)));
+				q = mkq((H)l.x(), (H)l.y(), (H)l.z(), (H)l.w());
+			}
+			struct matrix4 hm = rotation_matrix(q);
+			LM3 l = lm(hm).block<3, 3>(0, 0);
+			LQ x(l);
+			x.normalize();
+			Eigen::JacobiSVD<LM3> svd(l, Eigen::ComputeFullU | Eigen::ComputeFullV);
+			LQ y(LM3(svd.matrixU() * svd.matrixV().transpose()));
+			y.normalize();
+			L o[4] = {y.x(), y.y(), y.z(), y.w()}, n[4] = {-y.x(), -y.y(), -y.z(), -y.w()};
+			L v[4] = {x.x(), x.y(), x.z(), x.w()};
+			m = std::max(m, std::min(ulps(v, o, 4), ulps(v, n, 4)));
+		}
+		checks.push_back({kind ? "quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD)" : "quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD)", m});
+	}
+	{
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct quaternion a = rq_unit(), b = near_quaternion(a, 1e-4);
+			/* a conj(b) in _Float128: the products are exact, the sums lose 1e-34,
+			 * and the norms of a and b cancel in the atan2
+			 */
+			_Float128 w = (_Float128)a.w * b.w + (_Float128)a.x * b.x + (_Float128)a.y * b.y + (_Float128)a.z * b.z;
+			_Float128 v0 = (_Float128)b.w * a.x - (_Float128)a.w * b.x - ((_Float128)a.y * b.z - (_Float128)a.z * b.y);
+			_Float128 v1 = (_Float128)b.w * a.y - (_Float128)a.w * b.y - ((_Float128)a.z * b.x - (_Float128)a.x * b.z);
+			_Float128 v2 = (_Float128)b.w * a.z - (_Float128)a.w * b.z - ((_Float128)a.x * b.y - (_Float128)a.y * b.x);
+			L x = (L)(2 * atan2f128(sqrtf128(v0 * v0 + v1 * v1 + v2 * v2), w < 0 ? -w : w));
+			L y = oracle_rotation_angle(a, b);
+			m = std::max(m, (double)(std::fabs(x - y) / x) / EPS);
+		}
+		checks.push_back({"angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128", m});
+	}
+	{
+		double m = 0;
+		for (int i = 0; i < N; i++) {
+			struct vector3 axis = runit3();
+			L angle = rangle();
+			LM3 x = Eigen::AngleAxis<L>(angle, lv(axis).normalized()).toRotationMatrix();
+			LM3 y = LQ(Eigen::AngleAxis<L>(angle, lv(axis).normalized())).toRotationMatrix();
+			L o[9], w[9];
+			for (int k = 0; k < 9; k++) {
+				o[k] = x(k / 3, k % 3);
+				w[k] = y(k / 3, k % 3);
+			}
+			m = std::max(m, ulps(w, o, 9));
+		}
+		checks.push_back({"axis-angle matrix: Rodrigues against through a quaternion", m});
+	}
+
 	/* print */
 	std::printf("\n## Precision against long double\n\n"
-		    "Largest / mean error in units of the %s epsilon (relative to the largest component of the exact result, or to the size of the terms where noted), over %d inputs.  Lower is better; the best of each row is in bold.\n\n"
+		    "Largest / mean error in units of the %s epsilon (relative to the largest component of the exact result, or to the size of the terms where noted), over %d inputs.  Lower is better; in bold, the smallest mean of each row and the means within 2%% of it.\n\n"
 		    "| function | inputs | hypatia | GLM | Eigen | cglm |\n|---|---|---|---|---|---|\n",
 		    SINGLE ? "float" : "double", N);
 	for (PRow &w : prows) {
 		double best = INFINITY;
 		for (Acc *a : {&w.h, &w.g, &w.e, &w.c})
 			if (a->n)
-				best = std::min(best, a->max);
+				best = std::min(best, a->mean());
 		auto cell = [&](Acc &a) {
 			std::string s = a.str();
-			if (a.n && a.max <= best * 1.0001 + 1e-9)
+			if (a.n && a.mean() <= best * 1.02)
 				s = "**" + s + "**";
 			return s;
 		};
 		std::printf("| %s | %s | %s | %s | %s | %s |\n", w.fn.c_str(), w.inputs.c_str(), cell(w.h).c_str(), cell(w.g).c_str(), cell(w.e).c_str(), cell(w.c).c_str());
 	}
+	std::printf("\n### Oracle check\n\nEach reference against a second computation of it: the largest disagreement over %d inputs, in the units of the table above.\n\n| reference | largest disagreement |\n|---|---|\n", N);
+	for (const OCheck &c : checks)
+		std::printf("| %s | %.3g |\n", c.what, c.max);
 }

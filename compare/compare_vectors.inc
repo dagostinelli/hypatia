@@ -2,7 +2,7 @@
 // vector comparisons (included by compare.cpp)
 
 /* the angle between a and b in long double: atan2(|a x b|, a . b) */
-static double oracle_angle3(const struct vector3 &a, const struct vector3 &b)
+[[maybe_unused]] static double oracle_angle3(const struct vector3 &a, const struct vector3 &b)
 {
 	L ax = a.x, ay = a.y, az = a.z, bx = b.x, by = b.y, bz = b.z;
 	L cx = ay * bz - az * by, cy = az * bx - ax * bz, cz = ax * by - ay * bx;

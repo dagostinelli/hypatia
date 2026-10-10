@@ -112,7 +112,7 @@ static double en(const double *a, const double *b, int n)
 	return m;
 }
 
-static void check(double err, const std::function<std::string()> &describe)
+[[maybe_unused]] static void check(double err, const std::function<std::string()> &describe)
 {
 	cur->n++;
 	if (!(err <= TOL))
@@ -144,7 +144,7 @@ struct Edge {
 	std::string what, input, hyp, others;
 };
 static std::vector<Edge> edges;
-static void edge(const std::string &what, const std::string &input, const std::string &hyp, const std::string &others)
+[[maybe_unused]] static void edge(const std::string &what, const std::string &input, const std::string &hyp, const std::string &others)
 {
 	edges.push_back({what, input, hyp, others});
 }
@@ -205,7 +205,7 @@ static M3 g3(const struct matrix3 &h)
 			g[c][r] = h.m[r * 3 + c];
 	return g;
 }
-static M2 g2(const struct matrix2 &h)
+[[maybe_unused]] static M2 g2(const struct matrix2 &h)
 {
 	M2 g;
 	for (int r = 0; r < 2; r++)
@@ -247,10 +247,10 @@ static EM4 e4(const struct matrix4 &h)
 }
 
 /* compare a hypatia matrix with a GLM one, element by element (row, column) */
-static double err_m4(const struct matrix4 &h, const M4 &g) { struct matrix4 x = h4(g); return err_v(h.m, x.m, 16); }
-static double err_m3(const struct matrix3 &h, const M3 &g) { struct matrix3 x = h3(g); return err_v(h.m, x.m, 9); }
-static double err_m2(const struct matrix2 &h, const M2 &g) { struct matrix2 x = h2(g); return err_v(h.m, x.m, 4); }
-static double err_e4(const struct matrix4 &h, const EM4 &e)
+[[maybe_unused]] static double err_m4(const struct matrix4 &h, const M4 &g) { struct matrix4 x = h4(g); return err_v(h.m, x.m, 16); }
+[[maybe_unused]] static double err_m3(const struct matrix3 &h, const M3 &g) { struct matrix3 x = h3(g); return err_v(h.m, x.m, 9); }
+[[maybe_unused]] static double err_m2(const struct matrix2 &h, const M2 &g) { struct matrix2 x = h2(g); return err_v(h.m, x.m, 4); }
+[[maybe_unused]] static double err_e4(const struct matrix4 &h, const EM4 &e)
 {
 	double m = 0;
 	for (int r = 0; r < 4; r++)
@@ -259,9 +259,9 @@ static double err_e4(const struct matrix4 &h, const EM4 &e)
 	return m;
 }
 
-static std::string sm4(const struct matrix4 &h) { return sv(h.m, 16); }
-static std::string sm3(const struct matrix3 &h) { return sv(h.m, 9); }
-static std::string sm2(const struct matrix2 &h) { return sv(h.m, 4); }
+[[maybe_unused]] static std::string sm4(const struct matrix4 &h) { return sv(h.m, 16); }
+[[maybe_unused]] static std::string sm3(const struct matrix3 &h) { return sv(h.m, 9); }
+[[maybe_unused]] static std::string sm2(const struct matrix2 &h) { return sv(h.m, 4); }
 
 static Q gq(const struct quaternion &h) { return Q(h.w, h.x, h.y, h.z); }
 static struct quaternion hq(const Q &g)
@@ -281,7 +281,7 @@ static struct quaternion hq(const EQ &e)
 /* quaternion components, exactly */
 static double err_q(const struct quaternion &a, const struct quaternion &b) { return err_v(a.q, b.q, 4); }
 /* as rotations: q and -q are the same */
-static double err_qr(const struct quaternion &a, const struct quaternion &b)
+[[maybe_unused]] static double err_qr(const struct quaternion &a, const struct quaternion &b)
 {
 	struct quaternion n = b;
 	quaternion_negate(&n);
@@ -289,39 +289,67 @@ static double err_qr(const struct quaternion &a, const struct quaternion &b)
 }
 static std::string sq(const struct quaternion &h) { return "(x " + f(h.x) + ", y " + f(h.y) + ", z " + f(h.z) + ", w " + f(h.w) + ")"; }
 
-static struct vector2 hv(const V2 &g) { struct vector2 h; vector2_setf2(&h, g.x, g.y); return h; }
+[[maybe_unused]] static struct vector2 hv(const V2 &g) { struct vector2 h; vector2_setf2(&h, g.x, g.y); return h; }
 static struct vector3 hv(const V3 &g) { struct vector3 h; vector3_setf3(&h, g.x, g.y, g.z); return h; }
-static struct vector4 hv(const V4 &g) { struct vector4 h; vector4_setf4(&h, g.x, g.y, g.z, g.w); return h; }
-static V2 gv(const struct vector2 &h) { return V2(h.x, h.y); }
+[[maybe_unused]] static struct vector4 hv(const V4 &g) { struct vector4 h; vector4_setf4(&h, g.x, g.y, g.z, g.w); return h; }
+[[maybe_unused]] static V2 gv(const struct vector2 &h) { return V2(h.x, h.y); }
 static V3 gv(const struct vector3 &h) { return V3(h.x, h.y, h.z); }
-static V4 gv(const struct vector4 &h) { return V4(h.x, h.y, h.z, h.w); }
+[[maybe_unused]] static V4 gv(const struct vector4 &h) { return V4(h.x, h.y, h.z, h.w); }
 static EV3 ev(const struct vector3 &h) { return EV3(h.x, h.y, h.z); }
 
 /* ---------------------------------------------------------------- random inputs */
 
-static struct vector2 rv2(double s = 10) { struct vector2 v; vector2_setf2(&v, r(-s, s), r(-s, s)); return v; }
-static struct vector3 rv3(double s = 10) { struct vector3 v; vector3_setf3(&v, r(-s, s), r(-s, s), r(-s, s)); return v; }
-static struct vector4 rv4(double s = 10) { struct vector4 v; vector4_setf4(&v, r(-s, s), r(-s, s), r(-s, s), r(-s, s)); return v; }
-static struct vector3 runit3()
+[[maybe_unused]] static struct vector2 rv2(double s = 10) { struct vector2 v; vector2_setf2(&v, r(-s, s), r(-s, s)); return v; }
+/* the inputs are made without hypatia's functions, so that every version of
+ * hypatia is measured on the same inputs
+ */
+static struct vector3 mk3(H x, H y, H z)
 {
 	struct vector3 v;
+	v.x = x;
+	v.y = y;
+	v.z = z;
+	return v;
+}
+static struct quaternion mkq(H x, H y, H z, H w)
+{
+	struct quaternion q;
+	q.x = x;
+	q.y = y;
+	q.z = z;
+	q.w = w;
+	return q;
+}
+static struct vector3 rv3(double s = 10) { return mk3(r(-s, s), r(-s, s), r(-s, s)); }
+[[maybe_unused]] static struct vector4 rv4(double s = 10) { struct vector4 v; vector4_setf4(&v, r(-s, s), r(-s, s), r(-s, s), r(-s, s)); return v; }
+static struct vector3 runit3()
+{
+	long double x, y, z, n;
 	do {
-		v = rv3(1);
-	} while (vector3_magnitude(&v) < 0.1);
-	return *vector3_normalize(&v);
+		x = r(-1, 1);
+		y = r(-1, 1);
+		z = r(-1, 1);
+		n = std::sqrt(x * x + y * y + z * z);
+	} while (n < 0.1L);
+	return mk3((H)(x / n), (H)(y / n), (H)(z / n));
 }
 static struct quaternion rq_unit()
 {
-	struct quaternion q;
+	long double x, y, z, w, n;
 	do {
-		quaternion_setf4(&q, r(-1, 1), r(-1, 1), r(-1, 1), r(-1, 1));
-	} while (quaternion_magnitude(&q) < 0.1);
-	return *quaternion_normalize(&q);
+		x = r(-1, 1);
+		y = r(-1, 1);
+		z = r(-1, 1);
+		w = r(-1, 1);
+		n = std::sqrt(x * x + y * y + z * z + w * w);
+	} while (n < 0.1L);
+	return mkq((H)(x / n), (H)(y / n), (H)(z / n), (H)(w / n));
 }
 static struct quaternion rq_any()
 {
 	struct quaternion q = rq_unit();
-	return *quaternion_multiplyf(&q, r(0.2, 5));
+	H s = r(0.2, 5);
+	return mkq(q.x * s, q.y * s, q.z * s, q.w * s);
 }
 static struct matrix4 rm4(double s = 5)
 {
@@ -337,22 +365,28 @@ static struct matrix3 rm3(double s = 5)
 		m.m[i] = r(-s, s);
 	return m;
 }
-static struct matrix2 rm2(double s = 5)
+[[maybe_unused]] static struct matrix2 rm2(double s = 5)
 {
 	struct matrix2 m;
 	for (int i = 0; i < 4; i++)
 		m.m[i] = r(-s, s);
 	return m;
 }
-/* translation, rotation and scale */
+/* translation, rotation and scale: T R S, computed in long double, rounded */
 static struct matrix4 rtrs()
 {
-	struct vector3 s, t;
 	struct quaternion q = rq_unit();
-	vector3_setf3(&s, r(0.2, 4), r(0.2, 4), r(0.2, 4));
-	t = rv3();
+	long double sc[3] = {r(0.2, 4), r(0.2, 4), r(0.2, 4)};
+	struct vector3 t = rv3();
+	Eigen::Matrix<L, 3, 3> rot = Eigen::Quaternion<L>(q.w, q.x, q.y, q.z).toRotationMatrix();
 	struct matrix4 m;
-	matrix4_transformation_compose(&m, &s, &q, &t);
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++)
+			m.m[i * 4 + j] = (H)(rot(i, j) * sc[j]);
+		m.m[i * 4 + 3] = t.v[i];
+		m.m[12 + i] = 0;
+	}
+	m.m[15] = 1;
 	return m;
 }
 
