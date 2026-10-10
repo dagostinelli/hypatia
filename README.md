@@ -87,6 +87,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 | Macro | Effect | Default |
 |---|---|---|
 | `HYPATIA_SINGLE_PRECISION_FLOATS` | `HYP_FLOAT` is `float` instead of `double`. | |
+| `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` | `HYP_FLOAT` is `long double` instead of `double`.  Needs the C99 math functions (`sinl`, `cosl`, ...).  On MSVC and on macOS arm64, `long double` is the same as `double`. | |
 | `HYP_EPSILON` | The tolerance of the `*_equals` functions: absolute for values up to 1 in size, relative above 1. | `1E-5` |
 
 **Standard library**
@@ -95,7 +96,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_STDIO` | Leaves out `<stdio.h>` and the `hyp_*_print` debug functions. | |
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all eight math macros below. | |
-| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT` |
+| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT`; `sqrtl`, `fmodl`, ... with `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset`. | `memset` from `<string.h>` |
 | `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source of `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX`; define both or neither. | `rand()`, `RAND_MAX` |
 
@@ -161,11 +162,15 @@ Conventions:
 * The `_rh` projection and view functions are right-handed (the camera looks down -Z) and the `_lh` ones left-handed (+Z).  Depth maps to 0 at the near plane and 1 at the far plane, or -1 to 1 with `HYP_DEPTH_MINUS_ONE_TO_ONE`.
 * Quaternions are (x, y, z, w) with w the real part.  A unit quaternion is a rotation, and q and -q are the same rotation.
 
+New in 2.1:
+
+* Long double precision: `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`.
+
 Coding Standard
 ---------------
 
 * Mathematical correctness comes first; a design choice that conflicts with it is a bug
-* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, and <stdint.h> / uint8_t)
+* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, <stdint.h> / uint8_t, and the C99 math functions in long double mode)
 * Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement
@@ -174,7 +179,7 @@ Coding Standard
 	- all CAPS for public constants.  HYP is the prefix for public constants
 	- use 'self' for describing the function context
 	- math entities are mutable
-	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting (exceptions: the math macros convert C89's double results to HYP_FLOAT, and scalar_random_rangef converts the random integers)
+	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting (exceptions: the math macros convert C89's double results to HYP_FLOAT, scalar_random_rangef converts the random integers, and hyp_print_value converts to double for printf)
 	- comments are neutral, factual and short
 	- blank line at the end of every file
 * Don't interfere with the user's program: no stray macros, no declarations without definitions, any include order works
