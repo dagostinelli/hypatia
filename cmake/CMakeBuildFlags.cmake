@@ -17,6 +17,10 @@ elseif(CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|AppleClang)$")
 
 	SET(HYP_DOUBLE_PRECISION_FLAGS -Wdouble-promotion)
 
+	# sinl, cosl and the other long double math functions are C99; this comes
+	# after -std=c90 in CMAKE_C_FLAGS on the compile line, so it wins
+	SET(HYP_LONG_DOUBLE_PRECISION_FLAGS -std=c99 -Wdouble-promotion)
+
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		SET(HYP_SINGLE_PRECISION_FLAGS -Wdouble-promotion)
 	endif()

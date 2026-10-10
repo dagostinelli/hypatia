@@ -1,20 +1,25 @@
 
 INCLUDE(../cmake/CMakeBuildFlags.cmake)
 
-# the precision flags and definitions for a target; precision is single or double
+# the precision flags and definitions for a target; precision is single,
+# double or long_double
 function(hyp_precision target precision)
 	if(precision STREQUAL "single")
 		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_SINGLE_PRECISION_FLAGS})
 		TARGET_COMPILE_DEFINITIONS(${target} PRIVATE HYPATIA_SINGLE_PRECISION_FLOATS)
+	elseif(precision STREQUAL "long_double")
+		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_LONG_DOUBLE_PRECISION_FLAGS})
+		TARGET_COMPILE_DEFINITIONS(${target} PRIVATE HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 	else()
 		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
 	endif()
 endfunction()
 
-# a test program from the given sources, in both precisions:
-# <name>_single_precision and <name>_double_precision
+# a test program from the given sources, in each precision:
+# <name>_single_precision, <name>_double_precision and
+# <name>_long_double_precision
 function(hyp_add_test name)
-	foreach(precision single double)
+	foreach(precision single double long_double)
 		SET(target ${name}_${precision}_precision)
 		ADD_EXECUTABLE(${target} ${ARGN})
 		hyp_precision(${target} ${precision})
@@ -40,7 +45,7 @@ if(WIN32)
 endif()
 
 hyp_add_test(test_hypatia_shared main.c)
-foreach(precision single double)
+foreach(precision single double long_double)
 	SET(library hypatia_shared_${precision}_precision)
 	ADD_LIBRARY(${library} SHARED implementation.c)
 	hyp_precision(${library} ${precision})

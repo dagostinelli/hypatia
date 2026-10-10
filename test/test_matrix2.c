@@ -483,6 +483,9 @@ static const char *test_matrix2_inverse_small_determinant(void)
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	const HYP_FLOAT scale = HYP_FLOAT_C(1e-20);
 	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-3);
+#elif defined(TEST_LONG_DOUBLE_RANGE)
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-2470);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
 #else
 	const HYP_FLOAT scale = HYP_FLOAT_C(1e-155);
 	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
