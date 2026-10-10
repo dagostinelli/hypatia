@@ -4499,10 +4499,12 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	HYP_FLOAT theta;
 	HYP_FLOAT s;
 	struct quaternion target;
+	struct quaternion unit_start;
+	struct quaternion unit_target;
 	struct quaternion difference;
 	struct quaternion sum;
 
-	/* how parallel are the quaternions (also the dot is the cosine) */
+	/* the sign of the dot product picks the shorter arc */
 	quaternion_set(&target, end);
 	dot = quaternion_dot_product(start, &target);
 
@@ -4513,16 +4515,21 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 		quaternion_negate(&target);
 	}
 
-	/* the angle between start and target on the 4D sphere: with |s - t| and
-	 * |s + t|, which stays accurate when they are nearly the same, where
-	 * acos(dot) does not (and is NaN when rounding puts the dot above 1)
+	/* the angle between start and target on the 4D sphere, from their unit
+	 * quaternions: with |s - t| and |s + t|, which stays accurate when they are
+	 * nearly the same, where acos(dot) does not (and is NaN when rounding puts
+	 * the dot above 1)
 	 */
-	quaternion_subtract(quaternion_set(&difference, start), &target);
-	quaternion_add(quaternion_set(&sum, start), &target);
+	quaternion_set(&unit_start, start);
+	quaternion_set(&unit_target, &target);
+	hyp_normalize(unit_start.q, 4);
+	hyp_normalize(unit_target.q, 4);
+	quaternion_subtract(quaternion_set(&difference, &unit_start), &unit_target);
+	quaternion_add(quaternion_set(&sum, &unit_start), &unit_target);
 	theta = HYP_FLOAT_C(2.0) * HYP_ATAN2(quaternion_magnitude(&difference), quaternion_magnitude(&sum));
 	s = HYP_SIN(theta);
 
-	/* the same quaternion: nothing to interpolate */
+	/* the same direction: nothing to turn */
 	if (!(s > HYP_FLOAT_C(0.0))) {
 		quaternion_lerp(start, &target, percent, qR);
 		return qR;

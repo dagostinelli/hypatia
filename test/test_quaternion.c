@@ -1311,8 +1311,25 @@ static const char *test_quaternion_axis_and_rotation_any_length(void)
 }
 
 
+static const char *test_quaternion_slerp_same_direction(void)
+{
+	struct quaternion start, end, qR;
+
+	/* the same direction, different lengths: nothing to turn, so the result
+	 * is the linear interpolation
+	 */
+	quaternion_setf4(&start, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(2.0));
+	quaternion_setf4(&end, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(0.5), &qR);
+	test_assert(scalar_equalsf(qR.w, HYP_FLOAT_C(1.5)));
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_slerp_same_direction);
 	run_test(test_quaternion_axis_and_rotation_any_length);
 	run_test(test_quaternion_slerp_close);
 	run_test(test_quaternion_slerp_dot_above_one);
