@@ -336,6 +336,8 @@ static const char *test_scalar_random_rangef_infinite_range(void)
 	/* max - min can overflow (on x87 it may not): the call returns, in range */
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	HYP_FLOAT huge = HYP_FLOAT_C(3e38);
+#elif defined(TEST_LONG_DOUBLE_RANGE)
+	HYP_FLOAT huge = HYP_FLOAT_C(1e4932);
 #else
 	HYP_FLOAT huge = HYP_FLOAT_C(1e308);
 #endif

@@ -1,7 +1,15 @@
 /* SPDX-License-Identifier: MIT */
 
 #include <stdio.h>
+#include <float.h> /* LDBL_MAX_EXP */
 #include <hypatia.h>
+
+/* long double with the 15-bit exponent of x87 extended and IEEE quad, which
+ * reaches about 1e4932; elsewhere long double has the range of double
+ */
+#if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && LDBL_MAX_EXP >= 16384
+#	define TEST_LONG_DOUBLE_RANGE
+#endif
 
 #define UNUSED_VARIABLE(x) ((void)(x))
 

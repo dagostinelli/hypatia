@@ -827,22 +827,22 @@ static const char *test_matrix4_determinant_row_is_zero(void)
 
 	/* when any row is zero, the determinant is zero */
 	matrix4_identity(&m);
-	m.r00 = 0.0; m.r01 = 0.0; m.r02 = 0.0; m.r03 = 0.0;
+	m.r00 = HYP_FLOAT_C(0.0); m.r01 = HYP_FLOAT_C(0.0); m.r02 = HYP_FLOAT_C(0.0); m.r03 = HYP_FLOAT_C(0.0);
 	det = matrix4_determinant(&m);
 	test_assert(scalar_equals(det, 0));
 
 	matrix4_identity(&m);
-	m.r10 = 0.0; m.r11 = 0.0; m.r12 = 0.0; m.r13 = 0.0;
+	m.r10 = HYP_FLOAT_C(0.0); m.r11 = HYP_FLOAT_C(0.0); m.r12 = HYP_FLOAT_C(0.0); m.r13 = HYP_FLOAT_C(0.0);
 	det = matrix4_determinant(&m);
 	test_assert(scalar_equals(det, 0));
 
 	matrix4_identity(&m);
-	m.r20 = 0.0; m.r21 = 0.0; m.r22 = 0.0; m.r23 = 0.0;
+	m.r20 = HYP_FLOAT_C(0.0); m.r21 = HYP_FLOAT_C(0.0); m.r22 = HYP_FLOAT_C(0.0); m.r23 = HYP_FLOAT_C(0.0);
 	det = matrix4_determinant(&m);
 	test_assert(scalar_equals(det, 0));
 
 	matrix4_identity(&m);
-	m.r30 = 0.0; m.r31 = 0.0; m.r32 = 0.0; m.r33 = 0.0;
+	m.r30 = HYP_FLOAT_C(0.0); m.r31 = HYP_FLOAT_C(0.0); m.r32 = HYP_FLOAT_C(0.0); m.r33 = HYP_FLOAT_C(0.0);
 	det = matrix4_determinant(&m);
 	test_assert(scalar_equals(det, 0));
 
@@ -1158,6 +1158,9 @@ static const char *test_matrix4_inverse_small_determinant(void)
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	const HYP_FLOAT scale = HYP_FLOAT_C(1e-10);
 	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-3);
+#elif defined(TEST_LONG_DOUBLE_RANGE)
+	const HYP_FLOAT scale = HYP_FLOAT_C(1e-1235);
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);
 #else
 	const HYP_FLOAT scale = HYP_FLOAT_C(1e-78);
 	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-9);

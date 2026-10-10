@@ -9,9 +9,9 @@ static const char *test_matrix4_transformation_decompose_translation(void)
 	struct matrix4 t;
 
 	/* make a translation matrix */
-	in_translation.x = 1.0;
-	in_translation.y = 2.0;
-	in_translation.z = 3.0;
+	in_translation.x = HYP_FLOAT_C(1.0);
+	in_translation.y = HYP_FLOAT_C(2.0);
+	in_translation.z = HYP_FLOAT_C(3.0);
 	matrix4_make_transformation_translationv3(&t, &in_translation);
 
 	/* decompose */
@@ -32,9 +32,9 @@ static const char *test_matrix4_transformation_decompose_scaling(void)
 	struct matrix4 t;
 
 	/* make a scaling matrix */
-	in_scale.x = 1.0;
-	in_scale.y = 2.0;
-	in_scale.z = 3.0;
+	in_scale.x = HYP_FLOAT_C(1.0);
+	in_scale.y = HYP_FLOAT_C(2.0);
+	in_scale.z = HYP_FLOAT_C(3.0);
 	matrix4_make_transformation_scalingv3(&t, &in_scale);
 
 	/* decompose */
@@ -109,6 +109,8 @@ static const char *test_matrix4_transformation_decompose_short_and_long(void)
 	struct quaternion out_rotation;
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-20), HYP_FLOAT_C(1e20) };
+#elif defined(TEST_LONG_DOUBLE_RANGE)
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-2470), HYP_FLOAT_C(1e2470) };
 #else
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-160), HYP_FLOAT_C(1e160) };
 #endif

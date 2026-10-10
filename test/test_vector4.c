@@ -661,6 +661,8 @@ static const char *test_vector4_project_short_and_long(void)
 	struct vector4 v, onto, e;
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#elif defined(TEST_LONG_DOUBLE_RANGE)
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-2500), HYP_FLOAT_C(1e2500) };
 #else
 	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
 #endif
