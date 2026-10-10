@@ -641,6 +641,21 @@ static const char *test_vector4_project(void)
 }
 
 
+static const char *test_vector4_normalize_small_and_zero(void)
+{
+	struct vector4 v;
+	struct vector4 e;
+
+	/* only an exactly zero vector cannot be normalized */
+	vector4_setf4(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(3e-7), HYP_FLOAT_C(0.0), HYP_FLOAT_C(4e-7));
+	test_assert(vector4_equals(vector4_normalize(&v), vector4_setf4(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.6), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.8))));
+	vector4_zero(&v);
+	test_assert(vector4_equals(vector4_normalize(&v), vector4_zero(&e)));
+
+	return NULL;
+}
+
+
 static const char *test_vector4_project_short_and_long(void)
 {
 	struct vector4 v, onto, e;
@@ -664,6 +679,7 @@ static const char *test_vector4_project_short_and_long(void)
 static const char *vector4_all_tests(void)
 {
 	run_test(test_vector4_project_short_and_long);
+	run_test(test_vector4_normalize_small_and_zero);
 	run_test(test_vector4_lerp);
 	run_test(test_vector4_clamp_min_max);
 	run_test(test_vector4_project);

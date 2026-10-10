@@ -909,8 +909,63 @@ static const char *test_quaternion_set_random_unit_many(void)
 
 	return NULL;
 }
+
+
+static const char *test_quaternion_normalize_and_inverse_small(void)
+{
+	struct quaternion q;
+	struct quaternion e;
+
+	/* only an exactly zero quaternion cannot be normalized or inverted */
+	quaternion_setf4(&q, HYP_FLOAT_C(3e-7), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(4e-7));
+	test_assert(quaternion_equals(quaternion_normalize(&q), quaternion_setf4(&e, HYP_FLOAT_C(0.6), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.8))));
+
+	/* w = 0.001: the inverse is w = 1000 */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.001));
+	quaternion_inverse(&q);
+	test_assert(scalar_equalsf(q.w / HYP_FLOAT_C(1000.0), HYP_FLOAT_C(1.0)));
+
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(quaternion_equals(quaternion_normalize(&q), &q));
+	test_assert(quaternion_equals(quaternion_inverse(&q), quaternion_setf4(&e, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_no_near_shortcuts(void)
+{
+	struct quaternion q;
+	struct quaternion inverse;
+	struct quaternion start;
+	struct quaternion end;
+	struct quaternion r;
+
+	/* |q|^2 = 1 + 9e-6 is close to 1, but the inverse still divides by it */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_SQRT(HYP_FLOAT_C(1.000009)));
+	quaternion_inverse(quaternion_set(&inverse, &q));
+	test_assert(scalar_equals_epsilonf(q.w * inverse.w, HYP_FLOAT_C(1.0), HYP_FLOAT_C(1e-6)));
+
+	/* lerp a tiny step from start moves away from start */
+	quaternion_identity(&start);
+	quaternion_set_from_axis_anglev3(&end, HYP_VECTOR3_UNIT_X, HYP_TAU / HYP_FLOAT_C(4.0));
+	quaternion_lerp(&start, &end, HYP_FLOAT_C(5e-6), &r);
+	test_assert(r.x > HYP_FLOAT_C(0.0));
+
+	/* is_pure compares w relative to the size: a scaled-down quarter turn is not
+	 * pure, a long vector with a tiny w is
+	 */
+	quaternion_setf4(&q, HYP_FLOAT_C(1e-6), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e-6));
+	test_assert(!quaternion_is_pure(&q));
+	quaternion_setf4(&q, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e-7));
+	test_assert(quaternion_is_pure(&q));
+
+	return NULL;
+}
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_no_near_shortcuts);
+	run_test(test_quaternion_normalize_and_inverse_small);
 	run_test(test_quaternion_set_random_unit_scripted);
 	run_test(test_quaternion_set_random_unit_many);
 	run_test(test_quaternion_identity);
