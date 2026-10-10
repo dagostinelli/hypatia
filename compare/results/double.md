@@ -230,3 +230,9 @@ Tolerance 1e-10 (difference relative to max(1, |reference|)); 2000 random inputs
 | matrix4_view_lookat_rh | eye == target | (0, 0, 0, -0, 0, 0, 0, -0, -0, -0, -0, 0, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, nan, nan, nan, -nan, 0, 0, 0, 1) |
 | matrix4_view_lookat_rh | looking along up | (0, 0, 0, -0, 0, 0, 0, -0, -0, -1, -0, 2, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, -0, -1, -0, 2, 0, 0, 0, 1) |
 | matrix4_projection_perspective_fovy_rh | zNear == zFar | (1.83048772, 0, 0, 0, 0, 1.83048772, 0, 0, 0, 0, inf, inf, 0, 0, -1, 0) | GLM (1.83048772, 0, 0, 0, 0, 1.83048772, 0, 0, 0, 0, inf, -inf, 0, 0, -1, 0) |
+| vector3_rotate_by_quaternion | X by 2 * (quarter turn about Z) | (2.22044605e-16, 1, 0) | GLM q * v (-3, 4, 0); Eigen q * v (-3, 4, 0) |
+| vector3_rotate_by_quaternion | X by the zero quaternion | (1, 0, 0) | GLM q * v (1, 0, 0); Eigen q * v (1, 0, 0) |
+| matrix4_set_from_axisv3_angle | quarter turn about (0, 0, 10), applied to X | (6.123234e-17, 1, 0) | GLM rotate (6.123234e-17, 1, 0); Eigen AngleAxis matrix (6.123234e-17, 10, 0) |
+| quaternion_set_from_axis_anglev3 | quarter turn about (0, 0, 10), applied to X | (x 0, y 0, z 0.707106781, w 0.707106781) length 1, X -> (2.22044605e-16, 1, 0) | GLM angleAxis (x 0, y 0, z 7.07106781, w 0.707106781) length 7.1063352, X -> (-99, 10, 0); Eigen AngleAxis (x 0, y 0, z 7.07106781, w 0.707106781) length 7.1063352, X -> (-99, 10, 0) |
+| matrix4_set_from_axisv3_angle | quarter turn about the zero axis, applied to X | (1, 0, 0) | GLM rotate (-nan, -nan, -nan); Eigen AngleAxis matrix (6.123234e-17, 0, 0) |
+| quaternion_set_from_axis_anglev3 | quarter turn about the zero axis, applied to X | (x 0, y 0, z 0, w 1) length 1, X -> (1, 0, 0) | GLM angleAxis (x 0, y 0, z 0, w 0.707106781) length 0.707106781, X -> (1, 0, 0); Eigen AngleAxis (x 0, y 0, z 0, w 0.707106781) length 0.707106781, X -> (1, 0, 0) |
