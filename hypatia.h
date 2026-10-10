@@ -153,10 +153,41 @@ static HYP_INLINE void HYP_SWAP(HYP_FLOAT *a, HYP_FLOAT *b)
 	HYP_FLOAT f = *a; *a = *b; *b = f;
 }
 
-/** @brief A macro that returns a random float point number up to RAND_MAX */
-#ifndef HYP_RANDOM_FLOAT
-#	include <stdlib.h> /* RAND_MAX, rand */
-#	define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#ifndef HYP_NO_DEPRECATED
+/** @brief A macro that returns a random number in the range [-1, 1].
+ * It is the difference of two rand() values divided by RAND_MAX, which gives
+ * a triangular distribution centered on 0.
+ *
+ * @deprecated Use scalar_random_rangef(-1, 1).  To supply your own generator,
+ * define HYP_RANDOM and HYP_RANDOM_MAX.  HYP_RANDOM_FLOAT will be removed in a
+ * later release; define HYP_NO_DEPRECATED to check that your code no longer
+ * uses it.
+ */
+#	ifndef HYP_RANDOM_FLOAT
+#		include <stdlib.h> /* RAND_MAX, rand */
+#		define HYP_RANDOM_FLOAT (((HYP_FLOAT)rand() - (HYP_FLOAT)rand()) / (HYP_FLOAT)RAND_MAX)
+#	endif
+#endif
+
+#if defined(HYP_RANDOM) && !defined(HYP_RANDOM_MAX)
+#	error "HYP_RANDOM needs HYP_RANDOM_MAX"
+#elif !defined(HYP_RANDOM) && defined(HYP_RANDOM_MAX)
+#	error "HYP_RANDOM_MAX needs HYP_RANDOM"
+#endif
+
+/** @brief A macro that returns a random integer from 0 to HYP_RANDOM_MAX.
+ * It is the source for scalar_random_rangef.  Define HYP_RANDOM and HYP_RANDOM_MAX
+ * before including this header to use a different generator.
+ */
+#ifndef HYP_RANDOM
+#	include <stdlib.h> /* rand */
+#	define HYP_RANDOM() rand()
+#endif
+
+/** @brief The largest value HYP_RANDOM can return */
+#ifndef HYP_RANDOM_MAX
+#	include <stdlib.h> /* RAND_MAX */
+#	define HYP_RANDOM_MAX RAND_MAX
 #endif
 
 /** @brief A macro that converts an angle in degrees to an angle in radians */
@@ -324,6 +355,7 @@ HYPAPI const struct vector4 *vector4_get_reference_vector4(int id);
 
 HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2);
 HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon);
+HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max);
 
 #define scalar_equals scalar_equalsf
 
@@ -399,6 +431,8 @@ HYPAPI int vector2_equals(const struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_zero(struct vector2 *self);
 HYPAPI struct vector2 *vector2_set(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_setf2(struct vector2 *self, HYP_FLOAT xT, HYP_FLOAT yT);
+HYPAPI struct vector2 *vector2_set_random_unit(struct vector2 *self);
+HYPAPI struct vector2 *vector2_set_random_in_disk(struct vector2 *self);
 HYPAPI struct vector2 *vector2_negate(struct vector2 *self);
 HYPAPI struct vector2 *vector2_add(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_addf(struct vector2 *self, HYP_FLOAT fT);
@@ -449,6 +483,8 @@ HYPAPI int vector3_equals(const struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_zero(struct vector3 *self);
 HYPAPI struct vector3 *vector3_set(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_setf3(struct vector3 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT);
+HYPAPI struct vector3 *vector3_set_random_unit(struct vector3 *self);
+HYPAPI struct vector3 *vector3_set_random_in_ball(struct vector3 *self);
 HYPAPI struct vector3 *vector3_negate(struct vector3 *self);
 HYPAPI struct vector3 *vector3_add(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_addf(struct vector3 *self, HYP_FLOAT fT);
@@ -499,6 +535,7 @@ HYPAPI int vector4_equals(const struct vector4 *self, const struct vector4 *vT);
 HYPAPI struct vector4 *vector4_zero(struct vector4 *self);
 HYPAPI struct vector4 *vector4_set(struct vector4 *self, const struct vector4 *vT);
 HYPAPI struct vector4 *vector4_setf4(struct vector4 *self, HYP_FLOAT xT, HYP_FLOAT yT, HYP_FLOAT zT, HYP_FLOAT wT);
+HYPAPI struct vector4 *vector4_set_random_unit(struct vector4 *self);
 HYPAPI struct vector4 *vector4_negate(struct vector4 *self);
 HYPAPI struct vector4 *vector4_add(struct vector4 *self, const struct vector4 *vT);
 HYPAPI struct vector4 *vector4_addf(struct vector4 *self, HYP_FLOAT fT);
@@ -829,6 +866,7 @@ HYPAPI int quaternion_equals(const struct quaternion *self, const struct quatern
 
 HYPAPI struct quaternion *quaternion_identity(struct quaternion *self);
 HYPAPI struct quaternion *quaternion_setf4(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT w);
+HYPAPI struct quaternion *quaternion_set_random_unit(struct quaternion *self);
 HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct quaternion *qT);
 HYPAPI struct quaternion *quaternion_add(struct quaternion *self, const struct quaternion *qT);
 HYPAPI struct quaternion *quaternion_multiply(struct quaternion *self, const struct quaternion *qT);
@@ -925,6 +963,34 @@ HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, cons
 	return 1;
 }
 
+/**
+ * @brief Returns a random number in the range [min, max), evenly distributed.
+ * The randomness comes from HYP_RANDOM.  Returns min when min is not less
+ * than max or when max - min overflows.
+ *
+ */
+HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max)
+{
+	HYP_FLOAT unit;
+	HYP_FLOAT value;
+
+	/* an infinite max - min times 0 is NaN */
+	if (!(min < max) || !((max - min) * HYP_FLOAT_C(0.0) <= HYP_FLOAT_C(0.0))) {
+		return min;
+	}
+
+	/* the integer to HYP_FLOAT conversions need casts in single precision.
+	 * There, unit can round up to exactly 1 and value up to exactly max, so
+	 * draw again until both are below.
+	 */
+	do {
+		unit = (HYP_FLOAT)HYP_RANDOM() / ((HYP_FLOAT)HYP_RANDOM_MAX + HYP_FLOAT_C(1.0));
+		value = min + (max - min) * unit;
+	} while (!(unit < HYP_FLOAT_C(1.0)) || !(value < max));
+
+	return value;
+}
+
 
 #ifndef HYP_NO_STDIO
 /* prints prefix and then value.  value is a double because printf takes
@@ -981,6 +1047,40 @@ HYPAPI struct vector2 *vector2_setf2(struct vector2 *self, HYP_FLOAT xT, HYP_FLO
 	self->x = xT;
 	self->y = yT;
 	return self;
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Sets the vector to a random unit vector, evenly distributed over the
+ * circle.  Uses one draw from scalar_random_rangef: the angle.
+ */
+HYPAPI struct vector2 *vector2_set_random_unit(struct vector2 *self)
+{
+	HYP_FLOAT angle;
+
+	angle = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+
+	return vector2_setf2(self, HYP_COS(angle), HYP_SIN(angle));
+}
+
+
+/**
+ * @ingroup vector2
+ * @brief Sets the vector to a random point inside the unit circle, evenly
+ * distributed over the disk.  Uses two draws from scalar_random_rangef, in this
+ * order: u (the radius is sqrt(u)), then the angle.
+ */
+HYPAPI struct vector2 *vector2_set_random_in_disk(struct vector2 *self)
+{
+	HYP_FLOAT radius;
+	HYP_FLOAT angle;
+
+	/* the area inside radius r grows as r^2, so r = sqrt(u) spreads evenly */
+	radius = HYP_SQRT(scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)));
+	angle = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+
+	return vector2_setf2(self, radius * HYP_COS(angle), radius * HYP_SIN(angle));
 }
 
 
@@ -1216,6 +1316,49 @@ HYPAPI struct vector3 *vector3_setf3(struct vector3 *self, HYP_FLOAT xT, HYP_FLO
 }
 
 
+/**
+ * @ingroup vector3
+ * @brief Sets the vector to a random unit vector, evenly distributed over the
+ * sphere.  Uses two draws from scalar_random_rangef, in this order: z, then
+ * the angle around the z axis.
+ */
+HYPAPI struct vector3 *vector3_set_random_unit(struct vector3 *self)
+{
+	HYP_FLOAT z;
+	HYP_FLOAT angle;
+	HYP_FLOAT r;
+
+	/* the height on a sphere is evenly distributed (Archimedes) */
+	z = scalar_random_rangef(HYP_FLOAT_C(-1.0), HYP_FLOAT_C(1.0));
+	angle = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+	r = HYP_SQRT(HYP_FLOAT_C(1.0) - z * z);
+
+	return vector3_setf3(self, r * HYP_COS(angle), r * HYP_SIN(angle), z);
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Sets the vector to a random point inside the unit sphere, evenly
+ * distributed over the ball.  Uses five draws from scalar_random_rangef, in
+ * this order: the direction (as vector3_set_random_unit), then three for the
+ * radius.
+ */
+HYPAPI struct vector3 *vector3_set_random_in_ball(struct vector3 *self)
+{
+	HYP_FLOAT radius;
+
+	vector3_set_random_unit(self);
+
+	/* the volume inside radius r grows as r^3, and the largest of three even
+	 * draws is below r with probability r^3
+	 */
+	radius = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	radius = HYP_MAX(radius, scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)));
+	radius = HYP_MAX(radius, scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)));
+
+	return vector3_multiplyf(self, radius);
+}
 /**
  * @ingroup vector3
  * @brief initializes the vertex with values from another vector
@@ -1603,6 +1746,43 @@ HYPAPI struct vector4 *vector4_setf4(struct vector4 *self, HYP_FLOAT xT, HYP_FLO
 	self->y = yT;
 	self->z = zT;
 	self->w = wT;
+	return self;
+}
+
+
+/* fills a, b, c, d with a random point evenly distributed over the 4D unit
+ * sphere (Shoemake).  Draws in this order: u, then angle a, then angle b.
+ */
+static void hyp_set_random_unit4(HYP_FLOAT *a, HYP_FLOAT *b, HYP_FLOAT *c, HYP_FLOAT *d)
+{
+	HYP_FLOAT u;
+	HYP_FLOAT angle_a;
+	HYP_FLOAT angle_b;
+	HYP_FLOAT s1;
+	HYP_FLOAT s2;
+
+	u = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	angle_a = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+	angle_b = scalar_random_rangef(HYP_FLOAT_C(0.0), HYP_TAU);
+	s1 = HYP_SQRT(HYP_FLOAT_C(1.0) - u);
+	s2 = HYP_SQRT(u);
+
+	*a = s1 * HYP_SIN(angle_a);
+	*b = s1 * HYP_COS(angle_a);
+	*c = s2 * HYP_SIN(angle_b);
+	*d = s2 * HYP_COS(angle_b);
+}
+
+
+/**
+ * @ingroup vector4
+ * @brief Sets the vector to a random unit vector, evenly distributed over the
+ * 4D unit sphere.  Uses three draws from scalar_random_rangef, in this order:
+ * u, then two angles.
+ */
+HYPAPI struct vector4 *vector4_set_random_unit(struct vector4 *self)
+{
+	hyp_set_random_unit4(&self->x, &self->y, &self->z, &self->w);
 	return self;
 }
 
@@ -3370,6 +3550,19 @@ HYPAPI struct quaternion *quaternion_setf4(struct quaternion *self, HYP_FLOAT x,
 	self->z = z;
 	self->w = w;
 
+	return self;
+}
+
+
+/**
+ * @ingroup quaternion
+ * @brief Sets the quaternion to a random unit quaternion, which is a random
+ * rotation evenly distributed over all rotations.  Uses three draws from
+ * scalar_random_rangef, in this order: u, then two angles.
+ */
+HYPAPI struct quaternion *quaternion_set_random_unit(struct quaternion *self)
+{
+	hyp_set_random_unit4(&self->x, &self->y, &self->z, &self->w);
 	return self;
 }
 
