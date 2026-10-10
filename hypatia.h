@@ -2067,7 +2067,11 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  * @ingroup vector3
  * @brief Rotate a point by the quaternion.  Returns the rotated point.
  *
- * \f$self= qT * self * conjugate(qT)\f$
+ * \f$self= qT * self * qT^{-1}\f$
+ *
+ * qT does not need to be unit length: the rotation is that of the unit
+ * quaternion in its direction, as matrix4_set_from_quaternion.  The zero
+ * quaternion leaves the point unchanged.
  *
  * @param self the starting point
  * @param qT the quaternion
@@ -2075,20 +2079,36 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  */
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT)
 {
-	struct quaternion qconj;
-	struct quaternion q;
+	struct quaternion unit;
+	struct vector3 u;
+	struct vector3 uv;
+	HYP_FLOAT norm = quaternion_norm(qT);
+	HYP_FLOAT parallel;
+	HYP_FLOAT along;
+	HYP_FLOAT across;
 
-	/* make the conjugate */
-	quaternion_set(&qconj, qT);
-	quaternion_conjugate(&qconj);
+	/* (2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) / |q|^2, with u the vector
+	 * part: the rotation by q / |q|, which q * v * conjugate(q) also scales by
+	 * |q|^2.  Outside the normal range of |q|^2 (zero, overflow, underflow,
+	 * NaN) normalize q first.
+	 */
+	quaternion_set(&unit, qT);
+	if (!(norm > HYP_FLOAT_C(1e-30)) || !(norm < HYP_FLOAT_C(1e30))) {
+		if (!(hyp_normalize(unit.q, 4) > HYP_FLOAT_C(0.0))) {
+			return self;
+		}
+		norm = HYP_FLOAT_C(1.0);
+	}
 
-	quaternion_set(&q, qT);
-	quaternion_multiplyv3(&q, self);
-	quaternion_multiply(&q, &qconj);
+	vector3_setf3(&u, unit.x, unit.y, unit.z);
+	vector3_cross_product(&uv, &u, self);
+	parallel = HYP_FLOAT_C(2.0) * vector3_dot_product(&u, self);
+	along = unit.w * unit.w - vector3_dot_product(&u, &u);
+	across = HYP_FLOAT_C(2.0) * unit.w;
 
-	self->x = q.x;
-	self->y = q.y;
-	self->z = q.z;
+	self->x = (parallel * u.x + along * self->x + across * uv.x) / norm;
+	self->y = (parallel * u.y + along * self->y + across * uv.y) / norm;
+	self->z = (parallel * u.z + along * self->z + across * uv.z) / norm;
 
 	return self;
 }
@@ -4404,7 +4424,8 @@ HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct q
 /**
  * @ingroup quaternion
  * @brief Sets the values in the quaternion, in place, based on the axis and
- * angle.
+ * angle.  The axis does not need to be unit length; a zero axis gives the
+ * identity.
  *
  * @param self the quaternion that will become initialized with the values of
  * the axis and angle
@@ -4420,6 +4441,17 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *se
 {
 	HYP_FLOAT s = HYP_SIN(angle / HYP_FLOAT_C(2.0));
 	HYP_FLOAT c = HYP_COS(angle / HYP_FLOAT_C(2.0));
+	struct vector3 axis;
+
+	/* the formula needs a unit axis: normalizing the result instead would
+	 * change the angle
+	 */
+	if (!(hyp_normalize(vector3_setf3(&axis, x, y, z)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return quaternion_identity(self);
+	}
+	x = axis.x;
+	y = axis.y;
+	z = axis.z;
 
 	self->x = x * s;
 	self->y = y * s;
@@ -4434,7 +4466,8 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *se
 /**
  * @ingroup quaternion
  * @brief Sets the values in the quaternion, in place, based on the axis and
- * angle.
+ * angle.  The axis does not need to be unit length; a zero axis gives the
+ * identity.
  *
  * @param self the quaternion that will become initialized with the values of
  * the axis and angle
@@ -5091,7 +5124,7 @@ HYPAPI struct quaternion *quaternion_rotate_by_quaternion(struct quaternion *sel
  * then it rotates the quaternion by that axis/angle
  *
  * @param self the quaternion being rotated
- * @param axis the axis of rotation (unit length)
+ * @param axis the axis of rotation (any length)
  * @param angle the angle in radians (right-hand rule)
  *
  */
@@ -5319,7 +5352,8 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self,
 /**
  * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
- * angle (used as a rotation matrix)
+ * angle (used as a rotation matrix).  The axis does not need to be unit
+ * length; a zero axis gives the identity.
  *
  * @param self The matrix
  * @param x The x part of the axis
@@ -5332,6 +5366,15 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_F
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
+	struct vector3 axis;
+
+	/* the formula needs a unit axis */
+	if (!(hyp_normalize(vector3_setf3(&axis, x, y, z)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return matrix4_identity(self);
+	}
+	x = axis.x;
+	y = axis.y;
+	z = axis.z;
 
 	self->c00 = (x * x) * (HYP_FLOAT_C(1.0) - c) + c;
 	self->c01 = (x * y) * (HYP_FLOAT_C(1.0) - c) + (z * s);
@@ -5360,7 +5403,8 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_F
 /**
  * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
- * angle (used as a rotation matrix)
+ * angle (used as a rotation matrix).  The axis does not need to be unit
+ * length; a zero axis gives the identity.
  *
  * @param self The matrix
  * @param axis The axis
