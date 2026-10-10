@@ -55,6 +55,101 @@ static const char *test_matrix4_multiply_identity(void)
 }
 
 
+/* small integer matrices with no 0 or 1 entries, so every term of a product
+ * shows; every product and sum is exact
+ */
+static const struct matrix4 test_matrix4_a = {.m = {2, 3, -2, 5, -3, 4, 2, -5, 3, -2, 5, 4, -4, 2, 3, 2}};
+static const struct matrix4 test_matrix4_b = {.m = {3, -2, 4, 2, 5, 2, -3, 3, -2, 4, 2, -3, 2, 3, -4, 5}};
+static const struct matrix4 test_matrix4_c = {.m = {-2, 5, 3, -3, 4, -3, 2, 2, 3, 2, -5, 4, 2, -4, 3, -2}};
+
+
+static const char *test_matrix4_identity_multiply(void)
+{
+	struct matrix4 m;
+	struct matrix4 identity;
+
+	matrix4_identity(&identity);
+
+	/* I * A = A */
+	matrix4_set(&m, &identity);
+	matrix4_multiply(&m, &test_matrix4_a);
+	test_assert(matrix4_equals(&m, &test_matrix4_a));
+
+	/* A * I = A */
+	matrix4_set(&m, &test_matrix4_a);
+	matrix4_multiply(&m, &identity);
+	test_assert(matrix4_equals(&m, &test_matrix4_a));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_multiply_associative(void)
+{
+	struct matrix4 ab_c;
+	struct matrix4 bc;
+	struct matrix4 a_bc;
+
+	/* (A B) C */
+	matrix4_set(&ab_c, &test_matrix4_a);
+	matrix4_multiply(&ab_c, &test_matrix4_b);
+	matrix4_multiply(&ab_c, &test_matrix4_c);
+
+	/* A (B C) */
+	matrix4_set(&bc, &test_matrix4_b);
+	matrix4_multiply(&bc, &test_matrix4_c);
+	matrix4_set(&a_bc, &test_matrix4_a);
+	matrix4_multiply(&a_bc, &bc);
+
+	test_assert(matrix4_equals(&ab_c, &a_bc));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_multiply_distributive(void)
+{
+	struct matrix4 b_plus_c;
+	struct matrix4 left;
+	struct matrix4 ac;
+	struct matrix4 right;
+
+	/* A (B + C) */
+	matrix4_set(&b_plus_c, &test_matrix4_b);
+	matrix4_add(&b_plus_c, &test_matrix4_c);
+	matrix4_set(&left, &test_matrix4_a);
+	matrix4_multiply(&left, &b_plus_c);
+
+	/* A B + A C */
+	matrix4_set(&right, &test_matrix4_a);
+	matrix4_multiply(&right, &test_matrix4_b);
+	matrix4_set(&ac, &test_matrix4_a);
+	matrix4_multiply(&ac, &test_matrix4_c);
+	matrix4_add(&right, &ac);
+
+	test_assert(matrix4_equals(&left, &right));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_multiply_not_commutative(void)
+{
+	struct matrix4 ab;
+	struct matrix4 ba;
+
+	matrix4_set(&ab, &test_matrix4_a);
+	matrix4_multiply(&ab, &test_matrix4_b);
+	matrix4_set(&ba, &test_matrix4_b);
+	matrix4_multiply(&ba, &test_matrix4_a);
+
+	/* A B and B A differ for these matrices */
+	test_assert(!matrix4_equals(&ab, &ba));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_multiplym4(void)
 {
 	struct matrix4 m1, m2, mR;
@@ -811,6 +906,10 @@ static const char *matrix4_all_tests(void)
 	run_test(test_matrix4_equals);
 	run_test(test_matrix4_multiply_identity);
 	run_test(test_matrix4_multiplym4);
+	run_test(test_matrix4_identity_multiply);
+	run_test(test_matrix4_multiply_associative);
+	run_test(test_matrix4_multiply_distributive);
+	run_test(test_matrix4_multiply_not_commutative);
 	run_test(test_matrix4_columnrowcolumn);
 	run_test(test_matrix4_transpose);
 	run_test(test_matrix4_determinant_trial1);

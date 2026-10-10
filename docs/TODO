@@ -1,15 +1,9 @@
 Remaining Work:
 
-- matrix4 Test the identity property I * M = M and also M * I = M
-- matrix4 Test the associative property A(BC) == (AB)C
-- matrix4 Test the distributive property A(B+C) == AB + AC
-- matrix4 Test the lack of commutative property AB != BA (in general)
 - Add all the variations of rotations with a matrix using matrix4_set_from_quaternion, matrix4_set_from_axis_angle, matrix4_transformation_rotation_x,y,z
 - add a vector to a quat, add each element one by one
 - add a scalar to a quat, add the scalar to each element of the quat
-- in quat-slerp is the shortest arc properly computed with negate or conjugate?
 - is quaternion_dot_product an appropriate operation on a quaternion?
-- add a unit test for quaternion inverse that involves a unit (norm == 1) and a non-unit quaternion (norm != 1)
 - make doxygen ignore vector3_get_reference_vector3
 
 

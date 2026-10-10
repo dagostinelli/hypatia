@@ -53,6 +53,53 @@ static const char *test_quaternion_inverse(void)
 
 	return NULL;
 }
+
+
+static const char *test_quaternion_inverse_unit(void)
+{
+	struct quaternion q;
+	struct quaternion inverse;
+	struct quaternion product;
+	struct quaternion expected;
+
+	/* for a unit quaternion the inverse is the conjugate */
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(3.0));
+	quaternion_set(&inverse, &q);
+	quaternion_inverse(&inverse);
+	quaternion_conjugate(quaternion_set(&expected, &q));
+	test_assert(quaternion_equals(&inverse, &expected));
+
+	/* q * inverse(q) is the identity, without normalizing */
+	quaternion_multiply(quaternion_set(&product, &q), &inverse);
+	test_assert(quaternion_equals(&product, quaternion_identity(&expected)));
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_inverse_not_unit(void)
+{
+	struct quaternion q;
+	struct quaternion inverse;
+	struct quaternion product;
+	struct quaternion expected;
+
+	/* |q|^2 = 30: the inverse is the conjugate divided by 30 */
+	quaternion_setf4(&q, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	quaternion_set(&inverse, &q);
+	quaternion_inverse(&inverse);
+	quaternion_setf4(&expected, -HYP_FLOAT_C(1.0) / HYP_FLOAT_C(30.0), -HYP_FLOAT_C(2.0) / HYP_FLOAT_C(30.0), -HYP_FLOAT_C(3.0) / HYP_FLOAT_C(30.0), HYP_FLOAT_C(4.0) / HYP_FLOAT_C(30.0));
+	test_assert(quaternion_equals(&inverse, &expected));
+
+	/* q * inverse(q) and inverse(q) * q are the identity, without normalizing */
+	quaternion_identity(&expected);
+	quaternion_multiply(quaternion_set(&product, &q), &inverse);
+	test_assert(quaternion_equals(&product, &expected));
+	quaternion_multiply(quaternion_set(&product, &inverse), &q);
+	test_assert(quaternion_equals(&product, &expected));
+
+	return NULL;
+}
 /** [quaternion inverse example] */
 
 
@@ -719,6 +766,41 @@ static const char *test_quaternion_slerp_opposite(void)
 }
 
 
+/* slerp from the identity to end at t = 0.5, applied to X */
+static struct vector3 *slerp_halfway_applied_to_x(const struct quaternion *end, struct vector3 *vR)
+{
+	struct quaternion start;
+	struct quaternion qR;
+
+	quaternion_identity(&start);
+	quaternion_slerp(&start, end, HYP_FLOAT_C(0.5), &qR);
+
+	return vector3_rotate_by_quaternion(vector3_set(vR, HYP_VECTOR3_UNIT_X), &qR);
+}
+
+
+static const char *test_quaternion_slerp_shortest_arc(void)
+{
+	struct quaternion end;
+	struct vector3 r;
+	struct vector3 expected;
+	HYP_FLOAT half = HYP_SQRT(HYP_FLOAT_C(0.5));
+
+	/* +270 degrees about Z is -90 degrees the short way: halfway is -45 */
+	quaternion_set_from_axis_anglev3(&end, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(3.0) * HYP_TAU / HYP_FLOAT_C(4.0));
+	slerp_halfway_applied_to_x(&end, &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, half, -half, HYP_FLOAT_C(0.0))));
+
+	/* -q is the same rotation as q (+90 degrees about Z): halfway is +45 */
+	quaternion_set_from_axis_anglev3(&end, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	quaternion_negate(&end);
+	slerp_halfway_applied_to_x(&end, &r);
+	test_assert(vector3_equals(&r, vector3_setf3(&expected, half, half, HYP_FLOAT_C(0.0))));
+
+	return NULL;
+}
+
+
 static const char *test_quaternion_slerp_at_endpoints(void)
 {
 	struct quaternion q1, q2, qR;
@@ -743,6 +825,8 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_identity);
 	run_test(test_quaternion_conjugate);
 	run_test(test_quaternion_inverse);
+	run_test(test_quaternion_inverse_unit);
+	run_test(test_quaternion_inverse_not_unit);
 	run_test(test_quaternion_axis_anglev3);
 	run_test(test_quaternion_multiply);
 	run_test(test_quaternion_multiply_identity);
@@ -772,6 +856,7 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_get_rotation_tov3);
 	run_test(test_quaternion_slerp_nearly_identical);
 	run_test(test_quaternion_slerp_opposite);
+	run_test(test_quaternion_slerp_shortest_arc);
 	run_test(test_quaternion_slerp_at_endpoints);
 
 	return NULL;
