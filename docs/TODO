@@ -7,11 +7,6 @@ Remaining Work:
 - make doxygen ignore vector3_get_reference_vector3
 
 
-C89 compliance:
-- The anonymous unions in the types are not C89 (gcc -std=c89 -pedantic reports them).
-  They stay.
-- <stdint.h> / uint8_t are C99
-
 API gaps:
 - vector2/3/4_lerp
 - vector2/3/4 clamp, component-wise min / max
@@ -24,9 +19,6 @@ API gaps:
 - consider optional by-value inline variants for small types for expression-style code
 
 Remaining casts (README: prefer no casts):
-- The math macros HYP_SQRT, HYP_FMOD, HYP_SIN, HYP_COS, HYP_TAN, HYP_ASIN, HYP_ACOS and
-  HYP_ATAN2 cast the double result to HYP_FLOAT. They stay: C89 has only the double
-  functions.
 - HYP_RANDOM_FLOAT casts rand() and RAND_MAX to HYP_FLOAT.
 
 Long double support (planned):

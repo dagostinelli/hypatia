@@ -127,7 +127,8 @@ Rotations follow the right-hand rule: a positive angle turns counterclockwise wh
 Coding Standard
 ---------------
 
-* Ensure C89/C90 compatibility
+* Mathematical correctness comes first; a design choice that conflicts with it is a bug
+* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, and <stdint.h> / uint8_t)
 * Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement
@@ -136,7 +137,7 @@ Coding Standard
 	- all CAPS for public constants.  HYP is the prefix for public constants
 	- use 'self' for describing the function context
 	- math entities are mutable
-	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting
+	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting (exceptions: the math macros convert C89's double results to HYP_FLOAT)
 	- comments are neutral, factual and short
 	- blank line at the end of every file
 * Don't interfere with the user's program: no stray macros, no declarations without definitions, any include order works
@@ -144,7 +145,7 @@ Coding Standard
 * Follow the library's own conventions (e.g. the right-hand rule)
 * Remove unused code; change public names only by deprecation (@deprecated, HYP_NO_DEPRECATED)
 * Build and run the tests: `cmake -B build && cmake --build build && ctest --test-dir build`
-* The build treats warnings as errors; the experimental `make checksparse` and `make checkpatch` need sparse and checkpatch.pl, and CI does not run them
+* Building also lints the code with strict warnings as errors
 * The Makefile has shortcuts for local development (`make help` lists them): `make configure`, then `make test` builds and runs the tests
 * Test how people use the library: compilers, platforms, Release, 32-bit, static, shared, each configuration macro, the README example
 * Detect compiler features, not versions
