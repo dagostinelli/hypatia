@@ -353,6 +353,50 @@ static const char *test_matrix2_inverse_nonmutating(void)
 }
 
 
+static const char *test_matrix2_inverse_small_scale(void)
+{
+	struct matrix2 m;
+	struct matrix2 inverse;
+	struct matrix2 identity;
+
+	/* 0.01 would give a determinant of 1e-4, which the old check already accepted */
+	matrix2_identity(&m);
+	m.r00 = HYP_FLOAT_C(0.001);
+	m.r11 = HYP_FLOAT_C(0.001);
+
+	matrix2_identity(&identity);
+
+	/* the determinant is far below HYP_EPSILON, but the matrix is invertible */
+	test_assert(matrix2_inverse(&m, &inverse) == &inverse);
+	test_assert(matrix2_equals(matrix2_multiply(&m, &inverse), &identity));
+
+	return NULL;
+}
+
+
+static const char *test_matrix2_inverse_zero_scale(void)
+{
+	struct matrix2 m;
+	struct matrix2 original;
+	struct matrix2 result;
+
+	/* a zero scale on one axis: the determinant is exactly zero */
+	matrix2_identity(&m);
+	m.r11 = 0;
+
+	test_assert(!matrix2_inverse(&m, &result));
+
+	/* invert returns NULL for a matrix without an inverse and leaves it
+	 * unchanged
+	 */
+	matrix2_set(&original, &m);
+	test_assert(matrix2_invert(&m) == NULL);
+	test_assert(matrix2_equals(&m, &original));
+
+	return NULL;
+}
+
+
 static const char *test_matrix2_inverse_singular(void)
 {
 	struct matrix2 singular = {.m = {1, 2, 2, 4}};
@@ -460,6 +504,8 @@ static const char *matrix2_all_tests(void)
 	run_test(test_matrix2_multiplyf_zero);
 	run_test(test_matrix2_inverse_nonmutating);
 	run_test(test_matrix2_inverse_singular);
+	run_test(test_matrix2_inverse_small_scale);
+	run_test(test_matrix2_inverse_zero_scale);
 	run_test(test_matrix2_multiplyv2);
 	run_test(test_matrix2_multiplyv2_identity);
 	run_test(test_matrix2_scalev2);
