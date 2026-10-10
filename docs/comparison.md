@@ -9,7 +9,7 @@ regenerates them.
 |---|---|---|
 | master | 125ab87 | 2.1.0-dev, before the correctness work |
 | before | 35049bd | correctness-h after the bug fixes, before the precision work |
-| now | 25260ab | correctness-h; the same `hypatia.h` as this branch (correctness-exp-glm) |
+| now | 25260ab | correctness-h when measured; the later 5c52596 changes only `scalar_equals_epsilonf`, which the measurements do not use |
 
 | library | version | commit |
 |---|---|---|
