@@ -118,7 +118,8 @@
 #	endif
 #endif
 /** @brief Epsilon.  This is the value that is used to determine how much
- * rounding error is tolerated.
+ * rounding error the *_equals functions tolerate: an absolute difference for
+ * values up to 1 in size, relative to the size above 1.
  */
 #ifndef HYP_EPSILON
 #	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
@@ -1008,12 +1009,24 @@ HYPAPI short scalar_equalsf(const HYP_FLOAT f1, const HYP_FLOAT f2)
 }
 
 /**
- * @brief This checks for mathematical equality within a custom epsilon.
+ * @brief This checks for mathematical equality within a custom epsilon: the
+ * difference is compared with epsilon for values up to 1 in size, and with
+ * epsilon times the larger size above 1, so that large values one rounding
+ * apart still compare equal.  Equal infinities are equal; NaN equals nothing.
  *
  */
 HYPAPI short scalar_equals_epsilonf(const HYP_FLOAT f1, const HYP_FLOAT f2, const HYP_FLOAT epsilon)
 {
-	if ((HYP_ABS(f1 - f2) < epsilon) == 0) {
+	HYP_FLOAT size = HYP_MAX(HYP_FLOAT_C(1.0), HYP_MAX(HYP_ABS(f1), HYP_ABS(f2)));
+
+	/* equal values, including equal infinities (written without == for
+	 * -Wfloat-equal; false for NaN)
+	 */
+	if (f1 <= f2 && f1 >= f2) {
+		return 1;
+	}
+
+	if ((HYP_ABS(f1 - f2) < epsilon * size) == 0) {
 		return 0;
 	}
 

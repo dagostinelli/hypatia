@@ -347,9 +347,42 @@ static const char *test_scalar_random_rangef_infinite_range(void)
 }
 
 
+static const char *test_scalar_equalsf(void)
+{
+	volatile HYP_FLOAT zero = HYP_FLOAT_C(0.0);
+	HYP_FLOAT infinity = HYP_FLOAT_C(1.0) / zero;
+	HYP_FLOAT nan = zero / zero;
+
+	/* up to 1 in size the tolerance is HYP_EPSILON itself */
+	test_assert(scalar_equalsf(HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.000005)));
+	test_assert(!scalar_equalsf(HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.00002)));
+	test_assert(scalar_equalsf(HYP_FLOAT_C(0.0), HYP_FLOAT_C(5e-6)));
+
+	/* above 1 it is relative: large values one rounding apart are equal */
+	test_assert(scalar_equalsf(HYP_FLOAT_C(1e6), HYP_FLOAT_C(1e6) + HYP_FLOAT_C(1.0)));
+	test_assert(scalar_equalsf(-HYP_FLOAT_C(1e30), -HYP_FLOAT_C(1.000001e30)));
+	test_assert(!scalar_equalsf(HYP_FLOAT_C(1e6), HYP_FLOAT_C(1.0001e6)));
+	test_assert(!scalar_equalsf(HYP_FLOAT_C(1e6), -HYP_FLOAT_C(1e6)));
+
+	/* infinities equal only themselves; NaN equals nothing */
+	test_assert(scalar_equalsf(infinity, infinity));
+	test_assert(!scalar_equalsf(infinity, -infinity));
+	test_assert(!scalar_equalsf(infinity, HYP_FLOAT_C(1e30)));
+	test_assert(!scalar_equalsf(nan, nan));
+	test_assert(!scalar_equalsf(nan, HYP_FLOAT_C(1.0)));
+
+	/* a custom epsilon */
+	test_assert(scalar_equals_epsilonf(HYP_FLOAT_C(100.0), HYP_FLOAT_C(100.5), HYP_FLOAT_C(0.01)));
+	test_assert(!scalar_equals_epsilonf(HYP_FLOAT_C(100.0), HYP_FLOAT_C(102.0), HYP_FLOAT_C(0.01)));
+
+	return NULL;
+}
+
+
 static const char *utility_all_tests(void)
 {
 	run_test(test_scalar_random_rangef_infinite_range);
+	run_test(test_scalar_equalsf);
 	run_test(test_hyp_min_first_smaller);
 	run_test(test_hyp_min_second_smaller);
 	run_test(test_hyp_min_equal);

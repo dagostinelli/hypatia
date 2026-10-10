@@ -87,7 +87,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 | Macro | Effect | Default |
 |---|---|---|
 | `HYPATIA_SINGLE_PRECISION_FLOATS` | `HYP_FLOAT` is `float` instead of `double`. | |
-| `HYP_EPSILON` | The tolerance of the `*_equals` functions. | `1E-5` |
+| `HYP_EPSILON` | The tolerance of the `*_equals` functions: absolute for values up to 1 in size, relative above 1. | `1E-5` |
 
 **Standard library**
 
@@ -123,6 +123,7 @@ Results that differ from 2.0:
 * Normalizing leaves only an exactly zero vector unchanged (2.0: anything shorter than 1e-5); `vector2_normalize` no longer gives NaN.
 * `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1, and slerp stays accurate for nearly equal quaternions; with a negative dot product slerp ends at -end, the same rotation as end.
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
+* `scalar_equalsf` and the `*_equals` functions compare relative to the size of the values above 1 (2.0: always the absolute difference, so large values one rounding apart could differ), and equal infinities are equal.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * `matrix4_inverse` and `matrix4_determinant` are as accurate as GLM and Eigen for badly conditioned matrices (2.0 lost up to 100 times more).
 * `vector2_angle_between` and `vector3_angle_between` are accurate for parallel and nearly parallel vectors (2.0 could give NaN) and give 0 for a zero vector.
