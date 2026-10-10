@@ -396,6 +396,50 @@ static const char *test_matrix3_inverse_nonmutating(void)
 }
 
 
+static const char *test_matrix3_inverse_small_scale(void)
+{
+	struct matrix3 m;
+	struct matrix3 inverse;
+	struct matrix3 identity;
+
+	matrix3_identity(&m);
+	m.r00 = HYP_FLOAT_C(0.01);
+	m.r11 = HYP_FLOAT_C(0.01);
+	m.r22 = HYP_FLOAT_C(0.01);
+
+	matrix3_identity(&identity);
+
+	/* the determinant is far below HYP_EPSILON, but the matrix is invertible */
+	test_assert(matrix3_inverse(&m, &inverse) == &inverse);
+	test_assert(matrix3_equals(matrix3_multiply(&m, &inverse), &identity));
+
+	return NULL;
+}
+
+
+static const char *test_matrix3_inverse_zero_scale(void)
+{
+	struct matrix3 m;
+	struct matrix3 original;
+	struct matrix3 result;
+
+	/* a zero scale on one axis: the determinant is exactly zero */
+	matrix3_identity(&m);
+	m.r11 = 0;
+
+	test_assert(!matrix3_inverse(&m, &result));
+
+	/* invert returns NULL for a matrix without an inverse and leaves it
+	 * unchanged
+	 */
+	matrix3_set(&original, &m);
+	test_assert(matrix3_invert(&m) == NULL);
+	test_assert(matrix3_equals(&m, &original));
+
+	return NULL;
+}
+
+
 static const char *test_matrix3_inverse_singular(void)
 {
 	struct matrix3 singular = {.m = {1, 2, 3, 4, 5, 6, 7, 8, 9}};
@@ -578,6 +622,8 @@ static const char *matrix3_all_tests(void)
 	run_test(test_matrix3_multiplyf_zero);
 	run_test(test_matrix3_inverse_nonmutating);
 	run_test(test_matrix3_inverse_singular);
+	run_test(test_matrix3_inverse_small_scale);
+	run_test(test_matrix3_inverse_zero_scale);
 	run_test(test_matrix3_multiplyv2);
 	run_test(test_matrix3_multiplyv2_translation);
 	run_test(test_matrix3_scalev2);

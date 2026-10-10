@@ -925,6 +925,60 @@ static const char *test_matrix4_inverse_nonmutating(void)
 }
 
 
+static const char *test_matrix4_inverse_small_scale(void)
+{
+	struct matrix4 m;
+	struct matrix4 inverse;
+	struct matrix4 identity;
+	struct vector3 scale;
+
+	/* the fourth diagonal entry stays 1, so the determinant is 1e-6 */
+	matrix4_make_transformation_scalingv3(&m, vector3_setf3(&scale, HYP_FLOAT_C(0.01), HYP_FLOAT_C(0.01), HYP_FLOAT_C(0.01)));
+
+	matrix4_identity(&identity);
+
+	/* the determinant is far below HYP_EPSILON, but the matrix is invertible */
+	test_assert(matrix4_inverse(&m, &inverse) == &inverse);
+	test_assert(matrix4_equals(matrix4_multiply(&m, &inverse), &identity));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_inverse_zero_scale(void)
+{
+	struct matrix4 m;
+	struct matrix4 original;
+	struct matrix4 result;
+
+	/* a zero scale on one axis: the determinant is exactly zero */
+	matrix4_identity(&m);
+	m.r11 = 0;
+
+	test_assert(!matrix4_inverse(&m, &result));
+
+	/* invert returns NULL for a matrix without an inverse and leaves it
+	 * unchanged
+	 */
+	matrix4_set(&original, &m);
+	test_assert(matrix4_invert(&m) == NULL);
+	test_assert(matrix4_equals(&m, &original));
+
+	return NULL;
+}
+
+static const char *test_matrix4_inverse_multiple_row(void)
+{
+	/* the second row is twice the first: the determinant is exactly zero */
+	struct matrix4 m = {.m = {1, 2, 3, 4, 2, 4, 6, 8, 0, 0, 1, 0, 0, 0, 0, 1}};
+	struct matrix4 result;
+
+	test_assert(!matrix4_inverse(&m, &result));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_inverse_singular(void)
 {
 	struct matrix4 singular;
@@ -1049,6 +1103,9 @@ static const char *matrix4_all_tests(void)
 	run_test(test_matrix4_multiplyf_zero);
 	run_test(test_matrix4_inverse_nonmutating);
 	run_test(test_matrix4_inverse_singular);
+	run_test(test_matrix4_inverse_small_scale);
+	run_test(test_matrix4_inverse_zero_scale);
+	run_test(test_matrix4_inverse_multiple_row);
 	run_test(test_matrix4_translatev3);
 	run_test(test_matrix4_scalev3);
 
