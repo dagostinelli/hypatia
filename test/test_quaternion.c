@@ -1143,6 +1143,48 @@ static const char *test_quaternion_slerp_negative_dot(void)
 }
 
 
+static const char *test_quaternion_set_from_matrix4(void)
+{
+	struct quaternion q;
+	struct quaternion back;
+	struct matrix4 m;
+	struct vector3 axis;
+	HYP_FLOAT angles[4];
+	int i;
+	int j;
+
+	angles[0] = HYP_FLOAT_C(0.3);
+	angles[1] = HYP_FLOAT_C(1.7);
+	angles[2] = HYP_FLOAT_C(3.0);
+	angles[3] = -HYP_FLOAT_C(2.5);
+
+	/* each axis and a general one, with angles that reach every branch of the
+	 * conversion (near half turns make the trace negative)
+	 */
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			if (i == 0) {
+				vector3_set(&axis, HYP_VECTOR3_UNIT_X);
+			} else if (i == 1) {
+				vector3_set(&axis, HYP_VECTOR3_UNIT_Y);
+			} else if (i == 2) {
+				vector3_set(&axis, HYP_VECTOR3_UNIT_Z);
+			} else {
+				vector3_normalize(vector3_setf3(&axis, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)));
+			}
+
+			quaternion_set_from_axis_anglev3(&q, &axis, angles[j]);
+			matrix4_make_transformation_rotationq(&m, &q);
+			quaternion_set_from_matrix4(&back, &m);
+			test_assert(quaternion_is_unit(&back));
+			test_assert(scalar_equalsf(quaternion_angle_between(&back, &q), HYP_FLOAT_C(0.0)));
+		}
+	}
+
+	return NULL;
+}
+
+
 static const char *test_quaternion_short_and_long(void)
 {
 	struct quaternion unit, q, other, r;
@@ -1219,6 +1261,7 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_slerp_dot_above_one);
 	run_test(test_quaternion_get_axis_anglev3_negative_w);
 	run_test(test_quaternion_short_and_long);
+	run_test(test_quaternion_set_from_matrix4);
 	run_test(test_quaternion_slerp_negative_dot);
 	run_test(test_quaternion_no_near_shortcuts);
 	run_test(test_quaternion_normalize_and_inverse_small);

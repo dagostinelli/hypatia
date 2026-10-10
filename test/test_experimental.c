@@ -46,6 +46,91 @@ static const char *test_matrix4_transformation_decompose_scaling(void)
 	return NULL;
 }
 
+/* compose, then decompose: the parts come back (the rotation as q or -q) */
+static int decompose_round_trip(const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation)
+{
+	struct matrix4 m;
+	struct vector3 out_scale;
+	struct vector3 out_translation;
+	struct quaternion out_rotation;
+
+	matrix4_transformation_compose(&m, scale, rotation, translation);
+
+	if (!matrix4_transformation_decompose(&m, &out_scale, &out_rotation, &out_translation)) {
+		return 0;
+	}
+
+	return vector3_equals(&out_scale, scale) &&
+		vector3_equals(&out_translation, translation) &&
+		scalar_equalsf(quaternion_angle_between(&out_rotation, rotation), HYP_FLOAT_C(0.0));
+}
+
+
+static const char *test_matrix4_transformation_decompose_rotation(void)
+{
+	struct vector3 scale;
+	struct vector3 translation;
+	struct vector3 axis;
+	struct quaternion rotation;
+
+	vector3_setf3(&scale, HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	vector3_setf3(&translation, HYP_FLOAT_C(5.0), -HYP_FLOAT_C(6.0), HYP_FLOAT_C(7.0));
+
+	/* a general rotation */
+	vector3_normalize(vector3_setf3(&axis, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0)));
+	quaternion_set_from_axis_anglev3(&rotation, &axis, HYP_FLOAT_C(1.1));
+	test_assert(decompose_round_trip(&scale, &rotation, &translation));
+
+	/* nearly half turns about each axis */
+	quaternion_set_from_axis_anglev3(&rotation, HYP_VECTOR3_UNIT_X, HYP_FLOAT_C(3.0));
+	test_assert(decompose_round_trip(&scale, &rotation, &translation));
+	quaternion_set_from_axis_anglev3(&rotation, HYP_VECTOR3_UNIT_Y, HYP_FLOAT_C(3.0));
+	test_assert(decompose_round_trip(&scale, &rotation, &translation));
+	quaternion_set_from_axis_anglev3(&rotation, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(3.0));
+	test_assert(decompose_round_trip(&scale, &rotation, &translation));
+
+	/* a mirror: a negative scale comes back on x */
+	vector3_setf3(&scale, -HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	quaternion_set_from_axis_anglev3(&rotation, &axis, HYP_FLOAT_C(1.1));
+	test_assert(decompose_round_trip(&scale, &rotation, &translation));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_transformation_decompose_short_and_long(void)
+{
+	struct matrix4 m;
+	struct vector3 scale;
+	struct vector3 translation;
+	struct vector3 out_scale;
+	struct vector3 out_translation;
+	struct quaternion rotation;
+	struct quaternion out_rotation;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-20), HYP_FLOAT_C(1e20) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-160), HYP_FLOAT_C(1e160) };
+#endif
+	int i;
+
+	/* scales whose squares underflow or overflow */
+	quaternion_set_from_axis_anglev3(&rotation, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(1.1));
+	vector3_zero(&translation);
+
+	for (i = 0; i < 2; i++) {
+		vector3_setf3(&scale, lengths[i], HYP_FLOAT_C(2.0) * lengths[i], HYP_FLOAT_C(3.0) * lengths[i]);
+		matrix4_transformation_compose(&m, &scale, &rotation, &translation);
+		test_assert(matrix4_transformation_decompose(&m, &out_scale, &out_rotation, &out_translation));
+		test_assert(scalar_equalsf(out_scale.x / scale.x, HYP_FLOAT_C(1.0)));
+		test_assert(scalar_equalsf(out_scale.y / scale.y, HYP_FLOAT_C(1.0)));
+		test_assert(scalar_equalsf(out_scale.z / scale.z, HYP_FLOAT_C(1.0)));
+		test_assert(scalar_equalsf(quaternion_angle_between(&out_rotation, &rotation), HYP_FLOAT_C(0.0)));
+	}
+
+	return NULL;
+}
+
 
 static const char *test_matrix4_transformation_decompose_zero_scale(void)
 {
@@ -438,7 +523,9 @@ static const char *experimental_all_tests(void)
 	run_test(test_matrix4_set_from_quaternion_zero);
 	run_test(test_matrix4_transformation_decompose_translation);
 	run_test(test_matrix4_transformation_decompose_scaling);
+	run_test(test_matrix4_transformation_decompose_rotation);
 	run_test(test_matrix4_transformation_decompose_zero_scale);
+	run_test(test_matrix4_transformation_decompose_short_and_long);
 	run_test(test_matrix4_projection_perspective);
 	run_test(test_matrix4_projection_ortho3d);
 	run_test(test_matrix4_multiplyv3_exp);

@@ -3651,31 +3651,13 @@ HYPAPI void hyp_matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 
 /**
  * @ingroup matrix4
- * @brief converts the quaternion to a 4x4 rotation matrix (column major,
- * right hand rule)
+ * @brief converts the quaternion to a 4x4 rotation matrix, applied as M * v
+ * (right hand rule); the same as matrix4_set_from_quaternion
  *
  */
 HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *self, const struct quaternion *qT)
 {
-	struct matrix4 *m;
-	const struct quaternion *q;
-
-	q = qT;
-	m = self;
-
-	matrix4_identity(m);
-
-	m->m[0] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->y * q->y + q->z * q->z);
-	m->m[4] = HYP_FLOAT_C(2.0) * (q->x * q->y - q->z * q->w);
-	m->m[8] = HYP_FLOAT_C(2.0) * (q->x * q->z + q->y * q->w);
-	m->m[1] = HYP_FLOAT_C(2.0) * (q->x * q->y + q->z * q->w);
-	m->m[5] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->z * q->z);
-	m->m[9] = HYP_FLOAT_C(2.0) * (q->y * q->z - q->x * q->w);
-	m->m[2] = HYP_FLOAT_C(2.0) * (q->x * q->z - q->y * q->w);
-	m->m[6] = HYP_FLOAT_C(2.0) * (q->y * q->z + q->x * q->w);
-	m->m[10] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->y * q->y);
-
-	return self;
+	return matrix4_set_from_quaternion(self, qT);
 }
 
 
@@ -3728,8 +3710,8 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_x(struct matrix4 *m
 	matrix4_identity(m);
 
 	m->r11 = c;
-	m->r12 = s;
-	m->r21 = -s;
+	m->r12 = -s;
+	m->r21 = s;
 	m->r22 = c;
 
 	return m;
@@ -3750,10 +3732,9 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_y(struct matrix4 *m
 
 	matrix4_identity(m);
 
-	/* assuming col-major */
 	m->r00 = c;
-	m->r02 = -s;
-	m->r20 = s;
+	m->r02 = s;
+	m->r20 = -s;
 	m->r22 = c;
 
 	return m;
@@ -3774,10 +3755,9 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_z(struct matrix4 *m
 
 	matrix4_identity(m);
 
-	/* assuming col-major */
 	m->r00 = c;
-	m->r01 = s;
-	m->r10 = -s;
+	m->r01 = -s;
+	m->r10 = s;
 	m->r11 = c;
 
 	return m;
