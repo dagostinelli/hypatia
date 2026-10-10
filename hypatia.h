@@ -4466,6 +4466,8 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	HYP_FLOAT theta;
 	HYP_FLOAT s;
 	struct quaternion target;
+	struct quaternion difference;
+	struct quaternion sum;
 
 	/* how parallel are the quaternions (also the dot is the cosine) */
 	quaternion_set(&target, end);
@@ -4476,26 +4478,24 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	 */
 	if (dot < HYP_FLOAT_C(0.0)) {
 		quaternion_negate(&target);
-		dot = -dot;
 	}
 
-	/* if they are close to parallel, use LERP
-	 *	- This avoids div/0, also for a dot above 1 from rounding
-	 *	- At small angles, the slerp and lerp are the same
+	/* the angle between start and target on the 4D sphere: with |s - t| and
+	 * |s + t|, which stays accurate when they are nearly the same, where
+	 * acos(dot) does not (and is NaN when rounding puts the dot above 1)
 	 */
+	quaternion_subtract(quaternion_set(&difference, start), &target);
+	quaternion_add(quaternion_set(&sum, start), &target);
+	theta = HYP_FLOAT_C(2.0) * HYP_ATAN2(quaternion_magnitude(&difference), quaternion_magnitude(&sum));
+	s = HYP_SIN(theta);
 
-	if (dot > HYP_FLOAT_C(1.0) - HYP_EPSILON) {
+	/* the same quaternion: nothing to interpolate */
+	if (!(s > HYP_FLOAT_C(0.0))) {
 		quaternion_lerp(start, &target, percent, qR);
 		return qR;
 	}
 
-	/* the angle between start and end in radians */
-	theta = HYP_ACOS(dot);
-	/* cache */
-	s = HYP_SIN(theta);
-	/* compute negative */
 	f1 = HYP_SIN((HYP_FLOAT_C(1.0) - percent) * theta) / s;
-	/* compute positive */
 	f2 = HYP_SIN(percent * theta) / s;
 
 	/* this expanded form avoids calling quaternion_multiply

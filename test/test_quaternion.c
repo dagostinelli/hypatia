@@ -1256,8 +1256,33 @@ static const char *test_quaternion_slerp_dot_above_one(void)
 	return NULL;
 }
 
+static const char *test_quaternion_slerp_close(void)
+{
+	struct quaternion start, end, qR, expected;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-6);
+#else
+	const HYP_FLOAT tolerance = HYP_FLOAT_C(1e-12);
+#endif
+
+	/* 0.008 radians apart: halfway is a unit quaternion, 0.004 radians from
+	 * each (a linear interpolation is short by 2e-6)
+	 */
+	quaternion_identity(&start);
+	quaternion_set_from_axis_anglev3(&end, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(0.008));
+	quaternion_set_from_axis_anglev3(&expected, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(0.004));
+	quaternion_slerp(&start, &end, HYP_FLOAT_C(0.5), &qR);
+	test_assert(HYP_ABS(quaternion_magnitude(&qR) - HYP_FLOAT_C(1.0)) < tolerance);
+	test_assert(HYP_ABS(qR.w - expected.w) < tolerance);
+	test_assert(HYP_ABS(qR.z - expected.z) < tolerance);
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_slerp_close);
 	run_test(test_quaternion_slerp_dot_above_one);
 	run_test(test_quaternion_get_axis_anglev3_negative_w);
 	run_test(test_quaternion_short_and_long);

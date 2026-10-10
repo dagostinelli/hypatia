@@ -121,7 +121,7 @@ Results that differ from 2.0:
 * `matrix4_multiplyv2` treats z as 0.
 * `quaternion_get_rotation_tov3` returns a unit quaternion for vectors of any length; `quaternion_get_axis_anglev3` is accurate for small rotations and returns a unit axis and an angle in [0, pi].
 * Normalizing leaves only an exactly zero vector unchanged (2.0: anything shorter than 1e-5); `vector2_normalize` no longer gives NaN.
-* `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1; with a negative dot product slerp ends at -end, the same rotation as end.
+* `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1, and slerp stays accurate for nearly equal quaternions; with a negative dot product slerp ends at -end, the same rotation as end.
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * `matrix4_inverse` and `matrix4_determinant` are as accurate as GLM and Eigen for badly conditioned matrices (2.0 lost up to 100 times more).
