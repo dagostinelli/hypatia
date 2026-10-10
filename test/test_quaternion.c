@@ -1280,8 +1280,40 @@ static const char *test_quaternion_slerp_close(void)
 }
 
 
+static const char *test_quaternion_axis_and_rotation_any_length(void)
+{
+	struct quaternion q, expected;
+	struct vector3 axis, v;
+
+	/* an axis of length 10 is the same rotation as the unit axis */
+	quaternion_set_from_axis_anglev3(&expected, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	vector3_setf3(&axis, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0));
+	quaternion_set_from_axis_anglev3(&q, &axis, HYP_TAU / HYP_FLOAT_C(4.0));
+	test_assert(quaternion_equals(&q, &expected));
+
+	/* a zero axis: the identity */
+	vector3_zero(&axis);
+	quaternion_set_from_axis_anglev3(&q, &axis, HYP_FLOAT_C(1.0));
+	test_assert(quaternion_equals(&q, quaternion_identity(&expected)));
+
+	/* a quaternion of length 2 rotates X onto Y without scaling it */
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	quaternion_multiplyf(&q, HYP_FLOAT_C(2.0));
+	vector3_rotate_by_quaternion(vector3_set(&v, HYP_VECTOR3_UNIT_X), &q);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_Y));
+
+	/* the zero quaternion leaves the point unchanged */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_rotate_by_quaternion(vector3_set(&v, HYP_VECTOR3_UNIT_X), &q);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_X));
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_axis_and_rotation_any_length);
 	run_test(test_quaternion_slerp_close);
 	run_test(test_quaternion_slerp_dot_above_one);
 	run_test(test_quaternion_get_axis_anglev3_negative_w);

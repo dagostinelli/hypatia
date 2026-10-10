@@ -1084,6 +1084,26 @@ static const char *test_matrix4_reciprocal_condition(void)
 }
 
 
+static const char *test_matrix4_set_from_axis_angle_any_length(void)
+{
+	struct matrix4 m, identity;
+	struct vector3 axis, v;
+
+	/* an axis of length 10: a quarter turn about Z takes X to Y */
+	vector3_setf3(&axis, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(10.0));
+	matrix4_set_from_axisv3_angle(&m, &axis, HYP_TAU / HYP_FLOAT_C(4.0));
+	vector3_multiplym4(vector3_set(&v, HYP_VECTOR3_UNIT_X), &m);
+	test_assert(vector3_equals(&v, HYP_VECTOR3_UNIT_Y));
+
+	/* a zero axis: the identity */
+	vector3_zero(&axis);
+	matrix4_set_from_axisv3_angle(&m, &axis, HYP_TAU / HYP_FLOAT_C(4.0));
+	test_assert(matrix4_equals(&m, matrix4_identity(&identity)));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_inverse_ill_conditioned(void)
 {
 	/* the inverses were computed in long double; the error is measured
@@ -1133,6 +1153,7 @@ static const char *test_matrix4_inverse_ill_conditioned(void)
 static const char *matrix4_all_tests(void)
 {
 	run_test(test_matrix4_inverse_ill_conditioned);
+	run_test(test_matrix4_set_from_axis_angle_any_length);
 	run_test(test_matrix4_reciprocal_condition);
 	run_test(test_matrix4_zero);
 	run_test(test_matrix4_equals);

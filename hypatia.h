@@ -1941,7 +1941,11 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  * @ingroup vector3
  * @brief Rotate a point by the quaternion.  Returns the rotated point.
  *
- * \f$self= qT * self * conjugate(qT)\f$
+ * \f$self= qT * self * qT^{-1}\f$
+ *
+ * qT does not need to be unit length: the rotation is that of the unit
+ * quaternion in its direction, as matrix4_set_from_quaternion.  The zero
+ * quaternion leaves the point unchanged.
  *
  * @param self the starting point
  * @param qT the quaternion
@@ -1949,16 +1953,21 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  */
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT)
 {
-	struct quaternion qconj;
+	struct quaternion qinv;
 	struct quaternion q;
 
-	/* make the conjugate */
-	quaternion_set(&qconj, qT);
-	quaternion_conjugate(&qconj);
+	if (!(hyp_length(qT->q, 4) > HYP_FLOAT_C(0.0))) {
+		return self;
+	}
+
+	/* the inverse, not the conjugate: q * v * conjugate(q) is also scaled by
+	 * |q|^2
+	 */
+	quaternion_inverse(quaternion_set(&qinv, qT));
 
 	quaternion_set(&q, qT);
 	quaternion_multiplyv3(&q, self);
-	quaternion_multiply(&q, &qconj);
+	quaternion_multiply(&q, &qinv);
 
 	self->x = q.x;
 	self->y = q.y;
@@ -4094,7 +4103,8 @@ HYPAPI struct quaternion *quaternion_set(struct quaternion *self, const struct q
 /**
  * @ingroup quaternion
  * @brief Sets the values in the quaternion, in place, based on the axis and
- * angle.
+ * angle.  The axis does not need to be unit length; a zero axis gives the
+ * identity.
  *
  * @param self the quaternion that will become initialized with the values of
  * the axis and angle
@@ -4110,6 +4120,20 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *se
 {
 	HYP_FLOAT s = HYP_SIN(angle / HYP_FLOAT_C(2.0));
 	HYP_FLOAT c = HYP_COS(angle / HYP_FLOAT_C(2.0));
+	HYP_FLOAT axis[3];
+
+	/* the formula needs a unit axis: normalizing the result instead would
+	 * change the angle
+	 */
+	axis[0] = x;
+	axis[1] = y;
+	axis[2] = z;
+	if (!(hyp_normalize(axis, 3) > HYP_FLOAT_C(0.0))) {
+		return quaternion_identity(self);
+	}
+	x = axis[0];
+	y = axis[1];
+	z = axis[2];
 
 	self->x = x * s;
 	self->y = y * s;
@@ -4124,7 +4148,8 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *se
 /**
  * @ingroup quaternion
  * @brief Sets the values in the quaternion, in place, based on the axis and
- * angle.
+ * angle.  The axis does not need to be unit length; a zero axis gives the
+ * identity.
  *
  * @param self the quaternion that will become initialized with the values of
  * the axis and angle
@@ -4781,7 +4806,7 @@ HYPAPI struct quaternion *quaternion_rotate_by_quaternion(struct quaternion *sel
  * then it rotates the quaternion by that axis/angle
  *
  * @param self the quaternion being rotated
- * @param axis the axis of rotation (unit length)
+ * @param axis the axis of rotation (any length)
  * @param angle the angle in radians (right-hand rule)
  *
  */
@@ -4995,7 +5020,8 @@ HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self,
 /**
  * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
- * angle (used as a rotation matrix)
+ * angle (used as a rotation matrix).  The axis does not need to be unit
+ * length; a zero axis gives the identity.
  *
  * @param self The matrix
  * @param x The x part of the axis
@@ -5008,6 +5034,18 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_F
 {
 	HYP_FLOAT c = HYP_COS(angle);
 	HYP_FLOAT s = HYP_SIN(angle);
+	HYP_FLOAT axis[3];
+
+	/* the formula needs a unit axis */
+	axis[0] = x;
+	axis[1] = y;
+	axis[2] = z;
+	if (!(hyp_normalize(axis, 3) > HYP_FLOAT_C(0.0))) {
+		return matrix4_identity(self);
+	}
+	x = axis[0];
+	y = axis[1];
+	z = axis[2];
 
 	self->c00 = (x * x) * (HYP_FLOAT_C(1.0) - c) + c;
 	self->c01 = (x * y) * (HYP_FLOAT_C(1.0) - c) + (z * s);
@@ -5036,7 +5074,8 @@ HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_F
 /**
  * @ingroup matrix4
  * @brief Opinionated function about what the axis means.  Sets the axis and
- * angle (used as a rotation matrix)
+ * angle (used as a rotation matrix).  The axis does not need to be unit
+ * length; a zero axis gives the identity.
  *
  * @param self The matrix
  * @param axis The axis
