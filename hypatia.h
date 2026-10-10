@@ -56,6 +56,7 @@
 /** @defgroup _constants Constants */
 /** @defgroup trig Trigonometry */
 /** @defgroup reference_vectors Reference vectors */
+/** @defgroup vector2 vector2 */
 /** @defgroup vector3 vector3 */
 /** @defgroup vector4 vector4 */
 /** @defgroup quaternion quaternion */
@@ -2040,11 +2041,7 @@ HYPAPI struct matrix2 *matrix2_transpose(struct matrix2 *self)
 }
 
 
-/**
- * @ingroup matrix2
- * @brief Swaps the row and column
- *
- */
+/* swaps the row and column */
 HYPAPI struct matrix2 *hyp_matrix2_transpose_rowcolumn(struct matrix2 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
@@ -2053,11 +2050,7 @@ HYPAPI struct matrix2 *hyp_matrix2_transpose_rowcolumn(struct matrix2 *self)
 }
 
 
-/**
- * @ingroup matrix2
- * @brief Swaps the columns and row
- *
- */
+/* swaps the columns and row */
 HYPAPI struct matrix2 *hyp_matrix2_transpose_columnrow(struct matrix2 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
@@ -2067,11 +2060,7 @@ HYPAPI struct matrix2 *hyp_matrix2_transpose_columnrow(struct matrix2 *self)
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup matrix2
- * @brief Prints out the matrix using column and row notation
- *
- */
+/* prints out the matrix using column and row notation */
 HYPAPI void hyp_matrix2_print_with_columnrow_indexer(struct matrix2 *self)
 {
 	hyp_print_value("", self->c00);
@@ -2085,11 +2074,7 @@ HYPAPI void hyp_matrix2_print_with_columnrow_indexer(struct matrix2 *self)
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup matrix2
- * @brief Prints out the matrix using row and column notation
- *
- */
+/* prints out the matrix using row and column notation */
 HYPAPI void hyp_matrix2_print_with_rowcolumn_indexer(struct matrix2 *self)
 {
 	hyp_print_value("", self->r00);
@@ -2447,11 +2432,7 @@ HYPAPI struct matrix3 *matrix3_transpose(struct matrix3 *self)
 }
 
 
-/**
- * @ingroup matrix3
- * @brief Swaps the row and column
- *
- */
+/* swaps the row and column */
 HYPAPI struct matrix3 *hyp_matrix3_transpose_rowcolumn(struct matrix3 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
@@ -2462,11 +2443,7 @@ HYPAPI struct matrix3 *hyp_matrix3_transpose_rowcolumn(struct matrix3 *self)
 }
 
 
-/**
- * @ingroup matrix3
- * @brief Swaps the columns and row
- *
- */
+/* swaps the columns and row */
 HYPAPI struct matrix3 *hyp_matrix3_transpose_columnrow(struct matrix3 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
@@ -2478,11 +2455,7 @@ HYPAPI struct matrix3 *hyp_matrix3_transpose_columnrow(struct matrix3 *self)
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup matrix3
- * @brief Prints out the matrix using column and row notation
- *
- */
+/* prints out the matrix using column and row notation */
 HYPAPI void hyp_matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 {
 	hyp_print_value("", self->c00);
@@ -2502,11 +2475,7 @@ HYPAPI void hyp_matrix3_print_with_columnrow_indexer(struct matrix3 *self)
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup matrix3
- * @brief Prints out the matrix using row and column notation
- *
- */
+/* prints out the matrix using row and column notation */
 HYPAPI void hyp_matrix3_print_with_rowcolumn_indexer(struct matrix3 *self)
 {
 	hyp_print_value("", self->r00);
@@ -2989,11 +2958,7 @@ HYPAPI struct matrix4 *matrix4_transpose(struct matrix4 *self)
 }
 
 
-/**
- * @ingroup matrix4
- * @brief Swaps the row and column
- *
- */
+/* swaps the row and column */
 HYPAPI struct matrix4 *hyp_matrix4_transpose_rowcolumn(struct matrix4 *self)
 {
 	HYP_SWAP(&self->r01, &self->r10);
@@ -3007,11 +2972,7 @@ HYPAPI struct matrix4 *hyp_matrix4_transpose_rowcolumn(struct matrix4 *self)
 }
 
 
-/**
- * @ingroup matrix4
- * @brief Swaps the columns and row
- *
- */
+/* swaps the columns and row */
 HYPAPI struct matrix4 *hyp_matrix4_transpose_columnrow(struct matrix4 *self)
 {
 	HYP_SWAP(&self->c01, &self->c10);
@@ -3026,11 +2987,7 @@ HYPAPI struct matrix4 *hyp_matrix4_transpose_columnrow(struct matrix4 *self)
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup matrix4
- * @brief Prints out the matrix using column and row notation
- *
- */
+/* prints out the matrix using column and row notation */
 HYPAPI void hyp_matrix4_print_with_columnrow_indexer(struct matrix4 *self)
 {
 	hyp_print_value("", self->c00);
@@ -3056,11 +3013,7 @@ HYPAPI void hyp_matrix4_print_with_columnrow_indexer(struct matrix4 *self)
 }
 
 
-/**
- * @ingroup matrix4
- * @brief Prints out the matrix using row and column notation
- *
- */
+/* prints out the matrix using row and column notation */
 HYPAPI void hyp_matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 {
 	hyp_print_value("", self->r00);
@@ -3990,10 +3943,7 @@ HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct ve
 
 
 #ifndef HYP_NO_STDIO
-/**
- * @ingroup quaternion
- * @brief prints out the elements of the quaternion to stdout
- */
+/* prints out the elements of the quaternion to stdout */
 HYPAPI void hyp_quaternion_print(const struct quaternion *self)
 {
 	hyp_print_value("x:", self->x);

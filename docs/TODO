@@ -4,7 +4,6 @@ Remaining Work:
 - add a vector to a quat, add each element one by one
 - add a scalar to a quat, add the scalar to each element of the quat
 - is quaternion_dot_product an appropriate operation on a quaternion?
-- make doxygen ignore vector3_get_reference_vector3
 
 
 API gaps:
@@ -26,10 +25,6 @@ Long double support (planned):
 - Needs sinl/cosl/sqrtl/etc. (C99), its own HYP_EPSILON, and hyp_print_value with a
   long double parameter (%Lf)
 - long double differs by platform; CI needs a long double job per platform
-
-Build and CI:
-- The generated docs do not include the function doc comments: they are in the
-  implementation section, which Doxygen does not read. Not decided how to fix.
 
 Docs:
 - Publish the Doxygen output (.github/workflows/publish-docs.yml)
