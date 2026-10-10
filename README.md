@@ -97,12 +97,13 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all eight math macros below. | |
 | `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT` |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset`. | `memset` from `<string.h>` |
+| `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source of `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX`; define both or neither. | `rand()`, `RAND_MAX` |
 
 **Deprecation**
 
 | Macro | Effect | Default |
 |---|---|---|
-| `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
+| `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_RANDOM_FLOAT`, `HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
 
 Changes in 2.1
 --------------
@@ -144,7 +145,7 @@ Coding Standard
 	- all CAPS for public constants.  HYP is the prefix for public constants
 	- use 'self' for describing the function context
 	- math entities are mutable
-	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting (exceptions: the math macros convert C89's double results to HYP_FLOAT)
+	- prefer no casts; use HYP_FLOAT_C for floating point literals and choose types that match instead of casting (exceptions: the math macros convert C89's double results to HYP_FLOAT, and scalar_random_rangef converts the random integers)
 	- comments are neutral, factual and short
 	- blank line at the end of every file
 * Don't interfere with the user's program: no stray macros, no declarations without definitions, any include order works

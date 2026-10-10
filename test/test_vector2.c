@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include "random_source.h"
+
 static const char *test_vector2_set(void)
 {
 	struct vector2 v1 = {.v = {HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0)}};
@@ -271,8 +273,98 @@ static const char *test_vector2_angle_between_opposite(void)
 	return NULL;
 }
 
+static const char *test_vector2_set_random_unit_scripted(void)
+{
+	static const long zero[] = {0};
+	static const long half[] = {1073741824L};
+	struct vector2 v;
+	struct vector2 expected;
+
+	test_random_script(zero, 1);
+	vector2_set_random_unit(&v);
+	test_assert(vector2_equals(&v, vector2_setf2(&expected, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0))));
+
+	/* angle pi: sin(pi) is close to 0, not exactly 0 */
+	test_random_script(half, 1);
+	vector2_set_random_unit(&v);
+	test_assert(vector2_equals(&v, vector2_setf2(&expected, HYP_FLOAT_C(-1.0), HYP_FLOAT_C(0.0))));
+
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+
+static const char *test_vector2_set_random_unit_many(void)
+{
+	struct vector2 v;
+	int counts[4];
+	int small_x = 0;
+	int small_y = 0;
+	int i;
+
+	for (i = 0; i < 4; i++) {
+		counts[i] = 0;
+	}
+
+	for (i = 0; i < 10000; i++) {
+		vector2_set_random_unit(&v);
+		test_assert(scalar_equalsf(vector2_magnitude(&v), HYP_FLOAT_C(1.0)));
+		counts[(v.x >= HYP_FLOAT_C(0.0) ? 0 : 1) + (v.y >= HYP_FLOAT_C(0.0) ? 0 : 2)]++;
+		if (HYP_ABS(v.x) < HYP_FLOAT_C(0.5)) {
+			small_x++;
+		}
+		if (HYP_ABS(v.y) < HYP_FLOAT_C(0.5)) {
+			small_y++;
+		}
+	}
+
+	/* each quarter of the circle gets 25% +/- 3% */
+	for (i = 0; i < 4; i++) {
+		test_assert(counts[i] > 2200 && counts[i] < 2800);
+	}
+
+	/* the quarters are symmetric even for an uneven spread (e.g. normalizing
+	 * random components), so also check |x| < 0.5 and |y| < 0.5: one third of
+	 * the circle each (33.3% +/- 2.5%)
+	 */
+	test_assert(small_x > 3083 && small_x < 3583);
+	test_assert(small_y > 3083 && small_y < 3583);
+
+	return NULL;
+}
+
+
+static const char *test_vector2_set_random_in_disk(void)
+{
+	static const long half_way[] = {1073741824L, 0};
+	struct vector2 v;
+	struct vector2 expected;
+	int inner = 0;
+	int i;
+
+	/* draws: u (the radius is sqrt(u)), then the angle */
+	test_random_script(half_way, 2);
+	vector2_set_random_in_disk(&v);
+	test_assert(vector2_equals(&v, vector2_setf2(&expected, HYP_SQRT(HYP_FLOAT_C(0.5)), HYP_FLOAT_C(0.0))));
+	test_random_script(NULL, 0);
+
+	/* evenly spread: a quarter of the points fall within radius 0.5 */
+	for (i = 0; i < 10000; i++) {
+		vector2_set_random_in_disk(&v);
+		test_assert(vector2_magnitude(&v) < HYP_FLOAT_C(1.0));
+		if (vector2_magnitude(&v) < HYP_FLOAT_C(0.5)) {
+			inner++;
+		}
+	}
+	test_assert(inner > 2300 && inner < 2700);
+
+	return NULL;
+}
 static const char *vector2_all_tests(void)
 {
+	run_test(test_vector2_set_random_unit_scripted);
+	run_test(test_vector2_set_random_unit_many);
+	run_test(test_vector2_set_random_in_disk);
 	run_test(test_vector2_set);
 	run_test(test_vector2_setf2);
 	run_test(test_vector2_zero);

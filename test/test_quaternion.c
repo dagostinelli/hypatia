@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: MIT */
 
+#include "random_source.h"
+
 /** [quaternion identity example] */
 static const char *test_quaternion_identity(void)
 {
@@ -846,8 +848,71 @@ static const char *test_quaternion_slerp_at_endpoints(void)
 }
 
 
+static const char *test_quaternion_set_random_unit_scripted(void)
+{
+	static const long zero[] = {0, 0, 0};
+	struct quaternion q;
+	struct quaternion expected;
+
+	/* draws: u, then two angles; this one is a half turn about Y */
+	test_random_script(zero, 3);
+	quaternion_set_random_unit(&q);
+	test_assert(quaternion_equals(&q, quaternion_setf4(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	test_random_script(NULL, 0);
+	return NULL;
+}
+
+
+static const char *test_quaternion_set_random_unit_many(void)
+{
+	struct quaternion q;
+	struct vector3 v;
+	int counts[4];
+	int small_z = 0;
+	int i;
+
+	for (i = 0; i < 4; i++) {
+		counts[i] = 0;
+	}
+
+	for (i = 0; i < 10000; i++) {
+		quaternion_set_random_unit(&q);
+		test_assert(quaternion_is_unit(&q));
+
+		/* evenly spread rotations send the X axis evenly over the sphere */
+		vector3_setf3(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+		vector3_rotate_by_quaternion(&v, &q);
+		if (v.z < HYP_FLOAT_C(-0.5)) {
+			counts[0]++;
+		} else if (v.z < HYP_FLOAT_C(0.0)) {
+			counts[1]++;
+		} else if (v.z < HYP_FLOAT_C(0.5)) {
+			counts[2]++;
+		} else {
+			counts[3]++;
+		}
+		if (HYP_ABS(v.z) < HYP_FLOAT_C(0.5)) {
+			small_z++;
+		}
+	}
+
+	/* each quarter of the z range gets 25% +/- 3% */
+	for (i = 0; i < 4; i++) {
+		test_assert(counts[i] > 2200 && counts[i] < 2800);
+	}
+
+	/* and |z| < 0.5 half the time (50% +/- 3%), which an uneven spread of
+	 * rotations (e.g. normalizing random components) clearly misses
+	 */
+	test_assert(small_z > 4700 && small_z < 5300);
+
+	return NULL;
+}
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_set_random_unit_scripted);
+	run_test(test_quaternion_set_random_unit_many);
 	run_test(test_quaternion_identity);
 	run_test(test_quaternion_conjugate);
 	run_test(test_quaternion_inverse);

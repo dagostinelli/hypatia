@@ -24,6 +24,7 @@ function(hyp_add_test name)
 endfunction()
 
 hyp_add_test(test_hypatia main.c implementation.c)
+hyp_add_test(test_random_default test_random_default.c)
 hyp_add_test(test_hypatia_static test_static.c)
 
 # HYP_NO_C_MATH: the program supplies the math functions
@@ -33,8 +34,8 @@ hyp_add_test(test_hypatia_no_c_math test_no_c_math.c no_c_math_functions.c)
 # Windows the functions are exported and imported by defining HYPAPI, as a user
 # of a Hypatia DLL would.
 if(WIN32)
-	SET(HYP_SHARED_EXPORT "HYPAPI=__declspec(dllexport)")
-	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)")
+	SET(HYP_SHARED_EXPORT "HYPAPI=__declspec(dllexport)" "TEST_RANDOM_API=__declspec(dllexport)")
+	SET(HYP_SHARED_IMPORT "HYPAPI=__declspec(dllimport)" "TEST_RANDOM_API=__declspec(dllimport)")
 endif()
 
 hyp_add_test(test_hypatia_shared main.c)
