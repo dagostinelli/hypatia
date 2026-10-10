@@ -8,7 +8,7 @@
 
 #include "no_c_math.h"
 
-#ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) || defined(HYPATIA_QUAD_PRECISION_FLOATS)
 #	define HYP_SQRT(x) test_sqrt(x)
 #	define HYP_FMOD(x, y) test_fmod(x, y)
 #	define HYP_SIN(x) test_sin(x)

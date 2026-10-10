@@ -4,10 +4,13 @@
 #define TEST_NO_C_MATH_H_
 
 /* math functions the program supplies itself, for the HYP_NO_C_MATH build;
- * long double in long double precision, double otherwise
+ * long double in long double precision, _Float128 in quad precision, double
+ * otherwise
  */
-#ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 typedef long double test_math_float;
+#elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+typedef _Float128 test_math_float;
 #else
 typedef double test_math_float;
 #endif
