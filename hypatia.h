@@ -4583,8 +4583,10 @@ HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const s
 
 /**
  * @ingroup quaternion
- * @brief Retrieves the axis and angle from the quaternion, assumes normalized
- * quaternion
+ * @brief Retrieves the axis and angle from the quaternion.  The quaternion does
+ * not need to be unit length.  The axis is unit length; for the identity, which
+ * has no axis, it is zero and the angle is 0.  The angle is in [0, pi]; q and -q
+ * give the same result.
  *
  * @param self the quaternion
  * @param vR the axis that will be filled
@@ -4593,21 +4595,28 @@ HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const s
  */
 HYPAPI void quaternion_get_axis_anglev3(const struct quaternion *self, struct vector3 *vR, HYP_FLOAT *angle)
 {
-	/* scale is not same as magnitude */
-	HYP_FLOAT scale = HYP_SQRT(HYP_FLOAT_C(1.0) - self->w * self->w);
+	HYP_FLOAT length;
+	HYP_FLOAT w = self->w;
 
-	/* avoid divide by zero */
-	if (scalar_equalsf(scale, HYP_FLOAT_C(0.0))) {
-		vR->x = self->x;
-		vR->y = self->y;
-		vR->z = self->z;
-	} else {
-		vR->x = self->x / scale;
-		vR->y = self->y / scale;
-		vR->z = self->z / scale;
+	/* |(x, y, z)| = |q| sin(angle / 2) and w = |q| cos(angle / 2); atan2 stays
+	 * accurate for small angles, where sqrt(1 - w^2) and acos(w) do not
+	 */
+	vector3_setf3(vR, self->x, self->y, self->z);
+	length = hyp_normalize(vR->v, 3);
+
+	if (!(length > HYP_FLOAT_C(0.0))) {
+		vector3_zero(vR);
 	}
 
-	*angle = HYP_FLOAT_C(2.0) * HYP_ACOS(self->w);
+	/* q and -q are the same rotation: use the one with w >= 0, whose angle
+	 * is at most pi
+	 */
+	if (w < HYP_FLOAT_C(0.0)) {
+		vector3_negate(vR);
+		w = -w;
+	}
+
+	*angle = HYP_FLOAT_C(2.0) * HYP_ATAN2(length, w);
 }
 
 
@@ -4629,6 +4638,12 @@ HYPAPI void hyp_quaternion_print(const struct quaternion *self)
  * @brief Given two vectors, find a quaternion that will get you from one to
  * the other
  *
+ * The result is the unit quaternion for the shortest rotation that turns the
+ * direction of from into the direction of to.  The vectors do not need to be
+ * unit length.  For opposite vectors it is a half turn about an axis
+ * perpendicular to from.  If either vector has zero length there is no
+ * direction to rotate, and the result is the identity.
+ *
  * @param from the starting vector
  * @param to the ending vector
  * @param qR the resulting quaternion that gets you from the starting vector
@@ -4636,32 +4651,65 @@ HYPAPI void hyp_quaternion_print(const struct quaternion *self)
  */
 HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR)
 {
-	/* this code avoids sqrt and cos and sin and would be nice to
-	 * avoid division
-	 */
-	struct vector3 w;
-	HYP_FLOAT dot;
-	HYP_FLOAT norm;
+	struct vector3 f;
+	struct vector3 t;
+	struct vector3 sum;
+	struct vector3 difference;
+	struct vector3 axis;
+	HYP_FLOAT half_cos;
+	HYP_FLOAT half_sin;
+	HYP_FLOAT axis_length;
 
-	vector3_cross_product(&w, from, to);
-	dot = vector3_dot_product(from, to);
-
-	qR->x = w.x;
-	qR->y = w.y;
-	qR->z = w.z;
-	qR->w = dot;
-
-	norm = quaternion_norm(qR);
-	qR->w += norm;
-
-	/* normalization with avoidance of div/0 and reusing the norm */
-	/* (already calculated above) */
-	if (!scalar_equalsf(norm, HYP_FLOAT_C(0.0))) {
-		qR->x /= norm;
-		qR->y /= norm;
-		qR->z /= norm;
-		qR->w /= norm;
+	/* a zero length vector has no direction */
+	vector3_set(&f, from);
+	vector3_set(&t, to);
+	if (!(hyp_normalize(f.v, 3) > HYP_FLOAT_C(0.0)) || !(hyp_normalize(t.v, 3) > HYP_FLOAT_C(0.0))) {
+		return quaternion_identity(qR);
 	}
+
+	/* for unit vectors at angle a: |f + t| = 2 cos(a/2) and |f - t| = 2 sin(a/2).
+	 * Both stay accurate when the vectors are nearly opposite, where f . t
+	 * does not.
+	 */
+	vector3_add(vector3_set(&sum, &f), &t);
+	vector3_subtract(vector3_set(&difference, &f), &t);
+	half_cos = vector3_magnitude(&sum) / HYP_FLOAT_C(2.0);
+	half_sin = vector3_magnitude(&difference) / HYP_FLOAT_C(2.0);
+
+	/* f x (f + t) has the direction of f x t and stays accurate when f + t
+	 * is small
+	 */
+	vector3_cross_product(&axis, &f, &sum);
+	axis_length = hyp_normalize(axis.v, 3);
+
+	if (!(axis_length > HYP_FLOAT_C(0.0))) {
+		if (half_cos > HYP_FLOAT_C(0.0)) {
+			/* same direction */
+			return quaternion_identity(qR);
+		}
+
+		/* opposite: a half turn about an axis perpendicular to f, using the
+		 * coordinate axis least aligned with it
+		 */
+		if (HYP_ABS(f.x) <= HYP_ABS(f.y) && HYP_ABS(f.x) <= HYP_ABS(f.z)) {
+			vector3_cross_product(&axis, &f, HYP_VECTOR3_UNIT_X);
+		} else if (HYP_ABS(f.y) <= HYP_ABS(f.z)) {
+			vector3_cross_product(&axis, &f, HYP_VECTOR3_UNIT_Y);
+		} else {
+			vector3_cross_product(&axis, &f, HYP_VECTOR3_UNIT_Z);
+		}
+
+		hyp_normalize(axis.v, 3);
+		half_sin = HYP_FLOAT_C(1.0);
+	}
+
+	qR->x = axis.x * half_sin;
+	qR->y = axis.y * half_sin;
+	qR->z = axis.z * half_sin;
+	qR->w = half_cos;
+
+	/* half_cos and half_sin each round: make the result exactly unit length */
+	hyp_normalize(qR->q, 4);
 
 	return qR;
 }

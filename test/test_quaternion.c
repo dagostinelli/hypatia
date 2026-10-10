@@ -152,6 +152,50 @@ static const char *test_quaternion_get_set_axis_anglev3(void)
 }
 
 
+static const char *test_quaternion_get_axis_anglev3_small(void)
+{
+	struct quaternion q;
+	struct vector3 axis;
+	HYP_FLOAT angle;
+
+	/* small rotations keep a unit axis and an accurate angle */
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(0.001));
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(vector3_equals(&axis, HYP_VECTOR3_UNIT_Z));
+	test_assert(scalar_equalsf(angle, HYP_FLOAT_C(0.001)));
+
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(1e-6));
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(vector3_equals(&axis, HYP_VECTOR3_UNIT_Z));
+	test_assert(scalar_equalsf(angle, HYP_FLOAT_C(1e-6)));
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_get_axis_anglev3_not_unit(void)
+{
+	struct quaternion q;
+	struct vector3 axis;
+	HYP_FLOAT angle;
+
+	/* only the direction of the quaternion matters */
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_X, HYP_FLOAT_C(1.0));
+	quaternion_multiplyf(&q, HYP_FLOAT_C(2.0));
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(vector3_equals(&axis, HYP_VECTOR3_UNIT_X));
+	test_assert(scalar_equalsf(angle, HYP_FLOAT_C(1.0)));
+
+	/* the identity has no axis: the axis is zero and the angle 0 */
+	quaternion_identity(&q);
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(vector3_equals(&axis, HYP_VECTOR3_ZERO));
+	test_assert(scalar_equalsf(angle, HYP_FLOAT_C(0.0)));
+
+	return NULL;
+}
+
+
 static const char *test_quaternion_multiply(void)
 {
 	struct quaternion qA, qB;
@@ -722,31 +766,135 @@ static const char *test_quaternion_nlerp(void)
 }
 
 
-static const char *test_quaternion_get_rotation_tov3(void)
+/* rotating from (normalized) must give to (normalized), with a unit quaternion */
+static int rotation_tov3_turns_from_onto_to(HYP_FLOAT fx, HYP_FLOAT fy, HYP_FLOAT fz, HYP_FLOAT tx, HYP_FLOAT ty, HYP_FLOAT tz)
 {
 	struct quaternion qR;
+	struct vector3 from;
+	struct vector3 to;
 	struct vector3 r;
 
-	/* rotation from unit X to unit Y should rotate X to Y */
-	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_Y, &qR);
-	quaternion_normalize(&qR);
-	vector3_set(&r, HYP_VECTOR3_UNIT_X);
-	vector3_rotate_by_quaternion(&r, &qR);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Y));
+	vector3_setf3(&from, fx, fy, fz);
+	vector3_setf3(&to, tx, ty, tz);
+	quaternion_get_rotation_tov3(&from, &to, &qR);
 
-	/* rotation from unit X to unit Z should rotate X to Z */
-	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_Z, &qR);
-	quaternion_normalize(&qR);
-	vector3_set(&r, HYP_VECTOR3_UNIT_X);
-	vector3_rotate_by_quaternion(&r, &qR);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_Z));
+	if (!quaternion_is_unit(&qR)) {
+		return 0;
+	}
 
-	/* rotation from a vector to itself should be identity-like (no rotation) */
-	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_UNIT_X, &qR);
-	quaternion_normalize(&qR);
-	vector3_set(&r, HYP_VECTOR3_UNIT_X);
+	vector3_normalize(vector3_set(&r, &from));
 	vector3_rotate_by_quaternion(&r, &qR);
-	test_assert(vector3_equals(&r, HYP_VECTOR3_UNIT_X));
+	vector3_normalize(&to);
+
+	return vector3_equals(&r, &to);
+}
+
+
+static const char *test_quaternion_get_rotation_tov3(void)
+{
+	/* unit vectors */
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0)));
+
+	/* a vector to itself: no rotation */
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)));
+
+	/* vectors that are not unit length */
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(-2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.5)));
+
+	/* short vectors (|from| |to| below HYP_EPSILON) */
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(0.001), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.001), HYP_FLOAT_C(0.0)));
+
+	/* opposite vectors: a half turn about an axis perpendicular to from */
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(-1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(-5.0)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(-1.0), HYP_FLOAT_C(-2.0), HYP_FLOAT_C(-3.0)));
+
+	return NULL;
+}
+
+
+/* the rotation axis must be perpendicular to from */
+static int rotation_tov3_axis_perpendicular(HYP_FLOAT fx, HYP_FLOAT fy, HYP_FLOAT fz, HYP_FLOAT tx, HYP_FLOAT ty, HYP_FLOAT tz)
+{
+	struct quaternion qR;
+	struct vector3 from;
+	struct vector3 to;
+	struct vector3 axis;
+
+	vector3_setf3(&from, fx, fy, fz);
+	vector3_setf3(&to, tx, ty, tz);
+	quaternion_get_rotation_tov3(&from, &to, &qR);
+
+	vector3_setf3(&axis, qR.x, qR.y, qR.z);
+	vector3_normalize(&from);
+
+	return quaternion_is_unit(&qR) && scalar_equalsf(vector3_dot_product(&axis, &from), HYP_FLOAT_C(0.0));
+}
+
+
+static const char *test_quaternion_get_rotation_tov3_nearly_opposite(void)
+{
+	/* nearly opposite vectors: the axis stays perpendicular to from and the
+	 * rotation turns from onto to
+	 */
+	test_assert(rotation_tov3_axis_perpendicular(HYP_FLOAT_C(3.14276), HYP_FLOAT_C(0.708889), HYP_FLOAT_C(1.58099), HYP_FLOAT_C(-9.25607), HYP_FLOAT_C(-2.08783), HYP_FLOAT_C(-4.65634)));
+	test_assert(rotation_tov3_axis_perpendicular(HYP_FLOAT_C(3.85262), HYP_FLOAT_C(4.29174), HYP_FLOAT_C(-4.36456), HYP_FLOAT_C(-7.62961), HYP_FLOAT_C(-8.49921), HYP_FLOAT_C(8.64343)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(3.14276), HYP_FLOAT_C(0.708889), HYP_FLOAT_C(1.58099), HYP_FLOAT_C(-9.25607), HYP_FLOAT_C(-2.08783), HYP_FLOAT_C(-4.65634)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(3.85262), HYP_FLOAT_C(4.29174), HYP_FLOAT_C(-4.36456), HYP_FLOAT_C(-7.62961), HYP_FLOAT_C(-8.49921), HYP_FLOAT_C(8.64343)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(-1.0), HYP_FLOAT_C(-2.0), HYP_FLOAT_C(-3.001)));
+	test_assert(rotation_tov3_turns_from_onto_to(HYP_FLOAT_C(3.0), HYP_FLOAT_C(-1.0), HYP_FLOAT_C(2.0), HYP_FLOAT_C(-3.0), HYP_FLOAT_C(1.0002), HYP_FLOAT_C(-2.0)));
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_get_rotation_tov3_zero_vector(void)
+{
+	struct quaternion qR;
+	struct quaternion identity;
+	struct vector3 zero;
+
+	/* a zero vector has no direction, so there is no rotation */
+	vector3_setf3(&zero, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	quaternion_identity(&identity);
+
+	quaternion_get_rotation_tov3(&zero, HYP_VECTOR3_UNIT_Y, &qR);
+	test_assert(quaternion_equals(&qR, &identity));
+
+	quaternion_get_rotation_tov3(HYP_VECTOR3_UNIT_Y, &zero, &qR);
+	test_assert(quaternion_equals(&qR, &identity));
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_get_rotation_tov3_short_vectors(void)
+{
+	struct quaternion qR;
+	struct quaternion expected;
+	struct vector3 from;
+	struct vector3 to;
+
+	/* a quarter turn about Z, from vectors whose squares underflow */
+	quaternion_set_from_axis_anglev3(&expected, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+
+	vector3_setf3(&from, HYP_FLOAT_C(1e-20), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&to, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e-20), HYP_FLOAT_C(0.0));
+	quaternion_get_rotation_tov3(&from, &to, &qR);
+	test_assert(quaternion_equals(&qR, &expected));
+
+	/* a very short from and a very long to */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	vector3_setf3(&from, HYP_FLOAT_C(1e-30), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&to, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e30), HYP_FLOAT_C(0.0));
+#else
+	vector3_setf3(&from, HYP_FLOAT_C(1e-200), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&to, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1e200), HYP_FLOAT_C(0.0));
+#endif
+	quaternion_get_rotation_tov3(&from, &to, &qR);
+	test_assert(quaternion_equals(&qR, &expected));
 
 	return NULL;
 }
@@ -994,6 +1142,66 @@ static const char *test_quaternion_slerp_negative_dot(void)
 	return NULL;
 }
 
+
+static const char *test_quaternion_short_and_long(void)
+{
+	struct quaternion unit, q, other, r;
+	struct matrix4 expected, m;
+	struct vector3 axis;
+	HYP_FLOAT angle;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* a quarter turn about Z, scaled so that its squares underflow or overflow */
+	quaternion_set_from_axis_anglev3(&unit, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	matrix4_set_from_quaternion(&expected, &unit);
+
+	for (i = 0; i < 2; i++) {
+		quaternion_multiplyf(quaternion_set(&q, &unit), lengths[i]);
+
+		test_assert(matrix4_equals(matrix4_set_from_quaternion(&m, &q), &expected));
+
+		quaternion_setf4(&other, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), lengths[i]);
+		test_assert(scalar_equalsf(quaternion_angle_between(&q, &other), HYP_TAU / HYP_FLOAT_C(4.0)));
+
+		quaternion_inverse(quaternion_set(&r, &q));
+		test_assert(quaternion_equals(quaternion_multiply(&r, &q), quaternion_identity(&other)));
+
+		test_assert(!quaternion_is_pure(&q));
+
+		quaternion_get_axis_anglev3(&q, &axis, &angle);
+		test_assert(vector3_equals(&axis, HYP_VECTOR3_UNIT_Z));
+		test_assert(scalar_equalsf(angle, HYP_TAU / HYP_FLOAT_C(4.0)));
+	}
+
+	return NULL;
+}
+
+static const char *test_quaternion_get_axis_anglev3_negative_w(void)
+{
+	struct quaternion q;
+	struct vector3 axis;
+	HYP_FLOAT angle;
+
+	/* -q is the same rotation as q: the angle is at most pi */
+	quaternion_set_from_axis_anglev3(&q, HYP_VECTOR3_UNIT_Z, HYP_TAU / HYP_FLOAT_C(4.0));
+	quaternion_negate(&q);
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(vector3_equals(&axis, HYP_VECTOR3_UNIT_Z));
+	test_assert(scalar_equalsf(angle, HYP_TAU / HYP_FLOAT_C(4.0)));
+
+	/* -identity */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0));
+	quaternion_get_axis_anglev3(&q, &axis, &angle);
+	test_assert(scalar_equalsf(angle, HYP_FLOAT_C(0.0)));
+
+	return NULL;
+}
+
 static const char *test_quaternion_slerp_dot_above_one(void)
 {
 	struct quaternion q, qR;
@@ -1009,6 +1217,8 @@ static const char *test_quaternion_slerp_dot_above_one(void)
 static const char *quaternion_all_tests(void)
 {
 	run_test(test_quaternion_slerp_dot_above_one);
+	run_test(test_quaternion_get_axis_anglev3_negative_w);
+	run_test(test_quaternion_short_and_long);
 	run_test(test_quaternion_slerp_negative_dot);
 	run_test(test_quaternion_no_near_shortcuts);
 	run_test(test_quaternion_normalize_and_inverse_small);
@@ -1020,6 +1230,8 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_inverse_unit);
 	run_test(test_quaternion_inverse_not_unit);
 	run_test(test_quaternion_axis_anglev3);
+	run_test(test_quaternion_get_axis_anglev3_small);
+	run_test(test_quaternion_get_axis_anglev3_not_unit);
 	run_test(test_quaternion_multiply);
 	run_test(test_quaternion_multiply_identity);
 	run_test(test_vector3_rotate_by_quaternion_diagonal_third_turn);
@@ -1047,6 +1259,9 @@ static const char *quaternion_all_tests(void)
 	run_test(test_quaternion_lerp);
 	run_test(test_quaternion_nlerp);
 	run_test(test_quaternion_get_rotation_tov3);
+	run_test(test_quaternion_get_rotation_tov3_zero_vector);
+	run_test(test_quaternion_get_rotation_tov3_short_vectors);
+	run_test(test_quaternion_get_rotation_tov3_nearly_opposite);
 	run_test(test_quaternion_slerp_nearly_identical);
 	run_test(test_quaternion_slerp_opposite);
 	run_test(test_quaternion_slerp_shortest_arc);
