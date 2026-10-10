@@ -2939,8 +2939,9 @@ HYPAPI struct vector3 *matrix4_multiplyv3(const struct matrix4 *self, const stru
  */
 HYPAPI struct vector2 *matrix4_multiplyv2(const struct matrix4 *self, const struct vector2 *vT, struct vector2 *vR)
 {
-	vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r02 + self->r03;
-	vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r12 + self->r13;
+	/* the vector is (x, y, 0, 1) */
+	vR->x = vT->x * self->r00 + vT->y * self->r01 + self->r03;
+	vR->y = vT->x * self->r10 + vT->y * self->r11 + self->r13;
 
 	return vR;
 }

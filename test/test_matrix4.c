@@ -224,6 +224,23 @@ static const char *test_matrix4_transformation_translatev3_with_vector2_2(void)
 }
 
 
+static const char *test_matrix4_multiplyv2_ignores_z(void)
+{
+	struct matrix4 m;
+	struct vector2 v;
+	struct vector2 r;
+	struct vector2 expected;
+
+	/* a 2D vector has z = 0: a quarter turn about Y takes (1, 0) to (0, 0) */
+	matrix4_make_transformation_rotationf_y(&m, HYP_TAU / HYP_FLOAT_C(4.0));
+	vector2_setf2(&v, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	matrix4_multiplyv2(&m, &v, &r);
+	test_assert(vector2_equals(&r, vector2_setf2(&expected, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0))));
+
+	return NULL;
+}
+
+
 static const char *test_matrix4_identity_with_vector3(void)
 {
 	/* vector * identity_matrix = vector */
@@ -917,6 +934,7 @@ static const char *matrix4_all_tests(void)
 	run_test(test_matrix4_determinant_trial3);
 
 	run_test(test_matrix4_identity_with_vector2);
+	run_test(test_matrix4_multiplyv2_ignores_z);
 	run_test(test_matrix4_identity_with_vector3);
 	run_test(test_matrix4_identity_with_vector4);
 
