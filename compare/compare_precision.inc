@@ -786,6 +786,140 @@ static void precision()
 		}
 	}
 
+	/* ------------------------------------------- added on correctness-h:
+	 * not in master or before (HYP_BEFORE_ADDITIONS)
+	 */
+	{
+		PRow &w = prow("vector3_reflect", "random (relative to the length of v)");
+		for (int i = 0; i < N; i++) {
+			struct vector3 a = rv3(), n = rv3();
+			LV3 la = lv(a), ln = lv(n);
+			LV3 o3 = la - ln * (2 * la.dot(ln) / ln.dot(ln));
+			L o[3] = {o3.x(), o3.y(), o3.z()};
+			L scale = la.norm();
+#ifndef HYP_BEFORE_ADDITIONS
+			struct vector3 h = a;
+			vector3_reflect(&h, &n);
+			w.h.add(ulps(h.v, o, 3, scale));
+#endif
+			V3 g = glm::reflect(gv(a), glm::normalize(gv(n)));
+			w.g.add(ulps(&g[0], o, 3, scale));
+#ifdef HAVE_CGLM
+			vec3 cn = {n.x, n.y, n.z}, cr;
+			glm_vec3_normalize(cn);
+			glm_vec3_reflect(a.v, cn, cr);
+			w.c.add(ulps(cr, o, 3, scale));
+#endif
+		}
+	}
+	{
+		PRow &w = prow("vector3_refract", "random, eta 0.5 .. 2");
+		for (int i = 0; i < N; i++) {
+			struct vector3 a = rv3(), n = rv3();
+			H eta = r(0.5, 2);
+			if (lv(a).dot(lv(n)) > 0)
+				n = mk3(-n.x, -n.y, -n.z);
+			LV3 li = lv(a).normalized(), ln = lv(n).normalized();
+			L d = ln.dot(li), k = 1 - (L)eta * eta * (1 - d * d);
+			LV3 o3 = k < 0 ? LV3(0, 0, 0) : LV3(li * (L)eta - ln * ((L)eta * d + std::sqrt(k)));
+			L o[3] = {o3.x(), o3.y(), o3.z()};
+#ifndef HYP_BEFORE_ADDITIONS
+			struct vector3 h = a;
+			vector3_refract(&h, &n, eta);
+			w.h.add(ulps(h.v, o, 3));
+#endif
+			V3 g = glm::refract(glm::normalize(gv(a)), glm::normalize(gv(n)), eta);
+			w.g.add(ulps(&g[0], o, 3));
+#ifdef HAVE_CGLM
+			vec3 ca = {a.x, a.y, a.z}, cn = {n.x, n.y, n.z}, cr;
+			glm_vec3_normalize(ca);
+			glm_vec3_normalize(cn);
+			glm_vec3_refract(ca, cn, eta, cr);
+			w.c.add(ulps(cr, o, 3));
+#endif
+		}
+	}
+	{
+		PRow &w = prow("quaternion_set_look_rotation_rh", "random");
+		for (int i = 0; i < N; i++) {
+			struct vector3 d = rv3(), up = runit3();
+			/* the camera axes in long double: right, above and -forward */
+			LV3 f = lv(d).normalized(), right = f.cross(lv(up)).normalized(), above = right.cross(f);
+			LM3 l;
+			l.col(0) = right;
+			l.col(1) = above;
+			l.col(2) = -f;
+			LQ o(l);
+			o.normalize();
+#ifndef HYP_BEFORE_ADDITIONS
+			struct quaternion h;
+			quaternion_set_look_rotation_rh(&h, &d, &up);
+			w.h.add(ulpq(h.q, o));
+#endif
+			struct quaternion g = hq(glm::quatLookAtRH(glm::normalize(gv(d)), gv(up)));
+			w.g.add(ulpq(g.q, o));
+#ifdef HAVE_CGLM
+			vec3 cd = {d.x, d.y, d.z}, cu = {up.x, up.y, up.z};
+			versor c;
+			glm_quat_for(cd, cu, c);
+			w.c.add(ulpq(c, o));
+#endif
+		}
+	}
+	for (int kind = 0; kind < 2; kind++) {
+		PRow &w = prow(kind ? "vector3_unproject_from_window" : "vector3_project_to_window", kind ? "random camera, window depth 0 .. 0.9" : "random camera, a point in the view");
+		for (int i = 0; i < N; i++) {
+			struct vector3 eye = rv3(), target = rv3(), up = runit3();
+			M4 gm = GLM_PERSP_RH(r(0.2, 2.5), r(0.5, 2.5), r(0.5, 2), r(10, 100)) * glm::lookAtRH(gv(eye), gv(target), gv(up));
+			V4 gvp(r(-100, 100), r(-100, 100), r(1, 2000), r(1, 2000));
+			struct matrix4 m;
+			for (int k = 0; k < 16; k++)
+				m.m[k] = gm[k % 4][k / 4];
+			struct vector4 vp;
+			for (int k = 0; k < 4; k++)
+				vp.v[k] = gvp[k];
+			LM4 lmat = lm(m);
+			L o[3];
+			struct vector3 p;
+			V3 g;
+			if (!kind) {
+				/* a point in the view: a random window position and depth
+				 * mapped back in long double and rounded
+				 */
+				Eigen::Matrix<L, 4, 1> q = lmat.inverse() * Eigen::Matrix<L, 4, 1>(r(-1, 1), r(-1, 1), r(0, 0.9), 1);
+				p = mk3((H)(q(0) / q(3)), (H)(q(1) / q(3)), (H)(q(2) / q(3)));
+				Eigen::Matrix<L, 4, 1> c = lmat * Eigen::Matrix<L, 4, 1>(p.x, p.y, p.z, 1);
+				o[0] = vp.x + vp.z * (c(0) / c(3) + 1) / 2;
+				o[1] = vp.y + vp.w * (c(1) / c(3) + 1) / 2;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[2] = (c(2) / c(3) + 1) / 2;
+#else
+				o[2] = c(2) / c(3);
+#endif
+				g = GLM_PROJECT(gv(p), M4(1), gm, gvp);
+			} else {
+				p = mk3(vp.x + r(0, 1) * vp.z, vp.y + r(0, 1) * vp.w, r(0, 0.9));
+				Eigen::Matrix<L, 4, 1> ndc(2 * ((L)p.x - vp.x) / vp.z - 1, 2 * ((L)p.y - vp.y) / vp.w - 1, (L)p.z, 1);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				ndc(2) = 2 * (L)p.z - 1;
+#endif
+				Eigen::Matrix<L, 4, 1> c = lmat.inverse() * ndc;
+				for (int k = 0; k < 3; k++)
+					o[k] = c(k) / c(3);
+				g = GLM_UNPROJECT(gv(p), M4(1), gm, gvp);
+			}
+#ifndef HYP_BEFORE_ADDITIONS
+			struct vector3 h = p;
+			if (kind)
+				vector3_unproject_from_window(&h, &m, &vp);
+			else
+				vector3_project_to_window(&h, &m, &vp);
+			w.h.add(ulps(h.v, o, 3));
+#endif
+			w.g.add(ulps(&g[0], o, 3));
+		}
+	}
+
 	/* oracle check: each reference computed a second way; the largest
 	 * disagreement, in the units of the table, estimates how much of a
 	 * measured error can come from the reference itself
@@ -877,7 +1011,7 @@ static void precision()
 			L y = oracle_rotation_angle(a, b);
 			m = std::max(m, (double)(std::fabs(x - y) / x) / EPS);
 		}
-		checks.push_back({"angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128", m});
+		checks.push_back({"angle between quaternions 1e-4 rad apart: from a - b and a + b against from a conj(b), both in _Float128", m});
 	}
 	{
 		double m = 0;

@@ -157,18 +157,28 @@ def main():
         out.append('Relative change of each mean error between the default seed and COMPARE_SEED=7, over every library and measurement (rows with "inf" or a mean of 0 left out).  Differences between libraries smaller than this are not meaningful.\n')
         out.append('| precision | measurements | median change | 90th percentile | largest |')
         out.append('|---|---|---|---|---|')
+        big = []
         for p in ['double', 'single']:
             ch = []
             for v in ['master', 'before', 'now']:
                 a, b = table(os.path.join(d, f'{v}.{p}.md')), table(os.path.join(d, f'{v}.{p}.s7.md'))
+                names = ['hypatia ' + v] + (libs(p) if v == 'now' else [])
                 for ra, rb in zip(a, b):
-                    cells = [(ra[2], rb[2])] if v != 'now' else list(zip(ra[2:3 + len(libs(p))], rb[2:3 + len(libs(p))]))
-                    for x, y in cells:
+                    cells = list(zip(ra[2:3 + len(names) - 1], rb[2:3 + len(names) - 1]))
+                    for name, (x, y) in zip(names, cells):
                         mx, my = mean(x), mean(y)
                         if mx and my and mx != float('inf') and my != float('inf') and largest(x) < WRONG:
-                            ch.append(abs(mx - my) / max(mx, my))
+                            c = abs(mx - my) / max(mx, my)
+                            ch.append(c)
+                            if c > 0.05:
+                                big.append(f'| {p} | {name} | `{ra[0]}` | {ra[1]} | {x} | {y} |')
             ch.sort()
             out.append(f'| {p} | {len(ch)} | {100 * ch[len(ch) // 2]:.2g}% | {100 * ch[int(len(ch) * 0.9)]:.2g}% | {100 * ch[-1]:.2g}% |')
+        if big:
+            out.append('\nThe measurements whose mean changes by more than 5%:\n')
+            out.append('| precision | library | function | inputs | default seed | COMPARE_SEED=7 |')
+            out.append('|---|---|---|---|---|---|')
+            out.extend(big)
 
     for p in ['double', 'single']:
         m = table(os.path.join(d, f'master.{p}.md'))

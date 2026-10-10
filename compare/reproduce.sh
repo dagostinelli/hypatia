@@ -26,8 +26,8 @@ mkdir -p "$WORK" results/precision results/probe
 
 for version in master before now; do
 	case $version in
-	master) rev=$MASTER; defs="PRECISION_ONLY;HYP_MASTER" ;;
-	before) rev=$BEFORE; defs="PRECISION_ONLY" ;;
+	master) rev=$MASTER; defs="PRECISION_ONLY;HYP_MASTER;HYP_BEFORE_ADDITIONS" ;;
+	before) rev=$BEFORE; defs="PRECISION_ONLY;HYP_BEFORE_ADDITIONS" ;;
 	now) rev=$NOW; defs="PRECISION_ONLY" ;;
 	esac
 	mkdir -p "$WORK/$version/src"

@@ -47,6 +47,11 @@ Largest / mean error in units of the float epsilon (relative to the largest comp
 | quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 1.35 / 0.259 | 8.74 / 8.39 | **0.631 / 0.157** | 8.74 / 8.39 |
 | quaternion_angle_between | random | 1.82 / 0.332 |  | **4.14 / 0.27** |  |
 | quaternion_angle_between | 1e-4 rad apart | **4.82e+03 / 209** |  | 1.08e+04 / 1.92e+03 |  |
+| vector3_reflect | random (relative to the length of v) | **3.05 / 0.465** | 4.49 / 0.663 |  | 4.49 / 0.663 |
+| vector3_refract | random, eta 0.5 .. 2 | **67.1 / 0.389** | 72.6 / 0.421 |  | 2.5e+07 / 9.38e+06 |
+| quaternion_set_look_rotation_rh | random | **36.9 / 0.435** | 9.99e+05 / 50.4 |  | **44.4 / 0.433** |
+| vector3_project_to_window | random camera, a point in the view | **472 / 2.2** | **472 / 2.2** |  |  |
+| vector3_unproject_from_window | random camera, window depth 0 .. 0.9 | **42.1 / 1.9** | 103 / 2.2 |  |  |
 
 ### Oracle check
 
@@ -54,11 +59,11 @@ Each reference against a second computation of it: the largest disagreement over
 
 | reference | largest disagreement |
 |---|---|
-| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 4.83e-13 |
-| vector rotation: quaternion product against the rotation matrix | 3.29e-12 |
-| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 2.67e-12 |
-| slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 2.47e-12 |
-| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.356 |
-| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.342 |
-| angle between quaternions 1e-4 rad apart: |a - b|, |a + b| against a conj(b), both in _Float128 | 0 |
-| axis-angle matrix: Rodrigues against through a quaternion | 4.55e-12 |
+| matrix4 inverse: cofactors (Eigen inverse()) against full pivoting LU, per unit of condition | 4.47e-13 |
+| vector rotation: quaternion product against the rotation matrix | 2.95e-12 |
+| slerp, 1e-3 rad apart: Eigen (acos) against the atan2 form | 2.71e-12 |
+| slerp, 1e-6 rad apart: Eigen (acos) against the atan2 form | 2.48e-12 |
+| quaternion from matrix, random: Eigen (long double) against the nearest rotation (SVD) | 0.352 |
+| quaternion from matrix, near half turns: Eigen (long double) against the nearest rotation (SVD) | 0.332 |
+| angle between quaternions 1e-4 rad apart: from a - b and a + b against from a conj(b), both in _Float128 | 0 |
+| axis-angle matrix: Rodrigues against through a quaternion | 5.39e-12 |

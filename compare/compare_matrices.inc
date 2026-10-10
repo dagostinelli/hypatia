@@ -7,12 +7,24 @@
 #define GLM_PERSP_LH glm::perspectiveLH_NO
 #define GLM_ORTHO_RH glm::orthoRH_NO
 #define GLM_ORTHO_LH glm::orthoLH_NO
+#define GLM_FRUSTUM_RH glm::frustumRH_NO
+#define GLM_FRUSTUM_LH glm::frustumLH_NO
+#define GLM_INFINITE_RH glm::infinitePerspectiveRH_NO
+#define GLM_INFINITE_LH glm::infinitePerspectiveLH_NO
+#define GLM_PROJECT glm::projectNO
+#define GLM_UNPROJECT glm::unProjectNO
 #define DEPTH_NAME "_NO"
 #else
 #define GLM_PERSP_RH glm::perspectiveRH_ZO
 #define GLM_PERSP_LH glm::perspectiveLH_ZO
 #define GLM_ORTHO_RH glm::orthoRH_ZO
 #define GLM_ORTHO_LH glm::orthoLH_ZO
+#define GLM_FRUSTUM_RH glm::frustumRH_ZO
+#define GLM_FRUSTUM_LH glm::frustumLH_ZO
+#define GLM_INFINITE_RH glm::infinitePerspectiveRH_ZO
+#define GLM_INFINITE_LH glm::infinitePerspectiveLH_ZO
+#define GLM_PROJECT glm::projectZO
+#define GLM_UNPROJECT glm::unProjectZO
 #define DEPTH_NAME "_ZO"
 #endif
 
@@ -637,6 +649,57 @@ static void matrices()
 		struct matrix4 h;
 		matrix4_view_lookat_lh(&h, &eye, &target, &up);
 		check(err_m4(h, glm::lookAtLH(gv(eye), gv(target), gv(up))), [&] { return sv(eye.v, 3) + sv(target.v, 3) + sv(up.v, 3) + " -> " + sm4(h); });
+	}
+	begin("projections", "matrix4_projection_frustum_rh", "glm::frustumRH" DEPTH_NAME);
+	for (int i = 0; i < N; i++) {
+		H l = r(-10, 5), rr = l + r(0.5, 20), b = r(-10, 5), t = b + r(0.5, 20), n = r(0.01, 2), fa = n + r(1, 1000);
+		struct matrix4 h;
+		matrix4_projection_frustum_rh(&h, l, rr, b, t, n, fa);
+		check(err_m4(h, GLM_FRUSTUM_RH(l, rr, b, t, n, fa)), [&] { return f(l) + ", " + f(rr) + ", " + f(b) + ", " + f(t) + ", " + f(n) + ", " + f(fa) + " -> " + sm4(h); });
+	}
+	begin("projections", "matrix4_projection_frustum_lh", "glm::frustumLH" DEPTH_NAME);
+	for (int i = 0; i < N; i++) {
+		H l = r(-10, 5), rr = l + r(0.5, 20), b = r(-10, 5), t = b + r(0.5, 20), n = r(0.01, 2), fa = n + r(1, 1000);
+		struct matrix4 h;
+		matrix4_projection_frustum_lh(&h, l, rr, b, t, n, fa);
+		check(err_m4(h, GLM_FRUSTUM_LH(l, rr, b, t, n, fa)), [&] { return f(l) + ", " + f(rr) + ", " + f(b) + ", " + f(t) + ", " + f(n) + ", " + f(fa) + " -> " + sm4(h); });
+	}
+	begin("projections", "matrix4_projection_perspective_fovy_infinite_rh", "glm::infinitePerspectiveRH" DEPTH_NAME);
+	for (int i = 0; i < N; i++) {
+		H fovy = r(0.2, 2.5), aspect = r(0.5, 2.5), n = r(0.01, 2);
+		struct matrix4 h;
+		matrix4_projection_perspective_fovy_infinite_rh(&h, fovy, aspect, n);
+		check(err_m4(h, GLM_INFINITE_RH(fovy, aspect, n)), [&] { return f(fovy) + ", " + f(aspect) + ", " + f(n) + " -> " + sm4(h); });
+	}
+	begin("projections", "matrix4_projection_perspective_fovy_infinite_lh", "glm::infinitePerspectiveLH" DEPTH_NAME);
+	for (int i = 0; i < N; i++) {
+		H fovy = r(0.2, 2.5), aspect = r(0.5, 2.5), n = r(0.01, 2);
+		struct matrix4 h;
+		matrix4_projection_perspective_fovy_infinite_lh(&h, fovy, aspect, n);
+		check(err_m4(h, GLM_INFINITE_LH(fovy, aspect, n)), [&] { return f(fovy) + ", " + f(aspect) + ", " + f(n) + " -> " + sm4(h); });
+	}
+	begin("projections", "vector3_project_to_window", "glm::project" DEPTH_NAME "(p, identity, M, viewport)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 eye = rv3(), target = rv3(), up = runit3(), p = rv3(), h = p;
+		M4 m = GLM_PERSP_RH(r(0.2, 2.5), r(0.5, 2.5), r(0.01, 2), r(10, 1000)) * glm::lookAtRH(gv(eye), gv(target), gv(up));
+		V4 viewport(r(-100, 100), r(-100, 100), r(1, 2000), r(1, 2000));
+		struct matrix4 hm = h4(m);
+		struct vector4 hvp = hv(viewport);
+		vector3_project_to_window(&h, &hm, &hvp);
+		struct vector3 g = hv(GLM_PROJECT(gv(p), M4(1), m, viewport));
+		check(err_v(h.v, g.v, 3), [&] { return sv(p.v, 3) + " -> " + sv(h.v, 3) + " vs " + sv(g.v, 3); });
+	}
+	begin("projections", "vector3_unproject_from_window", "glm::unProject" DEPTH_NAME "(w, identity, M, viewport)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 eye = rv3(), target = rv3(), up = runit3();
+		M4 m = GLM_PERSP_RH(r(0.2, 2.5), r(0.5, 2.5), r(0.5, 2), r(10, 100)) * glm::lookAtRH(gv(eye), gv(target), gv(up));
+		V4 viewport(r(-100, 100), r(-100, 100), r(1, 2000), r(1, 2000));
+		struct vector3 w = mk3(viewport.x + r(0, 1) * viewport.z, viewport.y + r(0, 1) * viewport.w, r(0, 0.9)), h = w;
+		struct matrix4 hm = h4(m);
+		struct vector4 hvp = hv(viewport);
+		vector3_unproject_from_window(&h, &hm, &hvp);
+		struct vector3 g = hv(GLM_UNPROJECT(gv(w), M4(1), m, viewport));
+		check(err_v(h.v, g.v, 3), [&] { return sv(w.v, 3) + " -> " + sv(h.v, 3) + " vs " + sv(g.v, 3); });
 	}
 #ifdef HAVE_CGLM
 	begin("projections", "matrix4_projection_perspective_fovy_rh", "cglm glm_perspective_rh_zo");
