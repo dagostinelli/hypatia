@@ -912,6 +912,7 @@ HYPAPI struct quaternion *quaternion_set_from_axis_anglev3(struct quaternion *se
 HYPAPI struct quaternion *quaternion_set_from_axis_anglef3(struct quaternion *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, HYP_FLOAT angle);
 
 HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
+HYPAPI struct quaternion *quaternion_set_from_matrix4(struct quaternion *self, const struct matrix4 *mT);
 HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az);
 
 HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR);
@@ -4028,6 +4029,54 @@ HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *
 	quaternion_normalize(self);
 
 	return self;
+}
+
+
+/**
+ * @ingroup quaternion
+ * @brief Sets the quaternion to the rotation in the upper 3x3 of a matrix4
+ * (applied as M * v).  The upper 3x3 must be a rotation; for a matrix with
+ * scale use matrix4_transformation_decompose.  The result is a unit
+ * quaternion.
+ *
+ * @param self the quaternion
+ * @param mT the rotation matrix
+ */
+HYPAPI struct quaternion *quaternion_set_from_matrix4(struct quaternion *self, const struct matrix4 *mT)
+{
+	HYP_FLOAT trace = mT->r00 + mT->r11 + mT->r22;
+	HYP_FLOAT s;
+
+	/* Shepperd: divide by the largest of 4w^2, 4x^2, 4y^2, 4z^2 so the square
+	 * root and the division stay accurate
+	 */
+	if (trace > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0) * HYP_SQRT(HYP_FLOAT_C(1.0) + trace);
+		self->w = s / HYP_FLOAT_C(4.0);
+		self->x = (mT->r21 - mT->r12) / s;
+		self->y = (mT->r02 - mT->r20) / s;
+		self->z = (mT->r10 - mT->r01) / s;
+	} else if (mT->r00 > mT->r11 && mT->r00 > mT->r22) {
+		s = HYP_FLOAT_C(2.0) * HYP_SQRT(HYP_FLOAT_C(1.0) + mT->r00 - mT->r11 - mT->r22);
+		self->w = (mT->r21 - mT->r12) / s;
+		self->x = s / HYP_FLOAT_C(4.0);
+		self->y = (mT->r01 + mT->r10) / s;
+		self->z = (mT->r02 + mT->r20) / s;
+	} else if (mT->r11 > mT->r22) {
+		s = HYP_FLOAT_C(2.0) * HYP_SQRT(HYP_FLOAT_C(1.0) + mT->r11 - mT->r00 - mT->r22);
+		self->w = (mT->r02 - mT->r20) / s;
+		self->x = (mT->r01 + mT->r10) / s;
+		self->y = s / HYP_FLOAT_C(4.0);
+		self->z = (mT->r12 + mT->r21) / s;
+	} else {
+		s = HYP_FLOAT_C(2.0) * HYP_SQRT(HYP_FLOAT_C(1.0) + mT->r22 - mT->r00 - mT->r11);
+		self->w = (mT->r10 - mT->r01) / s;
+		self->x = (mT->r02 + mT->r20) / s;
+		self->y = (mT->r12 + mT->r21) / s;
+		self->z = s / HYP_FLOAT_C(4.0);
+	}
+
+	return quaternion_normalize(self);
 }
 
 
