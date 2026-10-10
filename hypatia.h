@@ -4690,10 +4690,11 @@ HYPAPI struct quaternion *quaternion_multiply(struct quaternion *self, const str
 
 	struct quaternion r;
 
-	r.x = self->w * qT->x + self->x * qT->w + self->y * qT->z - self->z * qT->y;
-	r.y = self->w * qT->y - self->x * qT->z + self->y * qT->w + self->z * qT->x;
-	r.z = self->w * qT->z + self->x * qT->y - self->y * qT->x + self->z * qT->w;
-	r.w = self->w * qT->w - self->x * qT->x - self->y * qT->y - self->z * qT->z;
+	/* summed in pairs: a smaller rounding error than one running sum */
+	r.x = (self->w * qT->x + self->x * qT->w) + (self->y * qT->z - self->z * qT->y);
+	r.y = (self->w * qT->y + self->y * qT->w) + (self->z * qT->x - self->x * qT->z);
+	r.z = (self->w * qT->z + self->z * qT->w) + (self->x * qT->y - self->y * qT->x);
+	r.w = (self->w * qT->w - self->x * qT->x) - (self->y * qT->y + self->z * qT->z);
 
 	quaternion_set(self, &r); /* overwrite/save it */
 
