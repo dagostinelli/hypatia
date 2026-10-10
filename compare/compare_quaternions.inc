@@ -281,6 +281,34 @@ static void quaternions()
 		check(err_q(h, hq(glm::slerp(gq(a), gq(b), t))), [&] { return sq(a) + ", " + sq(b) + ", " + f(t) + " -> " + sq(h); });
 	}
 
+	/* the orientation of a camera */
+	begin("quaternions", "quaternion_set_look_rotation_rh", "glm::quatLookAtRH(normalize(d), up)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 d = rv3(), up = runit3();
+		struct quaternion h;
+		quaternion_set_look_rotation_rh(&h, &d, &up);
+		check(err_qr(h, hq(glm::quatLookAtRH(glm::normalize(gv(d)), gv(up)))), [&] { return sv(d.v, 3) + ", " + sv(up.v, 3) + " -> " + sq(h); });
+	}
+	begin("quaternions", "quaternion_set_look_rotation_lh", "glm::quatLookAtLH(normalize(d), up)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 d = rv3(), up = runit3();
+		struct quaternion h;
+		quaternion_set_look_rotation_lh(&h, &d, &up);
+		check(err_qr(h, hq(glm::quatLookAtLH(glm::normalize(gv(d)), gv(up)))), [&] { return sv(d.v, 3) + ", " + sv(up.v, 3) + " -> " + sq(h); });
+	}
+#ifdef HAVE_CGLM
+	begin("quaternions", "quaternion_set_look_rotation_rh", "cglm glm_quat_for(d, up)");
+	for (int i = 0; i < N; i++) {
+		struct vector3 d = rv3(), up = runit3();
+		struct quaternion h;
+		quaternion_set_look_rotation_rh(&h, &d, &up);
+		vec3 cd = {d.x, d.y, d.z}, cu = {up.x, up.y, up.z};
+		versor c;
+		glm_quat_for(cd, cu, c);
+		check(err_qr(h, mkq(c[0], c[1], c[2], c[3])), [&] { return sv(d.v, 3) + ", " + sv(up.v, 3) + " -> " + sq(h); });
+	}
+#endif
+
 	/* rotation between vectors */
 	begin("quaternions", "quaternion_get_rotation_tov3", "glm::rotation(normalize(a), normalize(b))", "near opposite GLM is less accurate: see the accuracy table");
 	for (int i = 0; i < N; i++) {
