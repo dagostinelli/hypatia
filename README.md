@@ -108,6 +108,7 @@ Changes in 2.1
 --------------
 Results that differ from 2.0:
 
+* `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
 
 Documentation
