@@ -25,8 +25,13 @@
 #	endif
 #endif
 
-#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
-#	error "define at most one of HYPATIA_SINGLE_PRECISION_FLOATS and HYPATIA_LONG_DOUBLE_PRECISION_FLOATS"
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) + defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) + defined(HYPATIA_QUAD_PRECISION_FLOATS) > 1
+#	error "define at most one of HYPATIA_SINGLE_PRECISION_FLOATS, HYPATIA_LONG_DOUBLE_PRECISION_FLOATS and HYPATIA_QUAD_PRECISION_FLOATS"
+#endif
+
+/* GCC defines __FLT128_MANT_DIG__ where it has _Float128 and the f128 suffix */
+#if defined(HYPATIA_QUAD_PRECISION_FLOATS) && !defined(__FLT128_MANT_DIG__)
+#	error "HYPATIA_QUAD_PRECISION_FLOATS needs a compiler with the _Float128 type and the f128 literal suffix, such as GCC 7 or later on x86 or AArch64"
 #endif
 
 #ifndef HYP_FLOAT
@@ -34,6 +39,8 @@
 #		define HYP_FLOAT float
 #	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_FLOAT long double
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_FLOAT _Float128
 #	else
 #		define HYP_FLOAT double
 #	endif
@@ -48,12 +55,20 @@
 #		define HYP_FLOAT_C(x) x ## f
 #	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_FLOAT_C(x) x ## L
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_FLOAT_C(x) x ## f128
 #	else
 #		define HYP_FLOAT_C(x) x
 #	endif
 #endif
 
+/* <math.h> declares sinf128, cosf128 and the other _Float128 functions when
+ * __STDC_WANT_IEC_60559_TYPES_EXT__ is defined before it is first included
+ */
 #ifndef HYP_NO_C_MATH
+#	if defined(HYPATIA_QUAD_PRECISION_FLOATS) && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
+#		define __STDC_WANT_IEC_60559_TYPES_EXT__
+#	endif
 #	include <math.h> /* sin, cos, acos, fmod */
 #endif
 
@@ -62,6 +77,11 @@
 #	if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
 #		error "HYPATIA_LONG_DOUBLE_PRECISION_FLOATS needs the C99 math functions (sinl, cosl, ...); compile as C99 or later, or define HYP_NO_C_MATH and supply the math macros"
 #	endif
+#endif
+
+/* <math.h> defines HUGE_VAL_F128 when it declares sinf128, cosf128, ... */
+#if defined(HYPATIA_QUAD_PRECISION_FLOATS) && defined(__FLT128_MANT_DIG__) && !defined(HYP_NO_C_MATH) && !defined(HUGE_VAL_F128)
+#	error "HYPATIA_QUAD_PRECISION_FLOATS needs sinf128, cosf128, ... from <math.h> (glibc 2.26 or later); define __STDC_WANT_IEC_60559_TYPES_EXT__ before the first #include <math.h>, or define HYP_NO_C_MATH and supply the math macros"
 #endif
 
 #ifndef HYP_NO_STDIO
@@ -141,6 +161,8 @@
 #		define HYP_EPSILON 1E-5f
 #	elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_EPSILON 1E-5L
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_EPSILON 1E-5f128
 #	else
 #		define HYP_EPSILON 1E-5
 #	endif
@@ -226,8 +248,10 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 
 /** @brief A macro that finds the square root of a value */
 #ifndef HYP_SQRT
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_SQRT(number) sqrtl(number)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_SQRT(number) sqrtf128(number)
 #	else
 #		define HYP_SQRT(number) ((HYP_FLOAT)sqrt(number))
 #	endif
@@ -235,8 +259,10 @@ static HYP_INLINE HYP_FLOAT HYP_SQUARE(HYP_FLOAT number)
 
 /** @brief A macro that computes the floating-point remainder */
 #ifndef HYP_FMOD
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_FMOD(x, y) fmodl(x, y)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_FMOD(x, y) fmodf128(x, y)
 #	else
 #		define HYP_FMOD(x, y) ((HYP_FLOAT)fmod(x, y))
 #	endif
@@ -392,43 +418,55 @@ HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max);
  */
 
 #ifndef HYP_SIN
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_SIN(x) sinl(x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_SIN(x) sinf128(x)
 #	else
 #		define HYP_SIN(x) ((HYP_FLOAT)sin(x))
 #	endif
 #endif
 #ifndef HYP_COS
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_COS(x) cosl(x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_COS(x) cosf128(x)
 #	else
 #		define HYP_COS(x) ((HYP_FLOAT)cos(x))
 #	endif
 #endif
 #ifndef HYP_TAN
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_TAN(x) tanl(x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_TAN(x) tanf128(x)
 #	else
 #		define HYP_TAN(x) ((HYP_FLOAT)tan(x))
 #	endif
 #endif
 #ifndef HYP_ASIN
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_ASIN(x) asinl(x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_ASIN(x) asinf128(x)
 #	else
 #		define HYP_ASIN(x) ((HYP_FLOAT)asin(x))
 #	endif
 #endif
 #ifndef HYP_ACOS
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_ACOS(x) acosl(x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_ACOS(x) acosf128(x)
 #	else
 #		define HYP_ACOS(x) ((HYP_FLOAT)acos(x))
 #	endif
 #endif
 #ifndef HYP_ATAN2
-#	ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 #		define HYP_ATAN2(y, x) atan2l(y, x)
+#	elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+#		define HYP_ATAN2(y, x) atan2f128(y, x)
 #	else
 #		define HYP_ATAN2(y, x) ((HYP_FLOAT)atan2(y, x))
 #	endif
@@ -1113,7 +1151,8 @@ HYPAPI HYP_FLOAT scalar_random_rangef(HYP_FLOAT min, HYP_FLOAT max)
 
 #ifndef HYP_NO_STDIO
 /* prints prefix and then value.  %10f shows six decimals; converting to
- * double avoids %Lf, which MinGW's printf does not support by default.
+ * double avoids %Lf, which MinGW's printf does not support by default, and
+ * printf has no conversion for _Float128.
  */
 static void hyp_print_value(const char *prefix, HYP_FLOAT value)
 {
