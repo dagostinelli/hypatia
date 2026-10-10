@@ -3905,7 +3905,7 @@ HYPAPI struct quaternion *quaternion_multiplyv3(struct quaternion *self, const s
 	r.x = self->w * vT->x + self->y * vT->z - self->z * vT->y;
 	r.y = self->w * vT->y - self->x * vT->z + self->z * vT->x;
 	r.z = self->w * vT->z + self->x * vT->y - self->y * vT->x;
-	r.w = self->x * vT->x - self->y * vT->y - self->z * vT->z;
+	r.w = - self->x * vT->x - self->y * vT->y - self->z * vT->z;
 
 	quaternion_set(self, &r); /* overwrite/save it */
 
