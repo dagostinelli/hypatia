@@ -19,6 +19,14 @@
 #	error "HYP_NO_DEPRECATED should remove the _EXP names of promoted functions"
 #endif
 
+/* with HYP_NO_DEPRECATED the deprecated function names are free: if they
+ * were still declared, these would not compile
+ */
+enum deprecated_names {
+	quaternion_cross_product_EXP,
+	quaternion_axis_between_EXP
+};
+
 #define DRAWS 100000
 
 static int scalar_random_rangef_stays_in_range(HYP_FLOAT min, HYP_FLOAT max)

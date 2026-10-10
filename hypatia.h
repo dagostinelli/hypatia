@@ -945,7 +945,6 @@ HYPAPI struct quaternion *quaternion_rotate_by_axis_angle(struct quaternion *sel
 HYPAPI struct quaternion *quaternion_rotate_by_euler_angles(struct quaternion *self, HYP_FLOAT ax, HYP_FLOAT ay, HYP_FLOAT az);
 HYPAPI HYP_FLOAT quaternion_difference(const struct quaternion *q1, const struct quaternion *q2);
 HYPAPI HYP_FLOAT quaternion_angle_between(const struct quaternion *self, const struct quaternion *qT);
-HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR);
 HYPAPI struct matrix4 *matrix4_projection_perspective_fovy_rh(struct matrix4 *self, HYP_FLOAT fovy, HYP_FLOAT aspect, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_rh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_view_lookat_rh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
@@ -958,7 +957,6 @@ HYPAPI struct vector3 *vector3_project_to_window(struct vector3 *self, const str
 HYPAPI struct vector3 *vector3_unproject_from_window(struct vector3 *self, const struct matrix4 *transform, const struct vector4 *viewport);
 HYPAPI struct matrix4 *matrix4_projection_ortho3d_lh(struct matrix4 *self, HYP_FLOAT xmin, HYP_FLOAT xmax, HYP_FLOAT ymin, HYP_FLOAT ymax, HYP_FLOAT zNear, HYP_FLOAT zFar);
 HYPAPI struct matrix4 *matrix4_view_lookat_lh(struct matrix4 *self, const struct vector3 *eye, const struct vector3 *target, const struct vector3 *up);
-HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
 HYPAPI struct matrix4 *matrix4_set_from_quaternion(struct matrix4 *self, const struct quaternion *qT);
 HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle(struct matrix4 *self, const struct vector3 *axis, HYP_FLOAT angle);
 HYPAPI struct matrix4 *matrix4_set_from_axisf3_angle(struct matrix4 *self, HYP_FLOAT x, HYP_FLOAT y, HYP_FLOAT z, const HYP_FLOAT angle);
@@ -967,6 +965,11 @@ HYPAPI struct vector3 *matrix4_get_translation(const struct matrix4 *self, struc
 HYPAPI struct matrix4 *matrix4_make_transformation_rotationv3(struct matrix4 *self, const struct vector3 *vR);
 HYPAPI struct matrix4 *matrix4_transformation_compose(struct matrix4 *self, const struct vector3 *scale, const struct quaternion *rotation, const struct vector3 *translation);
 HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vector3 *scale, struct quaternion *rotation, struct vector3 *translation);
+
+#ifndef HYP_NO_DEPRECATED
+HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT);
+HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR);
+#endif
 
 #endif /* HYPATIA_H_ */
 
@@ -5157,12 +5160,17 @@ HYPAPI struct quaternion *quaternion_rotate_by_euler_angles(struct quaternion *s
 }
 
 
+#ifndef HYP_NO_DEPRECATED
 /**
  * @ingroup experimental
  * @brief This code is suspect.  Computes the cross-product on the vector
  * portion and then something that resembles a negated dot product on the
  * real portion.
  *
+ * @deprecated It is not a quaternion operation.  For the cross product of the
+ * vector parts use vector3_cross_product.  quaternion_cross_product_EXP will
+ * be removed in a later release; define HYP_NO_DEPRECATED to check that your
+ * code no longer uses it.
  */
 HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *self, const struct quaternion *vT)
 {
@@ -5180,6 +5188,7 @@ HYPAPI struct quaternion quaternion_cross_product_EXP(const struct quaternion *s
 
 	return r;
 }
+#endif
 
 
 /**
@@ -5216,11 +5225,18 @@ HYPAPI HYP_FLOAT quaternion_angle_between(const struct quaternion *self, const s
 }
 
 
+#ifndef HYP_NO_DEPRECATED
 /**
  * @ingroup experimental
  * @brief This code is suspect. Treats two quaternions sort of like 2 vector4's
  * and then computes the cross-product between them.
  *
+ * @deprecated It is not the axis of the rotation between them.  That axis is
+ * the axis of the rotation from self to qT (quaternion_get_axis_anglev3 of the
+ * product of the inverse of self and qT); for two vectors use
+ * quaternion_get_rotation_tov3.  quaternion_axis_between_EXP will be removed in
+ * a later release; define HYP_NO_DEPRECATED to check that your code no longer
+ * uses it.
  */
 HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const struct quaternion *qT, struct quaternion *qR)
 {
@@ -5230,6 +5246,7 @@ HYPAPI void quaternion_axis_between_EXP(const struct quaternion *self, const str
 	quaternion_set(qR, &axis);
 	quaternion_normalize(qR);
 }
+#endif
 
 
 /**

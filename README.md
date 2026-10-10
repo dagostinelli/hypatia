@@ -129,6 +129,7 @@ Results that differ from 2.0:
 * `vector3_rotate_by_quaternion` rotates by a quaternion of any length without scaling the vector; the axis-angle functions accept an axis of any length.
 * `HYP_WRAP` wraps into [start, limit) for any start.
 * The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.
+* `quaternion_axis_between_EXP` and `quaternion_cross_product_EXP` are deprecated: they are not the operations their names describe (`HYP_NO_DEPRECATED` removes them).
 
 Documentation
 -------------
