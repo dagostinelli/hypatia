@@ -20,6 +20,12 @@ Results that differ from 2.0:
   the axis (a sign in quaternion_multiplyv3).
 * matrix4_multiplyv2 treats the vector as (x, y, 0, 1); 2.0 added the third
   column as if z were 1.
+* matrix2/3/4_inverse return NULL only when the determinant is exactly zero
+  (or NaN).  2.0 returned NULL when it was within HYP_EPSILON of zero, so a
+  4x4 scale of 0.02 had no inverse.
+* matrix2/3/4_invert return NULL, and leave the matrix unchanged, when it
+  has no inverse.  2.0 returned the matrix in both cases, so the caller
+  could not tell.
 
 Known problems in 2.1:
 
