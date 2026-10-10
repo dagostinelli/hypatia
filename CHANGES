@@ -17,3 +17,8 @@ These experimental functions give wrong results; do not use them.
   as different rotations.
 * quaternion_axis_between_EXP and quaternion_cross_product_EXP are not the
   operations their names describe.
+
+Documentation and tests:
+
+* Tests for the matrix4 multiply properties, quaternion_inverse with unit
+  and non-unit quaternions, and the slerp shortest arc.
