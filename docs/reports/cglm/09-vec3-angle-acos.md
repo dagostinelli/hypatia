@@ -1,4 +1,4 @@
-# `glm_vec3_angle` returns 0 for vectors up to 4.9e-4 rad apart, and NaN for a zero vector
+# `glm_vec3_angle` returns 0 for vectors up to about 6e-4 rad apart, and NaN for a zero vector
 
 | | |
 |---|---|
@@ -10,11 +10,15 @@
 
 ## Summary
 
-`glm_vec3_angle` is `acosf` of the normalized dot product.  Near 0 the dot product rounds
-to 1 for every angle below sqrt(2 FLT_EPSILON) = 4.9e-4 rad, and the result is 0: vectors
-1e-4 rad apart have an angle of 0.  Above that threshold the relative error is still about
-epsilon / angle^2.  With a zero vector, `1.0f / 0` gives inf, `0 * inf` gives NaN, and the
-clamps let NaN through.
+`glm_vec3_angle` is `acosf` of the dot product times the reciprocal of the product of the
+norms, and returns 0 when that is above 1.  Near 0 the result is 0 whenever the scaled
+dot product rounds to 1 or above.  For X and `(cosf(a), sinf(a), 0)`, a scan of every
+float angle a from 1e-5 rad (not shown) finds 0 for every a below 2.99e-4 rad and for 21%
+of the angles between 2.99e-4 and 4.57e-4 rad; the program below shows 1e-4 and 4.5e-4.
+Over random pairs of unit vectors 6e-4 rad apart, the program finds 2918 of 100000 give 0.
+The nonzero results are coarse: the float just below 1 is 1 - 2^-24, whose acos is
+3.45e-4, so 3e-4 and 4e-4 both give 3.45e-4.  With a zero vector, `1.0f / 0` gives inf,
+`0 * inf` gives NaN, and the comparisons let NaN through.
 
 ## Reproduction
 
@@ -23,12 +27,31 @@ clamps let NaN through.
 #include <math.h>
 #include <stdio.h>
 
+static unsigned long long state = 88172645463325252ULL;
+static double rnd(void) { state ^= state << 13; state ^= state >> 7; state ^= state << 17; return (state >> 11) * (1.0 / 9007199254740992.0); }
+
 int main(void)
 {
-	vec3 x = {1, 0, 0}, near = {cosf(1e-4f), sinf(1e-4f), 0}, zero = {0, 0, 0};
+	float angles[4] = {1e-4f, 3e-4f, 4e-4f, 4.5e-4f};
+	vec3 x = {1, 0, 0}, zero = {0, 0, 0};
+	int i, k, zeros = 0;
 
-	printf("angle between X and a vector 1e-4 rad from it: %g\n", glm_vec3_angle(x, near));
-	printf("angle between X and the zero vector:           %g\n", glm_vec3_angle(x, zero));
+	for (i = 0; i < 4; i++) {
+		vec3 y = {cosf(angles[i]), sinf(angles[i]), 0};
+		printf("angle between X and a vector %g rad from it: %g\n", angles[i], glm_vec3_angle(x, y));
+	}
+	/* random unit vectors u and vectors 6e-4 rad from them */
+	for (i = 0; i < 100000; i++) {
+		double u[3], w[3], n = 0, d = 0, m = 0;
+		vec3 p, q;
+		for (k = 0; k < 3; k++) { u[k] = 2 * rnd() - 1; n += u[k] * u[k]; }
+		for (k = 0; k < 3; k++) { u[k] /= sqrt(n); w[k] = 2 * rnd() - 1; d += w[k] * u[k]; }
+		for (k = 0; k < 3; k++) { w[k] -= d * u[k]; m += w[k] * w[k]; }
+		for (k = 0; k < 3; k++) { p[k] = (float)u[k]; q[k] = (float)(u[k] * cos(6e-4) + w[k] / sqrt(m) * sin(6e-4)); }
+		zeros += glm_vec3_angle(p, q) == 0;
+	}
+	printf("random pairs 6e-4 rad apart: %d of 100000 give 0\n", zeros);
+	printf("angle between X and the zero vector: %g\n", glm_vec3_angle(x, zero));
 	return 0;
 }
 ```
@@ -36,11 +59,16 @@ int main(void)
 Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
-angle between X and a vector 1e-4 rad from it: 0
-angle between X and the zero vector:           -nan
+angle between X and a vector 0.0001 rad from it: 0
+angle between X and a vector 0.0003 rad from it: 0.000345267
+angle between X and a vector 0.0004 rad from it: 0.000345267
+angle between X and a vector 0.00045 rad from it: 0
+random pairs 6e-4 rad apart: 2918 of 100000 give 0
+angle between X and the zero vector: -nan
 ```
 
-Expected: 1e-4 (to within float precision), and a defined value (0) for the zero vector.
+Expected: each angle to within float precision, no zeros among the random pairs, and a
+defined value (0) for the zero vector.
 
 ## Cause
 
@@ -61,25 +89,44 @@ every angle; the angle with a zero vector is 0.
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
 #define HYPATIA_IMPLEMENTATION
-#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include "hypatia.h"
 
+static unsigned long long state = 88172645463325252ULL;
+static double rnd(void) { state ^= state << 13; state ^= state >> 7; state ^= state << 17; return (state >> 11) * (1.0 / 9007199254740992.0); }
+
 int main(void)
 {
-	struct vector3 near;
+	float angles[4] = {1e-4f, 3e-4f, 4e-4f, 4.5e-4f};
+	struct vector3 y, p, q;
+	int i, k, zeros = 0;
 
-	vector3_setf3(&near, cosf(1e-4f), sinf(1e-4f), 0);
-	printf("angle between X and a vector 1e-4 rad from it: %g\n", vector3_angle_between(HYP_VECTOR3_UNIT_X, &near));
-	printf("angle between X and the zero vector:           %g\n", vector3_angle_between(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_ZERO));
+	for (i = 0; i < 4; i++) {
+		vector3_setf3(&y, cosf(angles[i]), sinf(angles[i]), 0);
+		printf("angle between X and a vector %g rad from it: %g\n", angles[i], vector3_angle_between(HYP_VECTOR3_UNIT_X, &y));
+	}
+	for (i = 0; i < 100000; i++) {
+		double u[3], w[3], n = 0, d = 0, m = 0;
+		for (k = 0; k < 3; k++) { u[k] = 2 * rnd() - 1; n += u[k] * u[k]; }
+		for (k = 0; k < 3; k++) { u[k] /= sqrt(n); w[k] = 2 * rnd() - 1; d += w[k] * u[k]; }
+		for (k = 0; k < 3; k++) { w[k] -= d * u[k]; m += w[k] * w[k]; }
+		for (k = 0; k < 3; k++) { p.v[k] = (float)u[k]; q.v[k] = (float)(u[k] * cos(6e-4) + w[k] / sqrt(m) * sin(6e-4)); }
+		zeros += vector3_angle_between(&p, &q) == 0;
+	}
+	printf("random pairs 6e-4 rad apart: %d of 100000 give 0\n", zeros);
+	printf("angle between X and the zero vector: %g\n", vector3_angle_between(HYP_VECTOR3_UNIT_X, HYP_VECTOR3_ZERO));
 	return 0;
 }
 ```
 
 ```text
-angle between X and a vector 1e-4 rad from it: 0.0001
-angle between X and the zero vector:           0
+angle between X and a vector 0.0001 rad from it: 0.0001
+angle between X and a vector 0.0003 rad from it: 0.0003
+angle between X and a vector 0.0004 rad from it: 0.0004
+angle between X and a vector 0.00045 rad from it: 0.00045
+random pairs 6e-4 rad apart: 0 of 100000 give 0
+angle between X and the zero vector: 0
 ```
 
 ## Suggested fix
