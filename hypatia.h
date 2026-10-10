@@ -873,7 +873,7 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
 
 
-#include <stdint.h>
+#include <stdint.h> /* uint8_t; C99, kept by design (see the README coding standard) */
 
 HYPAPI struct quaternion *quaternion_rotate_by_quaternion_EXP(struct quaternion *self, const struct quaternion *qT);
 HYPAPI struct quaternion *quaternion_rotate_by_axis_angle_EXP(struct quaternion *self, const struct vector3 *axis, HYP_FLOAT angle);
