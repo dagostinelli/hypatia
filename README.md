@@ -99,11 +99,17 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 | `HYP_MEMSET(a, b, c)` | Replaces `memset`. | `memset` from `<string.h>` |
 | `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source of `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX`; define both or neither. | `rand()`, `RAND_MAX` |
 
+**Projections**
+
+| Macro | Effect | Default |
+|---|---|---|
+| `HYP_DEPTH_MINUS_ONE_TO_ONE` | The projection functions map depth to -1..1 (OpenGL) instead of 0..1 (Direct3D, Vulkan, Metal). | |
+
 **Deprecation**
 
 | Macro | Effect | Default |
 |---|---|---|
-| `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_RANDOM_FLOAT`, `HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
+| `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_RANDOM_FLOAT`, `HYP_PIOVER180`, `HYP_PIUNDER180`, and the `_EXP` names of the functions that left the experimental group), to check that code no longer uses them. | |
 
 Changes in 2.1
 --------------
@@ -111,6 +117,7 @@ Results that differ from 2.0:
 
 * `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
+* The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.
 
 Documentation
 -------------

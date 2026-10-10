@@ -434,7 +434,7 @@ static const char *test_quaternion_rotate_by_quaternion_identity(void)
 	quaternion_set_from_euler_anglesf3(&q1,
 		in_anglex, in_angley, in_anglez);
 
-	quaternion_rotate_by_quaternion_EXP(&q1,
+	quaternion_rotate_by_quaternion(&q1,
 	    quaternion_identity(&scratchQuaternion));
 
 	/* get the angles */
@@ -447,7 +447,7 @@ static const char *test_quaternion_rotate_by_quaternion_identity(void)
 
 
 	quaternion_identity(&q1);
-	quaternion_rotate_by_quaternion_EXP(&q1,
+	quaternion_rotate_by_quaternion(&q1,
 		quaternion_set_from_euler_anglesf3(&scratchQuaternion,
 			in_anglex, in_angley, in_anglez));
 

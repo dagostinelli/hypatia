@@ -68,7 +68,7 @@ static const char *test_integration_trs_roundtrip(void)
 		struct matrix4 scaleOnly;
 
 		matrix4_make_transformation_scalingv3(&scaleOnly, &scale);
-		matrix4_transformation_decompose_EXP(&scaleOnly,
+		matrix4_transformation_decompose(&scaleOnly,
 			&out_scale, &out_rotation, &out_translation);
 		test_assert(vector3_equals(&out_scale, &scale));
 	}
@@ -267,10 +267,48 @@ static const char *test_integration_vector2_matrix3_rotation(void)
 }
 
 
+/**
+ * quaternion_rotate_by_euler_angles and matrix4_set_from_euler_anglesf3
+ * rotate about X, then Y, then Z
+ */
+static const char *test_integration_rotate_by_euler_angles(void)
+{
+	struct quaternion q;
+	struct quaternion step;
+	struct vector3 vEuler;
+	struct vector3 vSteps;
+	struct vector3 v;
+
+	vector3_setf3(&v, HYP_FLOAT_C(0.3), -HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.8));
+
+	quaternion_identity(&q);
+	quaternion_rotate_by_euler_angles(&q, HYP_FLOAT_C(0.4), -HYP_FLOAT_C(1.1), HYP_FLOAT_C(2.0));
+	vector3_rotate_by_quaternion(vector3_set(&vEuler, &v), &q);
+
+	vector3_set(&vSteps, &v);
+	vector3_rotate_by_quaternion(&vSteps, quaternion_set_from_axis_anglev3(&step, HYP_VECTOR3_UNIT_X, HYP_FLOAT_C(0.4)));
+	vector3_rotate_by_quaternion(&vSteps, quaternion_set_from_axis_anglev3(&step, HYP_VECTOR3_UNIT_Y, -HYP_FLOAT_C(1.1)));
+	vector3_rotate_by_quaternion(&vSteps, quaternion_set_from_axis_anglev3(&step, HYP_VECTOR3_UNIT_Z, HYP_FLOAT_C(2.0)));
+
+	test_assert(vector3_equals(&vEuler, &vSteps));
+
+	/* the matrix from the same angles turns v the same way */
+	{
+		struct matrix4 m;
+		struct vector3 vMatrix;
+
+		matrix4_set_from_euler_anglesf3(&m, HYP_FLOAT_C(0.4), -HYP_FLOAT_C(1.1), HYP_FLOAT_C(2.0));
+		matrix4_multiplyv3(&m, &v, &vMatrix);
+		test_assert(vector3_equals(&vMatrix, &vSteps));
+	}
+
+	return NULL;
+}
 static const char *integration_all_tests(void)
 {
 	run_test(test_integration_trs_roundtrip);
 	run_test(test_integration_quaternion_matrix_rotation_equivalence);
+	run_test(test_integration_rotate_by_euler_angles);
 	run_test(test_integration_matrix_multiply_chain);
 	run_test(test_integration_vector2_matrix2_rotation);
 	run_test(test_integration_vector2_matrix3_translate_scale);

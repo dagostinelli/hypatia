@@ -25,6 +25,7 @@ endfunction()
 
 hyp_add_test(test_hypatia main.c implementation.c)
 hyp_add_test(test_random_default test_random_default.c)
+hyp_add_test(test_depth test_depth.c)
 hyp_add_test(test_hypatia_static test_static.c)
 
 # HYP_NO_C_MATH: the program supplies the math functions

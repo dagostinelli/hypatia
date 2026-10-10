@@ -768,7 +768,7 @@ static const char *test_matrix4_inverse(void)
 	matrix4_identity(&originalMatrix);
 	matrix4_multiply(&originalMatrix, matrix4_make_transformation_scalingv3(&scratchMatrix, vector3_setf3(&scratchVector, HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.5), HYP_FLOAT_C(0.5))));
 	matrix4_multiply(&originalMatrix, matrix4_make_transformation_translationv3(&scratchMatrix, vector3_setf3(&scratchVector, HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.8), HYP_FLOAT_C(0.3))));
-	matrix4_multiply(&originalMatrix, matrix4_set_from_euler_anglesf3_EXP(&scratchMatrix, HYP_TAU / HYP_FLOAT_C(4.0), HYP_TAU / HYP_FLOAT_C(4.0), HYP_TAU / HYP_FLOAT_C(4.0)));
+	matrix4_multiply(&originalMatrix, matrix4_set_from_euler_anglesf3(&scratchMatrix, HYP_TAU / HYP_FLOAT_C(4.0), HYP_TAU / HYP_FLOAT_C(4.0), HYP_TAU / HYP_FLOAT_C(4.0)));
 
 	hasInverse = matrix4_invert(matrix4_set(&inverted, &originalMatrix));
 
