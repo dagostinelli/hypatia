@@ -15,9 +15,9 @@
 products of nearly equal numbers, so its rounding error is an epsilon of the inputs, not of
 the small result.  For rotations 1e-4 rad apart the program below measures a mean error of
 1775 epsilons relative to the angle (largest 9264), against 256 (largest 4558) with
-hypatia; the comparison harness, over other inputs, 1770 against 205.  The remaining error
-in both comes from the inputs themselves: a unit quaternion rounded to double cannot
-describe an angle of 1e-4 to better than about epsilon / 1e-4 relative.
+hypatia; the comparison harness, over other inputs, 1770 against 205.  The program's
+reference is the exact angle between the rounded inputs.  hypatia's remaining error comes
+from normalizing the rounded inputs in double; the subtraction that follows is exact.
 
 ## Reproduction
 
@@ -95,7 +95,8 @@ inputs and they cancel to a result 1e-4 times smaller.
 `a . b >= 0` (q and -q are the same rotation), and returns
 `4 atan2(|a - b|, |a + b|)`.  For unit quaternions at half-angle t, `|a - b| = 2 sin(t/2)`
 and `|a + b| = 2 cos(t/2)`; the differences of the components are exact for nearly equal
-quaternions (Sterbenz), so no digits cancel.
+quaternions (Sterbenz), so no digits cancel.  If either quaternion has zero length the
+result is 0.
 
 ```c
 #define HYPATIA_IMPLEMENTATION

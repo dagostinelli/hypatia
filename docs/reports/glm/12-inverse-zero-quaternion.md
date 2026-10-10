@@ -11,9 +11,10 @@
 ## Summary
 
 `glm::inverse(q)` is `conjugate(q) / dot(q, q)`: for the zero quaternion, 0/0 = NaN in
-every component.  `dot(q, q)` also overflows and underflows for components beyond
-1e154 / 1e-154, so very large or very small quaternions, which have inverses, give 0 or
-inf.
+every component.  `dot(q, q)` also overflows for components above about 1e154, and very
+large quaternions, which have inverses, give 0.  For components below about 1e-154 it is
+subnormal and loses precision, and below about 1.6e-162 it is exactly 0: the quaternion
+with w = 1e-200 gives inf in w and NaN (0/0) in x, y and z.
 
 ## Reproduction
 
@@ -50,7 +51,7 @@ Expected: a defined value for the zero quaternion (it has no inverse), and w = 1
 
 ## How hypatia does it
 
-`quaternion_inverse` divides the conjugate by |q|^2 when it is in the normal range;
+`quaternion_inverse` divides the conjugate by |q|^2 when it is between 1e-30 and 1e30;
 otherwise it computes `(q / |q|) / |q|` with a scaled normalization.  The zero quaternion,
 which has no inverse, is left unchanged.
 
@@ -81,8 +82,8 @@ inverse(w = 1e-200) = (w 1e+200, x -0, y -0, z -0)
 
 ## Suggested fix
 
-Check `dot(q, q)`: for zero, return the input (or document NaN); outside the normal range,
-divide by the length twice.
+Check `dot(q, q)`: for a zero quaternion, return the input (or document NaN); outside a
+safe range such as 1e-30 to 1e30, divide by the length twice, with a scaled normalization.
 
 ## Checking
 

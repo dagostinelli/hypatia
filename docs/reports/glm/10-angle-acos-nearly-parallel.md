@@ -11,10 +11,11 @@
 ## Summary
 
 `glm::angle` is `acos(clamp(dot(x, y), -1, 1))`.  Near 0 and pi the derivative of acos is
-infinite, so the rounding of the dot product (one epsilon) becomes an error of about
-about epsilon / angle in the angle: for unit vectors 1e-6 rad apart the result is off by
-4.4e-11 (a relative error of 4.4e-5), and below 1.5e-8 rad apart the dot product rounds to
-1 and the angle is 0.  In float the threshold is 4.9e-4 rad.
+infinite.  Just below 1 the dot product is rounded to within half an ulp, eps/4, and for
+an angle a near 0 that becomes an error of up to about eps/(4 a) in the angle: 5.6e-11 at
+1e-6 rad in double, where the program below shows 4.4e-11 (a relative error of 4.4e-5).
+Below about 1.05e-8 rad (2^-26.5) the cosine rounds to 1 and the angle is 0.  In float
+the threshold is about 2.44e-4 rad (2^-12).
 
 ## Reproduction
 
@@ -54,8 +55,8 @@ Expected: the angle to within a few epsilons (relative error about 1e-16).
 
 [`gtx/vector_angle.inl` line 20](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/gtx/vector_angle.inl#L20):
 `return acos(clamp(dot(x, y), T(-1), T(1)));`.  The cosine of a small angle a is
-1 - a^2/2; the dot product can only carry it to one epsilon, which leaves a^2 with an
-absolute error of 2 epsilon.
+1 - a^2/2; the dot product carries it with an absolute error of up to eps/4, which leaves
+a^2 with an absolute error of up to eps/2.
 
 ## How hypatia does it
 
@@ -97,8 +98,9 @@ vectors 1e-08 rad apart: vector3_angle_between = 1e-08, relative error 0
 ## Suggested fix
 
 `return atan2(length(cross(x, y)), dot(x, y));` for 3D (and `atan2(abs(x.x y.y - x.y y.x),
-dot(x, y))` for 2D).  It needs no clamp and does not require unit vectors when both are
-normalized first.
+dot(x, y))` for 2D).  It needs no clamp, and it is scale-invariant: x and y need not be
+unit vectors.  Normalizing them first only guards against overflow and underflow in the
+cross and dot products.
 
 ## Checking
 

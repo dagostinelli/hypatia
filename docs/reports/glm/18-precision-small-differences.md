@@ -1,4 +1,4 @@
-# Smaller precision differences: GLM has 2% to 21% more rounding error in thirteen measurements
+# Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements
 
 | | |
 |---|---|
@@ -19,17 +19,17 @@ second random seed):
 |---|---|---|---|---|
 | `glm::unProject` | `vector3_unproject_from_window` | 2.17 against 1.86 | 1.17 | the matrix inverse by 2x2 blocks |
 | `glm::lookAtRH` | `matrix4_view_lookat_rh` | 0.450 against 0.407 | 1.11 | the normalization of `hyp_normalize` |
-| `q * v` (unit q) | `vector3_rotate_by_quaternion` | 0.686 against 0.622 | 1.10 | `2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)` |
-| `glm::slerp`, 1e-6 rad apart | `quaternion_slerp` | 0.538 against 0.491 | 1.10 | the angle from `atan2(abs(s - t), abs(s + t))` |
+| `q * v` (unit q) | `vector3_rotate_by_quaternion` | 0.686 against 0.622 | 1.10 | `(2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)) / \|q\|^2` |
+| `glm::slerp`, 1e-6 rad apart | `quaternion_slerp` | 0.538 against 0.491 | 1.10 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
 | `glm::refract` | `vector3_refract` | 0.413 against 0.384 | 1.08 | the normalization of `hyp_normalize` |
 | `glm::inverse` (mat4, rotation, scale and translation) | `matrix4_inverse` | 0.0115 against 0.0108 (per unit of condition) | 1.06 | 2x2 blocks, determinant shared with the cofactors |
-| `glm::inverse` (mat4, condition 1e4) | `matrix4_inverse` | 1.01 against 0.963 | 1.05 | as above |
+| `glm::inverse` (mat4, condition 1e4) | `matrix4_inverse` | 1.01 against 0.963 | 1.05 | 2x2 blocks, determinant shared with the cofactors |
 | `glm::inverse` (mat3) | `matrix3_inverse` | 0.0784 against 0.0749 (per unit of condition) | 1.05 | division by the determinant instead of multiplication by its reciprocal |
-| `glm::inverse` (mat4, random) | `matrix4_inverse` | 0.0641 against 0.0623 (per unit of condition) | 1.03 | as above |
-| `glm::slerp`, random | `quaternion_slerp` | 0.487 against 0.468 | 1.04 | as above |
+| `glm::inverse` (mat4, random) | `matrix4_inverse` | 0.0641 against 0.0623 (per unit of condition) | 1.03 | 2x2 blocks, determinant shared with the cofactors |
+| `glm::slerp`, random | `quaternion_slerp` | 0.487 against 0.468 | 1.04 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
 | `quat * quat` | `quaternion_multiply` | 0.298 against 0.289 | 1.03 | the four products summed in pairs |
 | `glm::mat4_cast` | `matrix4_set_from_quaternion` | 0.598 against 0.581 | 1.03 | `2 / dot(q, q)` once, for any length of q |
-| `glm::slerp`, 1e-3 rad apart (float) | `quaternion_slerp` | 0.575 against 0.474 | 1.21 | as above |
+| `glm::slerp`, 1e-3 rad apart (float) | `quaternion_slerp` | 0.575 against 0.474 | 1.21 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
 
 These are fractions of an epsilon and rarely matter alone; they add up in long chains of
 transforms.  The program below measures the third row.
@@ -78,15 +78,16 @@ Output (x86-64, gcc 13.3, `-O2`):
 glm q * v: mean error 0.684 epsilons
 ```
 
-Expected: as small as the inputs allow; hypatia gets about 10% less.
+Expected: as small as the inputs allow; the hypatia program below prints a mean error of
+0.621 epsilons.
 
 ## Cause
 
 Each row has its own small cause.  For `q * v`
 ([`detail/type_quat.inl` lines 359-366](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/detail/type_quat.inl#L359-L366))
 the formula assumes `|q| = 1` exactly, while a unit quaternion rounded to double is off by
-about an epsilon, and the nested cross product `u x (u x v)` rounds twice; hypatia divides
-by `dot(q, q)` and uses one cross product and one dot product.
+about an epsilon, and the nested cross product `u x (u x v)` rounds twice; hypatia uses
+two dot products and one cross product, and divides by `dot(q, q)`.
 
 ## How hypatia does it
 

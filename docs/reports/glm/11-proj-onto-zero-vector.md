@@ -12,8 +12,9 @@
 
 `glm::proj(x, n)` is `dot(x, n) / dot(n, n) * n`.  For `n = 0` that is 0/0 = NaN in every
 component.  The projection onto the zero vector is the zero vector (the component of `x`
-along no direction).  Also, `dot(n, n)` overflows for components above 1e154 and
-underflows below 1e-154, giving NaN or inf for valid input.
+along no direction).  Also, `dot(n, n)` overflows for components above about 1e154.
+Below about 1e-154 it is subnormal and loses precision, and below about 1.6e-162 it is
+exactly 0, which gives NaN and inf for valid input: the second line below uses 1e-200.
 
 ## Reproduction
 
@@ -52,7 +53,7 @@ Expected: (0, 0, 0), and (0, 2, 0).
 
 ## How hypatia does it
 
-`vector3_project` divides by |n|^2 when it is in the normal range; otherwise it projects
+`vector3_project` divides by |n|^2 when it is between 1e-30 and 1e30; otherwise it projects
 onto the unit vector in the direction of n (scaled normalization, no overflow or
 underflow).  Projecting onto the zero vector gives the zero vector.
 
@@ -82,8 +83,9 @@ project((1, 2, 3), (0, 1e-200, 0)) = (0, 2, 0)
 
 ## Suggested fix
 
-Return the zero vector when `dot(Normal, Normal) == 0`; when it is outside the normal
-range, normalize `Normal` with scaling first and return `dot(x, n) * n`.
+Return the zero vector when `Normal` is zero; when `dot(Normal, Normal)` is outside a safe
+range such as 1e-30 to 1e30, normalize `Normal` with scaling first and return
+`dot(x, n) * n`.
 
 ## Checking
 
