@@ -1,15 +1,7 @@
-Remaining Work:
-
-- Add all the variations of rotations with a matrix using matrix4_set_from_quaternion, matrix4_set_from_axis_angle, matrix4_transformation_rotation_x,y,z
-- add a vector to a quat, add each element one by one
-- add a scalar to a quat, add the scalar to each element of the quat
-- is quaternion_dot_product an appropriate operation on a quaternion?
-
-
-API gaps:
-- matrix4 TRS constructor (translation + rotation + scale in one call)
-- quaternion <-> matrix3 conversions
-- consider optional by-value inline variants for small types for expression-style code
+Correctness:
+- Equality uses a fixed absolute tolerance (HYP_EPSILON, 1E-5 in both precisions): too
+  strict for large values (especially in single precision) and too loose for small
+  ones (1e-7 and 9e-6 compare equal). Consider relative / ULP-based comparisons.
 
 Long double support (planned):
 - A HYPATIA_LONG_DOUBLE_PRECISION_FLOATS mode: HYP_FLOAT long double, HYP_FLOAT_C(x) x ## L
@@ -19,7 +11,5 @@ Long double support (planned):
 
 Docs:
 - Publish the Doxygen output (.github/workflows/publish-docs.yml)
-- Add a conventions guide: handedness, row- vs column-major storage, angles in radians,
-  objects are mutated in place
 
 // end of TODO.txt ...
