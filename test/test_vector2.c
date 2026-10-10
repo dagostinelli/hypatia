@@ -364,6 +364,47 @@ static const char *test_vector2_clamp_min_max(void)
 }
 
 
+static const char *test_vector2_reflect(void)
+{
+	struct vector2 v, normal, e;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* off the floor: the part along the normal changes sign */
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	vector2_setf2(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+
+	/* the length of the normal does not matter, including lengths whose
+	 * squares underflow or overflow
+	 */
+	vector2_setf2(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(5.0));
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+	for (i = 0; i < 2; i++) {
+		vector2_setf2(&normal, HYP_FLOAT_C(0.0), lengths[i]);
+		vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+		test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0))));
+	}
+
+	/* off a diagonal wall: x and y swap */
+	vector2_setf2(&normal, HYP_FLOAT_C(1.0), -HYP_FLOAT_C(1.0));
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(4.0), HYP_FLOAT_C(3.0))));
+
+	/* a zero normal leaves the vector unchanged */
+	vector2_zero(&normal);
+	vector2_setf2(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0));
+	test_assert(vector2_equals(vector2_reflect(&v, &normal), vector2_setf2(&e, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0))));
+
+	return NULL;
+}
+
+
 static const char *test_vector2_project(void)
 {
 	struct vector2 v, onto, e;
@@ -490,6 +531,7 @@ static const char *vector2_all_tests(void)
 	run_test(test_vector2_lerp);
 	run_test(test_vector2_clamp_min_max);
 	run_test(test_vector2_project);
+	run_test(test_vector2_reflect);
 	run_test(test_vector2_set_random_unit_scripted);
 	run_test(test_vector2_set_random_unit_many);
 	run_test(test_vector2_set_random_in_disk);

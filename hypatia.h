@@ -439,6 +439,7 @@ HYPAPI struct vector2 *vector2_clamp(struct vector2 *self, const struct vector2 
 HYPAPI struct vector2 *vector2_min(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_max(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector2 *onto);
+HYPAPI struct vector2 *vector2_reflect(struct vector2 *self, const struct vector2 *normal);
 HYPAPI struct vector2 *vector2_add(struct vector2 *self, const struct vector2 *vT);
 HYPAPI struct vector2 *vector2_addf(struct vector2 *self, HYP_FLOAT fT);
 HYPAPI struct vector2 *vector2_subtract(struct vector2 *self, const struct vector2 *vT);
@@ -497,6 +498,7 @@ HYPAPI struct vector3 *vector3_clamp(struct vector3 *self, const struct vector3 
 HYPAPI struct vector3 *vector3_min(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto);
+HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector3 *normal);
 HYPAPI struct vector3 *vector3_add(struct vector3 *self, const struct vector3 *vT);
 HYPAPI struct vector3 *vector3_addf(struct vector3 *self, HYP_FLOAT fT);
 HYPAPI struct vector3 *vector3_subtract(struct vector3 *self, const struct vector3 *vT);
@@ -1301,6 +1303,34 @@ HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector
 }
 
 
+/**
+ * @ingroup vector2
+ * @brief Reflects self off a surface with the given normal: self - 2 (self . n) n
+ * for the unit normal n.  The normal does not need to be unit length; a zero
+ * normal leaves self unchanged.
+ */
+HYPAPI struct vector2 *vector2_reflect(struct vector2 *self, const struct vector2 *normal)
+{
+	struct vector2 direction;
+	HYP_FLOAT norm = vector2_dot_product(normal, normal);
+	HYP_FLOAT s;
+
+	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
+	 * when |normal|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, normal) / norm;
+		vector2_set(&direction, normal);
+	} else if (hyp_normalize(vector2_set(&direction, normal)->v, 2) > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, &direction);
+	} else {
+		return self;
+	}
+
+	return vector2_subtract(self, vector2_multiplyf(&direction, s));
+}
+
+
 HYPAPI struct vector2 *vector2_negate(struct vector2 *self)
 {
 	self->v[0] = -self->v[0];
@@ -1728,6 +1758,34 @@ HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector
 	length = vector3_dot_product(self, &direction);
 
 	return vector3_multiplyf(vector3_set(self, &direction), length);
+}
+
+
+/**
+ * @ingroup vector3
+ * @brief Reflects self off a surface with the given normal: self - 2 (self . n) n
+ * for the unit normal n.  The normal does not need to be unit length; a zero
+ * normal leaves self unchanged.
+ */
+HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector3 *normal)
+{
+	struct vector3 direction;
+	HYP_FLOAT norm = vector3_dot_product(normal, normal);
+	HYP_FLOAT s;
+
+	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
+	 * when |normal|^2 overflows or underflows
+	 */
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, normal) / norm;
+		vector3_set(&direction, normal);
+	} else if (hyp_normalize(vector3_set(&direction, normal)->v, 3) > HYP_FLOAT_C(0.0)) {
+		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, &direction);
+	} else {
+		return self;
+	}
+
+	return vector3_subtract(self, vector3_multiplyf(&direction, s));
 }
 
 

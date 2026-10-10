@@ -525,6 +525,49 @@ static const char *test_vector3_clamp_min_max(void)
 }
 
 
+static const char *test_vector3_reflect(void)
+{
+	struct vector3 v, normal, e, twice;
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-30), HYP_FLOAT_C(1e30) };
+#else
+	HYP_FLOAT lengths[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	int i;
+
+	/* off the floor: the part along the normal changes sign */
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+
+	/* the length of the normal does not matter, including lengths whose
+	 * squares underflow or overflow
+	 */
+	vector3_setf3(&normal, HYP_FLOAT_C(0.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+	for (i = 0; i < 2; i++) {
+		vector3_setf3(&normal, HYP_FLOAT_C(0.0), lengths[i], HYP_FLOAT_C(0.0));
+		vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+		test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+	}
+
+	/* reflecting twice gives the vector back, and the length is kept */
+	vector3_setf3(&normal, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(2.0));
+	vector3_setf3(&v, HYP_FLOAT_C(0.3), -HYP_FLOAT_C(0.7), HYP_FLOAT_C(0.2));
+	vector3_reflect(vector3_set(&twice, &v), &normal);
+	test_assert(scalar_equalsf(vector3_magnitude(&twice), vector3_magnitude(&v)));
+	test_assert(vector3_equals(vector3_reflect(&twice, &normal), &v));
+
+	/* a zero normal leaves the vector unchanged */
+	vector3_zero(&normal);
+	vector3_setf3(&v, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0));
+	test_assert(vector3_equals(vector3_reflect(&v, &normal), vector3_setf3(&e, HYP_FLOAT_C(3.0), -HYP_FLOAT_C(4.0), HYP_FLOAT_C(5.0))));
+
+	return NULL;
+}
+
+
 static const char *test_vector3_project(void)
 {
 	struct vector3 v, onto, e;
@@ -749,6 +792,7 @@ static const char *vector3_all_tests(void)
 	run_test(test_vector3_lerp);
 	run_test(test_vector3_clamp_min_max);
 	run_test(test_vector3_project);
+	run_test(test_vector3_reflect);
 	run_test(test_vector3_set_random_unit_scripted);
 	run_test(test_vector3_set_random_unit_many);
 	run_test(test_vector3_set_random_in_ball);
