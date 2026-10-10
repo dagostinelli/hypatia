@@ -3903,27 +3903,32 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
 }
 
 
-/* the 2x2 minors of the first two rows (s) and of the last two (c), and the
- * determinant from them (Laplace expansion).  The inverse shares them: the
- * determinant then comes from the same rounded values as the cofactors.
+/* the 4x4 in 2x2 blocks, self = [A B; C D], with X# the adjugate of X: the
+ * determinants of the blocks (|A|, |B|, |C|, |D|), A# B, D# C, and the
+ * determinant |A| |D| + |B| |C| - trace(A# B D# C).  The inverse and the
+ * determinant share it, so the two agree.
  */
-static HYP_FLOAT hyp_matrix4_minors(const struct matrix4 *m, HYP_FLOAT *s, HYP_FLOAT *c)
+static HYP_FLOAT hyp_matrix4_blocks(const struct matrix4 *m, HYP_FLOAT *blocks, HYP_FLOAT *ab, HYP_FLOAT *dc)
 {
-	s[0] = m->r00 * m->r11 - m->r10 * m->r01;
-	s[1] = m->r00 * m->r12 - m->r10 * m->r02;
-	s[2] = m->r00 * m->r13 - m->r10 * m->r03;
-	s[3] = m->r01 * m->r12 - m->r11 * m->r02;
-	s[4] = m->r01 * m->r13 - m->r11 * m->r03;
-	s[5] = m->r02 * m->r13 - m->r12 * m->r03;
+	blocks[0] = m->r00 * m->r11 - m->r01 * m->r10;
+	blocks[1] = m->r02 * m->r13 - m->r03 * m->r12;
+	blocks[2] = m->r20 * m->r31 - m->r21 * m->r30;
+	blocks[3] = m->r22 * m->r33 - m->r23 * m->r32;
 
-	c[0] = m->r20 * m->r31 - m->r30 * m->r21;
-	c[1] = m->r20 * m->r32 - m->r30 * m->r22;
-	c[2] = m->r20 * m->r33 - m->r30 * m->r23;
-	c[3] = m->r21 * m->r32 - m->r31 * m->r22;
-	c[4] = m->r21 * m->r33 - m->r31 * m->r23;
-	c[5] = m->r22 * m->r33 - m->r32 * m->r23;
+	/* A# = [r11 -r01; -r10 r00] */
+	ab[0] = m->r11 * m->r02 - m->r01 * m->r12;
+	ab[1] = m->r11 * m->r03 - m->r01 * m->r13;
+	ab[2] = m->r00 * m->r12 - m->r10 * m->r02;
+	ab[3] = m->r00 * m->r13 - m->r10 * m->r03;
 
-	return s[0] * c[5] - s[1] * c[4] + s[2] * c[3] + s[3] * c[2] - s[4] * c[1] + s[5] * c[0];
+	/* D# = [r33 -r23; -r32 r22] */
+	dc[0] = m->r33 * m->r20 - m->r23 * m->r30;
+	dc[1] = m->r33 * m->r21 - m->r23 * m->r31;
+	dc[2] = m->r22 * m->r30 - m->r32 * m->r20;
+	dc[3] = m->r22 * m->r31 - m->r32 * m->r21;
+
+	return (blocks[0] * blocks[3] + blocks[1] * blocks[2])
+		- ((ab[0] * dc[0] + ab[1] * dc[2]) + (ab[2] * dc[1] + ab[3] * dc[3]));
 }
 
 
@@ -3936,10 +3941,11 @@ static HYP_FLOAT hyp_matrix4_minors(const struct matrix4 *m, HYP_FLOAT *s, HYP_F
  */
 HYPAPI HYP_FLOAT matrix4_determinant(const struct matrix4 *self)
 {
-	HYP_FLOAT s[6];
-	HYP_FLOAT c[6];
+	HYP_FLOAT blocks[4];
+	HYP_FLOAT ab[4];
+	HYP_FLOAT dc[4];
 
-	return hyp_matrix4_minors(self, s, c);
+	return hyp_matrix4_blocks(self, blocks, ab, dc);
 }
 
 
@@ -3983,13 +3989,15 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
  */
 HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
 {
-	HYP_FLOAT s[6];
-	HYP_FLOAT c[6];
+	HYP_FLOAT blocks[4];
+	HYP_FLOAT ab[4];
+	HYP_FLOAT dc[4];
+	HYP_FLOAT x[4];
 	HYP_FLOAT determinant;
 	struct matrix4 inverse;
 	uint8_t i;
 
-	determinant = hyp_matrix4_minors(self, s, c);
+	determinant = hyp_matrix4_blocks(self, blocks, ab, dc);
 
 	/* only an exactly zero determinant has no inverse (written without ==
 	 * for -Wfloat-equal; a NaN determinant also returns NULL)
@@ -3998,26 +4006,47 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 		return NULL;
 	}
 
-	/* the cofactors, transposed (the adjugate) */
-	inverse.r00 = self->r11 * c[5] - self->r12 * c[4] + self->r13 * c[3];
-	inverse.r01 = -self->r01 * c[5] + self->r02 * c[4] - self->r03 * c[3];
-	inverse.r02 = self->r31 * s[5] - self->r32 * s[4] + self->r33 * s[3];
-	inverse.r03 = -self->r21 * s[5] + self->r22 * s[4] - self->r23 * s[3];
+	/* the blocks of the inverse, times the determinant:
+	 * [ (|D| A - B D# C)#  (|B| C - D (A# B)#)# ;
+	 *   (|C| B - A (D# C)#)#  (|A| D - C A# B)# ]
+	 */
+	x[0] = blocks[3] * self->r00 - (self->r02 * dc[0] + self->r03 * dc[2]);
+	x[1] = blocks[3] * self->r01 - (self->r02 * dc[1] + self->r03 * dc[3]);
+	x[2] = blocks[3] * self->r10 - (self->r12 * dc[0] + self->r13 * dc[2]);
+	x[3] = blocks[3] * self->r11 - (self->r12 * dc[1] + self->r13 * dc[3]);
+	inverse.r00 = x[3];
+	inverse.r01 = -x[1];
+	inverse.r10 = -x[2];
+	inverse.r11 = x[0];
 
-	inverse.r10 = -self->r10 * c[5] + self->r12 * c[2] - self->r13 * c[1];
-	inverse.r11 = self->r00 * c[5] - self->r02 * c[2] + self->r03 * c[1];
-	inverse.r12 = -self->r30 * s[5] + self->r32 * s[2] - self->r33 * s[1];
-	inverse.r13 = self->r20 * s[5] - self->r22 * s[2] + self->r23 * s[1];
+	x[0] = blocks[0] * self->r22 - (self->r20 * ab[0] + self->r21 * ab[2]);
+	x[1] = blocks[0] * self->r23 - (self->r20 * ab[1] + self->r21 * ab[3]);
+	x[2] = blocks[0] * self->r32 - (self->r30 * ab[0] + self->r31 * ab[2]);
+	x[3] = blocks[0] * self->r33 - (self->r30 * ab[1] + self->r31 * ab[3]);
+	inverse.r22 = x[3];
+	inverse.r23 = -x[1];
+	inverse.r32 = -x[2];
+	inverse.r33 = x[0];
 
-	inverse.r20 = self->r10 * c[4] - self->r11 * c[2] + self->r13 * c[0];
-	inverse.r21 = -self->r00 * c[4] + self->r01 * c[2] - self->r03 * c[0];
-	inverse.r22 = self->r30 * s[4] - self->r31 * s[2] + self->r33 * s[0];
-	inverse.r23 = -self->r20 * s[4] + self->r21 * s[2] - self->r23 * s[0];
+	/* (A# B)# = [ab3 -ab1; -ab2 ab0] */
+	x[0] = blocks[1] * self->r20 - (self->r22 * ab[3] - self->r23 * ab[2]);
+	x[1] = blocks[1] * self->r21 - (self->r23 * ab[0] - self->r22 * ab[1]);
+	x[2] = blocks[1] * self->r30 - (self->r32 * ab[3] - self->r33 * ab[2]);
+	x[3] = blocks[1] * self->r31 - (self->r33 * ab[0] - self->r32 * ab[1]);
+	inverse.r02 = x[3];
+	inverse.r03 = -x[1];
+	inverse.r12 = -x[2];
+	inverse.r13 = x[0];
 
-	inverse.r30 = -self->r10 * c[3] + self->r11 * c[1] - self->r12 * c[0];
-	inverse.r31 = self->r00 * c[3] - self->r01 * c[1] + self->r02 * c[0];
-	inverse.r32 = -self->r30 * s[3] + self->r31 * s[1] - self->r32 * s[0];
-	inverse.r33 = self->r20 * s[3] - self->r21 * s[1] + self->r22 * s[0];
+	/* (D# C)# = [dc3 -dc1; -dc2 dc0] */
+	x[0] = blocks[2] * self->r02 - (self->r00 * dc[3] - self->r01 * dc[2]);
+	x[1] = blocks[2] * self->r03 - (self->r01 * dc[0] - self->r00 * dc[1]);
+	x[2] = blocks[2] * self->r12 - (self->r10 * dc[3] - self->r11 * dc[2]);
+	x[3] = blocks[2] * self->r13 - (self->r11 * dc[0] - self->r10 * dc[1]);
+	inverse.r20 = x[3];
+	inverse.r21 = -x[1];
+	inverse.r30 = -x[2];
+	inverse.r31 = x[0];
 
 	/* divide rather than multiply by 1 / determinant, which overflows when the
 	 * determinant is very small and the inverse is not
