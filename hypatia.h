@@ -921,6 +921,8 @@ HYPAPI struct quaternion *quaternion_set_from_matrix4(struct quaternion *self, c
 HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az);
 
 HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *from, const struct vector3 *to, struct quaternion *qR);
+HYPAPI struct quaternion *quaternion_set_look_rotation_rh(struct quaternion *self, const struct vector3 *forward, const struct vector3 *up);
+HYPAPI struct quaternion *quaternion_set_look_rotation_lh(struct quaternion *self, const struct vector3 *forward, const struct vector3 *up);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
@@ -4990,6 +4992,80 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 	hyp_normalize(qR->q, 4);
 
 	return qR;
+}
+
+
+/* the rotation that turns the camera axis (0, 0, handed) toward forward, with
+ * the camera's +Y toward up: handed -1 for right-handed, 1 for left-handed.
+ * The axes are built as in matrix4_view_lookat_rh and _lh.
+ */
+static struct quaternion *hyp_quaternion_look_rotation(struct quaternion *self, const struct vector3 *forward, const struct vector3 *up, HYP_FLOAT handed)
+{
+	struct vector3 f;
+	struct vector3 right;
+	struct vector3 above;
+	struct vector3 axis;
+	struct matrix4 m;
+
+	if (!(hyp_normalize(vector3_set(&f, forward)->v, 3) > HYP_FLOAT_C(0.0))) {
+		return quaternion_identity(self);
+	}
+
+	/* right = f x up (right-handed) or up x f (left-handed) */
+	vector3_multiplyf(vector3_cross_product(&right, up, &f), handed);
+	if (!(hyp_normalize(right.v, 3) > HYP_FLOAT_C(0.0))) {
+		/* up is zero or parallel to forward: the shortest rotation */
+		return quaternion_get_rotation_tov3(vector3_setf3(&axis, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), handed), &f, self);
+	}
+
+	/* above = right x f (right-handed) or f x right (left-handed) */
+	vector3_multiplyf(vector3_cross_product(&above, &f, &right), handed);
+
+	/* the columns are the camera axes: right, above, and handed * f */
+	matrix4_identity(&m);
+	m.r00 = right.x;
+	m.r10 = right.y;
+	m.r20 = right.z;
+	m.r01 = above.x;
+	m.r11 = above.y;
+	m.r21 = above.z;
+	m.r02 = handed * f.x;
+	m.r12 = handed * f.y;
+	m.r22 = handed * f.z;
+
+	return quaternion_set_from_matrix4(self, &m);
+}
+
+
+/**
+ * @ingroup quaternion
+ * @brief Sets self to the orientation of a right-handed camera that looks
+ * along forward with its +Y toward up: it turns -Z into the direction of
+ * forward.  This is the inverse of the rotation in matrix4_view_lookat_rh.
+ *
+ * The vectors do not need to be unit length.  A zero forward gives the
+ * identity; when up is zero or parallel to forward, the result is the
+ * shortest rotation from -Z to forward.
+ */
+HYPAPI struct quaternion *quaternion_set_look_rotation_rh(struct quaternion *self, const struct vector3 *forward, const struct vector3 *up)
+{
+	return hyp_quaternion_look_rotation(self, forward, up, -HYP_FLOAT_C(1.0));
+}
+
+
+/**
+ * @ingroup quaternion
+ * @brief Sets self to the orientation of a left-handed camera that looks
+ * along forward with its +Y toward up: it turns +Z into the direction of
+ * forward.  This is the inverse of the rotation in matrix4_view_lookat_lh.
+ *
+ * The vectors do not need to be unit length.  A zero forward gives the
+ * identity; when up is zero or parallel to forward, the result is the
+ * shortest rotation from +Z to forward.
+ */
+HYPAPI struct quaternion *quaternion_set_look_rotation_lh(struct quaternion *self, const struct vector3 *forward, const struct vector3 *up)
+{
+	return hyp_quaternion_look_rotation(self, forward, up, HYP_FLOAT_C(1.0));
 }
 
 

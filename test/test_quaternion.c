@@ -1327,8 +1327,69 @@ static const char *test_quaternion_slerp_same_direction(void)
 }
 
 
+static const char *test_quaternion_set_look_rotation(void)
+{
+	struct quaternion q;
+	struct quaternion identity;
+	struct matrix4 view;
+	struct matrix4 rotation;
+	struct matrix4 i4;
+	struct vector3 forward;
+	struct vector3 up;
+	struct vector3 v;
+	struct vector3 e;
+
+	quaternion_identity(&identity);
+	matrix4_identity(&i4);
+
+	/* right-handed: looking down -Z with +Y up is no rotation */
+	vector3_setf3(&forward, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(2.0));
+	quaternion_set_look_rotation_rh(&q, &forward, HYP_VECTOR3_UNIT_Y);
+	test_assert(scalar_equalsf(quaternion_angle_between(&q, &identity), HYP_FLOAT_C(0.0)));
+
+	/* looking along +X: -Z turns to +X and +Y stays up */
+	vector3_setf3(&forward, HYP_FLOAT_C(3.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	quaternion_set_look_rotation_rh(&q, &forward, HYP_VECTOR3_UNIT_Y);
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0));
+	test_assert(vector3_equals(vector3_rotate_by_quaternion(&v, &q), HYP_VECTOR3_UNIT_X));
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0));
+	test_assert(vector3_equals(vector3_rotate_by_quaternion(&v, &q), HYP_VECTOR3_UNIT_Y));
+
+	/* the inverse of the lookat rotation: view * rotation is the identity */
+	vector3_setf3(&forward, HYP_FLOAT_C(1.0), HYP_FLOAT_C(2.0), -HYP_FLOAT_C(3.0));
+	vector3_setf3(&up, HYP_FLOAT_C(0.2), HYP_FLOAT_C(2.0), HYP_FLOAT_C(0.1));
+	quaternion_set_look_rotation_rh(&q, &forward, &up);
+	matrix4_view_lookat_rh(&view, HYP_VECTOR3_ZERO, &forward, &up);
+	matrix4_set_from_quaternion(&rotation, &q);
+	test_assert(matrix4_equals(matrix4_multiply(&rotation, &view), &i4));
+
+	/* left-handed: +Z turns to forward, and the same with matrix4_view_lookat_lh */
+	quaternion_set_look_rotation_lh(&q, &forward, &up);
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0));
+	vector3_rotate_by_quaternion(&v, &q);
+	test_assert(vector3_equals(&v, vector3_normalize(vector3_set(&e, &forward))));
+	matrix4_view_lookat_lh(&view, HYP_VECTOR3_ZERO, &forward, &up);
+	matrix4_set_from_quaternion(&rotation, &q);
+	test_assert(matrix4_equals(matrix4_multiply(&rotation, &view), &i4));
+
+	/* up parallel to forward: the shortest rotation from -Z to forward */
+	vector3_setf3(&forward, HYP_FLOAT_C(0.0), HYP_FLOAT_C(5.0), HYP_FLOAT_C(0.0));
+	quaternion_set_look_rotation_rh(&q, &forward, HYP_VECTOR3_UNIT_Y);
+	test_assert(scalar_equalsf(quaternion_magnitude(&q), HYP_FLOAT_C(1.0)));
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), -HYP_FLOAT_C(1.0));
+	test_assert(vector3_equals(vector3_rotate_by_quaternion(&v, &q), HYP_VECTOR3_UNIT_Y));
+
+	/* a zero forward gives the identity */
+	quaternion_set_look_rotation_rh(&q, HYP_VECTOR3_ZERO, HYP_VECTOR3_UNIT_Y);
+	test_assert(quaternion_equals(&q, &identity));
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_set_look_rotation);
 	run_test(test_quaternion_slerp_same_direction);
 	run_test(test_quaternion_axis_and_rotation_any_length);
 	run_test(test_quaternion_slerp_close);
