@@ -47,6 +47,8 @@ New functions:
   vector3_refract.
 * matrix2/3/4_reciprocal_condition: how reliable an inverse is, 1 for a
   multiple of the identity and 0 for a matrix with no inverse.
+* quaternion_set_from_matrix4: the unit quaternion of a rotation matrix
+  (Shepperd's method).
 * scalar_random_rangef: a random number in [min, max), evenly distributed.
 * vector2/3/4_set_random_unit and quaternion_set_random_unit: evenly
   distributed directions and rotations.
