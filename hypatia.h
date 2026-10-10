@@ -4534,9 +4534,9 @@ HYPAPI struct quaternion *quaternion_lerp(const struct quaternion *start, const 
  * @ingroup quaternion
  * @brief This computes the SLERP between two quaternions.  It computes that
  * absolute final position interopolated between start and end.
- * This function computes shortest arc.
- * If the start and end result in a negative dot product (reversed direction)
- * then the SLERP will reverse direction.
+ * This function computes shortest arc: when start . end is negative it
+ * moves toward -end (the same rotation), so percent 0 gives start exactly and
+ * percent 1 gives end or -end.
  *
  * @param percent This refers to how far along we want to go toward end.
  * 1.0 means go to the end. 0.0 means start.  1.1 is nonsense. Negative is
@@ -4552,69 +4552,46 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 	HYP_FLOAT f1, f2;
 	HYP_FLOAT theta;
 	HYP_FLOAT s;
-	struct quaternion qneg;
-
-	/* if percent is 0, return start */
-	if (scalar_equalsf(percent, HYP_FLOAT_C(0.0))) {
-		quaternion_set(qR, start);
-		return qR;
-	}
-
-	/* if percent is 1 return end */
-	if (scalar_equalsf(percent, HYP_FLOAT_C(1.0))) {
-		quaternion_set(qR, end);
-		return qR;
-	}
+	struct quaternion target;
+	struct quaternion difference;
+	struct quaternion sum;
 
 	/* how parallel are the quaternions (also the dot is the cosine) */
-	dot = quaternion_dot_product(start, end);
+	quaternion_set(&target, end);
+	dot = quaternion_dot_product(start, &target);
 
-	/* if they are close to parallel, use LERP
-	 *	- This avoids div/0
-	 *	- At small angles, the slerp and lerp are the same
-	 */
-
-	if (scalar_equalsf(dot, HYP_FLOAT_C(1.0))) {
-		quaternion_lerp(start, end, percent, qR);
-		return qR;
-	}
-
-	/* if dot is negative, they are "pointing" away from one another,
-	 * use the shortest arc instead (reverse end and start)
-	 * This has the effect of changing the direction of travel around
-	 * the sphere beginning with "end" and going the other way around
-	 * the sphere
+	/* q and -q are the same rotation: when the dot is negative, go toward
+	 * -end, the shortest arc.  The result starts at start and ends at -end.
 	 */
 	if (dot < HYP_FLOAT_C(0.0)) {
-		quaternion_set(&qneg, end);
-		/*quaternion_conjugate(&qneg);*/
-		quaternion_negate(&qneg);
-		quaternion_slerp(start, &qneg, percent, qR);
-		quaternion_negate(qR);
-		/*quaternion_conjugate(qR);*/
+		quaternion_negate(&target);
+	}
+
+	/* the angle between start and target on the 4D sphere: with |s - t| and
+	 * |s + t|, which stays accurate when they are nearly the same, where
+	 * acos(dot) does not (and is NaN when rounding puts the dot above 1)
+	 */
+	quaternion_subtract(quaternion_set(&difference, start), &target);
+	quaternion_add(quaternion_set(&sum, start), &target);
+	theta = HYP_FLOAT_C(2.0) * HYP_ATAN2(quaternion_magnitude(&difference), quaternion_magnitude(&sum));
+	s = HYP_SIN(theta);
+
+	/* the same quaternion: nothing to interpolate */
+	if (!(s > HYP_FLOAT_C(0.0))) {
+		quaternion_lerp(start, &target, percent, qR);
 		return qR;
 	}
 
-	/* keep the dot product in the range that acos can handle */
-	/* (shouldn't get here) */
-	HYP_CLAMP(dot, -HYP_FLOAT_C(1.0), HYP_FLOAT_C(1.0));
-
-	/* the angle between start and end in radians */
-	theta = HYP_ACOS(dot);
-	/* cache */
-	s = HYP_SIN(theta);
-	/* compute negative */
 	f1 = HYP_SIN((HYP_FLOAT_C(1.0) - percent) * theta) / s;
-	/* compute positive */
 	f2 = HYP_SIN(percent * theta) / s;
 
 	/* this expanded form avoids calling quaternion_multiply
 	 * and quaternion_add
 	 */
-	qR->w = f1 * start->w + f2 * end->w;
-	qR->x = f1 * start->x + f2 * end->x;
-	qR->y = f1 * start->y + f2 * end->y;
-	qR->z = f1 * start->z + f2 * end->z;
+	qR->w = f1 * start->w + f2 * target.w;
+	qR->x = f1 * start->x + f2 * target.x;
+	qR->y = f1 * start->y + f2 * target.y;
+	qR->z = f1 * start->z + f2 * target.z;
 
 	return qR;
 }
@@ -4622,8 +4599,10 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 
 /**
  * @ingroup quaternion
- * @brief Used by SLERP. This treats the whole quaternion as a 4D vector and
- * computes a regular dot product on it
+ * @brief The dot product of the quaternions as 4D vectors.  For unit
+ * quaternions it is the cosine of half the angle between the two rotations
+ * (q and -q are the same rotation, so its sign picks the shorter arc).  Used by
+ * SLERP.
  *
  */
 HYPAPI HYP_FLOAT quaternion_dot_product(const struct quaternion *self, const struct quaternion *qT)
