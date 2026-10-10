@@ -2539,7 +2539,7 @@ HYPAPI struct matrix2 *matrix2_multiplyf(struct matrix2 *self, HYP_FLOAT scalar)
  * @param self the matrix being changed
  * @param mT The matrix being multiplied into self
  *
- * self = self * mT
+ * self = mT * self: mT is applied after self
  */
 HYPAPI struct matrix2 *matrix2_multiply(struct matrix2 *self, const struct matrix2 *mT)
 {
@@ -2977,7 +2977,7 @@ HYPAPI struct matrix3 *matrix3_multiplyf(struct matrix3 *self, HYP_FLOAT scalar)
  * @param self the matrix being changed
  * @param mT The matrix being multiplied into self
  *
- * self = self * mT
+ * self = mT * self: mT is applied after self
  */
 HYPAPI struct matrix3 *matrix3_multiply(struct matrix3 *self, const struct matrix3 *mT)
 {
@@ -3486,7 +3486,7 @@ HYPAPI struct matrix4 *matrix4_multiplyf(struct matrix4 *self, HYP_FLOAT scalar)
  * @param self the matrix being changed
  * @param mT The matrix being multiplied into self
  *
- * self = self * mT
+ * self = mT * self: mT is applied after self
  */
 HYPAPI struct matrix4 *matrix4_multiply(struct matrix4 *self, const struct matrix4 *mT)
 {
