@@ -249,7 +249,7 @@ Tolerance 2e-05 (difference relative to max(1, |reference|)); 2000 random inputs
 | quaternion_get_rotation_tov3 | a, zero | (x 0, y 0, z 0, w 1) | GLM (x -nan, y -nan, z -nan, w -nan); Eigen (x 0, y 0, z 0, w 0.707106769) |
 | matrix4_inverse | singular (1 .. 16) | NULL | GLM (-nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan, -nan); determinant: hypatia 0, GLM 0 |
 | matrix4_inverse | nearly singular | NULL | LAPACK rcond (double) see table; GLM determinant 0 |
-| matrix4_transformation_decompose | zero scale on x | 0 (fails) | GLM false, scale (-1.15911501e-32, 4.59135442e-41, -1.15912207e-32) |
+| matrix4_transformation_decompose | zero scale on x | 0 (fails) | GLM false, scale (1.07993701e-38, 4.59163468e-41, -3.89359655e-24) |
 | matrix4_view_lookat_rh | eye == target | (0, 0, 0, -0, 0, 0, 0, -0, -0, -0, -0, 0, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, nan, nan, nan, -nan, 0, 0, 0, 1) |
 | matrix4_view_lookat_rh | looking along up | (0, 0, 0, -0, 0, 0, 0, -0, -0, -1, -0, 2, 0, 0, 0, 1) | GLM (-nan, -nan, -nan, nan, -nan, -nan, -nan, nan, -0, -1, -0, 2, 0, 0, 0, 1) |
 | matrix4_projection_perspective_fovy_rh | zNear == zFar | (1.83048773, 0, 0, 0, 0, 1.83048773, 0, 0, 0, 0, inf, inf, 0, 0, -1, 0) | GLM (1.83048773, 0, 0, 0, 0, 1.83048773, 0, 0, 0, 0, inf, -inf, 0, 0, -1, 0) |
@@ -281,10 +281,10 @@ Largest / mean error in units of the float epsilon (relative to the largest comp
 | vector3_rotate_by_quaternion | unit q | 3.44 / 0.64 | 5.85 / 0.94 | 5.33 / 0.93 | **3.2 / 0.81** |
 | vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | **3.69 / 0.66** | 44 / 11 | 43.4 / 11 | 3.73 / 0.81 |
 | matrix4_multiply | random | **1.2 / 0.37** | **1.2 / 0.37** | **1.2 / 0.37** | **1.2 / 0.37** |
-| matrix4_inverse | random entries | **2.33e+04 / 5** | 2.65e+04 / 5 | **2.33e+04 / 4.8** | 2.65e+04 / 4.9 |
-| matrix4_inverse | rotation, scale and translation | 4.99 / 0.58 | **4.5 / 0.62** | 4.94 / 0.62 | **4.5 / 0.63** |
-| matrix4_inverse | condition ~1e4 | 1.8e+05 / 1.5e+04 | 2.04e+05 / 1.6e+04 | **1.67e+05 / 1.5e+04** | 2.04e+05 / 1.6e+04 |
-| matrix3_inverse | random entries | **4.05e+03 / 2.2** | **4.05e+03 / 2.2** | 7.84e+03 / 2.5 |  |
+| matrix4_inverse | random entries (error / condition number) | 0.581 / 0.062 | **0.478 / 0.065** | 0.581 / 0.064 | **0.478 / 0.064** |
+| matrix4_inverse | rotation, scale and translation (error / condition number) | **0.17 / 0.011** | 0.172 / 0.012 | 0.221 / 0.012 | 0.221 / 0.012 |
+| matrix4_inverse | condition ~1e4 (error / condition number) | 12.8 / 0.94 | 17.5 / 1 | **11.1 / 0.96** | 17.5 / 1 |
+| matrix3_inverse | random entries (error / condition number) | 0.54 / 0.075 | 0.587 / 0.078 | **0.51 / 0.078** |  |
 | matrix4_determinant | random entries | 2.27 / 0.26 | 2.52 / 0.26 | 4.03 / 0.26 | **2.22 / 0.26** |
 | matrix4_normal_matrix | rotation, scale and translation | **1.71 / 0.38** | 1.97 / 0.38 |  |  |
 | matrix4_set_from_axisv3_angle | random | 3.59 / 0.56 | 4.48 / 0.7 | **3.41 / 0.56** | 4.48 / 0.7 |
@@ -292,7 +292,7 @@ Largest / mean error in units of the float epsilon (relative to the largest comp
 | matrix4_set_from_quaternion | unit q | **2.91 / 0.62** | 4.04 / 0.9 | 4.04 / 0.9 | 3.14 / 0.72 |
 | matrix4_set_from_euler_anglesf3 | random | **1.18 / 0.39** | 1.19 / 0.39 |  | **1.18 / 0.39** |
 | matrix4_projection_perspective_fovy_rh | random | 1.27 / 0.35 | **1.2 / 0.36** |  | 1.29 / 0.38 |
-| matrix4_view_lookat_rh | random | **6.91 / 0.55** | 18.2 / 0.6 |  | 18.2 / 0.6 |
+| matrix4_view_lookat_rh | random (error * sin(view, up)) | **1.91 / 0.42** | 2.15 / 0.46 |  | 2.15 / 0.46 |
 | quaternion_multiply | random | **1.02 / 0.29** | 1.23 / 0.3 | **1.02 / 0.29** | 1.23 / 0.3 |
 | quaternion_normalize | random length | 1.3 / 0.33 | 1.49 / 0.39 | **1.13 / 0.33** | **1.13 / 0.33** |
 | quaternion_inverse | random length | 1.42 / 0.39 | **1.37 / 0.39** | 1.42 / 0.39 | 1.56 / 0.43 |

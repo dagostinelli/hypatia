@@ -17,6 +17,7 @@ static double oracle_rotation_angle(const struct quaternion &a, const struct qua
 	return (double)(4 * std::atan2(std::sqrt(s), std::sqrt(c)));
 }
 
+#ifndef PRECISION_ONLY
 static void quaternions()
 {
 	begin("quaternions", "quaternion_multiply(a, b)", "glm a * b");
@@ -375,3 +376,4 @@ static void quaternions()
 		check(err_qr(h, hq(gq(q) * Q(V3(x, y, z)))), [&] { return sq(q) + ", " + f(x) + ", " + f(y) + ", " + f(z) + " -> " + sq(h); });
 	}
 }
+#endif

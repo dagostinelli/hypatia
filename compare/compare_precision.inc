@@ -124,6 +124,15 @@ static struct quaternion near_quaternion(const struct quaternion &q, double angl
 	return h;
 }
 
+/* the row-sum (infinity) norm */
+static L row_norm(const LM4 &m)
+{
+	L n = 0;
+	for (int r = 0; r < 4; r++)
+		n = std::max(n, m.row(r).cwiseAbs().sum());
+	return n;
+}
+
 static PRow &prow(const char *fn, const char *inputs)
 {
 	prows.push_back(PRow());
@@ -232,8 +241,10 @@ static void precision()
 			LV3 o3 = ob * (lv(a).dot(ob) / ob.dot(ob));
 			L o[3] = {o3.x(), o3.y(), o3.z()};
 			L scale = lv(a).norm();
+#ifndef HYP_MASTER
 			vector3_project(&h, &b);
 			w.h.add(ulps(h.v, o, 3, scale));
+#endif
 			V3 g = glm::proj(gv(a), gv(b));
 			w.g.add(ulps(&g[0], o, 3, scale));
 		}
@@ -294,22 +305,27 @@ static void precision()
 		}
 	}
 	for (int kind = 0; kind < 3; kind++) {
-		static const char *in[3] = {"random entries", "rotation, scale and translation", "condition ~1e4"};
+		static const char *in[3] = {"random entries (error / condition number)", "rotation, scale and translation (error / condition number)", "condition ~1e4 (error / condition number)"};
 		PRow &w = prow("matrix4_inverse", in[kind]);
 		for (int i = 0; i < N; i++) {
 			struct matrix4 a = kind == 0 ? rm4() : kind == 1 ? rtrs() : rm4_cond(4), h;
 			L o[16];
-			lrow(lm(a).inverse(), o);
+			LM4 li = lm(a).inverse();
+			lrow(li, o);
+			/* the error any inverse can have grows with the condition number:
+			 * measure the error per unit of it
+			 */
+			double k = (double)(row_norm(lm(a)) * row_norm(li));
 			matrix4_inverse(&a, &h);
-			w.h.add(ulps(h.m, o, 16));
+			w.h.add(1 / k * ulps(h.m, o, 16));
 			H g[16];
 			grow(glm::inverse(g4(a)), g);
-			w.g.add(ulps(g, o, 16));
+			w.g.add(1 / k * ulps(g, o, 16));
 			EM4 e = e4(a).inverse();
 			H eh[16];
 			for (int k = 0; k < 16; k++)
 				eh[k] = e(k / 4, k % 4);
-			w.e.add(ulps(eh, o, 16));
+			w.e.add(1 / k * ulps(eh, o, 16));
 #ifdef HAVE_CGLM
 			M4 ga = g4(a);
 			mat4 ca, cr;
@@ -317,25 +333,31 @@ static void precision()
 			glm_mat4_inv(ca, cr);
 			H c[16];
 			crow(cr, c);
-			w.c.add(ulps(c, o, 16));
+			w.c.add(1 / k * ulps(c, o, 16));
 #endif
 		}
 	}
 	{
-		PRow &w = prow("matrix3_inverse", "random entries");
+		PRow &w = prow("matrix3_inverse", "random entries (error / condition number)");
 		for (int i = 0; i < N; i++) {
 			struct matrix3 a = rm3(), h;
 			LM3 l;
 			for (int k = 0; k < 9; k++)
 				l(k / 3, k % 3) = a.m[k];
 			LM3 li = l.inverse();
+			L n3 = 0, n3i = 0;
+			for (int rr = 0; rr < 3; rr++) {
+				n3 = std::max(n3, l.row(rr).cwiseAbs().sum());
+				n3i = std::max(n3i, li.row(rr).cwiseAbs().sum());
+			}
+			double k = (double)(n3 * n3i);
 			L o[9];
 			for (int k = 0; k < 9; k++)
 				o[k] = li(k / 3, k % 3);
 			matrix3_inverse(&a, &h);
-			w.h.add(ulps(h.m, o, 9));
+			w.h.add(1 / k * ulps(h.m, o, 9));
 			struct matrix3 g = h3(glm::inverse(g3(a)));
-			w.g.add(ulps(g.m, o, 9));
+			w.g.add(1 / k * ulps(g.m, o, 9));
 			Eigen::Matrix<H, 3, 3> e3;
 			for (int k = 0; k < 9; k++)
 				e3(k / 3, k % 3) = a.m[k];
@@ -343,7 +365,7 @@ static void precision()
 			H eh[9];
 			for (int k = 0; k < 9; k++)
 				eh[k] = ei(k / 3, k % 3);
-			w.e.add(ulps(eh, o, 9));
+			w.e.add(1 / k * ulps(eh, o, 9));
 		}
 	}
 	{
@@ -371,8 +393,10 @@ static void precision()
 			struct matrix4 a = rtrs(), h;
 			L o[16];
 			lrow(l4(lm(a).block<3, 3>(0, 0).inverse().transpose()), o);
+#ifndef HYP_MASTER
 			matrix4_normal_matrix(&a, &h);
 			w.h.add(ulps(h.m, o, 16));
+#endif
 			H g[16];
 			grow(M4(glm::inverseTranspose(M3(g4(a)))), g);
 			w.g.add(ulps(g, o, 16));
@@ -491,12 +515,16 @@ static void precision()
 		}
 	}
 	{
-		PRow &w = prow("matrix4_view_lookat_rh", "random");
+		PRow &w = prow("matrix4_view_lookat_rh", "random (error * sin(view, up))");
 		for (int i = 0; i < N; i++) {
 			struct vector3 eye = rv3(), target = rv3(), up = runit3();
 			struct matrix4 h;
 			LV3 f = (lv(target) - lv(eye)).normalized();
 			LV3 s = f.cross(lv(up)).normalized();
+			/* nearly parallel view and up directions magnify any rounding:
+			 * measure the error per unit of 1 / sin(angle between them)
+			 */
+			double k = (double)(1 / f.cross(lv(up).normalized()).norm());
 			LV3 u = s.cross(f);
 			LM4 l = LM4::Identity();
 			l.row(0) << s.x(), s.y(), s.z(), -s.dot(lv(eye));
@@ -505,17 +533,17 @@ static void precision()
 			L o[16];
 			lrow(l, o);
 			matrix4_view_lookat_rh(&h, &eye, &target, &up);
-			w.h.add(ulps(h.m, o, 16));
+			w.h.add(1 / k * ulps(h.m, o, 16));
 			H g[16];
 			grow(glm::lookAtRH(gv(eye), gv(target), gv(up)), g);
-			w.g.add(ulps(g, o, 16));
+			w.g.add(1 / k * ulps(g, o, 16));
 #ifdef HAVE_CGLM
 			vec3 ce = {eye.x, eye.y, eye.z}, ct = {target.x, target.y, target.z}, cu = {up.x, up.y, up.z};
 			mat4 cm;
 			glm_lookat_rh(ce, ct, cu, cm);
 			H c[16];
 			crow(cm, c);
-			w.c.add(ulps(c, o, 16));
+			w.c.add(1 / k * ulps(c, o, 16));
 #endif
 		}
 	}
@@ -659,8 +687,10 @@ static void precision()
 			/* the exact quaternion of the rounded matrix */
 			LQ o(LM3(lm(m).block<3, 3>(0, 0)));
 			o.normalize();
+#ifndef HYP_MASTER
 			quaternion_set_from_matrix4(&h, &m);
 			w.h.add(ulpq(h.q, o));
+#endif
 			struct quaternion g = hq(glm::quat_cast(g4(m)));
 			w.g.add(ulpq(g.q, o));
 			struct quaternion e = hq(EQ(Eigen::Matrix<H, 3, 3>(e4(m).block<3, 3>(0, 0))));

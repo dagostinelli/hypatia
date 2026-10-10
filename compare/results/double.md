@@ -255,10 +255,10 @@ Largest / mean error in units of the double epsilon (relative to the largest com
 | vector3_rotate_by_quaternion | unit q | **3.48 / 0.64** | 5.12 / 0.94 | 5.17 / 0.93 |  |
 | vector3_rotate_by_quaternion | q of length 1 +- 1e-6 (drifted) | **3 / 0.65** | 2.19e+10 / 6.1e+09 | 2.19e+10 / 6.1e+09 |  |
 | matrix4_multiply | random | **1.33 / 0.37** | **1.33 / 0.37** | **1.33 / 0.37** |  |
-| matrix4_inverse | random entries | **6.56e+03 / 3.5** | 1.79e+05 / 12 | **6.56e+03 / 3.7** |  |
-| matrix4_inverse | rotation, scale and translation | 6.41 / 0.58 | 4.89 / 0.62 | **4.39 / 0.61** |  |
-| matrix4_inverse | condition ~1e4 | 1.94e+05 / 1.5e+04 | 1.89e+05 / 1.6e+04 | **1.85e+05 / 1.5e+04** |  |
-| matrix3_inverse | random entries | 4.68e+03 / 2.4 | 4.68e+03 / 2.4 | **1.98e+03 / 2.4** |  |
+| matrix4_inverse | random entries (error / condition number) | 0.842 / 0.063 | **0.467 / 0.064** | 0.707 / 0.064 |  |
+| matrix4_inverse | rotation, scale and translation (error / condition number) | 0.191 / 0.011 | **0.159 / 0.012** | 0.168 / 0.011 |  |
+| matrix4_inverse | condition ~1e4 (error / condition number) | **13.5 / 0.96** | 16.7 / 1 | 16.2 / 0.97 |  |
+| matrix3_inverse | random entries (error / condition number) | 0.583 / 0.075 | **0.555 / 0.078** | **0.555 / 0.078** |  |
 | matrix4_determinant | random entries | 2.92 / 0.26 | **2.56 / 0.26** | 2.71 / 0.26 |  |
 | matrix4_normal_matrix | rotation, scale and translation | **1.91 / 0.38** | 1.97 / 0.38 |  |  |
 | matrix4_set_from_axisv3_angle | random | **3.2 / 0.57** | 4.78 / 0.71 | 3.39 / 0.57 |  |
@@ -266,7 +266,7 @@ Largest / mean error in units of the double epsilon (relative to the largest com
 | matrix4_set_from_quaternion | unit q | **2.67 / 0.62** | 4.83 / 0.91 | 4.83 / 0.91 |  |
 | matrix4_set_from_euler_anglesf3 | random | **1.14 / 0.39** | 1.26 / 0.39 |  |  |
 | matrix4_projection_perspective_fovy_rh | random | 1.23 / 0.35 | **1.16 / 0.36** |  |  |
-| matrix4_view_lookat_rh | random | **9.12 / 0.53** | 24.4 / 0.59 |  |  |
+| matrix4_view_lookat_rh | random (error * sin(view, up)) | **1.77 / 0.41** | 2.23 / 0.45 |  |  |
 | quaternion_multiply | random | 0.941 / 0.29 | 1.12 / 0.3 | **0.936 / 0.29** |  |
 | quaternion_normalize | random length | **1.16 / 0.33** | 1.37 / 0.39 | 1.18 / 0.33 |  |
 | quaternion_inverse | random length | **1.34 / 0.39** | 1.4 / 0.39 | 1.37 / 0.39 |  |
