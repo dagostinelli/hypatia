@@ -2979,6 +2979,78 @@ HYPAPI struct matrix2 *matrix2_scalev2(struct matrix2 *self, const struct vector
 }
 
 
+/* the exponent e for which 2^e times the largest absolute value of the n
+ * values is at least 1 and less than 2; 0 when they are all zero or one is
+ * infinite or NaN
+ */
+static int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+{
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	int exponent = 0;
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return 0; /* NaN */
+		}
+	}
+
+	if (!(largest > HYP_FLOAT_C(0.0)) || !(largest - largest <= HYP_FLOAT_C(0.0))) {
+		return 0; /* zero or infinite */
+	}
+
+	while (largest >= HYP_FLOAT_C(65536.0)) {
+		largest *= HYP_FLOAT_C(1.52587890625e-05); /* 2^-16 */
+		exponent -= 16;
+	}
+	while (largest < HYP_FLOAT_C(1.52587890625e-05)) {
+		largest *= HYP_FLOAT_C(65536.0);
+		exponent += 16;
+	}
+	while (largest >= HYP_FLOAT_C(2.0)) {
+		largest *= HYP_FLOAT_C(0.5);
+		exponent -= 1;
+	}
+	while (largest < HYP_FLOAT_C(1.0)) {
+		largest *= HYP_FLOAT_C(2.0);
+		exponent += 1;
+	}
+
+	return exponent;
+}
+
+
+/* multiplies the n values by 2^exponent, in steps of 2^16 and 2, which are
+ * exact unless a value overflows or becomes subnormal
+ */
+static void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
+{
+	HYP_FLOAT step;
+	uint8_t i;
+
+	while (exponent != 0) {
+		if (exponent >= 16) {
+			step = HYP_FLOAT_C(65536.0);
+			exponent -= 16;
+		} else if (exponent <= -16) {
+			step = HYP_FLOAT_C(1.52587890625e-05);
+			exponent += 16;
+		} else if (exponent > 0) {
+			step = HYP_FLOAT_C(2.0);
+			exponent -= 1;
+		} else {
+			step = HYP_FLOAT_C(0.5);
+			exponent += 1;
+		}
+		for (i = 0; i < n; i++) {
+			v[i] *= step;
+		}
+	}
+}
+
+
 /* the largest sum of absolute values over the rows of m[] (n by n): the
  * matrix norm used by the condition estimates
  */
@@ -3046,20 +3118,8 @@ HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
 }
 
 
-/**
- * @ingroup matrix2
- * @brief Find the inverse of the matrix
- *
- * Returns NULL only when the determinant is exactly zero.  A matrix that is
- * close to having no inverse is still inverted, and the result can contain
- * very large values; the reciprocal_condition function estimates how reliable
- * the inverse is.
- *
- * @param self The transformation matrix being examined
- * @param mR the inverse of the matrix is returned here
- *
- */
-HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
+/* matrix2_inverse without the scaling */
+static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
 {
 	struct matrix2 inverse;
 	HYP_FLOAT determinant;
@@ -3086,6 +3146,43 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	for (i = 0; i < 4; i++) {
 		mR->m[i] = inverse.m[i] / determinant;
 	}
+
+	return mR;
+}
+
+
+/**
+ * @ingroup matrix2
+ * @brief Find the inverse of the matrix
+ *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values; the reciprocal_condition function estimates how reliable
+ * the inverse is.
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
+{
+	struct matrix2 scaled;
+	int exponent;
+
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
+	 */
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 4);
+	hyp_scale_power2(scaled.m, 4, exponent);
+
+	if (hyp_matrix2_inverse(&scaled, mR) == NULL) {
+		return NULL;
+	}
+
+	hyp_scale_power2(mR->m, 4, exponent);
 
 	return mR;
 }
@@ -3545,20 +3642,8 @@ HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
 }
 
 
-/**
- * @ingroup matrix3
- * @brief Find the inverse of the matrix
- *
- * Returns NULL only when the determinant is exactly zero.  A matrix that is
- * close to having no inverse is still inverted, and the result can contain
- * very large values; the reciprocal_condition function estimates how reliable
- * the inverse is.
- *
- * @param self The transformation matrix being examined
- * @param mR the inverse of the matrix is returned here
- *
- */
-HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+/* matrix3_inverse without the scaling */
+static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
 {
 	struct matrix3 inverse;
 	HYP_FLOAT determinant;
@@ -3594,6 +3679,43 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	for (i = 0; i < 9; i++) {
 		mR->m[i] = inverse.m[i] / determinant;
 	}
+
+	return mR;
+}
+
+
+/**
+ * @ingroup matrix3
+ * @brief Find the inverse of the matrix
+ *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values; the reciprocal_condition function estimates how reliable
+ * the inverse is.
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+{
+	struct matrix3 scaled;
+	int exponent;
+
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
+	 */
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 9);
+	hyp_scale_power2(scaled.m, 9, exponent);
+
+	if (hyp_matrix3_inverse(&scaled, mR) == NULL) {
+		return NULL;
+	}
+
+	hyp_scale_power2(mR->m, 9, exponent);
 
 	return mR;
 }
@@ -4188,20 +4310,8 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
 }
 
 
-/**
- * @ingroup matrix4
- * @brief Find the inverse of the matrix
- *
- * Returns NULL only when the determinant is exactly zero.  A matrix that is
- * close to having no inverse is still inverted, and the result can contain
- * very large values; the reciprocal_condition function estimates how reliable
- * the inverse is.
- *
- * @param self The transformation matrix being examined
- * @param mR the inverse of the matrix is returned here
- *
- */
-HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
+/* matrix4_inverse without the scaling */
+static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
 {
 	HYP_FLOAT blocks[4];
 	HYP_FLOAT ab[4];
@@ -4268,6 +4378,43 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	for (i = 0; i < 16; i++) {
 		mR->m[i] = inverse.m[i] / determinant;
 	}
+
+	return mR;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief Find the inverse of the matrix
+ *
+ * Returns NULL only when the determinant is exactly zero.  A matrix that is
+ * close to having no inverse is still inverted, and the result can contain
+ * very large values; the reciprocal_condition function estimates how reliable
+ * the inverse is.
+ *
+ * @param self The transformation matrix being examined
+ * @param mR the inverse of the matrix is returned here
+ *
+ */
+HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
+{
+	struct matrix4 scaled;
+	int exponent;
+
+	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
+	 * the determinant neither overflows nor underflows when the inverse is in
+	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
+	 * powers of two is exact
+	 */
+	scaled = *self;
+	exponent = hyp_power2_exponent(scaled.m, 16);
+	hyp_scale_power2(scaled.m, 16, exponent);
+
+	if (hyp_matrix4_inverse(&scaled, mR) == NULL) {
+		return NULL;
+	}
+
+	hyp_scale_power2(mR->m, 16, exponent);
 
 	return mR;
 }

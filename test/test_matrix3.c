@@ -616,9 +616,46 @@ static const char *test_matrix3_inverse_small_determinant(void)
 }
 
 
+static const char *test_matrix3_inverse_tiny_and_huge_scale(void)
+{
+	/* a well-conditioned matrix times a tiny or huge scale: the determinant
+	 * (scale^3) underflows to 0 or overflows to inf, but the inverse is in
+	 * range, and inverse times the matrix is the identity
+	 */
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-25), HYP_FLOAT_C(1e25) };
+#elif defined(TEST_WIDE_RANGE)
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-2500), HYP_FLOAT_C(1e2500) };
+#else
+	const HYP_FLOAT scales[2] = { HYP_FLOAT_C(1e-200), HYP_FLOAT_C(1e200) };
+#endif
+	const HYP_FLOAT a[9] = { HYP_FLOAT_C(2.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(3.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0), HYP_FLOAT_C(4.0) };
+	struct matrix3 m;
+	struct matrix3 inverse;
+	struct matrix3 identity;
+	uint8_t i;
+	uint8_t k;
+
+	matrix3_identity(&identity);
+	for (k = 0; k < 2; k++) {
+		for (i = 0; i < 9; i++) {
+			m.m[i] = a[i] * scales[k];
+		}
+		test_assert(matrix3_inverse(&m, &inverse) != NULL);
+		matrix3_multiply(&inverse, &m);
+		for (i = 0; i < 9; i++) {
+			test_assert(HYP_ABS(inverse.m[i] - identity.m[i]) < HYP_EPSILON);
+		}
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix3_all_tests(void)
 {
 	run_test(test_matrix3_inverse_small_determinant);
+	run_test(test_matrix3_inverse_tiny_and_huge_scale);
 	run_test(test_matrix3_reciprocal_condition);
 	run_test(test_matrix3_zero);
 	run_test(test_matrix3_equals);
