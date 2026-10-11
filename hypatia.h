@@ -1776,7 +1776,7 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 /* a b + c d, with the products and the sum kept exactly until one final
  * rounding (without a splitting constant, the plain expression)
  */
-static HYP_FLOAT hyp_sum_of_products(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT c, HYP_FLOAT d)
+static HYP_INLINE HYP_FLOAT hyp_sum_of_products(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT c, HYP_FLOAT d)
 {
 #ifdef HYP_SPLIT
 	HYP_FLOAT p;
@@ -5227,16 +5227,27 @@ HYPAPI struct quaternion *quaternion_set_from_matrix4(struct quaternion *self, c
  */
 HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
 {
-	HYP_FLOAT qx, qy, qz, qw;
+	HYP_FLOAT plus[2];
+	HYP_FLOAT minus[2];
 
-	qw = self->w;
-	qx = self->x;
-	qy = self->y;
-	qz = self->z;
+	/* for q = qz qy qx with half angles a, b, c (about X, Y, Z):
+	 *   w + y = (cos b + sin b) cos(c - a)   z - x = (cos b + sin b) sin(c - a)
+	 *   w - y = (cos b - sin b) cos(c + a)   x + z = (cos b - sin b) sin(c + a)
+	 * The angle about X is (c + a) - (c - a) and the angle about Z is
+	 * (c + a) + (c - a): each is one atan2 of the products of these, and
+	 * the pitch an atan2 of their lengths.  No asin, which loses half the
+	 * digits near a pitch of +-pi/2, and the same angles for q of any
+	 * length.  At gimbal lock c + a is undefined, and its weight
+	 * cos b - sin b is 0.
+	 */
+	plus[0] = self->w + self->y;
+	plus[1] = self->z - self->x;
+	minus[0] = self->w - self->y;
+	minus[1] = self->x + self->z;
 
-	*ax = HYP_ATAN2(qy * qz + qw * qx, HYP_FLOAT_C(0.5) - ((qx * qx) + (qy * qy)));
-	*ay = HYP_ASIN(-HYP_FLOAT_C(2.0) * ((qx * qz) - (qw * qy)));
-	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), HYP_FLOAT_C(0.5) - ((qy * qy) + (qz * qz)));
+	*ax = HYP_ATAN2(hyp_sum_of_products(plus[0], minus[1], -plus[1], minus[0]), hyp_sum_of_products(plus[0], minus[0], plus[1], minus[1]));
+	*ay = HYP_FLOAT_C(2.0) * HYP_ATAN2(hyp_length(plus, 2), hyp_length(minus, 2)) - HYP_PI_HALF;
+	*az = HYP_ATAN2(hyp_sum_of_products(minus[1], plus[0], minus[0], plus[1]), hyp_sum_of_products(minus[0], plus[0], -minus[1], plus[1]));
 }
 
 
