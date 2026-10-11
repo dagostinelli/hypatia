@@ -157,6 +157,15 @@ Compared with other math libraries for graphics, the concrete differences are:
 * very large and very small values don't break normalize or inverse;
 * double, long double and quad precision modes are available.
 
+The precision is also measured.  test/precision/precision.c computes the error of each numerical function against `_Float128` references.  It reports the largest error and the mean error, in epsilons, over a fixed set of inputs: random ones, and cases known to be hard, such as nearly parallel vectors, nearly opposite vectors, small angles and badly conditioned matrices.  The results for single and double precision are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse than the baseline, or any largest error more than 10% worse.  A change that improves a figure updates the baseline in the same commit.  To run the check (GCC on Linux, which has `_Float128`):
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
+cmake --build build --target precision_single precision_double
+ctest --test-dir build -R precision_check --output-on-failure
+build/test/precision_double > test/precision/baseline_double.txt   # to update a baseline
+```
+
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
 A word about convention
