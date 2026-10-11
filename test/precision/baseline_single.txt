@@ -1,0 +1,47 @@
+# single precision, compiler 13.3.0
+# function | inputs | largest error | mean error, in epsilons
+vector3_normalize | random | 0.4294 | 0.2027
+vector3_normalize | components 1e-15 .. 1e15 | 0.3527 | 0.04717
+vector3_normalize | (1, 1e-5, 1e-5) and its permutations | 0.003214 | 0.0009814
+vector2_normalize | random | 0.3526 | 0.1699
+vector4_normalize | random | 0.4672 | 0.2293
+vector3_cross_product | random | 0.7872 | 0.197
+vector3_project | random | 1.925 | 0.2092
+vector3_reflect | random | 2.972 | 0.4675
+vector3_refract | random, eta 0.5 .. 2 | 40.39 | 0.2438
+vector3_angle_between | random | 8.21 | 0.2495
+vector3_angle_between | 1e-6 rad apart | 72.85 | 0.7357
+vector3_angle_between | 1e-3 rad from opposite | 0.7806 | 0.1919
+vector2_angle_between | random | 4474 | 0.8909
+vector3_rotate_by_quaternion | unit q | 3.569 | 0.6284
+vector3_rotate_by_quaternion | q of length 1 +- 1e-6 | 3.449 | 0.6537
+quaternion_normalize | random length | 0.4716 | 0.2044
+quaternion_inverse | random length | 1.45 | 0.3696
+quaternion_multiply | random | 1.072 | 0.2894
+quaternion_set_from_axis_anglev3 | random | 0.8845 | 0.2312
+quaternion_set_from_axis_anglev3 | angle 1e-4 | 0.01049 | 0.01049
+quaternion_get_axis_anglev3 | random (axis * angle) | 1.272 | 0.3575
+quaternion_get_axis_anglev3 | angle 1e-4 (axis * angle) | 0.5306 | 0.06977
+quaternion_set_from_matrix4 | random rotation | 1.537 | 0.3086
+quaternion_set_from_matrix4 | near half turns (pi - 1e-3) | 1.454 | 0.2689
+quaternion_slerp | random | 1.606 | 0.3822
+quaternion_slerp | 1e-3 rad apart | 1.21 | 0.3725
+quaternion_slerp | 1e-6 rad apart | 1.07 | 0.2369
+quaternion_get_rotation_tov3 | random (landing error) | 1.992 | 0.3564
+quaternion_get_rotation_tov3 | 1e-3 rad from opposite (landing error) | 1.491 | 0.2602
+quaternion_get_rotation_tov3 | 1e-6 rad apart (landing error) | 1.265 | 0.1755
+quaternion_angle_between | random | 0.8722 | 0.2211
+quaternion_angle_between | 1e-4 rad apart | 0.307 | 0.1524
+quaternion_set_look_rotation_rh | random | 5.373 | 0.3478
+matrix4_inverse | random entries (error / condition number) | 0.4981 | 0.05501
+matrix4_inverse | rotation, scale and translation (error / condition number) | 0.1512 | 0.008513
+matrix4_inverse | condition ~1e4 (error / condition number) | 0.9809 | 0.04215
+matrix3_inverse | random entries (error / condition number) | 0.4421 | 0.0631
+matrix2_inverse | random entries (error / condition number) | 0.5853 | 0.07579
+matrix4_determinant | random entries | 0.9782 | 0.1174
+matrix4_multiply | random | 1.39 | 0.5547
+matrix4_multiplyv4 | random | 1.1 | 0.3579
+matrix4_set_from_quaternion | unit q | 2.915 | 0.6073
+matrix4_set_from_axisv3_angle | random | 2.093 | 0.445
+matrix4_view_lookat_rh | random (error * sin(view, up)) | 1.526 | 0.3575
+matrix4_projection_perspective_fovy_rh | random | 1.067 | 0.3496
