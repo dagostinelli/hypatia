@@ -1392,7 +1392,8 @@ static const char *test_quaternion_set_look_rotation(void)
 }
 
 
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+/* the last-ulp tests: HYP_FAST does not promise the last ulp */
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 /* a random unit quaternion in double, and the one turned from it by angle
  * about a random axis
  */
@@ -1563,7 +1564,7 @@ static const char *test_quaternion_get_rotation_tov3_nearly_equal_ulp(void)
 
 static const char *quaternion_all_tests(void)
 {
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_quaternion_angle_between_ulp);
 	run_test(test_quaternion_get_rotation_tov3_nearly_equal_ulp);
 #endif

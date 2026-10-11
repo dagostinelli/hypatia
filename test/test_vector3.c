@@ -823,7 +823,8 @@ static const char *test_vector3_angle_between_parallel_small_zero(void)
 }
 
 
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+/* the last-ulp tests: HYP_FAST does not promise the last ulp */
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 static const char *test_vector3_normalize_correctly_rounded(void)
 {
 	struct vector3 v;
@@ -957,7 +958,7 @@ static const char *test_vector_angle_between_small_ulp(void)
 
 static const char *vector3_all_tests(void)
 {
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_vector3_normalize_correctly_rounded);
 	run_test(test_vector_angle_between_small_ulp);
 #endif
