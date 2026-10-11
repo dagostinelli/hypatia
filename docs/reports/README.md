@@ -28,7 +28,7 @@ The outputs were produced on x86-64 Linux with gcc 13.3 at `-O2` (no `-ffast-mat
 Other platforms can differ in the last digits printed.  The measurements quoted from the
 comparison harness come from `compare/results/` (see `docs/comparison.md`).
 
-## GLM (20 reports)
+## GLM (21 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -52,8 +52,9 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements](glm/18-precision-small-differences.md) | precision | present in the latest release |
 | [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](glm/19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](glm/20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
+| [`glm::inverse` gives inf or 0 for matrices with small or large entries](glm/21-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## Eigen (9 reports)
+## Eigen (10 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -66,8 +67,9 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`AngleAxis` with an axis that is not unit length gives a scaled quaternion and a non-rotation matrix](eigen/07-angleaxis-axis-not-unit.md) | documented precondition, not checked | present in the latest release |
 | [Smaller precision differences: Eigen has 2% to 10% more rounding error in seven measurements of six functions](eigen/08-precision-small-differences.md) | precision | present in the latest release |
 | [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](eigen/09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |
+| [`inverse()` of a 4x4 matrix gives inf or 0 for small or large entries](eigen/10-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## cglm (15 reports)
+## cglm (16 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -86,8 +88,9 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
 | [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](cglm/15-quat-mat4-non-unit.md) | wrong result | present in the latest release |
+| [`glm_mat4_inv` gives inf or 0 for matrices with small or large entries](cglm/16-mat4-inv-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## HandmadeMath (7 reports)
+## HandmadeMath (8 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -98,8 +101,9 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`HMM_SLerp` uses a normalized lerp up to 0.063 rad: angle errors 120 times the rounding](handmademath/05-slerp-nlerp-threshold.md) | precision | present in the latest release |
 | [`HMM_Rotate_RH` and `HMM_QFromAxisAngle_RH` give NaN for a zero axis](handmademath/06-zero-axis-nan.md) | NaN on degenerate input | present in the latest release |
 | [`HMM_LookAt_RH` gives NaN when the eye is at the target or looks along up](handmademath/07-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
+| [`HMM_InvGeneralM4` gives NaN or 0 for matrices with small or large entries](handmademath/08-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## raymath (8 reports)
+## raymath (9 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -111,8 +115,9 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`QuaternionSlerp` uses a normalized lerp up to 0.64 rad: angle errors up to 9e-4 rad](raymath/06-slerp-nlerp-threshold.md) | wrong result (accuracy) | present in the latest release |
 | [`QuaternionToAxisAngle` is inaccurate for small rotations: 2% error at 1e-3 rad](raymath/07-to-axis-angle-small-rotations.md) | precision | present in the latest release |
 | [`MatrixRotate` with a zero axis returns cos(angle) times the identity](raymath/08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
+| [`MatrixInvert` gives inf or 0 for matrices with small or large entries](raymath/09-matrixinvert-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## linmath.h (5 reports)
+## linmath.h (6 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -121,3 +126,4 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`quat_mul_vec3` and `mat4x4_from_quat` disagree, and neither rotates, when q is not unit length](linmath/03-quat-not-unit.md) | wrong result for non-unit q | present at the latest commit (no releases) |
 | [`mat4x4_rotate` ignores the rotation when the axis is shorter than 1e-4, and `quat_rotate` is NaN for a zero axis](linmath/04-rotate-short-axis-ignored.md) | wrong result; NaN on degenerate input | present at the latest commit (no releases) |
 | [`mat4x4_look_at` gives NaN when the eye is at the target or looks along up](linmath/05-look-at-degenerate-nan.md) | NaN on degenerate input | present at the latest commit (no releases) |
+| [`mat4x4_invert` gives inf or 0 for matrices with small or large entries](linmath/06-invert-tiny-huge-scale.md) | wrong result | present at the latest commit (no releases) |

@@ -11,3 +11,4 @@ Tested: HandmadeMath master, commit [661fef0](https://github.com/HandmadeMath/Ha
 | [`HMM_SLerp` uses a normalized lerp up to 0.063 rad: angle errors 120 times the rounding](05-slerp-nlerp-threshold.md) | precision | present in the latest release |
 | [`HMM_Rotate_RH` and `HMM_QFromAxisAngle_RH` give NaN for a zero axis](06-zero-axis-nan.md) | NaN on degenerate input | present in the latest release |
 | [`HMM_LookAt_RH` gives NaN when the eye is at the target or looks along up](07-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
+| [`HMM_InvGeneralM4` gives NaN or 0 for matrices with small or large entries](08-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
