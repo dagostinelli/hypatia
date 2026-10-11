@@ -45,3 +45,33 @@ matrix4_set_from_quaternion | unit q | 2.915 | 0.6073
 matrix4_set_from_axisv3_angle | random | 2.701 | 0.503
 matrix4_view_lookat_rh | random (error * sin(view, up)) | 1.783 | 0.4142
 matrix4_projection_perspective_fovy_rh | random | 1.067 | 0.3496
+vector3_magnitude | random | 0.9276 | 0.2157
+vector3_magnitude | components 1e-15 .. 1e15 | 0.8892 | 0.07434
+vector2_magnitude | random | 0.8961 | 0.2143
+vector4_magnitude | random | 0.9179 | 0.2166
+vector3_distance | random | 1.182 | 0.2594
+vector3_dot_product | random | 1.175 | 0.1987
+quaternion_set_from_euler_anglesf3 | random | 2.128 | 0.4668
+matrix4_set_from_euler_anglesf3 | random | 1.296 | 0.3905
+quaternion_get_euler_anglesf3 | unit q (rotation of the angles) | 152.6 | 0.3487
+quaternion_get_euler_anglesf3 | pitch within 1e-3 of +-pi/2 (rotation of the angles) | 8.068e+05 | 951.2
+quaternion_get_euler_anglesf3 | q of length 0.1 .. 10 (rotation of the angles) | 8.706e+06 | 6.29e+05
+matrix4_transformation_compose | random | 2.914 | 0.1364
+matrix4_transformation_decompose | random rotation, scale and translation | 1.761 | 0.4867
+matrix4_transformation_decompose | scales 1e-3 .. 1e3 | 1.629 | 0.4908
+matrix4_normal_matrix | random affine (error / condition number) | 0.6279 | 0.07417
+matrix4_projection_ortho3d_rh | random | 0.9002 | 0.1759
+matrix4_projection_frustum_rh | random | 0.9433 | 0.3595
+matrix4_projection_perspective_fovy_infinite_rh | random | 1.087 | 0.2898
+vector3_project_to_window | perspective camera | 14.32 | 0.5126
+vector3_unproject_from_window | perspective camera (error / condition number) | 4.977 | 0.02818
+matrix3_multiply | random | 1.278 | 0.482
+matrix2_multiply | random | 0.9282 | 0.3728
+matrix3_multiplyv2 | random | 1.264 | 0.3048
+matrix2_determinant | random entries | 0.9058 | 0.1689
+matrix3_determinant | random entries | 1.226 | 0.1704
+quaternion_nlerp | random, same hemisphere | 1.399 | 0.3758
+quaternion_nlerp | 1e-6 rad apart | 1.421 | 0.3507
+quaternion_difference | random | 1.906 | 0.3645
+vector3_reflect_by_quaternion | random | 1.784 | 0.3684
+quaternion_rotate_by_axis_angle | random | 1.823 | 0.4617

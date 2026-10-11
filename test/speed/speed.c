@@ -346,6 +346,210 @@ BENCH bench_matrix4_projection_perspective_fovy_rh(void)
 	}
 }
 
+/* ------------------------------------------------------------ the rest */
+
+BENCH bench_vector3_magnitude(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = vector3_magnitude(&v3a[i]);
+	}
+}
+
+BENCH bench_vector3_distance(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = vector3_distance(&v3a[i], &v3b[i]);
+	}
+}
+
+BENCH bench_vector3_dot_product(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = vector3_dot_product(&v3a[i], &v3b[i]);
+	}
+}
+
+BENCH bench_quaternion_set_from_euler_anglesf3(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q;
+		sink = quaternion_set_from_euler_anglesf3(&q, fa[i], fb[i], fc[i])->x;
+	}
+}
+
+BENCH bench_matrix4_set_from_euler_anglesf3(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_set_from_euler_anglesf3(&m, fa[i], fb[i], fc[i])->m[0];
+	}
+}
+
+BENCH bench_quaternion_get_euler_anglesf3(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		HYP_FLOAT x, y, z;
+		quaternion_get_euler_anglesf3(&qu[i], &x, &y, &z);
+		sink = x + y + z;
+	}
+}
+
+BENCH bench_matrix4_transformation_compose(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_transformation_compose(&m, &v3a[i], &qu[i], &v3b[i])->m[0];
+	}
+}
+
+BENCH bench_matrix4_transformation_decompose(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m = m4r[i];
+		struct vector3 s, t;
+		struct quaternion q;
+		matrix4_transformation_decompose(&m, &s, &q, &t);
+		sink = q.x;
+	}
+}
+
+BENCH bench_matrix4_normal_matrix(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		if (matrix4_normal_matrix(&m4a[i], &m) != NULL) {
+			sink = m.m[0];
+		}
+	}
+}
+
+BENCH bench_matrix4_projection_ortho3d_rh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_projection_ortho3d_rh(&m, -fb[i], fb[i], -fb[i], fb[i], fc[i], fd[i])->m[0];
+	}
+}
+
+BENCH bench_matrix4_projection_frustum_rh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_projection_frustum_rh(&m, -fc[i], fc[i], -fc[i], fc[i], fc[i], fd[i])->m[0];
+	}
+}
+
+BENCH bench_matrix4_projection_perspective_fovy_infinite_rh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_projection_perspective_fovy_infinite_rh(&m, fb[i], fb[i], fc[i])->m[0];
+	}
+}
+
+BENCH bench_vector3_project_to_window(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct vector3 v = v3a[i];
+		if (vector3_project_to_window(&v, &m4r[i], &v4a[i]) != NULL) {
+			sink = v.x;
+		}
+	}
+}
+
+BENCH bench_vector3_unproject_from_window(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct vector3 v = v3a[i];
+		if (vector3_unproject_from_window(&v, &m4r[i], &v4a[i]) != NULL) {
+			sink = v.x;
+		}
+	}
+}
+
+BENCH bench_matrix3_multiply(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix3 m = m3a[i];
+		sink = matrix3_multiply(&m, &m3a[(i + 1) % M])->m[0];
+	}
+}
+
+BENCH bench_matrix3_multiplyv2(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct vector2 r;
+		sink = matrix3_multiplyv2(&m3a[i], &v2a[i], &r)->x;
+	}
+}
+
+BENCH bench_matrix2_determinant(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = matrix2_determinant(&m2a[i]);
+	}
+}
+
+BENCH bench_matrix3_determinant(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = matrix3_determinant(&m3a[i]);
+	}
+}
+
+BENCH bench_quaternion_nlerp(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q;
+		sink = quaternion_nlerp(&qu[i], &qv[i], fa[i], &q)->x;
+	}
+}
+
+BENCH bench_quaternion_difference(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = quaternion_difference(&qu[i], &qv[i]);
+	}
+}
+
+BENCH bench_vector3_reflect_by_quaternion(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct vector3 v = v3a[i];
+		sink = vector3_reflect_by_quaternion(&v, &qu[i])->x;
+	}
+}
+
+BENCH bench_quaternion_rotate_by_axis_angle(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q = qu[i];
+		sink = quaternion_rotate_by_axis_angle(&q, &v3a[i], fb[i])->x;
+	}
+}
+
 int main(void)
 {
 	prepare();
@@ -382,6 +586,29 @@ int main(void)
 	bench_matrix4_set_from_axisv3_angle();
 	bench_matrix4_view_lookat_rh();
 	bench_matrix4_projection_perspective_fovy_rh();
+
+	bench_vector3_magnitude();
+	bench_vector3_distance();
+	bench_vector3_dot_product();
+	bench_quaternion_set_from_euler_anglesf3();
+	bench_matrix4_set_from_euler_anglesf3();
+	bench_quaternion_get_euler_anglesf3();
+	bench_matrix4_transformation_compose();
+	bench_matrix4_transformation_decompose();
+	bench_matrix4_normal_matrix();
+	bench_matrix4_projection_ortho3d_rh();
+	bench_matrix4_projection_frustum_rh();
+	bench_matrix4_projection_perspective_fovy_infinite_rh();
+	bench_vector3_project_to_window();
+	bench_vector3_unproject_from_window();
+	bench_matrix3_multiply();
+	bench_matrix3_multiplyv2();
+	bench_matrix2_determinant();
+	bench_matrix3_determinant();
+	bench_quaternion_nlerp();
+	bench_quaternion_difference();
+	bench_vector3_reflect_by_quaternion();
+	bench_quaternion_rotate_by_axis_angle();
 
 	return 0;
 }
