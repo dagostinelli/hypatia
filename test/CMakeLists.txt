@@ -81,3 +81,20 @@ foreach(precision ${HYP_PRECISIONS})
 	TARGET_COMPILE_DEFINITIONS(test_hypatia_shared_${precision}_precision PRIVATE ${HYP_SHARED_IMPORT})
 	TARGET_LINK_LIBRARIES(test_hypatia_shared_${precision}_precision ${library})
 endforeach()
+
+# the precision gate: the errors of the functions, measured against _Float128
+# references, compared with the baselines in precision/
+OPTION(HYPATIA_PRECISION_CHECK "Build the precision measurements and check them against the baselines" OFF)
+if(HYPATIA_PRECISION_CHECK)
+	if(NOT HYP_HAS_QUAD_PRECISION)
+		MESSAGE(FATAL_ERROR "HYPATIA_PRECISION_CHECK needs _Float128 and the f128 math functions")
+	endif()
+	foreach(precision single double)
+		SET(target precision_${precision})
+		ADD_EXECUTABLE(${target} precision/precision.c)
+		hyp_precision(${target} ${precision})
+		TARGET_LINK_LIBRARIES(${target} hypatia::hypatia)
+		ADD_TEST(NAME precision_check_${precision}
+			COMMAND ${target} --check ${CMAKE_CURRENT_SOURCE_DIR}/precision/baseline_${precision}.txt)
+	endforeach()
+endif()
