@@ -60,9 +60,9 @@ From `compare/results/precision/summary.md`, default seed:
     sign error (fixed in cglm 0.9.5), and GLM's `quatLookAt` fails when up is nearly
     parallel to the view direction (below).
 - **Reports:** every case where another library is wrong or less precise is written up as
-  an issue report with a program that shows it, in `docs/reports/` (71 reports: 47 for GLM,
-  Eigen and cglm, and 24 for HandmadeMath, raymath and linmath.h, which the precision
-  tables do not cover; 70 still present upstream).
+  an issue report with a program that shows it, in `docs/reports/` (74 reports: 49 for GLM,
+  Eigen and cglm, and 25 for HandmadeMath, raymath and linmath.h, which the precision
+  tables do not cover; 73 still present upstream).
 - **Regressions:** none: now is not less precise than master in any measurement.
 
 ## How to check these results
