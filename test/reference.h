@@ -6,7 +6,7 @@
 /* References in double for the single precision tests that check precision
  * to the ulp.  Without <math.h>: the HYP_NO_C_MATH build runs them too.
  */
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 
 /* sqrt in double: Newton steps from the float square root */
 static double reference_sqrt(double x)

@@ -823,7 +823,8 @@ static const char *test_vector3_angle_between_parallel_small_zero(void)
 }
 
 
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+/* the last-ulp tests: HYP_FAST does not promise the last ulp */
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 static const char *test_vector3_normalize_correctly_rounded(void)
 {
 	struct vector3 v;
@@ -866,13 +867,100 @@ static const char *test_vector3_normalize_correctly_rounded(void)
 
 	return NULL;
 }
+
+
+/* the angle between the float vectors a and b, by 2 atan(|ua - ub| / |ua + ub|)
+ * of the unit vectors in double, with the series for a small ratio
+ */
+static double reference_small_angle(const HYP_FLOAT *a, const HYP_FLOAT *b, int n)
+{
+	double length_a = 0.0;
+	double length_b = 0.0;
+	double difference = 0.0;
+	double sum = 0.0;
+	double ratio;
+	int k;
+
+	for (k = 0; k < n; k++) {
+		double x = a[k];
+		double y = b[k];
+		length_a += x * x;
+		length_b += y * y;
+	}
+	length_a = reference_sqrt(length_a);
+	length_b = reference_sqrt(length_b);
+	for (k = 0; k < n; k++) {
+		double x = a[k];
+		double y = b[k];
+		double d = x / length_a - y / length_b;
+		double s = x / length_a + y / length_b;
+		difference += d * d;
+		sum += s * s;
+	}
+	ratio = reference_sqrt(difference) / reference_sqrt(sum);
+
+	return 2.0 * (ratio - ratio * ratio * ratio / 3.0);
+}
+
+
+static const char *test_vector_angle_between_small_ulp(void)
+{
+	struct vector3 a;
+	struct vector3 b;
+	struct vector2 c;
+	struct vector2 d;
+	double u[3];
+	double p[3];
+	double length;
+	double exact;
+	double got;
+	double error;
+	int i;
+	int k;
+
+	/* vectors of different lengths about 1e-6 rad apart: within one ulp of
+	 * the angle between the rounded vectors
+	 */
+	for (i = 0; i < 5000; i++) {
+		double scale_a = 1.0 + 9.0 * reference_random();
+		double scale_b = 1.0 + 9.0 * reference_random();
+		for (k = 0; k < 3; k++) {
+			u[k] = 2.0 * reference_random() - 1.0;
+			p[k] = 2.0 * reference_random() - 1.0;
+		}
+		/* p perpendicular to u */
+		length = (u[0] * p[0] + u[1] * p[1] + u[2] * p[2]) / (u[0] * u[0] + u[1] * u[1] + u[2] * u[2]);
+		for (k = 0; k < 3; k++) {
+			p[k] -= length * u[k];
+		}
+		length = reference_sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]) / reference_sqrt(u[0] * u[0] + u[1] * u[1] + u[2] * u[2]);
+		for (k = 0; k < 3; k++) {
+			a.v[k] = (HYP_FLOAT)(u[k] * scale_a);
+			b.v[k] = (HYP_FLOAT)((u[k] + 1e-6 * p[k] / length) * scale_b);
+		}
+		exact = reference_small_angle(a.v, b.v, 3);
+		got = vector3_angle_between(&a, &b);
+		error = got - exact;
+		test_assert((error < 0.0 ? -error : error) <= reference_float_ulp(exact));
+
+		vector2_setf2(&c, (HYP_FLOAT)(u[0] * scale_a), (HYP_FLOAT)(u[1] * scale_a));
+		vector2_setf2(&d, (HYP_FLOAT)((u[0] - 1e-6 * u[1]) * scale_b), (HYP_FLOAT)((u[1] + 1e-6 * u[0]) * scale_b));
+		exact = reference_small_angle(c.v, d.v, 2);
+		got = vector2_angle_between(&c, &d);
+		error = got - exact;
+		test_assert((error < 0.0 ? -error : error) <= reference_float_ulp(exact));
+	}
+
+	return NULL;
+}
 #endif
 
 
 static const char *vector3_all_tests(void)
 {
-#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+#if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_vector3_normalize_correctly_rounded);
+	run_test(test_vector_angle_between_small_ulp);
 #endif
 	run_test(test_vector3_angle_between_parallel_small_zero);
 	run_test(test_vector3_normalize_infinite);

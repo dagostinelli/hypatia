@@ -88,7 +88,8 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYPATIA_SINGLE_PRECISION_FLOATS` | `HYP_FLOAT` is `float` instead of `double`. | |
 | `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` | `HYP_FLOAT` is `long double` instead of `double`.  Needs the C99 math functions (`sinl`, `cosl`, ...).  On MSVC and on macOS arm64, `long double` is the same as `double`. | |
-| `HYPATIA_QUAD_PRECISION_FLOATS` | `HYP_FLOAT` is `_Float128` (IEEE binary128, emulated in software on most machines) instead of `double`.  Needs `_Float128` and the `f128` math functions (`sinf128`, `cosf128`, ...): GCC 7 or later with glibc 2.26 or later, on x86 or AArch64 Linux.  `hypatia.h` defines `__STDC_WANT_IEC_60559_TYPES_EXT__` before it includes `<math.h>`; a file that includes `<math.h>` first must define it before that include. | |
+| `HYPATIA_QUAD_PRECISION_FLOATS` | `HYP_FLOAT` is IEEE binary128 (emulated in software on most machines) instead of `double`, in the spelling the compiler has.  GCC 7 or later with glibc 2.26 or later: `_Float128` and `sinf128`, ...; nothing extra to link.  A 113-bit `long double` (AArch64 Linux, any compiler): `long double` and `sinl`, ... (C99); nothing extra to link.  Clang, MinGW GCC, or GCC with an older C library, on x86-64: `__float128` and `sinq`, ... from libquadmath; link with `-lquadmath`.  With GCC's `_Float128`, `hypatia.h` defines `__STDC_WANT_IEC_60559_TYPES_EXT__` before it includes `<math.h>`; a file that includes `<math.h>` first must define it before that include.  To use another 128-bit type, define `HYP_FLOAT`, `HYP_FLOAT_C` and the math macros. | |
+| `HYP_FAST` | Plain formulas instead of exact arithmetic: normalize, the lengths and angles, slerp, the rotation functions and the inverses do 2.5 to 10 times less work.  Every input still has a defined result, and the robust formulas stay (atan2, no cancellation near parallel or opposite vectors).  What goes is the last ulp: errors are about 1 to 2 ulps instead of half an ulp, and a tiny angle between vectors of different lengths is accurate in absolute terms, not to the last digit.  The measured errors are in test/precision/baseline_fast_single.txt and baseline_fast_double.txt. | |
 | `HYP_EPSILON` | The tolerance of the `*_equals` functions: absolute for values up to 1 in size, relative above 1. | `1E-5` |
 
 **Standard library**
@@ -97,7 +98,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_STDIO` | Leaves out `<stdio.h>` and the `hyp_*_print` debug functions. | |
 | `HYP_NO_C_MATH` | Leaves out `<math.h>`.  Then define all eight math macros below. | |
-| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT`; `sqrtl`, `fmodl`, ... with `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`; `sqrtf128`, `fmodf128`, ... with `HYPATIA_QUAD_PRECISION_FLOATS` |
+| `HYP_SQRT`, `HYP_FMOD`, `HYP_SIN`, `HYP_COS`, `HYP_TAN`, `HYP_ASIN`, `HYP_ACOS`, `HYP_ATAN2` | The math functions. | `sqrt`, `fmod`, ... from `<math.h>`, converted to `HYP_FLOAT`; `sqrtl`, `fmodl`, ... with `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`; `sqrtf128`, `sqrtl` or `sqrtq`, ... with `HYPATIA_QUAD_PRECISION_FLOATS` |
 | `HYP_MEMSET(a, b, c)` | Replaces `memset`. | `memset` from `<string.h>` |
 | `HYP_RANDOM()`, `HYP_RANDOM_MAX` | The random number source of `scalar_random_rangef` and the `*_set_random_unit` functions: `HYP_RANDOM()` returns an integer from 0 to `HYP_RANDOM_MAX`; define both or neither. | `rand()`, `RAND_MAX` |
 
@@ -121,6 +122,7 @@ Results that differ from 2.0:
 * matrix2 and matrix3 are applied as M * v, like matrix4; the elements of their rotation matrices are transposed from 2.0.
 * `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
+* `quaternion_get_euler_anglesf3` takes each angle from one atan2: accurate near a pitch of +-pi/2, where the asin it used lost half the digits, and correct for quaternions of any length.
 * `quaternion_get_rotation_tov3` returns a unit quaternion for vectors of any length; `quaternion_get_axis_anglev3` is accurate for small rotations and returns a unit axis and an angle in [0, pi].
 * Normalizing leaves only an exactly zero vector unchanged (2.0: anything shorter than 1e-5); `vector2_normalize` no longer gives NaN.
 * `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1, and slerp stays accurate for nearly equal quaternions; with a negative dot product slerp ends at -end, the same rotation as end.
@@ -129,6 +131,7 @@ Results that differ from 2.0:
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * `matrix2/3/4_inverse` invert matrices with very small or very large entries whenever the inverse is in range: they scale the matrix by a power of two first, so the determinant does not underflow or overflow.
 * Normalizing is correctly rounded: each component is the exact quotient rounded once (within half an ulp), for vectors of any length.  It uses exact products (Dekker's splitting), which costs more arithmetic than a plain square root and division.
+* `vector2_angle_between` and `vector3_angle_between` take the angle from the vectors as given, without normalizing them, in the same way: within an ulp also for nearly parallel vectors.
 * `quaternion_angle_between` and `quaternion_slerp` take the angle from the quaternions as given, without normalizing them, with exact products and sums: within an ulp also for nearly equal rotations.  `quaternion_slerp` combines its two terms with one rounding.
 * `quaternion_get_rotation_tov3` takes the axis of nearly equal vectors from their difference; `quaternion_get_axis_anglev3` divides the axis by the same length that gives the angle; `quaternion_set_from_axis_anglev3` no longer normalizes its result a second time.
 * The 2x2 minors in the determinants, the inverses and `matrix4_normal_matrix` are rounded once each.
@@ -157,6 +160,28 @@ Compared with other math libraries for graphics, the concrete differences are:
 * very large and very small values don't break normalize or inverse;
 * double, long double and quad precision modes are available.
 
+The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
+
+The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse, in the default mode or with `HYP_FAST` (baseline_fast_single.txt and baseline_fast_double.txt).  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the gates need each other.
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
+cmake --build build --target precision_single precision_double
+ctest --test-dir build -R precision_check --output-on-failure
+build/test/precision_double > test/precision/baseline_double.txt   # to update a baseline
+```
+
+The speed gate answers "how much work is it?"  test/speed/speed.c calls each function on a fixed set of inputs, and test/speed/speed.sh counts the instructions per call with valgrind.  It counts instructions rather than timing, because a time on a shared CI runner can be off by tens of percent, while the count comes out the same on every run.  CI fails a change that makes any function take more than 2% more instructions than test/speed/baseline_single.txt or baseline_double.txt.  As with precision, update the baseline in the same commit when a number gets better, or when a change is meant to buy precision with speed (say so in the commit).
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_SPEED_CHECK=ON
+cmake --build build --target speed_single speed_double
+ctest --test-dir build -R speed_check --output-on-failure
+sh test/speed/speed.sh build/test/speed_double > test/speed/baseline_double.txt   # to update a baseline
+```
+
+None of the gates checks API compatibility, or measures the precision of the long double and quad modes.
+
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
 A word about convention
@@ -178,13 +203,14 @@ Conventions:
 New in 2.1:
 
 * Long double precision: `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`.
-* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`.
+* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`, with `_Float128` (GCC), a 113-bit `long double` (AArch64) or `__float128` and libquadmath (Clang, MinGW).
+* A fast mode: `HYP_FAST`.
 
 Coding Standard
 ---------------
 
 * Mathematical correctness comes first; a design choice that conflicts with it is a bug
-* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, <stdint.h> / uint8_t, the C99 math functions in long double mode, and _Float128 with its f128 literals and math functions in quad mode)
+* Ensure C89/C90 compatibility (exceptions: the anonymous unions in the types, <stdint.h> / uint8_t, the C99 math functions in long double mode, and the 128-bit type with its literals and math functions in quad mode)
 * Warnings are errors; fix the code, never turn a warning off
 * Check that the coding style is consistent with the rest of the codebase.
 	- curly brace placement
@@ -218,6 +244,7 @@ Numerical principles:
 * Scale before squaring so that lengths neither overflow nor underflow; divide by a value rather than multiply by a reciprocal that can overflow
 * A function of rotations gives the same result for q and -q
 * Measure precision instead of assuming it: the error in ulps against a reference in higher precision, on random and on hard inputs, with the reference itself checked a second way
+* The default is precise: a speedup there must give the same bits (the precision output is unchanged) and less work (the speed gate).  `HYP_FAST` gives up the last ulps for speed, never correctness: every input still has a defined result
 * Compare with other libraries on the same inputs, and publish the commands that reproduce each claim
 
 Unit Tests
