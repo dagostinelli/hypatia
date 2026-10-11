@@ -14,7 +14,8 @@ When `up` is parallel to `dir`, `glm_vec3_crossn(up, -dir)` normalizes a zero cr
 product to zero, the matrix passed to `glm_mat3_quat` has two zero columns, and the result
 has length 0.71.  It is a multiple of the rotation from -Z to `dir`, but not a unit
 quaternion: `glm_quat_mat4` turns it into a matrix that takes -Z to (0, 0.707, -0.293), not
-to `dir`.  `glm_quat_rotatev` normalizes its input and is not affected.
+to `dir` (see also [15](15-quat-mat4-non-unit.md)).  `glm_quat_rotatev` normalizes its
+input and is not affected.
 
 ## Reproduction
 
