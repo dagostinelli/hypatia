@@ -122,6 +122,7 @@ Results that differ from 2.0:
 * matrix2 and matrix3 are applied as M * v, like matrix4; the elements of their rotation matrices are transposed from 2.0.
 * `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
 * `matrix4_multiplyv2` treats z as 0.
+* `quaternion_get_euler_anglesf3` takes each angle from one atan2: accurate near a pitch of +-pi/2, where the asin it used lost half the digits, and correct for quaternions of any length.
 * `quaternion_get_rotation_tov3` returns a unit quaternion for vectors of any length; `quaternion_get_axis_anglev3` is accurate for small rotations and returns a unit axis and an angle in [0, pi].
 * Normalizing leaves only an exactly zero vector unchanged (2.0: anything shorter than 1e-5); `vector2_normalize` no longer gives NaN.
 * `quaternion_inverse`, `quaternion_lerp` and `quaternion_slerp` have no shortcuts near 0 or 1, and slerp stays accurate for nearly equal quaternions; with a negative dot product slerp ends at -end, the same rotation as end.

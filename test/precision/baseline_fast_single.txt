@@ -53,9 +53,9 @@ vector3_distance | random | 1.182 | 0.2594
 vector3_dot_product | random | 1.175 | 0.1987
 quaternion_set_from_euler_anglesf3 | random | 2.128 | 0.4668
 matrix4_set_from_euler_anglesf3 | random | 1.296 | 0.3905
-quaternion_get_euler_anglesf3 | unit q (rotation of the angles) | 152.6 | 0.3487
-quaternion_get_euler_anglesf3 | pitch within 1e-3 of +-pi/2 (rotation of the angles) | 8.068e+05 | 951.2
-quaternion_get_euler_anglesf3 | q of length 0.1 .. 10 (rotation of the angles) | 8.706e+06 | 6.29e+05
+quaternion_get_euler_anglesf3 | unit q (rotation of the angles) | 1.378 | 0.3276
+quaternion_get_euler_anglesf3 | pitch within 1e-3 of +-pi/2 (rotation of the angles) | 0.9811 | 0.2926
+quaternion_get_euler_anglesf3 | q of length 0.1 .. 10 (rotation of the angles) | 1.272 | 0.3322
 matrix4_transformation_compose | random | 2.914 | 0.1364
 matrix4_transformation_decompose | random rotation, scale and translation | 1.761 | 0.4867
 matrix4_transformation_decompose | scales 1e-3 .. 1e3 | 1.629 | 0.4908

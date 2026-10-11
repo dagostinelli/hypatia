@@ -1562,8 +1562,48 @@ static const char *test_quaternion_get_rotation_tov3_nearly_equal_ulp(void)
 #endif
 
 
+static const char *test_quaternion_get_euler_anglesf3_gimbal_and_length(void)
+{
+	struct quaternion q;
+	struct quaternion scaled;
+	struct quaternion back;
+	HYP_FLOAT ax, ay, az;
+	HYP_FLOAT sx, sy, sz;
+	uint8_t i;
+
+	/* near gimbal lock the angles give back the same rotation (an asin of
+	 * the pitch loses half the digits there)
+	 */
+	quaternion_set_from_euler_anglesf3(&q, HYP_FLOAT_C(0.3), HYP_PI_HALF - HYP_FLOAT_C(1e-4), HYP_FLOAT_C(0.7));
+	quaternion_get_euler_anglesf3(&q, &ax, &ay, &az);
+	quaternion_set_from_euler_anglesf3(&back, ax, ay, az);
+	if (quaternion_dot_product(&q, &back) < HYP_FLOAT_C(0.0)) {
+		quaternion_negate(&back);
+	}
+	test_assert(quaternion_equals(&q, &back));
+
+	/* a quaternion of any length gives the angles of its rotation */
+	quaternion_set_from_euler_anglesf3(&q, HYP_FLOAT_C(0.3), HYP_FLOAT_C(-0.4), HYP_FLOAT_C(0.7));
+	quaternion_get_euler_anglesf3(&q, &ax, &ay, &az);
+	quaternion_set(&scaled, &q);
+	for (i = 0; i < 4; i++) {
+		scaled.q[i] *= HYP_FLOAT_C(3.0);
+	}
+	quaternion_get_euler_anglesf3(&scaled, &sx, &sy, &sz);
+	test_assert(scalar_equalsf(ax, sx));
+	test_assert(scalar_equalsf(ay, sy));
+	test_assert(scalar_equalsf(az, sz));
+	test_assert(scalar_equalsf(ax, HYP_FLOAT_C(0.3)));
+	test_assert(scalar_equalsf(ay, HYP_FLOAT_C(-0.4)));
+	test_assert(scalar_equalsf(az, HYP_FLOAT_C(0.7)));
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_get_euler_anglesf3_gimbal_and_length);
 #if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_quaternion_angle_between_ulp);
 	run_test(test_quaternion_get_rotation_tov3_nearly_equal_ulp);
