@@ -202,7 +202,8 @@ Conventions:
 New in 2.1:
 
 * Long double precision: `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`.
-* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`.
+* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`, with `_Float128` (GCC), a 113-bit `long double` (AArch64) or `__float128` and libquadmath (Clang, MinGW).
+* A fast mode: `HYP_FAST`.
 
 Coding Standard
 ---------------
