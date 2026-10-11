@@ -160,7 +160,7 @@ Compared with other math libraries for graphics, the concrete differences are:
 
 The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
 
-The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse.  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the two gates need each other.
+The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse.  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the gates need each other.
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
@@ -169,7 +169,16 @@ ctest --test-dir build -R precision_check --output-on-failure
 build/test/precision_double > test/precision/baseline_double.txt   # to update a baseline
 ```
 
-Neither gate measures speed, checks API compatibility, or measures the precision of the long double and quad modes.
+The speed gate answers "how much work is it?"  test/speed/speed.c calls each function on a fixed set of inputs, and test/speed/speed.sh counts the instructions per call with valgrind.  It counts instructions rather than timing, because a time on a shared CI runner can be off by tens of percent, while the count comes out the same on every run.  CI fails a change that makes any function take more than 2% more instructions than test/speed/baseline_single.txt or baseline_double.txt.  As with precision, update the baseline in the same commit when a number gets better, or when a change is meant to buy precision with speed (say so in the commit).
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_SPEED_CHECK=ON
+cmake --build build --target speed_single speed_double
+ctest --test-dir build -R speed_check --output-on-failure
+sh test/speed/speed.sh build/test/speed_double > test/speed/baseline_double.txt   # to update a baseline
+```
+
+None of the gates checks API compatibility, or measures the precision of the long double and quad modes.
 
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
