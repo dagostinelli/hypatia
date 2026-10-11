@@ -1313,15 +1313,33 @@ static void hyp_exact_sum(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *sum, HYP_FLOAT *e
 
 
 #ifdef HYP_SPLIT
+/* HYP_ROUNDED makes a product a variable holds rounded to HYP_FLOAT, not fused
+ * with a later addition into a multiply-add (floating-point contraction) and
+ * not kept in a wider register.  volatile does that on every compiler, at the
+ * cost of a store and a load.  On x86-64 without FMA instructions and with
+ * SSE arithmetic (__FLT_EVAL_METHOD__ 0; MSVC without /arch:AVX2) neither can
+ * happen, and a plain variable gives the same values.
+ */
+#if defined(__x86_64__) && !defined(__FMA__) && defined(__FLT_EVAL_METHOD__)
+#	if __FLT_EVAL_METHOD__ == 0
+#		define HYP_ROUNDED
+#	endif
+#elif defined(_M_X64) && !defined(__AVX2__) && !defined(__clang__)
+#	define HYP_ROUNDED
+#endif
+#ifndef HYP_ROUNDED
+#	define HYP_ROUNDED volatile
+#endif
+
 /* the high half of a, so that a = high + (a - high) with both halves short
  * enough that their products are exact
  */
 static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
 {
-	/* volatile: the product must be rounded before it is used; a compiler
-	 * that fuses it with the subtraction into a multiply-add breaks the split
+	/* rounded before it is used (HYP_ROUNDED): a compiler that fuses it with
+	 * the subtraction into a multiply-add breaks the split
 	 */
-	volatile HYP_FLOAT c = HYP_SPLIT * a;
+	HYP_ROUNDED HYP_FLOAT c = HYP_SPLIT * a;
 
 	return c - (c - a);
 }
@@ -1335,10 +1353,10 @@ static void hyp_exact_product_split(HYP_FLOAT a, HYP_FLOAT ah, HYP_FLOAT b, HYP_
 {
 	HYP_FLOAT al = a - ah;
 	HYP_FLOAT bl = b - bh;
-	/* volatile, as in hyp_split_high: *lo is the error of this rounded
+	/* rounded, as in hyp_split_high: *lo is the error of this rounded
 	 * product, not of a fused one
 	 */
-	volatile HYP_FLOAT product = a * b;
+	HYP_ROUNDED HYP_FLOAT product = a * b;
 
 	*hi = product;
 	*lo = ((ah * bh - *hi) + ah * bl + al * bh) + al * bl;
@@ -6650,6 +6668,7 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 
 #undef HYP_CAT
 #undef HYP_SPLIT
+#undef HYP_ROUNDED
 #undef HYP_PRIMITIVE_CAT
 #undef HYP_DEC
 #undef HYP_DEC_11
