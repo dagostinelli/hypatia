@@ -254,6 +254,35 @@ static const char *test_hyp_constants_full_precision(void)
 	return NULL;
 }
 
+#ifdef HYPATIA_QUAD_PRECISION_FLOATS
+/* true when c holds bits that a narrower type rounds away: a quad literal that
+ * went through long double or double on the way would not
+ */
+static int quad_bits(HYP_FLOAT c)
+{
+#if defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ < 113
+	if (floats_identical((HYP_FLOAT)(long double)c, c)) {
+		return 0;
+	}
+#endif
+	return !floats_identical((HYP_FLOAT)(double)c, c);
+}
+
+
+static const char *test_hyp_constants_quad_bits(void)
+{
+	test_assert(quad_bits(HYP_PI));
+	test_assert(quad_bits(HYP_TAU));
+	test_assert(quad_bits(HYP_PI_HALF));
+	test_assert(quad_bits(HYP_PI_SQUARED));
+	test_assert(quad_bits(HYP_E));
+	test_assert(quad_bits(HYP_RAD_PER_DEG));
+	test_assert(quad_bits(HYP_DEG_PER_RAD));
+	return NULL;
+}
+#endif
+
+
 static const char *test_scalar_random_rangef_scripted_values(void)
 {
 	static const long values[] = {0, 1073741824L};
@@ -421,6 +450,9 @@ static const char *utility_all_tests(void)
 	run_test(test_hyp_rad_to_deg);
 	run_test(test_hyp_deg_rad_roundtrip);
 	run_test(test_hyp_constants_full_precision);
+#ifdef HYPATIA_QUAD_PRECISION_FLOATS
+	run_test(test_hyp_constants_quad_bits);
+#endif
 	run_test(test_scalar_random_rangef_scripted_values);
 	run_test(test_scalar_random_rangef_below_one);
 	run_test(test_scalar_random_rangef_bounds);
