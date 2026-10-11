@@ -823,8 +823,57 @@ static const char *test_vector3_angle_between_parallel_small_zero(void)
 }
 
 
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+static const char *test_vector3_normalize_correctly_rounded(void)
+{
+	struct vector3 v;
+	double r[3];
+	double length;
+	int i;
+	int k;
+	int e;
+
+	/* each component of the result is the exact quotient rounded once:
+	 * within half an ulp of the reference, for lengths from 1e-18 to 1e18
+	 */
+	for (i = 0; i < 10000; i++) {
+		double scale = 1.0;
+		for (e = (int)(reference_random() * 120.0) - 60; e > 0; e--) {
+			scale *= 2.0;
+		}
+		for (e = (int)(reference_random() * 120.0) - 60; e < 0; e++) {
+			scale /= 2.0;
+		}
+		for (k = 0; k < 3; k++) {
+			v.v[k] = (HYP_FLOAT)((2.0 * reference_random() - 1.0) * scale);
+			r[k] = v.v[k];
+		}
+		length = reference_sqrt(r[0] * r[0] + r[1] * r[1] + r[2] * r[2]);
+		if (!(length > 0.0)) {
+			continue;
+		}
+		vector3_normalize(&v);
+		for (k = 0; k < 3; k++) {
+			double exact = r[k] / length;
+			double got = v.v[k];
+			double error = got - exact;
+			if (exact * exact < 1e-24) {
+				continue; /* a float subnormal */
+			}
+			test_assert((error < 0.0 ? -error : error) <= 0.5 * reference_float_ulp(exact) * (1.0 + 1e-6));
+		}
+	}
+
+	return NULL;
+}
+#endif
+
+
 static const char *vector3_all_tests(void)
 {
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	run_test(test_vector3_normalize_correctly_rounded);
+#endif
 	run_test(test_vector3_angle_between_parallel_small_zero);
 	run_test(test_vector3_normalize_infinite);
 	run_test(test_vector3_project_short_and_long);
