@@ -14,30 +14,35 @@
 infinite.  Just below 1 the dot product is rounded to within half an ulp, eps/4, and for
 an angle a near 0 that becomes an error of up to about eps/(4 a) in the angle: 5.6e-11 at
 1e-6 rad in double, where the program below shows 4.4e-11 (a relative error of 4.4e-5).
-Below about 1.05e-8 rad (2^-26.5) the cosine rounds to 1 and the angle is 0.  In float
-the threshold is about 2.44e-4 rad (2^-12).
+Below about 1.05e-8 rad (2^-26.5) the cosine rounds to 1 and the angle is 0.  Vectors the
+same distance from opposite give the same errors near pi.  In float the threshold is about
+2.44e-4 rad (2^-12): vectors 2e-4 rad apart give 0.
 
 ## Reproduction
 
 ```cpp
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/vector_angle.hpp>
 #include <cmath>
 #include <cstdio>
-
-#include <glm/gtx/vector_angle.hpp>
 
 int main()
 {
 	double angles[3] = {1e-3, 1e-6, 1e-8};
+	long double pi = 3.14159265358979323846264338L;
+	glm::dvec3 x(1, 0, 0);
 	for (double a : angles) {
-		glm::dvec3 x(1, 0, 0);
-		glm::dvec3 y(std::cos(a), std::sin(a), 0);
-		double g = glm::angle(x, y);
+		double g = glm::angle(x, glm::dvec3(std::cos(a), std::sin(a), 0));
 		std::printf("vectors %g rad apart: glm::angle = %.17g, relative error %.2g\n", a, g, std::fabs(g - a) / a);
 	}
+	for (double a : angles) {
+		double g = glm::angle(x, glm::dvec3(-std::cos(a), std::sin(a), 0));
+		std::printf("vectors %g rad from opposite: glm::angle = %.17g, error %.2Lg\n", a, g, fabsl(g - (pi - a)));
+	}
+	float af = 2e-4f;
+	std::printf("float, vectors 2e-4 rad apart: glm::angle = %g\n",
+	            glm::angle(glm::vec3(1, 0, 0), glm::vec3(std::cos(af), std::sin(af), 0)));
 }
 ```
 
@@ -47,9 +52,13 @@ Output (x86-64, gcc 13.3, `-O2`):
 vectors 0.001 rad apart: glm::angle = 0.00099999999999216861, relative error 7.8e-12
 vectors 1e-06 rad apart: glm::angle = 1.0000444493033419e-06, relative error 4.4e-05
 vectors 1e-08 rad apart: glm::angle = 0, relative error 1
+vectors 0.001 rad from opposite: glm::angle = 3.1405926535898012, error 8e-15
+vectors 1e-06 rad from opposite: glm::angle = 3.1415916535453441, error 4.4e-11
+vectors 1e-08 rad from opposite: glm::angle = 3.1415926535897931, error 1e-08
+float, vectors 2e-4 rad apart: glm::angle = 0
 ```
 
-Expected: the angle to within a few epsilons (relative error about 1e-16).
+Expected: a relative error of about 1e-16 near 0, and an error of about 1e-16 near pi.
 
 ## Cause
 
@@ -57,6 +66,13 @@ Expected: the angle to within a few epsilons (relative error about 1e-16).
 `return acos(clamp(dot(x, y), T(-1), T(1)));`.  The cosine of a small angle a is
 1 - a^2/2; the dot product carries it with an absolute error of up to eps/4, which leaves
 a^2 with an absolute error of up to eps/2.
+
+## Suggested fix
+
+`return atan2(length(cross(x, y)), dot(x, y));` for 3D (and `atan2(abs(x.x y.y - x.y y.x),
+dot(x, y))` for 2D).  It needs no clamp, and it is scale-invariant: x and y need not be
+unit vectors.  Normalizing them first only guards against overflow and underflow in the
+cross and dot products.
 
 ## How hypatia does it
 
@@ -74,16 +90,17 @@ need to be unit length.
 int main(void)
 {
 	double angles[3] = {1e-3, 1e-6, 1e-8};
+	long double pi = 3.14159265358979323846264338L;
+	struct vector3 y;
+	double h;
 	int i;
 	for (i = 0; i < 3; i++) {
-		struct vector3 x;
-		struct vector3 y;
-		double a = angles[i];
-		double h;
-		vector3_setf3(&x, 1, 0, 0);
-		vector3_setf3(&y, cos(a), sin(a), 0);
-		h = vector3_angle_between(&x, &y);
-		printf("vectors %g rad apart: vector3_angle_between = %.17g, relative error %.2g\n", a, h, fabs(h - a) / a);
+		h = vector3_angle_between(HYP_VECTOR3_UNIT_X, vector3_setf3(&y, cos(angles[i]), sin(angles[i]), 0));
+		printf("vectors %g rad apart: vector3_angle_between = %.17g, relative error %.2g\n", angles[i], h, fabs(h - angles[i]) / angles[i]);
+	}
+	for (i = 0; i < 3; i++) {
+		h = vector3_angle_between(HYP_VECTOR3_UNIT_X, vector3_setf3(&y, -cos(angles[i]), sin(angles[i]), 0));
+		printf("vectors %g rad from opposite: vector3_angle_between = %.17g, error %.2Lg\n", angles[i], h, fabsl(h - (pi - angles[i])));
 	}
 	return 0;
 }
@@ -93,17 +110,15 @@ int main(void)
 vectors 0.001 rad apart: vector3_angle_between = 0.001, relative error 0
 vectors 1e-06 rad apart: vector3_angle_between = 1.0000000000000002e-06, relative error 2.1e-16
 vectors 1e-08 rad apart: vector3_angle_between = 1e-08, relative error 0
+vectors 0.001 rad from opposite: vector3_angle_between = 3.1405926535897932, error 1.2e-17
+vectors 1e-06 rad from opposite: vector3_angle_between = 3.1415916535897934, error 1.8e-16
+vectors 1e-08 rad from opposite: vector3_angle_between = 3.1415926435897932, error 6.2e-17
 ```
-
-## Suggested fix
-
-`return atan2(length(cross(x, y)), dot(x, y));` for 3D (and `atan2(abs(x.x y.y - x.y y.x),
-dot(x, y))` for 2D).  It needs no clamp, and it is scale-invariant: x and y need not be
-unit vectors.  Normalizing them first only guards against overflow and underflow in the
-cross and dot products.
 
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/10-angle-acos-nearly-parallel.md` builds both programs above and compares their output with this report. The harness: `results/double.md`, "accuracy against long double", `glm::angle`
-rows (up to 4.5e-13 absolute in 3D and 8.8e-12 in 2D for vectors 1e-3 rad apart or from
-opposite; hypatia 4.4e-16).
+`compare/check_reports.py docs/reports/glm/10-angle-acos-nearly-parallel.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/double.md`, "accuracy against long double", `glm::angle` rows (up to
+4.5e-13 absolute in 3D and 8.8e-12 in 2D for vectors 1e-3 rad apart or from opposite;
+hypatia 4.4e-16).

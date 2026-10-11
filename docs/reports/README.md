@@ -3,8 +3,8 @@
 Each file describes one case where another library gives a wrong result, NaN, or
 measurably more rounding error than hypatia, in the form of an issue report for that
 library: what happens, a program that shows it, its output, the cause in the library's
-source (linked at the tested commit), how hypatia handles the same case with a program
-that shows it, a suggested fix, and how to check.
+source (linked at the tested commit), a suggested fix, how hypatia handles the same case
+with a program that shows it, and how to check.
 
 The programs in every report are built and run by `compare/check_reports.py`, which
 compares their output with the text of the report:
@@ -40,7 +40,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm::normalize` of the zero vector is NaN, and the NaN spreads](glm/09-normalize-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angle(x, y)` loses its digits for nearly parallel and nearly opposite vectors](glm/10-angle-acos-nearly-parallel.md) | precision | present in the latest release |
 | [`glm::proj` onto the zero vector is NaN](glm/11-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
-| [`glm::inverse` of the zero quaternion is NaN](glm/12-inverse-zero-quaternion.md) | NaN on degenerate input | present in the latest release |
+| [`glm::inverse` is NaN for the zero quaternion, and wrong for tiny and huge ones](glm/12-inverse-zero-quaternion.md) | NaN on degenerate input; wrong result | present in the latest release |
 | [`glm::lookAt` gives NaN when the eye is at the target or looks along up](glm/13-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
 | [`glm::rotation` with a zero vector is NaN](glm/14-rotation-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angleAxis` and `glm::rotate` disagree on axes that are not unit length, and fail on a zero axis](glm/15-axis-angle-zero-or-not-unit-axis.md) | inconsistent API; NaN on degenerate input | present in the latest release |
@@ -78,7 +78,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm_quat_for` returns a quaternion of length 0.71 when up is parallel to the direction](cglm/08-quat-for-up-parallel.md) | wrong result on degenerate input | present in the latest release |
 | [`glm_vec3_angle` returns 0 for vectors up to about 6e-4 rad apart, and NaN for a zero vector](cglm/09-vec3-angle-acos.md) | precision; NaN on degenerate input | present in the latest release |
 | [`glm_vec3_proj` onto the zero vector is NaN](cglm/10-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
-| [`glm_quat_inv` of the zero quaternion is NaN; tiny and huge quaternions overflow](cglm/11-quat-inv-zero.md) | NaN on degenerate input | present in the latest release |
+| [`glm_quat_inv` is NaN for the zero quaternion, and wrong for tiny and huge ones](cglm/11-quat-inv-zero.md) | NaN on degenerate input; wrong result | present in the latest release |
 | [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |

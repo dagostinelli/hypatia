@@ -13,7 +13,7 @@
 `glm::normalize(q)` multiplies by `1 / length(q)`.  For components below about 1e-154
 (1e-19 in float) the sum of squares is subnormal and the length loses precision.  Below
 about 1.6e-162 (2.6e-23 in float) the length is exactly 0 and GLM returns the identity:
-(1e-200, 0, 0, 1e-200), a quarter turn about Z, becomes no rotation at all.  Above 1e154
+(w 1e-200, z 1e-200), a quarter turn about Z, becomes no rotation.  Above about 1.3e154
 the length overflows to inf and the result is the zero quaternion.  Quaternions are
 scale-invariant as rotations, so any non-zero quaternion has a well-defined unit
 quaternion.
@@ -58,6 +58,13 @@ return qua<T, Q>::wxyz(q.w * oneOverLen, q.x * oneOverLen, q.y * oneOverLen, q.z
 `length` squares the components; the comment "Problem" marks the branch that turns an
 underflow into the identity.
 
+## Suggested fix
+
+Return the identity (or the input) only for an exactly zero quaternion; otherwise, when
+`dot(q, q)` is outside a safe range such as 1e-30 to 1e30, divide by the largest component
+first.  The same applies to `glm::normalize` of vectors
+([08](08-normalize-overflow-underflow.md)).
+
 ## How hypatia does it
 
 `quaternion_normalize` uses `hyp_normalize`: it divides by the length when the sum of the
@@ -88,13 +95,7 @@ normalize(w 1e-200, z 1e-200) = (w 0.707106781, x 0, y 0, z 0.707106781)
 normalize(w 1e200, z 1e200)   = (w 0.707106781, x 0, y 0, z 0.707106781)
 ```
 
-## Suggested fix
-
-Return the identity (or the input) only for an exactly zero quaternion; otherwise, when
-`dot(q, q)` is outside a safe range such as 1e-30 to 1e30, divide by the largest component
-first.  The same applies to `glm::normalize` of vectors
-([08](08-normalize-overflow-underflow.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/19-normalize-quaternion-tiny-huge.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/19-normalize-quaternion-tiny-huge.md` builds
+both programs above and compares their output with this report.

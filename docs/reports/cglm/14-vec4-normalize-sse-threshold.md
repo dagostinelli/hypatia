@@ -16,7 +16,6 @@ every 4-vector shorter than sqrt(1.19e-7) = 3.45e-4 is zeroed.  The WebAssembly 
 the source makes the same comparison; the program below shows the SSE path only.  The
 scalar path compares the length itself with `FLT_EPSILON`, so the same call gives a unit
 vector on one platform and zero on another for lengths between 1.19e-7 and 3.45e-4.
-Colors, homogeneous coordinates and small direction vectors in this range are common.
 
 ## Reproduction
 
@@ -61,6 +60,11 @@ does the same, and the scalar branch at
 [lines 942-951](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/vec4.h#L942-L951) applies it to the length.  See also
 [04](04-normalize-zeroes-short-vectors.md) for the threshold itself.
 
+## Suggested fix
+
+Return zero only for `dot == 0` in every branch, and scale out-of-range vectors first
+([04](04-normalize-zeroes-short-vectors.md)).
+
 ## How hypatia does it
 
 `vector4_normalize` (through `hyp_normalize`) leaves unchanged only an exactly zero vector,
@@ -87,11 +91,7 @@ int main(void)
 normalize(1e-4, 2e-4, 2e-4, 0) = (0.333333, 0.666667, 0.666667, 0)
 ```
 
-## Suggested fix
-
-Return zero only for `dot == 0` in every branch, and scale out-of-range vectors first
-([04](04-normalize-zeroes-short-vectors.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/14-vec4-normalize-sse-threshold.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/cglm/14-vec4-normalize-sse-threshold.md` builds both
+programs above and compares their output with this report.

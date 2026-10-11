@@ -17,13 +17,13 @@ second random seed):
 
 | cglm | hypatia | cglm | ratio | hypatia's approach |
 |---|---|---|---|---|
+| `glm_vec3_normalize`, (1, 1e-5, 1e-5) | `vector3_normalize` | 0.0747 against 0.000282 | 265 | each component divided by the length: the large one rounds to exactly 1 |
 | `glm_quat_slerp`, 1e-6 rad apart | `quaternion_slerp` | 1.94 against 0.376 | 5.2 | the angle from `2 atan2(\|s - t\|, \|s + t\|)`, the full formula down to an angle of 0 |
 | `glm_quat_axis` * `glm_quat_angle`, 1e-4 rad | `quaternion_get_axis_anglev3` | 0.374 against 0.090 | 4.2 | the axis by dividing the vector part by its length |
 | `glm_quat_axis` * `glm_quat_angle`, random | `quaternion_get_axis_anglev3` | 0.704 against 0.384 | 1.83 | the axis by dividing the vector part by its length |
-| `glm_quat_from_vecs`, random | `quaternion_get_rotation_tov3` | 0.907 against 0.536 (largest 99 against 2.6) | 1.69 | half angle from `abs(a + b)` and `abs(a - b)` |
+| `glm_quat_from_vecs`, random | `quaternion_get_rotation_tov3` | 0.907 against 0.536 (largest 99 against 2.6) | 1.69 | half angle from `length(a + b)` and `length(a - b)` |
 | `glm_vec3_reflect` (normal normalized first) | `vector3_reflect` | 0.664 against 0.466 | 1.42 | divides by `dot(n, n)`; no separate normalization |
 | `glm_rotate_make` | `matrix4_set_from_axisv3_angle` | 0.608 against 0.503 | 1.21 | the axis divided by its length |
-| `glm_vec3_normalize`, (1, 1e-5, 1e-5) | `vector3_normalize` | 0.0747 against 0.0003 | 265 | each component divided by the length: the large one rounds to exactly 1 |
 | `glm_vec3_normalize`, random | `vector3_normalize` | 0.370 against 0.320 | 1.16 | each component divided by the length |
 | `glm_quat_rotatev`, unit q | `vector3_rotate_by_quaternion` | 0.713 against 0.620 | 1.15 | `2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)`, one division by `dot(q, q)` |
 | `glm_quat_inv` | `quaternion_inverse` | 0.431 against 0.387 | 1.11 | the conjugate divided by `dot(q, q)` |
@@ -37,7 +37,7 @@ second random seed):
 
 Several rows share one cause: cglm divides by multiplying with a reciprocal (`1.0f /
 norm`, `1.0f / (nearZ - farZ)`, `1.0f / norm2`), which rounds twice.  The program below
-measures the eighth row on its own inputs and sample (0.289 against 0.251; the harness
+measures the eighth row on its own inputs (0.289 against 0.251; the harness
 measures relative to the largest component).
 
 ## Reproduction
@@ -83,6 +83,11 @@ prints a mean error of 0.251 epsilons.
 the reciprocal and then each product.  The other rows each have the cause named in the
 last column, the converse of hypatia's approach.
 
+## Suggested fix
+
+Divide by the norm instead of multiplying by its reciprocal in the normalization, and
+see the last column for the other rows.
+
 ## How hypatia does it
 
 See the last column of the table.  The harness (`compare/` on the hypatia branch
@@ -122,12 +127,9 @@ int main(void)
 vector3_normalize: mean error 0.251 epsilons
 ```
 
-## Suggested fix
-
-Divide by the norm instead of multiplying by its reciprocal in the normalization, and
-see the last column for the other rows.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/12-precision-small-differences.md` builds both programs above and compares their output with this report. Every row comes from `results/precision/summary.md` on the hypatia branch
-correctness-exp-glm; `compare/reproduce.sh` regenerates it.
+`compare/check_reports.py docs/reports/cglm/12-precision-small-differences.md` builds both
+programs above and compares their output with this report.  Every row comes from
+`compare/results/precision/summary.md` on the hypatia branch correctness-exp-glm;
+`compare/reproduce.sh` regenerates it.

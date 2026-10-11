@@ -11,8 +11,9 @@
 ## Summary
 
 `glm_vec3_proj(a, b)` scales `b` by `dot(a, b) / norm2(b)`: for `b = 0` that is 0/0 = NaN in
-every component.  `norm2(b)` also underflows for components below 1e-19 and overflows
-above 1e19.
+every component.  `norm2(b)` also loses precision for components below about 1e-19 and is
+0 below about 2.6e-23, which gives NaN and inf (shown with 1e-25), and it overflows above
+about 1.8e19, which gives zero (shown with 1e25).
 
 ## Reproduction
 
@@ -23,12 +24,14 @@ above 1e19.
 
 int main(void)
 {
-	vec3 a = {1, 2, 3}, zero = {0, 0, 0}, tiny = {0, 1e-25f, 0}, r;
+	vec3 a = {1, 2, 3}, zero = {0, 0, 0}, tiny = {0, 1e-25f, 0}, huge = {0, 1e25f, 0}, r;
 
 	glm_vec3_proj(a, zero, r);
 	printf("proj((1, 2, 3), (0, 0, 0))     = (%g, %g, %g)\n", r[0], r[1], r[2]);
 	glm_vec3_proj(a, tiny, r);
 	printf("proj((1, 2, 3), (0, 1e-25, 0)) = (%g, %g, %g)\n", r[0], r[1], r[2]);
+	glm_vec3_proj(a, huge, r);
+	printf("proj((1, 2, 3), (0, 1e25, 0))  = (%g, %g, %g)\n", r[0], r[1], r[2]);
 	return 0;
 }
 ```
@@ -38,14 +41,20 @@ Output (x86-64, gcc 13.3, `-O2`):
 ```text
 proj((1, 2, 3), (0, 0, 0))     = (-nan, -nan, -nan)
 proj((1, 2, 3), (0, 1e-25, 0)) = (-nan, inf, -nan)
+proj((1, 2, 3), (0, 1e25, 0))  = (0, 0, 0)
 ```
 
-Expected: (0, 0, 0), and (0, 2, 0).
+Expected: (0, 0, 0), then (0, 2, 0) twice.
 
 ## Cause
 
 [`vec3.h` lines 837-841](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/vec3.h#L837-L841):
 `glm_vec3_scale(b, glm_vec3_dot(a, b) / glm_vec3_norm2(b), dest);`.
+
+## Suggested fix
+
+Return the zero vector when `b` is zero; when `norm2(b)` is outside a safe range such as
+1e-30 to 1e30, normalize `b` with scaling and use `dot(a, b) b`.
 
 ## How hypatia does it
 
@@ -69,6 +78,8 @@ int main(void)
 	printf("project((1, 2, 3), (0, 0, 0))     = (%g, %g, %g)\n", v.x, v.y, v.z);
 	vector3_project(vector3_setf3(&v, 1, 2, 3), vector3_setf3(&onto, 0, 1e-25f, 0));
 	printf("project((1, 2, 3), (0, 1e-25, 0)) = (%g, %g, %g)\n", v.x, v.y, v.z);
+	vector3_project(vector3_setf3(&v, 1, 2, 3), vector3_setf3(&onto, 0, 1e25f, 0));
+	printf("project((1, 2, 3), (0, 1e25, 0))  = (%g, %g, %g)\n", v.x, v.y, v.z);
 	return 0;
 }
 ```
@@ -76,13 +87,10 @@ int main(void)
 ```text
 project((1, 2, 3), (0, 0, 0))     = (0, 0, 0)
 project((1, 2, 3), (0, 1e-25, 0)) = (0, 2, 0)
+project((1, 2, 3), (0, 1e25, 0))  = (0, 2, 0)
 ```
-
-## Suggested fix
-
-Return the zero vector when `b` is zero; when `norm2(b)` is outside a safe range such as
-1e-30 to 1e30, normalize `b` with scaling and use `dot(a, b) b`.
 
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/10-proj-onto-zero-vector.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/cglm/10-proj-onto-zero-vector.md` builds both
+programs above and compares their output with this report.

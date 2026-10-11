@@ -14,7 +14,7 @@
 `2 atan2(|vec(d)|, |w(d)|)`.  For nearly equal rotations `vec(d)` is a difference of
 products of nearly equal numbers, so its rounding error is an epsilon of the inputs, not of
 the small result.  For rotations 1e-4 rad apart the program below measures a mean error of
-1775 epsilons relative to the angle (largest 9264), against 256 (largest 4558) with
+1775 double epsilons relative to the angle (largest 9264), against 256 (largest 4558) with
 hypatia; the comparison harness, over other inputs, 1770 against 205.  The program's
 reference is the exact angle between the rounded inputs.  hypatia's remaining error comes
 from normalizing the rounded inputs in double; the subtraction that follows is exact.
@@ -89,6 +89,11 @@ return Scalar(2) * atan2( d.vec().norm(), numext::abs(d.w()) );
 The vector part of `a b*` is `w_b v_a - w_a v_b - v_a x v_b`: each term is of the size of the
 inputs and they cancel to a result 1e-4 times smaller.
 
+## Suggested fix
+
+With `a` and `b` normalized and `b` negated when `a.dot(b) < 0`:
+`return 4 * atan2((a.coeffs() - b.coeffs()).norm(), (a.coeffs() + b.coeffs()).norm());`.
+
 ## How hypatia does it
 
 `quaternion_angle_between` normalizes both quaternions, picks the sign of `b` that makes
@@ -154,12 +159,9 @@ int main(void)
 quaternion_angle_between, rotations 1e-4 rad apart: largest 4558, mean 256 epsilons
 ```
 
-## Suggested fix
-
-With `a` and `b` normalized and `b` negated when `a.dot(b) < 0`:
-`return 4 * atan2((a.coeffs() - b.coeffs()).norm(), (a.coeffs() + b.coeffs()).norm());`.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/03-angulardistance-small-angles.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.md`, `quaternion_angle_between`, "1e-4
-rad apart".  Its reference is computed in _Float128 and checked a second way.
+`compare/check_reports.py docs/reports/eigen/03-angulardistance-small-angles.md` builds
+both programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.md`, `quaternion_angle_between`, "1e-4 rad apart".
+Its reference is computed in _Float128 and checked a second way.

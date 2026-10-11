@@ -52,6 +52,11 @@ Expected: X unchanged for the zero axis (no rotation), and (0, 1, 0) for the axi
 [`affine.h` lines 128-148](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/affine.h#L128-L148): `glm_vec3_normalize_to(axis, axisn)`
 followed by the Rodrigues terms, which reduce to `c I` when `axisn` is zero.
 
+## Suggested fix
+
+Fix the normalization threshold ([04](04-normalize-zeroes-short-vectors.md)) and return
+the identity for an exactly zero axis.
+
 ## How hypatia does it
 
 `matrix4_set_from_axisv3_angle` normalizes the axis with scaling, so any non-zero axis
@@ -86,11 +91,7 @@ quarter turn about (0, 0, 0):    X -> (1, 0, 0)
 quarter turn about (0, 0, 1e-8): X -> (-4.37114e-08, 1, 0)
 ```
 
-## Suggested fix
-
-Fix the normalization threshold ([04](04-normalize-zeroes-short-vectors.md)) and return
-the identity for an exactly zero axis.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/06-rotate-make-zero-axis.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/cglm/06-rotate-make-zero-axis.md` builds both
+programs above and compares their output with this report.

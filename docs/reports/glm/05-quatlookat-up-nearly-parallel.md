@@ -15,8 +15,8 @@
 about 0.003 rad of the view direction the clamp applies, the right axis is shorter than 1,
 and the matrix passed to `quat_cast` is not a rotation.  For a direction 1e-4 rad from up
 the result has length 0.72 and does not look along the direction.  In the comparison
-harness run with `COMPARE_SEED=7`, one random input of 20000 gave an error of 5e14
-epsilons.
+harness run with `COMPARE_SEED=7`, the largest error over 20000 random inputs is 5.36e14
+double epsilons.
 
 ## Reproduction
 
@@ -66,6 +66,12 @@ The clamp keeps the division finite when up and direction are parallel, but for 
 `|Right| < 0.0032` it scales the right axis by the wrong factor, and the up axis built from
 it is short too.
 
+## Suggested fix
+
+Normalize `Right` (`Right / length(Right)`), and handle `length(Right) == 0` separately, for
+example with `rotation(vec3(0, 0, -1), direction)` once that function is fixed
+([01](01-rotation-opposite-vectors.md)).
+
 ## How hypatia does it
 
 `quaternion_set_look_rotation_rh` (and `_lh`) normalizes the right axis without a clamp
@@ -108,13 +114,9 @@ length of q = 1
 looks along (-0.000000, 1.000000, 0.000100), asked (0.000000, 1.000000, 0.000100)
 ```
 
-## Suggested fix
-
-Normalize `Right` (`Right / length(Right)`), and handle `length(Right) == 0` separately, for
-example with `rotation(vec3(0, 0, -1), direction)` once that function is fixed
-([01](01-rotation-opposite-vectors.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/05-quatlookat-up-nearly-parallel.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.s7.md` (the run with `COMPARE_SEED=7`),
+`compare/check_reports.py docs/reports/glm/05-quatlookat-up-nearly-parallel.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.s7.md` (the run with `COMPARE_SEED=7`),
 `quaternion_set_look_rotation_rh` (GLM largest 5.36e14 epsilons; hypatia 18.9).

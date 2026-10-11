@@ -11,22 +11,19 @@
 ## Summary
 
 `glm::normalize((0, 0, 0))` computes `0 * inversesqrt(0) = 0 * inf = NaN` in every
-component.  Every function built on it inherits the NaN for zero-length input:
-`angle(normalize(a), normalize(b))` with a zero vector, `lookAt` with the eye at the target,
-`rotate` about a zero axis.  A zero vector is a common value (a velocity at rest, an unset
-direction), and a NaN in a transform corrupts everything it touches.
+component.  The functions built on it inherit the NaN for zero-length input:
+`angle(normalize(a), normalize(b))` with a zero vector (below), `lookAt` with the eye at the
+target ([13](13-lookat-degenerate-nan.md)), `rotate` about a zero axis
+([15](15-axis-angle-zero-or-not-unit-axis.md)).  A zero vector occurs as an ordinary value
+(a velocity at rest, an unset direction), and NaN propagates through every later operation.
 
 ## Reproduction
 
 ```cpp
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <cmath>
-#include <cstdio>
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_angle.hpp>
+#include <cstdio>
 
 int main()
 {
@@ -51,6 +48,12 @@ Expected: a defined value: the zero vector (it has no direction) and an angle of
 
 [`detail/func_geometric.inl` line 88](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/detail/func_geometric.inl#L88):
 `v * inversesqrt(dot(v, v))` with `dot(v, v) = 0`.
+
+## Suggested fix
+
+Return the input when `dot(v, v) == 0`; the check costs one comparison next to an inverse
+square root.  If NaN is the intended result, document it on `normalize` and the functions
+built on it.
 
 ## How hypatia does it
 
@@ -81,12 +84,8 @@ normalize(0, 0, 0) = (0, 0, 0)
 angle_between((1, 2, 3), (0, 0, 0)) = 0
 ```
 
-## Suggested fix
-
-Return the input when `dot(v, v) == 0`; the check costs one comparison next to an inverse
-square root.  If NaN is the intended result, document it on `normalize` and the functions
-built on it.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/09-normalize-zero-vector.md` builds both programs above and compares their output with this report. The harness: `results/double.md`, "Edge cases".
+`compare/check_reports.py docs/reports/glm/09-normalize-zero-vector.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/double.md`, "Edge cases".

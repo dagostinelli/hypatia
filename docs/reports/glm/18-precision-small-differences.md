@@ -25,14 +25,14 @@ second random seed):
 | `glm::inverse` (mat4, rotation, scale and translation) | `matrix4_inverse` | 0.0115 against 0.0108 (per unit of condition) | 1.06 | 2x2 blocks, determinant shared with the cofactors |
 | `glm::inverse` (mat4, condition 1e4) | `matrix4_inverse` | 1.01 against 0.963 | 1.05 | 2x2 blocks, determinant shared with the cofactors |
 | `glm::inverse` (mat3) | `matrix3_inverse` | 0.0784 against 0.0749 (per unit of condition) | 1.05 | division by the determinant instead of multiplication by its reciprocal |
-| `glm::inverse` (mat4, random) | `matrix4_inverse` | 0.0641 against 0.0623 (per unit of condition) | 1.03 | 2x2 blocks, determinant shared with the cofactors |
 | `glm::slerp`, random | `quaternion_slerp` | 0.487 against 0.468 | 1.04 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
+| `glm::inverse` (mat4, random) | `matrix4_inverse` | 0.0641 against 0.0623 (per unit of condition) | 1.03 | 2x2 blocks, determinant shared with the cofactors |
 | `quat * quat` | `quaternion_multiply` | 0.298 against 0.289 | 1.03 | the four products summed in pairs |
 | `glm::mat4_cast` | `matrix4_set_from_quaternion` | 0.598 against 0.581 | 1.03 | `2 / dot(q, q)` once, for any length of q |
 | `glm::slerp`, 1e-3 rad apart (float) | `quaternion_slerp` | 0.575 against 0.474 | 1.21 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
 
-These are fractions of an epsilon and rarely matter alone; they add up in long chains of
-transforms.  The program below measures the third row.
+Each difference is a fraction of an epsilon.  The program below measures the third row on
+its own inputs (0.684 against 0.621).
 
 ## Reproduction
 
@@ -89,6 +89,11 @@ the formula assumes `|q| = 1` exactly, while a unit quaternion rounded to double
 about an epsilon, and the nested cross product `u x (u x v)` rounds twice; hypatia uses
 two dot products and one cross product, and divides by `dot(q, q)`.
 
+## Suggested fix
+
+Each row's last column describes a change that removes the difference; none costs more
+than a division or two additions.
+
 ## How hypatia does it
 
 See the last column of the table.  The harness (`compare/` on the hypatia branch
@@ -136,12 +141,9 @@ int main(void)
 vector3_rotate_by_quaternion: mean error 0.621 epsilons
 ```
 
-## Suggested fix
-
-Each row's last column describes a change that removes the difference; none costs more
-than a division or two additions.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/18-precision-small-differences.md` builds both programs above and compares their output with this report. Every row comes from `results/precision/summary.md` on the hypatia branch
-correctness-exp-glm; `compare/reproduce.sh` regenerates it.
+`compare/check_reports.py docs/reports/glm/18-precision-small-differences.md` builds both
+programs above and compares their output with this report.  Every row comes from
+`compare/results/precision/summary.md` on the hypatia branch correctness-exp-glm;
+`compare/reproduce.sh` regenerates it.

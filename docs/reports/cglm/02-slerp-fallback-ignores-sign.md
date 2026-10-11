@@ -76,6 +76,11 @@ if (fabsf(sinTheta) < 0.001f) {
 `q1` is the copy of `from` that is negated; the fallback passes `from` and `to` to
 `glm_quat_lerp`, not `q1`.
 
+## Suggested fix
+
+`glm_quat_lerp(q1, to, t, dest);` in the fallback, and normalize its result (see
+[03](03-slerp-small-angles.md)).
+
 ## How hypatia does it
 
 `quaternion_slerp` negates the target when the dot product is negative and uses the
@@ -110,11 +115,7 @@ int main(void)
 slerp(a, -b, 0.5) = (0, 0, 0.479645, 0.877463), length 1
 ```
 
-## Suggested fix
-
-`glm_quat_lerp(q1, to, t, dest);` in the fallback, and normalize its result (see
-[03](03-slerp-small-angles.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/02-slerp-fallback-ignores-sign.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/cglm/02-slerp-fallback-ignores-sign.md` builds both
+programs above and compares their output with this report.

@@ -66,6 +66,13 @@ return v + ((uv * q.w) + uuv) * static_cast<T>(2);
 This is `q v q*` expanded with `|q| = 1` substituted.  Without that substitution,
 `q v q*` is `|q|^2` times the rotation; the formula is neither.
 
+## Suggested fix
+
+Divide by `dot(q, q)`: with `u` the vector part,
+`(2 dot(u, v) u + (w*w - dot(u, u)) v + 2 w cross(u, v)) / dot(q, q)`.  It costs one
+division and is the rotation for any non-zero q.  If the unit-length requirement is
+intended, document it on `operator*` and assert it in debug builds.
+
 ## How hypatia does it
 
 `vector3_rotate_by_quaternion` evaluates `(2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) /
@@ -104,15 +111,10 @@ int main(void)
 q (length 1 + 1e-6) * X = (1.1102208041824381e-16, 1, 0), length 1
 ```
 
-## Suggested fix
-
-Divide by `dot(q, q)`: with `u` the vector part,
-`(2 dot(u, v) u + (w*w - dot(u, u)) v + 2 w cross(u, v)) / dot(q, q)`.  It costs one
-division and is the rotation for any non-zero q.  If the unit-length requirement is
-intended, document it on `operator*` and assert it in debug builds.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/06-quaternion-times-vector-not-unit.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.md`, `vector3_rotate_by_quaternion`,
-"q of length 1 +- 1e-6" (GLM 6.05e9 epsilons in the mean, hypatia 0.66) and "unit q" (GLM
-0.69, hypatia 0.62).
+`compare/check_reports.py docs/reports/glm/06-quaternion-times-vector-not-unit.md` builds
+both programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.md`, `vector3_rotate_by_quaternion`, "q of length 1
++- 1e-6" (GLM 6.05e9 epsilons in the mean, hypatia 0.66) and "unit q" (GLM 0.69, hypatia
+0.62).

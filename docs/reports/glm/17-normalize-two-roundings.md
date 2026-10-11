@@ -14,17 +14,17 @@
 After the sum of squares, the result is rounded three times: the square root, its
 reciprocal and each product.  Dividing by `sqrt(dot(v, v))` rounds twice: the square root
 and the quotient.  Over random vectors the program below measures a mean error of 0.289
-epsilons with GLM and 0.250 with division (16% more).  The comparison harness, which
-measures relative to the largest component, gives 0.371 against 0.321 (16%); for
-components spread over a wide range 0.185 against 0.131 in double (41%) and 0.148 against
-0.0851 in float (74%).  For a vector with one large and two small components, (1, 1e-5,
-1e-5), division rounds the large component to exactly 1 and the mean error in float is
-0.000282 epsilons; GLM's product with the rounded reciprocal gives 0.0747, about 265 times
-as much.
+double epsilons with GLM and 0.250 with division (16% more).  The comparison harness, which
+measures relative to the largest component, gives 0.371 against 0.321 (16%); for components
+spread over a wide range 0.185 against 0.131 in double (41%) and 0.148 against 0.0851 in
+float (74%).  For a vector with one large and two small components, (1, 1e-5, 1e-5),
+division rounds the large component to exactly 1 and the mean error in float is 0.000282
+float epsilons; GLM's product with the rounded reciprocal gives 0.0747, about 265 times as
+much.
 
-Related measurements in the harness, not traced here to this cause alone: quaternion
-normalization (27% more mean error than hypatia), `glm::rotate` with its normalized axis
-(21%) and `glm::reflect` with a normalized normal (43%).
+Related measurements in the harness (double), not traced here to this cause alone:
+quaternion normalization (27% more mean error than hypatia), `glm::rotate` with its
+normalized axis (21%) and `glm::reflect` with a normalized normal (43%).
 
 ## Reproduction
 
@@ -72,6 +72,12 @@ quotient).  `normalize(qua)`
 ([`ext/quaternion_geometric.inl` lines 19-23](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/quaternion_geometric.inl#L19-L23))
 multiplies by `1 / length(q)` the same way.
 
+## Suggested fix
+
+`return v / sqrt(dot(v, v));` (or `v / length(v)`).  The division costs a few cycles more
+than the multiplication on most hardware; if speed is the reason for `inversesqrt`, a new
+configuration macro could let users choose.
+
 ## How hypatia does it
 
 `hyp_normalize`, used by every hypatia normalization, divides each component by the length
@@ -111,14 +117,10 @@ int main(void)
 vector3_normalize: mean error 0.250 epsilons
 ```
 
-## Suggested fix
-
-`return v / sqrt(dot(v, v));` (or `v / length(v)`).  The division costs a few cycles more
-than the multiplication on most hardware; if speed is the reason for `inversesqrt`, a new
-configuration macro could let users choose.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/17-normalize-two-roundings.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.md` and `now.single.md`,
-`vector3_normalize`, `quaternion_normalize`, `matrix4_set_from_axisv3_angle` (GLM `rotate`)
-and `vector3_reflect` rows.
+`compare/check_reports.py docs/reports/glm/17-normalize-two-roundings.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.md` and `now.single.md`, `vector3_normalize`,
+`quaternion_normalize`, `matrix4_set_from_axisv3_angle` (GLM `rotate`) and
+`vector3_reflect` rows.

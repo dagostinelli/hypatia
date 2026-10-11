@@ -25,8 +25,8 @@ with a second random seed):
 | `inverse()` 4x4, random | `matrix4_inverse` | 0.0637 against 0.0623 (per unit of condition) | 1.02 | 2x2 blocks, determinant shared with the cofactors |
 | `slerp`, 1e-6 rad apart | `quaternion_slerp` | 0.502 against 0.491 | 1.02 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
 
-They are fractions of an epsilon, and add up only in long chains of transforms.  The
-program below measures the fourth row.
+Each difference is a fraction of an epsilon.  The program below measures the fourth row on
+its own inputs (0.5942 against 0.5794).
 
 ## Reproduction
 
@@ -87,6 +87,10 @@ rounded to double is off unit length by about an epsilon, and that deviation goe
 every element; hypatia scales by `2 / dot(q, q)`, which accounts for it.  The other rows
 each have their own small cause (see the last column).
 
+## Suggested fix
+
+Each row's last column describes a change that removes the difference.
+
 ## How hypatia does it
 
 See the last column of the table.  The harness (`compare/` on the hypatia branch
@@ -141,11 +145,9 @@ int main(void)
 matrix4_set_from_quaternion: mean error 0.5794 epsilons
 ```
 
-## Suggested fix
-
-Each row's last column describes a change that removes the difference.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/08-precision-small-differences.md` builds both programs above and compares their output with this report. Every row comes from `results/precision/summary.md` on the hypatia branch
-correctness-exp-glm; `compare/reproduce.sh` regenerates it.
+`compare/check_reports.py docs/reports/eigen/08-precision-small-differences.md` builds both
+programs above and compares their output with this report.  Every row comes from
+`compare/results/precision/summary.md` on the hypatia branch correctness-exp-glm;
+`compare/reproduce.sh` regenerates it.

@@ -60,6 +60,12 @@ uv += uv;
 return v + this->w() * uv + this->vec().cross(uv);
 ```
 
+## Suggested fix
+
+Divide by `squaredNorm()`: `(2 vec.dot(v) vec + (w*w - vec.squaredNorm()) v + 2 w vec.cross(v))
+/ squaredNorm()`.  If unit length is a requirement of `operator*`, state it in its
+documentation and assert it in debug builds.
+
 ## How hypatia does it
 
 `vector3_rotate_by_quaternion` evaluates `(2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) /
@@ -96,14 +102,10 @@ int main(void)
 q (length 1 + 1e-6) * X = (1.1102208041824381e-16, 1, 0), length 1
 ```
 
-## Suggested fix
-
-Divide by `squaredNorm()`: `(2 vec.dot(v) vec + (w*w - vec.squaredNorm()) v + 2 w vec.cross(v))
-/ squaredNorm()`.  If unit length is a requirement of `operator*`, state it in its
-documentation and assert it in debug builds.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/05-quaternion-times-vector-not-unit.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.md`, `vector3_rotate_by_quaternion`, "q of
-length 1 +- 1e-6" (Eigen 6.05e9 epsilons in the mean, hypatia 0.66) and "unit q" (Eigen
-0.684, hypatia 0.622).
+`compare/check_reports.py docs/reports/eigen/05-quaternion-times-vector-not-unit.md` builds
+both programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.md`, `vector3_rotate_by_quaternion`, "q of length 1
++- 1e-6" (Eigen 6.05e9 epsilons in the mean, hypatia 0.66) and "unit q" (Eigen 0.684,
+hypatia 0.622).

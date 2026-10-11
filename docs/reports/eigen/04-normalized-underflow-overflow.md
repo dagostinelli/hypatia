@@ -10,13 +10,13 @@
 
 ## Summary
 
-`normalized()` divides by `sqrt(squaredNorm())`.  For components below about 1e-154
-(1e-19 in float) the squared norm is subnormal and loses precision; below about 1.6e-162
-(2.6e-23 in float) it is exactly 0 and the vector is returned unchanged, not of unit
-length.  Above 1e154 (1e19) it overflows to inf and the result is zero; a vector with an
-infinite component gives NaN.  `stableNormalized()` handles the first two, but
-`normalized()` is the function users reach for, it is used inside Eigen (for example in
-`Quaternion::FromTwoVectors`), and its failures are silent.
+`normalized()` divides by `sqrt(squaredNorm())`.  For components below about 1e-154 (1e-19
+in float) the squared norm is subnormal and loses precision; below about 1.6e-162 (2.6e-23
+in float) it is exactly 0 and the vector is returned unchanged, not of unit length.  Above
+about 1.3e154 (1.8e19 in float) it overflows to inf and the result is zero; a vector with
+an infinite component gives NaN.  `stableNormalized()` handles the first two cases, but
+`normalized()` is the general function and is used inside Eigen: `FromTwoVectors` calls it
+([`Geometry/Quaternion.h` lines 641-642](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L641-L642)).
 
 ## Reproduction
 
@@ -35,6 +35,9 @@ int main()
 	std::printf("(1e-200, 1e-200, 0).normalized() = (%g, %g, %g), norm %g\n", tiny.x(), tiny.y(), tiny.z(), tiny.norm());
 	std::printf("(1e200, 1e200, 0).normalized()   = (%g, %g, %g)\n", huge.x(), huge.y(), huge.z());
 	std::printf("(inf, 1, 0).normalized()         = (%g, %g, %g)\n", inf.x(), inf.y(), inf.z());
+	Eigen::Vector3d st = Eigen::Vector3d(1e-200, 1e-200, 0).stableNormalized();
+	Eigen::Vector3d sh = Eigen::Vector3d(1e200, 1e200, 0).stableNormalized();
+	std::printf("stableNormalized(): (%.9g, %.9g, %g) and (%.9g, %.9g, %g)\n", st.x(), st.y(), st.z(), sh.x(), sh.y(), sh.z());
 }
 ```
 
@@ -44,9 +47,11 @@ Output (x86-64, gcc 13.3, `-O2`):
 (1e-200, 1e-200, 0).normalized() = (1e-200, 1e-200, 0), norm 0
 (1e200, 1e200, 0).normalized()   = (0, 0, 0)
 (inf, 1, 0).normalized()         = (-nan, 0, 0)
+stableNormalized(): (0.707106781, 0.707106781, 0) and (0.707106781, 0.707106781, 0)
 ```
 
-Expected: (0.707106781, 0.707106781, 0) for the first two, (1, 0, 0) for the third.
+Expected: (0.707106781, 0.707106781, 0) for the first two, as `stableNormalized()` gives, and
+(1, 0, 0) for the third.
 
 ## Cause
 
@@ -59,6 +64,12 @@ if(z>RealScalar(0))
 else
   return n;
 ```
+
+## Suggested fix
+
+In `normalized()`, fall back to `stableNormalized()` when `z` is subnormal or 0 (and the
+vector is not exactly zero), or not finite.  The fast path for other values of `z` is
+unchanged.
 
 ## How hypatia does it
 
@@ -95,12 +106,8 @@ normalize(1e200, 1e200, 0)   = (0.707106781, 0.707106781, 0)
 normalize(inf, 1, 0)         = (1, 0, 0)
 ```
 
-## Suggested fix
-
-In `normalized()`, fall back to `stableNormalized()` when `z` is subnormal or 0 (and the
-vector is not exactly zero), or not finite.  The fast path for other values of `z` is
-unchanged.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/04-normalized-underflow-overflow.md` builds both programs above and compares their output with this report. The harness: `results/double.md`, "Edge cases", `vector3_normalize`.
+`compare/check_reports.py docs/reports/eigen/04-normalized-underflow-overflow.md` builds
+both programs above and compares their output with this report.  The harness:
+`compare/results/double.md`, "Edge cases", `vector3_normalize`.

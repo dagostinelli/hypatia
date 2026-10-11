@@ -10,12 +10,10 @@
 
 ## Summary
 
-Eigen documents that the axis of an `AngleAxis` must be normalized, and does not check it.
-With the axis (0, 0, 10), the quaternion has length 7.1 and turns X into (-99, 10, 0); the
-matrix from `toRotationMatrix()` turns X into (0, 10, 0); with a zero axis the matrix is not
-a rotation and the quaternion has length 0.71.  An axis that is almost unit length
-(computed, rounded) passes silently with a proportional error.  GLM's `rotate` normalizes
-the axis; hypatia's axis-angle functions do too.
+Eigen documents that the axis of an `AngleAxis` must be normalized, and does not check it
+or normalize it.  With the axis (0, 0, 10), the quaternion has length 7.1 and turns X into
+(-99, 10, 0); the matrix from `toRotationMatrix()` turns X into (0, 10, 0); with a zero
+axis the matrix is not a rotation and the quaternion has length 0.71.
 
 ## Reproduction
 
@@ -55,7 +53,17 @@ Expected: (0, 1, 0) from both, and the identity for the zero axis; or an asserti
 
 [`Geometry/AngleAxis.h` lines 218-243](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/AngleAxis.h#L218-L243) and
 [`Geometry/Quaternion.h` lines 561-569](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L561-L569) use
-`m_axis` as given.  The class documentation warns: "the axis vector must be normalized".
+`m_axis` as given.  The documentation says "When setting up an AngleAxis object, the axis
+vector **must be normalized**."
+([`Geometry/AngleAxis.h` line 23](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/AngleAxis.h#L23))
+and "If the axis vector is not normalized, then the angle-axis object represents an
+invalid rotation."
+([lines 76-77](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/AngleAxis.h#L76-L77)).
+
+## Suggested fix
+
+Normalize the axis where it is used (one division per conversion), or at least
+`eigen_assert(abs(m_axis.squaredNorm() - 1) < some tolerance)` in the conversions.
 
 ## How hypatia does it
 
@@ -98,11 +106,7 @@ matrix:     (6.12e-17, 1, 0)
 zero axis:  matrix * X = (1, 0, 0), quaternion norm 1
 ```
 
-## Suggested fix
-
-Normalize the axis where it is used (one division per conversion), or at least
-`eigen_assert(abs(m_axis.squaredNorm() - 1) < some tolerance)` in the conversions.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/07-angleaxis-axis-not-unit.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/eigen/07-angleaxis-axis-not-unit.md` builds both
+programs above and compares their output with this report.

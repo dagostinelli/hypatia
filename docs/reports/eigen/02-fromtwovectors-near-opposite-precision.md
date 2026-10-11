@@ -13,9 +13,10 @@
 For unit vectors 1e-3 rad from opposite (outside the SVD branch in double), the general
 formula divides `v0.cross(v1)` by `sqrt(2 (1 + c))`.  Both the cross product of nearly
 opposite vectors and `1 + c` carry cancelled rounding errors.  The rotation puts `v0` up to
-4080 epsilons away from `v1` in the program below (mean 600); over the 20000 inputs of the
-comparison harness the largest is also 4080 (mean 640).  On random inputs the largest is 116
-epsilons.  hypatia's largest is 1.8 for the same inputs (2.2 in the harness, for both).
+4080 double epsilons away from `v1` in the program below (mean 600); over the 20000 inputs
+of the comparison harness the largest is also 4080 (mean 640).  On random inputs the
+largest is 116 epsilons.  hypatia's largest is 1.8 for the same inputs (2.2 in the harness,
+for both).
 
 ## Reproduction
 
@@ -88,6 +89,12 @@ Scalar invs = Scalar(1)/s;
 this->vec() = axis * invs;
 ```
 
+## Suggested fix
+
+As in [01](01-fromtwovectors-opposite.md): the half angle from `(v0 + v1).norm()` and
+`(v0 - v1).norm()`, the axis from `v0.cross(v0 + v1)`.  This removes the branch on
+`dummy_precision` as well.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors and takes the half angle from two
@@ -159,13 +166,9 @@ int main(void)
 quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 1.8, mean 0.32 epsilons
 ```
 
-## Suggested fix
-
-As in [01](01-fromtwovectors-opposite.md): the half angle from `(v0 + v1).norm()` and
-`(v0 - v1).norm()`, the axis from `v0.cross(v0 + v1)`.  This removes the branch on
-`dummy_precision` as well.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/02-fromtwovectors-near-opposite-precision.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.double.md`, `quaternion_get_rotation_tov3`,
-"1e-3 rad from opposite" and "random".
+`compare/check_reports.py docs/reports/eigen/02-fromtwovectors-near-opposite-precision.md`
+builds both programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.double.md`, `quaternion_get_rotation_tov3`, "1e-3 rad from
+opposite" and "random".
