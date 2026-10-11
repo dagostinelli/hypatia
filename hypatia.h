@@ -5487,8 +5487,8 @@ HYPAPI struct quaternion *quaternion_get_rotation_tov3(const struct vector3 *fro
 	 */
 	vector3_add(vector3_set(&sum, &f), &t);
 	vector3_subtract(vector3_set(&difference, &f), &t);
-	half_cos = vector3_magnitude(&sum) / HYP_FLOAT_C(2.0);
-	half_sin = vector3_magnitude(&difference) / HYP_FLOAT_C(2.0);
+	half_cos = hyp_length(sum.v, 3) / HYP_FLOAT_C(2.0);
+	half_sin = hyp_length(difference.v, 3) / HYP_FLOAT_C(2.0);
 
 	/* f x (t - f) and f x (f + t) both have the direction of f x t.  Take
 	 * the one whose second vector is the shorter: it is computed nearly
