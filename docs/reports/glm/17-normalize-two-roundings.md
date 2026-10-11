@@ -15,16 +15,16 @@ After the sum of squares, the result is rounded three times: the square root, it
 reciprocal and each product.  Dividing by `sqrt(dot(v, v))` rounds twice: the square root
 and the quotient.  Over random vectors the program below measures a mean error of 0.289
 double epsilons with GLM and 0.250 with division (16% more).  The comparison harness, which
-measures relative to the largest component, gives 0.371 against 0.321 (16%); for components
-spread over a wide range 0.185 against 0.131 in double (41%) and 0.148 against 0.0851 in
-float (74%).  For a vector with one large and two small components, (1, 1e-5, 1e-5),
+measures relative to the largest component, gives GLM 0.371 against 0.321 for Eigen, which
+divides (16%); for components spread over a wide range 0.185 against 0.124 in double (49%)
+and 0.148 against 0.0851 in float (74%).  For a vector with one large and two small components, (1, 1e-5, 1e-5),
 division rounds the large component to exactly 1 and the mean error in float is 0.000282
 float epsilons; GLM's product with the rounded reciprocal gives 0.0747, about 265 times as
 much.
 
 Related measurements in the harness (double), not traced here to this cause alone:
-quaternion normalization (27% more mean error than hypatia), `glm::rotate` with its
-normalized axis (21%) and `glm::reflect` with a normalized normal (43%).
+quaternion normalization (79% more mean error than hypatia), `glm::rotate` with its
+normalized axis (36%) and `glm::reflect` with a normalized normal (43%).
 
 ## Reproduction
 
@@ -40,17 +40,22 @@ static double rnd() { state ^= state << 13; state ^= state >> 7; state ^= state 
 
 int main()
 {
-	long double sum = 0;
+	long double sum = 0, sum_division = 0;
 	for (int i = 0; i < 100000; i++) {
 		glm::dvec3 v(20 * rnd() - 10, 20 * rnd() - 10, 20 * rnd() - 10);
 		glm::dvec3 g = glm::normalize(v);
+		glm::dvec3 d = v / std::sqrt(glm::dot(v, v));
 		long double n = sqrtl((long double)v.x * v.x + (long double)v.y * v.y + (long double)v.z * v.z);
-		long double e = 0;
-		for (int k = 0; k < 3; k++)
+		long double e = 0, ed = 0;
+		for (int k = 0; k < 3; k++) {
 			e = fmaxl(e, fabsl(g[k] - v[k] / n));
+			ed = fmaxl(ed, fabsl(d[k] - v[k] / n));
+		}
 		sum += e / DBL_EPSILON;
+		sum_division += ed / DBL_EPSILON;
 	}
 	std::printf("glm::normalize: mean error %.3Lf epsilons\n", sum / 100000);
+	std::printf("v / sqrt(dot(v, v)): mean error %.3Lf epsilons\n", sum_division / 100000);
 }
 ```
 
@@ -58,10 +63,10 @@ Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
 glm::normalize: mean error 0.289 epsilons
+v / sqrt(dot(v, v)): mean error 0.250 epsilons
 ```
 
-Expected: the error of division by the length; the hypatia program below prints a mean
-error of 0.250 epsilons.
+Expected: at most the error of division by the length, the second line.
 
 ## Cause
 
@@ -80,9 +85,11 @@ configuration macro could let users choose.
 
 ## How hypatia does it
 
-`hyp_normalize`, used by every hypatia normalization, divides each component by the length
-(`v[i] /= length`) when the sum of squares is between 1e-30 and 1e30, and scales first
-when it is not ([08](08-normalize-overflow-underflow.md)).
+`hyp_normalize`, used by every hypatia normalization, first scales the vector by a power
+of two so that its largest component is between 1 and 2, which is exact, so the squares
+can neither overflow nor underflow; it then divides by the length with exact products and
+sums, so each component is the exact quotient rounded once (within half an ulp)
+([08](08-normalize-overflow-underflow.md)): fewer roundings than division by the length.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -114,7 +121,7 @@ int main(void)
 ```
 
 ```text
-vector3_normalize: mean error 0.250 epsilons
+vector3_normalize: mean error 0.157 epsilons
 ```
 
 ## Checking

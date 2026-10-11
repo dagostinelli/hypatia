@@ -18,10 +18,10 @@ for 99 of 20000 inputs, and those inputs carry the large errors: mean 2300, larg
 float epsilons.  The other 19901 inputs take the `sinTheta < 0.001` branch, an
 unnormalized `glm_quat_lerp`, with a mean error of 0.34 and largest 1.2 float epsilons;
 none reaches the `acosf` branch.  Over all inputs the mean error is 11.7 float epsilons
-(largest 5839), against 0.46 (largest 1.5) with hypatia; the comparison harness, over
-other inputs, measures 52.3 (largest 5890) against 0.474 (largest 1.67).  For rotations
+(largest 5839), against 0.39 (largest 1.2) with hypatia; the comparison harness, over
+other inputs, measures 52.3 (largest 5890) against 0.415 (largest 1.47).  For rotations
 1e-6 rad apart the early return is taken for 17642 of 20000 inputs, and the mean error is
-2.04 float epsilons, against 0.34 with hypatia (the `glm_quat_slerp` row of
+2.04 float epsilons, against 0.27 with hypatia (the `glm_quat_slerp` row of
 [12](12-precision-small-differences.md), measured on other inputs).
 
 ## Reproduction
@@ -185,8 +185,8 @@ int main(void)
 ```
 
 ```text
-quaternion_slerp, 1e-3 rad apart: largest 1.5, mean 0.46 epsilons
-quaternion_slerp, 1e-6 rad apart: largest 1.4, mean 0.34 epsilons
+quaternion_slerp, 1e-3 rad apart: largest 1.2, mean 0.39 epsilons
+quaternion_slerp, 1e-6 rad apart: largest 1.2, mean 0.27 epsilons
 ```
 
 ## Checking
@@ -194,5 +194,5 @@ quaternion_slerp, 1e-6 rad apart: largest 1.4, mean 0.34 epsilons
 `compare/check_reports.py docs/reports/cglm/03-slerp-small-angles.md` builds both programs
 above and compares their output with this report.  The harness:
 `compare/results/precision/now.single.md`, `quaternion_slerp`, "1e-3 rad apart" (cglm
-largest 5890, mean 52.3; hypatia 1.67 / 0.474), "1e-6 rad apart" (cglm 6.79 / 1.94; hypatia
-1.47 / 0.376) and "random" (cglm 16.6 / 0.61; hypatia 1.85 / 0.478).
+largest 5890, mean 52.3; hypatia 1.47 / 0.415), "1e-6 rad apart" (cglm 6.79 / 1.94; hypatia
+1.18 / 0.31) and "random" (cglm 16.6 / 0.61; hypatia 1.5 / 0.408).

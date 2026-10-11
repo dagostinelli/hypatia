@@ -1,7 +1,7 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
 #
-# For each bug fix on correctness-h: build and run the fix commit's own tests
+# For each bug fix on correctness: build and run the fix commit's own tests
 # twice, once with its hypatia.h and once with the hypatia.h of the commit
 # before it.  A fix is confirmed when the tests pass with the fix and fail
 # without it.

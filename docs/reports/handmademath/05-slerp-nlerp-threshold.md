@@ -94,7 +94,7 @@ int main(void)
 ```
 
 ```text
-quaternion_slerp, 0.06 rad apart: largest angle error 5e-09 rad
+quaternion_slerp, 0.06 rad apart: largest angle error 3.2e-09 rad
 ```
 
 ## Checking

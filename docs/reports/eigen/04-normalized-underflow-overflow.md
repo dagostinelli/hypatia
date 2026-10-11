@@ -73,11 +73,12 @@ unchanged.
 
 ## How hypatia does it
 
-`vector3_normalize` (all hypatia normalizations use `hyp_normalize`) divides by the length
-when the sum of the squares is between 1e-30 and 1e30, and otherwise divides by the
-largest component first.  Infinite components become +-1 and the others 0.  Only an
-exactly zero vector, or NaN, is left unchanged; there is no separate "stable" variant to
-choose.
+`vector3_normalize` (all hypatia normalizations use `hyp_normalize`) first scales the
+vector by a power of two so that its largest component is between 1 and 2, which is exact,
+so the squares can neither overflow nor underflow; it then divides by the length with
+exact products and sums, so each component is the exact quotient rounded once (within half
+an ulp).  Infinite components become +-1 and the others 0.  Only an exactly zero vector,
+or NaN, is left unchanged; there is no separate "stable" variant to choose.
 
 ```c
 #define HYPATIA_IMPLEMENTATION

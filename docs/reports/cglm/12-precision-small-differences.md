@@ -1,9 +1,9 @@
-# Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements
+# Smaller precision differences: cglm has from 4% more to 265 times the rounding error of hypatia in twenty-four measurements
 
 | | |
 |---|---|
 | Library | cglm 0.9.4 (1796cc5) |
-| Function | normalization, `glm_quat_rotatev`, `glm_quat_from_vecs`, `glm_quat_axis` / `glm_quat_angle`, `glm_vec3_reflect`, `glm_rotate_make`, `glm_quat_inv`, `glm_lookat`, `glm_perspective`, `glm_mat4_inv`, `glm_quat_mul`, `glm_quat_slerp` |
+| Function | normalization, `glm_mat4_inv`, `glm_quat_slerp`, `glm_quat_axis` / `glm_quat_angle`, `glm_quat_from_vecs`, `glm_vec3_reflect`, `glm_rotate_make`, `glm_quatv`, `glm_lookat`, `glm_quat_for`, `glm_mat4_det`, `glm_mat4_quat`, `glm_quat_rotatev`, `glm_quat_inv`, `glm_perspective`, `glm_quat_mul` |
 | Kind | precision |
 | Precision | float |
 | Status | still present in cglm 0.9.6 (the latest release) and at master 58d8c15 (2026-07-29): the program prints the same |
@@ -17,28 +17,35 @@ second random seed):
 
 | cglm | hypatia | cglm | ratio | hypatia's approach |
 |---|---|---|---|---|
-| `glm_vec3_normalize`, (1, 1e-5, 1e-5) | `vector3_normalize` | 0.0747 against 0.000282 | 265 | each component divided by the length: the large one rounds to exactly 1 |
-| `glm_quat_slerp`, 1e-6 rad apart | `quaternion_slerp` | 1.94 against 0.376 | 5.2 | the angle from `2 atan2(\|s - t\|, \|s + t\|)`, the full formula down to an angle of 0 |
-| `glm_quat_axis` * `glm_quat_angle`, 1e-4 rad | `quaternion_get_axis_anglev3` | 0.374 against 0.090 | 4.2 | the axis by dividing the vector part by its length |
-| `glm_quat_axis` * `glm_quat_angle`, random | `quaternion_get_axis_anglev3` | 0.704 against 0.384 | 1.83 | the axis by dividing the vector part by its length |
-| `glm_quat_from_vecs`, random | `quaternion_get_rotation_tov3` | 0.907 against 0.536 (largest 99 against 2.6) | 1.69 | half angle from `length(a + b)` and `length(a - b)` |
-| `glm_vec3_reflect` (normal normalized first) | `vector3_reflect` | 0.664 against 0.466 | 1.42 | divides by `dot(n, n)`; no separate normalization |
-| `glm_rotate_make` | `matrix4_set_from_axisv3_angle` | 0.608 against 0.503 | 1.21 | the axis divided by its length |
-| `glm_vec3_normalize`, random | `vector3_normalize` | 0.370 against 0.320 | 1.16 | each component divided by the length |
-| `glm_quat_rotatev`, unit q | `vector3_rotate_by_quaternion` | 0.713 against 0.620 | 1.15 | `2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)`, one division by `dot(q, q)` |
-| `glm_quat_inv` | `quaternion_inverse` | 0.431 against 0.387 | 1.11 | the conjugate divided by `dot(q, q)` |
-| `glm_quat_rotatev`, q of length 1 +- 1e-6 | `vector3_rotate_by_quaternion` | 0.717 against 0.649 | 1.10 | `2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)`, one division by `dot(q, q)` |
-| `glm_lookat` | `matrix4_view_lookat_rh` | 0.458 against 0.416 | 1.10 | the normalization of `vector3_normalize` |
-| `glm_perspective` | `matrix4_projection_perspective_fovy_rh` | 0.380 against 0.353 | 1.08 | divides by `zNear - zFar` instead of multiplying by its reciprocal |
-| `glm_mat4_inv`, rotation, scale and translation | `matrix4_inverse` | 0.0118 against 0.0109 (per unit of condition) | 1.08 | 2x2 blocks, determinant shared with the cofactors, division by it |
-| `glm_mat4_inv`, condition 1e4 | `matrix4_inverse` | 1.02 against 0.970 | 1.05 | 2x2 blocks, determinant shared with the cofactors, division by it |
-| `glm_mat4_inv`, random entries | `matrix4_inverse` | 0.0645 against 0.0619 (per unit of condition) | 1.04 | 2x2 blocks, determinant shared with the cofactors, division by it |
-| `glm_quat_mul` | `quaternion_multiply` | 0.302 against 0.290 | 1.04 | the four products summed in pairs |
+| `glm_vec3_normalize`, one large, two small (1, 1e-5, 1e-5) | `vector3_normalize` | 0.0747 against 0.000282 | 264.89 | scaled by a power of two, then each component rounded once (exact products) |
+| `glm_mat4_inv`, condition ~1e4 | `matrix4_inverse` | 1.02 against 0.144 (per unit of condition) | 7.08 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm_quat_slerp`, 1e-6 rad apart | `quaternion_slerp` | 1.94 against 0.31 | 6.26 | the angle from `2 atan2(\| \|t\| s - \|s\| t \|, \| \|t\| s + \|s\| t \|)` with exact products, the two terms combined with one rounding |
+| `glm_quat_axis` * `glm_quat_angle`, angle 1e-4 | `quaternion_get_axis_anglev3` | 0.374 against 0.0899 | 4.16 | the vector part divided by the length that gives the angle `2 atan2(\|v\|, w)` |
+| `glm_quat_from_vecs`, random | `quaternion_get_rotation_tov3` | 0.907 against 0.468 | 1.94 | half angle from `\|f - t\|` and `\|f + t\|`, the axis from the shorter of them |
+| `glm_quat_axis` * `glm_quat_angle`, random | `quaternion_get_axis_anglev3` | 0.704 against 0.373 | 1.89 | the vector part divided by the length that gives the angle `2 atan2(\|v\|, w)` |
+| `glm_vec3_normalize`, random | `vector3_normalize` | 0.37 against 0.203 | 1.82 | scaled by a power of two, then each component rounded once (exact products) |
+| `glm_quat_slerp`, random | `quaternion_slerp` | 0.61 against 0.408 | 1.50 | the angle from `2 atan2(\| \|t\| s - \|s\| t \|, \| \|t\| s + \|s\| t \|)` with exact products, the two terms combined with one rounding |
+| `glm_vec3_reflect`, random | `vector3_reflect` | 0.664 against 0.466 | 1.42 | divides by `dot(n, n)`; no separate normalization |
+| `glm_quat_normalize`, random length | `quaternion_normalize` | 0.28 against 0.198 | 1.41 | scaled by a power of two, then each component rounded once (exact products) |
+| `glm_rotate_make`, random | `matrix4_set_from_axisv3_angle` | 0.608 against 0.442 | 1.38 | the axis normalized by `hyp_normalize` |
+| `glm_quatv`, random | `quaternion_set_from_axis_anglev3` | 0.309 against 0.24 | 1.29 | the axis normalized by `hyp_normalize`, the result not normalized again |
+| `glm_lookat`, random (error * sin(view, up)) | `matrix4_view_lookat_rh` | 0.458 against 0.36 | 1.27 | the axes normalized by `hyp_normalize` |
+| `glm_quat_for`, random | `quaternion_set_look_rotation_rh` | 0.434 against 0.348 | 1.25 | the rotation matrix and Shepperd's method, normalized by `hyp_normalize` |
+| `glm_mat4_det`, random entries | `matrix4_determinant` | 0.261 against 0.215 | 1.21 | 2x2 minors rounded once, determinant from the blocks |
+| `glm_mat4_inv`, rotation, scale and translation | `matrix4_inverse` | 0.0118 against 0.01 (per unit of condition) | 1.18 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm_mat4_quat`, near half turns (pi - 1e-3) | `quaternion_set_from_matrix4` | 0.329 against 0.279 | 1.18 | Shepperd's method, the result normalized by `hyp_normalize` |
+| `glm_mat4_inv`, random entries | `matrix4_inverse` | 0.0645 against 0.0552 (per unit of condition) | 1.17 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm_quat_rotatev`, unit q | `vector3_rotate_by_quaternion` | 0.713 against 0.62 | 1.15 | `(2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)) / \|q\|^2`, one division |
+| `glm_mat4_quat`, random rotation | `quaternion_set_from_matrix4` | 0.337 against 0.295 | 1.14 | Shepperd's method, the result normalized by `hyp_normalize` |
+| `glm_quat_inv`, random length | `quaternion_inverse` | 0.431 against 0.387 | 1.11 | the conjugate divided by `dot(q, q)` |
+| `glm_quat_rotatev`, q of length 1 +- 1e-6 (drifted) | `vector3_rotate_by_quaternion` | 0.717 against 0.649 | 1.10 | `(2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)) / \|q\|^2`, one division |
+| `glm_perspective`, random | `matrix4_projection_perspective_fovy_rh` | 0.38 against 0.353 | 1.08 | divides by `zNear - zFar` instead of multiplying by its reciprocal |
+| `glm_quat_mul`, random | `quaternion_multiply` | 0.302 against 0.29 | 1.04 | the four products summed in pairs |
 
 Several rows share one cause: cglm divides by multiplying with a reciprocal (`1.0f /
 norm`, `1.0f / (nearZ - farZ)`, `1.0f / norm2`), which rounds twice.  The program below
-measures the eighth row on its own inputs (0.289 against 0.251; the harness
-measures relative to the largest component).
+measures the `glm_vec3_normalize`, random row on its own inputs (0.289 against 0.157; the
+harness measures relative to the largest component).
 
 ## Reproduction
 
@@ -74,8 +81,8 @@ Output (x86-64, gcc 13.3, `-O2`):
 glm_vec3_normalize: mean error 0.289 epsilons
 ```
 
-Expected: about the error of a correctly rounded division; the hypatia program below
-prints a mean error of 0.251 epsilons.
+Expected: at most the error of a division by the length; the hypatia program below, which
+rounds each component once, prints a mean error of 0.157 epsilons.
 
 ## Cause
 
@@ -91,7 +98,7 @@ see the last column for the other rows.
 ## How hypatia does it
 
 See the last column of the table.  The harness (`compare/` on the hypatia branch
-correctness-exp-glm) measures every row; `docs/comparison.md` describes the method.
+correctness-reports) measures every row; `docs/comparison.md` describes the method.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
@@ -124,12 +131,12 @@ int main(void)
 ```
 
 ```text
-vector3_normalize: mean error 0.251 epsilons
+vector3_normalize: mean error 0.157 epsilons
 ```
 
 ## Checking
 
 `compare/check_reports.py docs/reports/cglm/12-precision-small-differences.md` builds both
 programs above and compares their output with this report.  Every row comes from
-`compare/results/precision/summary.md` on the hypatia branch correctness-exp-glm;
+`compare/results/precision/summary.md` on the hypatia branch correctness-reports;
 `compare/reproduce.sh` regenerates it.

@@ -81,9 +81,11 @@ of multiplying by `1.0f / norm` also removes a rounding
 ## How hypatia does it
 
 `vector3_normalize` (all hypatia normalizations use `hyp_normalize`) leaves unchanged only
-an exactly zero vector, or one with a NaN component.  When the sum of the squares is not
-between 1e-30 and 1e30 it divides by the largest component first, so short and long
-vectors normalize as accurately as others.
+an exactly zero vector, or one with a NaN component.  It first scales the vector by a
+power of two so that its largest component is between 1 and 2, which is exact, so the
+squares can neither overflow nor underflow; it then divides by the length with exact
+products and sums, so each component is the exact quotient rounded once (within half an
+ulp), so short and long vectors normalize as accurately as others.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS
@@ -119,4 +121,4 @@ normalize(NaN, 1, 0)        = (nan, 1, 0)
 both programs above and compares their output with this report.  The harness:
 `compare/results/single.md`, "Edge cases", and `compare/results/precision/now.single.md`,
 `vector3_normalize`, "components 1e-20 .. 1e20 (single 1e-15 .. 1e15)" (cglm 8.39e6 /
-1.68e5, hypatia 1.05 / 0.0851).
+1.68e5, hypatia 0.351 / 0.047).

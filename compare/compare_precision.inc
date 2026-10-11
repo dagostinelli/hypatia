@@ -786,7 +786,7 @@ static void precision()
 		}
 	}
 
-	/* ------------------------------------------- added on correctness-h:
+	/* ------------------------------------------- added on correctness:
 	 * not in master or before (HYP_BEFORE_ADDITIONS)
 	 */
 	{

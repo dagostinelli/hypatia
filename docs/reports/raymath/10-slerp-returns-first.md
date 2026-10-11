@@ -16,8 +16,9 @@ of the dot product can make it exactly 1.  Over 20000 random pairs of unit quate
 1e-3 rad apart, the program below gets `q1` back unchanged for 1620 pairs; 1e-4 rad apart,
 for 15490.  For those pairs the result does not move at all: the angle error is the whole
 of t x angle, as large as the angle itself.  hypatia's slerp, on the same inputs, returns
-q1 only twice (for t so small that the step rounds away), and its largest error, 0.0022
-of the angle at 1e-4 rad, is the float rounding of the inputs (6e-8 against 1e-4).
+q1 for 1 and 4 of the 20000 pairs (for t so small that the step rounds away), and its
+largest error, 0.0019 of the angle at 1e-4 rad, is the float rounding of the inputs (6e-8
+against 1e-4).
 
 ## Reproduction
 
@@ -132,8 +133,8 @@ int main(void)
 ```
 
 ```text
-0.001 rad apart: result equal to q1 for 0 of 20000, largest error 0.00023 of the angle
-0.0001 rad apart: result equal to q1 for 2 of 20000, largest error 0.0022 of the angle
+0.001 rad apart: result equal to q1 for 1 of 20000, largest error 0.00017 of the angle
+0.0001 rad apart: result equal to q1 for 4 of 20000, largest error 0.0019 of the angle
 ```
 
 ## Checking

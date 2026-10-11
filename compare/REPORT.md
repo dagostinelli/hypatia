@@ -1,6 +1,6 @@
 # hypatia compared with GLM, cglm, Eigen and LAPACK
 
-Experimental branch `correctness-exp-glm`; not meant for master.
+Branch `correctness-reports`, on top of `correctness`; not meant for master.
 
 Libraries: GLM 1.0.1, cglm 0.9.4 (single precision only; cglm is float), Eigen 3.4.0,
 and the system LAPACK 3.12 (double).  The tables are in `results/`:
@@ -16,17 +16,17 @@ or 2e-5 (single).  Where two libraries disagree, an "accuracy" section compares 
 with the exact answer computed in long double.  An "edge cases" section lists what each
 library returns for zero, tiny, huge, NaN and inf inputs and for degenerate geometry.
 
-## Bugs found and fixed in correctness-h
+## Bugs found and fixed in correctness
 
-Each fix is a commit at the tail of `correctness-h`, with a test that fails before it.
+Each fix is part of a commit on `correctness`, with a test that fails before it.
 
 | commit | problem | found by |
 |---|---|---|
-| `matrix4_inverse, matrix4_determinant: share the 2x2 minors` | The determinant came from a separate 24-term sum and the cofactors from triple products.  For a condition number of 1e3 the inverse was 18 times less accurate than GLM and Eigen, and 150 times less for 1e6 (double).  It is now as accurate as GLM and Eigen (6.5e-13 against 7.4e-13 and 7.2e-13). | inverse accuracy against long double |
+| `matrix2/3/4 inverse and determinant: 2x2 blocks, divide by the determinant, scale by a power of two`; `Correctly rounded normalize; exact products in the angles, slerp and 2x2 minors` | The determinant came from a separate 24-term sum and the cofactors from triple products.  For a condition number of 1e3 the inverse was 18 times less accurate than GLM and Eigen, and 150 times less for 1e6 (double).  It is now more accurate than both: 3.1e-13 against 6.8e-13 and 7.8e-13 at condition 1e3, and 2.8e-9 against 7.7e-8 and 1.1e-7 at 1e6. | inverse accuracy against long double |
 | `vector2/3_angle_between: atan2 of the unit vectors` | acos of the rounded cosine gave NaN for about half of all parallel vector pairs, NaN for every pair 1e-4 rad apart in single precision, and NaN for a zero vector.  Now within 4.4e-16 (double) and 2.4e-7 (single) of the exact angle; GLM's `angle` is 10 to 20000 times further off. | GLM, long double |
-| `quaternion_slerp: measure the angle with atan2; lerp only for equal quaternions` | Below 1 - HYP_EPSILON in the dot product (angles under about 0.009 rad) slerp used lerp, which was off by up to 2e-6 and not unit length.  GLM and Eigen differed by 3e-8 at 1e-3 rad. | GLM, Eigen |
-| `Rotate by a quaternion or an axis of any length` | `vector3_rotate_by_quaternion` scaled the vector by \|q\|^2 for a non-unit q, while `matrix4_set_from_quaternion` (documented to rotate the same way) normalizes.  `quaternion_set_from_axis_anglef3` normalized the result, which changes the angle for a non-unit axis; `matrix4_set_from_axisf3_angle` gave a matrix that is not a rotation.  GLM's `rotate` normalizes the axis. | GLM |
-| `matrix2/3/4_multiply: the doc comment had the order backwards` | The comment said self = self * mT; the code (and the README) do self = mT * self. | GLM, cglm |
+| `quaternion_slerp: shortest arc, exact at the ends, the angle from atan2` | Below 1 - HYP_EPSILON in the dot product (angles under about 0.009 rad) slerp used lerp, which was off by up to 2e-6 and not unit length.  GLM and Eigen differed by 3e-8 at 1e-3 rad. | GLM, Eigen |
+| `Rotate by a quaternion or an axis of any length; vector3_rotate_by_quaternion with one division` | `vector3_rotate_by_quaternion` scaled the vector by \|q\|^2 for a non-unit q, while `matrix4_set_from_quaternion` (documented to rotate the same way) normalizes.  `quaternion_set_from_axis_anglef3` normalized the result, which changes the angle for a non-unit axis; `matrix4_set_from_axisf3_angle` gave a matrix that is not a rotation.  GLM's `rotate` normalizes the axis. | GLM |
+| `Document the functions: let Doxygen read the implementation` (matrix2/3/4_multiply) | The comment said self = self * mT; the code (and the README) do self = mT * self. | GLM, cglm |
 
 ## Agreement
 

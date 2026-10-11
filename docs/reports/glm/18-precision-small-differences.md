@@ -1,11 +1,11 @@
-# Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements
+# Smaller precision differences: GLM has from 3% more to 7.4 times the rounding error of hypatia in seventeen measurements
 
 | | |
 |---|---|
 | Library | GLM 1.0.1 (0af55cc) |
-| Function | `q * v`, `lookAt`, `unProject`, `refract`, `inverse` (mat3, mat4), `slerp`, `mat4_cast`, `quat * quat` |
+| Function | `inverse` (mat3, mat4), `refract`, `lookAt`, `slerp`, `unProject`, `determinant`, `inverseTranspose`, `quat_cast`, `q * v`, `quat * quat`, `mat4_cast` |
 | Kind | precision |
-| Precision | double and float |
+| Precision | double |
 | Status | still present in GLM 1.0.3 (the latest release) and at master 6f14f47 (2026-04-07): the program prints the same |
 
 ## Summary
@@ -17,21 +17,25 @@ second random seed):
 
 | GLM | hypatia | GLM | ratio | hypatia's approach |
 |---|---|---|---|---|
-| `glm::unProject` | `vector3_unproject_from_window` | 2.17 against 1.86 | 1.17 | the matrix inverse by 2x2 blocks |
-| `glm::lookAtRH` | `matrix4_view_lookat_rh` | 0.450 against 0.407 | 1.11 | the normalization of `hyp_normalize` |
-| `q * v` (unit q) | `vector3_rotate_by_quaternion` | 0.686 against 0.622 | 1.10 | `(2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)) / \|q\|^2` |
-| `glm::slerp`, 1e-6 rad apart | `quaternion_slerp` | 0.538 against 0.491 | 1.10 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
-| `glm::refract` | `vector3_refract` | 0.413 against 0.384 | 1.08 | the normalization of `hyp_normalize` |
-| `glm::inverse` (mat4, rotation, scale and translation) | `matrix4_inverse` | 0.0115 against 0.0108 (per unit of condition) | 1.06 | 2x2 blocks, determinant shared with the cofactors |
-| `glm::inverse` (mat4, condition 1e4) | `matrix4_inverse` | 1.01 against 0.963 | 1.05 | 2x2 blocks, determinant shared with the cofactors |
-| `glm::inverse` (mat3) | `matrix3_inverse` | 0.0784 against 0.0749 (per unit of condition) | 1.05 | division by the determinant instead of multiplication by its reciprocal |
-| `glm::slerp`, random | `quaternion_slerp` | 0.487 against 0.468 | 1.04 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
-| `glm::inverse` (mat4, random) | `matrix4_inverse` | 0.0641 against 0.0623 (per unit of condition) | 1.03 | 2x2 blocks, determinant shared with the cofactors |
-| `quat * quat` | `quaternion_multiply` | 0.298 against 0.289 | 1.03 | the four products summed in pairs |
-| `glm::mat4_cast` | `matrix4_set_from_quaternion` | 0.598 against 0.581 | 1.03 | `2 / dot(q, q)` once, for any length of q |
-| `glm::slerp`, 1e-3 rad apart (float) | `quaternion_slerp` | 0.575 against 0.474 | 1.21 | the angle from `2 atan2(\|s - t\|, \|s + t\|)` |
+| `glm::inverse` (mat4), condition ~1e4 | `matrix4_inverse` | 1.01 against 0.137 (per unit of condition) | 7.37 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm::refract`, random, eta 0.5 .. 2 | `vector3_refract` | 0.413 against 0.321 | 1.29 | the normal normalized by `hyp_normalize` |
+| `glm::lookAtRH`, random (error * sin(view, up)) | `matrix4_view_lookat_rh` | 0.45 against 0.351 | 1.28 | the axes normalized by `hyp_normalize` |
+| `glm::inverse` (mat3), random entries | `matrix3_inverse` | 0.0784 against 0.0632 (per unit of condition) | 1.24 | 2x2 minors rounded once, division by the determinant |
+| `glm::slerp`, 1e-6 rad apart | `quaternion_slerp` | 0.538 against 0.437 | 1.23 | the angle from `2 atan2(\| \|t\| s - \|s\| t \|, \| \|t\| s + \|s\| t \|)` with exact products, the two terms combined with one rounding |
+| `glm::unProject`, random camera, window depth 0 .. 0.9 | `vector3_unproject_from_window` | 2.17 against 1.77 | 1.23 | the matrix inverse by 2x2 blocks with minors rounded once |
+| `glm::slerp`, random | `quaternion_slerp` | 0.487 against 0.399 | 1.22 | the angle from `2 atan2(\| \|t\| s - \|s\| t \|, \| \|t\| s + \|s\| t \|)` with exact products, the two terms combined with one rounding |
+| `glm::determinant` (mat4), random entries | `matrix4_determinant` | 0.26 against 0.214 | 1.21 | 2x2 minors rounded once, determinant from the blocks |
+| `glm::inverse` (mat4), random entries | `matrix4_inverse` | 0.0641 against 0.0552 (per unit of condition) | 1.16 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm::slerp`, 1e-3 rad apart | `quaternion_slerp` | 0.535 against 0.462 | 1.16 | the angle from `2 atan2(\| \|t\| s - \|s\| t \|, \| \|t\| s + \|s\| t \|)` with exact products, the two terms combined with one rounding |
+| `glm::inverse` (mat4), rotation, scale and translation | `matrix4_inverse` | 0.0115 against 0.00997 (per unit of condition) | 1.15 | 2x2 minors rounded once, determinant shared with the cofactors, division by it |
+| `glm::inverseTranspose`, rotation, scale and translation | `matrix4_normal_matrix` | 0.38 against 0.339 | 1.12 | cofactors with 2x2 minors rounded once |
+| `glm::quat_cast`, near half turns (pi - 1e-3) | `quaternion_set_from_matrix4` | 0.303 against 0.271 | 1.12 | Shepperd's method, the result normalized by `hyp_normalize` |
+| `q * v`, unit q | `vector3_rotate_by_quaternion` | 0.686 against 0.622 | 1.10 | `(2 (u.v) u + (w^2 - u.u) v + 2 w (u x v)) / \|q\|^2`, one division |
+| `glm::quat_cast`, random rotation | `quaternion_set_from_matrix4` | 0.326 against 0.296 | 1.10 | Shepperd's method, the result normalized by `hyp_normalize` |
+| `quat * quat`, random | `quaternion_multiply` | 0.298 against 0.289 | 1.03 | the four products summed in pairs |
+| `glm::mat4_cast`, unit q | `matrix4_set_from_quaternion` | 0.598 against 0.581 | 1.03 | `2 / dot(q, q)` once, for any length of q |
 
-Each difference is a fraction of an epsilon.  The program below measures the third row on
+Each difference is a fraction of an epsilon.  The program below measures the `q * v` row on
 its own inputs (0.684 against 0.621).
 
 ## Reproduction
@@ -91,13 +95,13 @@ two dot products and one cross product, and divides by `dot(q, q)`.
 
 ## Suggested fix
 
-Each row's last column describes a change that removes the difference; none costs more
-than a division or two additions.
+Each row's last column describes hypatia's approach, which removes the difference; the
+exact products some rows use cost more arithmetic than the formulas they replace.
 
 ## How hypatia does it
 
 See the last column of the table.  The harness (`compare/` on the hypatia branch
-correctness-exp-glm) measures every row; `docs/comparison.md` describes the method.
+correctness-reports) measures every row; `docs/comparison.md` describes the method.
 
 ```c
 #define HYPATIA_IMPLEMENTATION
@@ -145,5 +149,5 @@ vector3_rotate_by_quaternion: mean error 0.621 epsilons
 
 `compare/check_reports.py docs/reports/glm/18-precision-small-differences.md` builds both
 programs above and compares their output with this report.  Every row comes from
-`compare/results/precision/summary.md` on the hypatia branch correctness-exp-glm;
+`compare/results/precision/summary.md` on the hypatia branch correctness-reports;
 `compare/reproduce.sh` regenerates it.

@@ -69,11 +69,12 @@ range such as 1e-30 to 1e30, divide by the largest component first, then normali
 
 ## How hypatia does it
 
-`vector3_normalize` and `quaternion_normalize` divide by the length when the squared
-length is between 1e-30 and 1e30, and otherwise divide by the largest component first.
-The zero vector is left unchanged.  `matrix4_set_from_quaternion` uses the same scaled
-normalization when |q|^2 is outside that range, and gives the identity for the zero
-quaternion.
+`vector3_normalize` and `quaternion_normalize` first scale the vector by a power of two so
+that its largest component is between 1 and 2, which is exact, so the squares can neither
+overflow nor underflow; then divide by the length with exact products and sums, so each
+component is the exact quotient rounded once (within half an ulp).  The zero vector is
+left unchanged.  `matrix4_set_from_quaternion` normalizes the same way when |q|^2 is
+outside 1e-30 to 1e30, and gives the identity for the zero quaternion.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS

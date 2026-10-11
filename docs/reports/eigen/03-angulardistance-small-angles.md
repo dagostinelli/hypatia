@@ -156,7 +156,7 @@ int main(void)
 ```
 
 ```text
-quaternion_angle_between, rotations 1e-4 rad apart: largest 4558, mean 256 epsilons
+quaternion_angle_between, rotations 1e-4 rad apart: largest 6, mean 1 epsilons
 ```
 
 ## Checking
