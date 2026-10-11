@@ -18,3 +18,4 @@ Tested: cglm 0.9.4, commit [1796cc5](https://github.com/recp/cglm/tree/1796cc5ce
 | [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](12-precision-small-differences.md) | precision | present in the latest release |
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
+| [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](15-quat-mat4-non-unit.md) | wrong result | present in the latest release |
