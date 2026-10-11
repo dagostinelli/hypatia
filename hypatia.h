@@ -1281,12 +1281,13 @@ static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
 }
 
 
-/* a * b = *hi + *lo exactly, with *hi the rounded product */
-static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT *lo)
+/* a * b = *hi + *lo exactly, with *hi the rounded product, given the high
+ * halves ah and bh of a and b from hyp_split_high: a value used in several
+ * products is split once
+ */
+static void hyp_exact_product_split(HYP_FLOAT a, HYP_FLOAT ah, HYP_FLOAT b, HYP_FLOAT bh, HYP_FLOAT *hi, HYP_FLOAT *lo)
 {
-	HYP_FLOAT ah = hyp_split_high(a);
 	HYP_FLOAT al = a - ah;
-	HYP_FLOAT bh = hyp_split_high(b);
 	HYP_FLOAT bl = b - bh;
 	/* volatile, as in hyp_split_high: *lo is the error of this rounded
 	 * product, not of a fused one
@@ -1295,6 +1296,13 @@ static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT
 
 	*hi = product;
 	*lo = ((ah * bh - *hi) + ah * bl + al * bh) + al * bl;
+}
+
+
+/* a * b = *hi + *lo exactly, with *hi the rounded product */
+static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT *lo)
+{
+	hyp_exact_product_split(a, hyp_split_high(a), b, hyp_split_high(b), hi, lo);
 }
 
 
@@ -1314,17 +1322,20 @@ static HYP_INLINE HYP_FLOAT hyp_length_scaled(const HYP_FLOAT *v, uint8_t n, HYP
 	HYP_FLOAT square_low;
 	HYP_FLOAT error;
 	HYP_FLOAT length;
+	HYP_FLOAT high;
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
-		hyp_exact_product(v[i], v[i], &square, &square_low);
+		high = hyp_split_high(v[i]);
+		hyp_exact_product_split(v[i], high, v[i], high, &square, &square_low);
 		hyp_exact_sum(sum, square, &sum, &error);
 		sum_low += error + square_low;
 	}
 
 	/* the true length is length + excess, to first order */
 	length = HYP_SQRT(sum + sum_low);
-	hyp_exact_product(length, length, &square, &square_low);
+	high = hyp_split_high(length);
+	hyp_exact_product_split(length, high, length, high, &square, &square_low);
 	*excess_out = ((sum - square) + (sum_low - square_low)) / (HYP_FLOAT_C(2.0) * length);
 
 	return length;
@@ -1352,6 +1363,7 @@ static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess
 	HYP_FLOAT length = hyp_length_scaled(v, n, excess_out);
 #ifdef HYP_SPLIT
 	HYP_FLOAT excess = *excess_out;
+	HYP_FLOAT length_high = hyp_split_high(length);
 	HYP_FLOAT quotient;
 	HYP_FLOAT product;
 	HYP_FLOAT product_low;
@@ -1362,7 +1374,7 @@ static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess
 #ifdef HYP_SPLIT
 		/* v / (length + excess) = quotient + (remainder - quotient excess) / length */
 		quotient = v[i] / length;
-		hyp_exact_product(quotient, length, &product, &product_low);
+		hyp_exact_product_split(quotient, hyp_split_high(quotient), length, length_high, &product, &product_low);
 		v[i] = quotient + (((v[i] - product) - product_low) - quotient * excess) / length;
 #else
 		v[i] /= length;
@@ -1498,12 +1510,16 @@ static HYP_FLOAT hyp_length_of_sum(const HYP_FLOAT *a, HYP_FLOAT sa, HYP_FLOAT s
 	HYP_FLOAT q_low = HYP_FLOAT_C(0.0);
 	HYP_FLOAT length;
 	HYP_FLOAT correction = HYP_FLOAT_C(0.0);
+#ifdef HYP_SPLIT
+	HYP_FLOAT sa_high = hyp_split_high(sa);
+	HYP_FLOAT sb_high = hyp_split_high(sb);
+#endif
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
 #ifdef HYP_SPLIT
-		hyp_exact_product(sa, a[i], &p, &p_low);
-		hyp_exact_product(sb, b[i], &q, &q_low);
+		hyp_exact_product_split(sa, sa_high, a[i], hyp_split_high(a[i]), &p, &p_low);
+		hyp_exact_product_split(sb, sb_high, b[i], hyp_split_high(b[i]), &q, &q_low);
 #else
 		p = sa * a[i];
 		q = sb * b[i];
