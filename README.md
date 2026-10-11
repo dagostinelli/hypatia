@@ -127,6 +127,7 @@ Results that differ from 2.0:
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `scalar_equalsf` and the `*_equals` functions compare relative to the size of the values above 1 (2.0: always the absolute difference, so large values one rounding apart could differ), and equal infinities are equal.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
+* `matrix2/3/4_inverse` invert matrices with very small or very large entries whenever the inverse is in range: they scale the matrix by a power of two first, so the determinant does not underflow or overflow.
 * `matrix4_inverse` and `matrix4_determinant` are as accurate as GLM and Eigen for badly conditioned matrices (2.0 lost up to 100 times more).
 * `vector2_angle_between` and `vector3_angle_between` are accurate for parallel and nearly parallel vectors (2.0 could give NaN) and give 0 for a zero vector.
 * `vector3_rotate_by_quaternion` rotates by a quaternion of any length without scaling the vector; the axis-angle functions accept an axis of any length.
@@ -149,7 +150,7 @@ Compared with other math libraries for graphics, the concrete differences are:
 
 * quaternions that are not unit length still rotate correctly, because hypatia divides by |q|²;
 * small angles stay accurate in the angle-between, axis-angle and slerp functions;
-* very large and very small values don't break normalize or the quaternion inverse;
+* very large and very small values don't break normalize or inverse;
 * double, long double and quad precision modes are available.
 
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
