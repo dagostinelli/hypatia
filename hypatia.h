@@ -1910,14 +1910,8 @@ HYPAPI HYP_FLOAT vector2_cross_product(const struct vector2 *vT1, const struct v
  */
 HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct vector2 *vT)
 {
-	struct vector2 a;
-	struct vector2 b;
-
-	/* as vector3_angle_between: atan2(|a x b|, a . b) of the unit vectors */
-	hyp_normalize(vector2_set(&a, self)->v, 2);
-	hyp_normalize(vector2_set(&b, vT)->v, 2);
-
-	return HYP_ATAN2(HYP_ABS(vector2_cross_product(&a, &b)), vector2_dot_product(&a, &b));
+	/* as vector3_angle_between */
+	return HYP_FLOAT_C(2.0) * hyp_half_angle_between(self->v, vT->v, 2);
 }
 
 
@@ -2469,19 +2463,11 @@ HYPAPI struct vector3 *vector3_cross_product(struct vector3 *vR, const struct ve
  */
 HYPAPI HYP_FLOAT vector3_angle_between(const struct vector3 *vT1, const struct vector3 *vT2)
 {
-	struct vector3 a;
-	struct vector3 b;
-	struct vector3 cross;
-
-	/* atan2(|a x b|, a . b) of the unit vectors stays accurate for parallel
-	 * and nearly parallel vectors, where acos of the cosine does not (and
-	 * gives NaN when rounding puts the cosine above 1)
+	/* twice atan2(| |b| a - |a| b |, | |b| a + |a| b |), which stays accurate
+	 * for parallel, nearly parallel and nearly opposite vectors, where acos of
+	 * the cosine does not (and gives NaN when rounding puts the cosine above 1)
 	 */
-	hyp_normalize(vector3_set(&a, vT1)->v, 3);
-	hyp_normalize(vector3_set(&b, vT2)->v, 3);
-	vector3_cross_product(&cross, &a, &b);
-
-	return HYP_ATAN2(vector3_magnitude(&cross), vector3_dot_product(&a, &b));
+	return HYP_FLOAT_C(2.0) * hyp_half_angle_between(vT1->v, vT2->v, 3);
 }
 
 
