@@ -145,6 +145,13 @@ Can I trust this math library?
 ------------------------------
 A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
 
+Compared with other math libraries for graphics, the concrete differences are:
+
+* quaternions that are not unit length still rotate correctly, because hypatia divides by |q|²;
+* small angles stay accurate in the angle-between, axis-angle and slerp functions;
+* very large and very small values don't break normalize or the quaternion inverse;
+* double, long double and quad precision modes are available.
+
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
 A word about convention
