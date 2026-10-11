@@ -1301,13 +1301,11 @@ static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT
 #endif
 
 
-/* divides the n components, the largest of them at least 1 and less than 2,
- * by their length and returns the length, rounded, with the rest of it in
- * *excess_out.  The sum of the squares is kept exactly as a sum of two values,
- * and each quotient is corrected by its remainder, so each component is
- * rounded once.
+/* the length of the n components, the largest of them at least 1 and less
+ * than 2, rounded, with the rest of it in *excess_out.  The sum of the squares
+ * is kept exactly as a sum of two values.
  */
-static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
+static HYP_INLINE HYP_FLOAT hyp_length_scaled(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
 {
 #ifdef HYP_SPLIT
 	HYP_FLOAT sum = HYP_FLOAT_C(0.0);
@@ -1316,10 +1314,6 @@ static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess
 	HYP_FLOAT square_low;
 	HYP_FLOAT error;
 	HYP_FLOAT length;
-	HYP_FLOAT excess;
-	HYP_FLOAT quotient;
-	HYP_FLOAT product;
-	HYP_FLOAT product_low;
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
@@ -1331,33 +1325,51 @@ static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess
 	/* the true length is length + excess, to first order */
 	length = HYP_SQRT(sum + sum_low);
 	hyp_exact_product(length, length, &square, &square_low);
-	excess = ((sum - square) + (sum_low - square_low)) / (HYP_FLOAT_C(2.0) * length);
+	*excess_out = ((sum - square) + (sum_low - square_low)) / (HYP_FLOAT_C(2.0) * length);
 
-	for (i = 0; i < n; i++) {
-		/* v / (length + excess) = quotient + (remainder - quotient excess) / length */
-		quotient = v[i] / length;
-		hyp_exact_product(quotient, length, &product, &product_low);
-		v[i] = quotient + (((v[i] - product) - product_low) - quotient * excess) / length;
-	}
-
-	*excess_out = excess;
 	return length;
 #else
 	HYP_FLOAT sum = HYP_FLOAT_C(0.0);
-	HYP_FLOAT length;
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
 		sum += v[i] * v[i];
 	}
-	length = HYP_SQRT(sum);
-	for (i = 0; i < n; i++) {
-		v[i] /= length;
-	}
 
 	*excess_out = HYP_FLOAT_C(0.0);
-	return length;
+	return HYP_SQRT(sum);
 #endif
+}
+
+
+/* divides the n components, the largest of them at least 1 and less than 2,
+ * by their length and returns the length, rounded, with the rest of it in
+ * *excess_out.  Each quotient is corrected by its remainder, so each
+ * component is rounded once.
+ */
+static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
+{
+	HYP_FLOAT length = hyp_length_scaled(v, n, excess_out);
+#ifdef HYP_SPLIT
+	HYP_FLOAT excess = *excess_out;
+	HYP_FLOAT quotient;
+	HYP_FLOAT product;
+	HYP_FLOAT product_low;
+#endif
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+#ifdef HYP_SPLIT
+		/* v / (length + excess) = quotient + (remainder - quotient excess) / length */
+		quotient = v[i] / length;
+		hyp_exact_product(quotient, length, &product, &product_low);
+		v[i] = quotient + (((v[i] - product) - product_low) - quotient * excess) / length;
+#else
+		v[i] /= length;
+#endif
+	}
+
+	return length;
 }
 
 
@@ -1428,7 +1440,7 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
 	}
 	exponent = hyp_power2_exponent(copy, n);
 	hyp_scale_power2(copy, n, exponent);
-	length = hyp_normalize_scaled(copy, n, low);
+	length = hyp_length_scaled(copy, n, low);
 	hyp_scale_power2(&length, 1, -exponent);
 	hyp_scale_power2(low, 1, -exponent);
 
@@ -1441,14 +1453,33 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
  */
 static HYP_FLOAT hyp_length(const HYP_FLOAT *v, uint8_t n)
 {
-	HYP_FLOAT copy[4];
+	HYP_FLOAT copy[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	HYP_FLOAT length;
+	HYP_FLOAT excess;
+	int exponent;
 	uint8_t i;
 
+	/* as hyp_normalize, without dividing the components */
 	for (i = 0; i < n; i++) {
 		copy[i] = v[i];
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return HYP_FLOAT_C(0.0); /* NaN */
+		}
+	}
+	if (!(largest > HYP_FLOAT_C(0.0)) || !(largest - largest <= HYP_FLOAT_C(0.0))) {
+		return largest; /* zero or infinite */
 	}
 
-	return hyp_normalize(copy, n);
+	exponent = hyp_power2_exponent(copy, n);
+	hyp_scale_power2(copy, n, exponent);
+	length = hyp_length_scaled(copy, n, &excess);
+	length += excess;
+	hyp_scale_power2(&length, 1, -exponent);
+
+	return length;
 }
 
 
