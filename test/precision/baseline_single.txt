@@ -9,10 +9,10 @@ vector3_cross_product | random | 0.7872 | 0.197
 vector3_project | random | 1.925 | 0.2092
 vector3_reflect | random | 2.972 | 0.4675
 vector3_refract | random, eta 0.5 .. 2 | 40.39 | 0.2438
-vector3_angle_between | random | 8.21 | 0.2495
-vector3_angle_between | 1e-6 rad apart | 72.85 | 0.7357
-vector3_angle_between | 1e-3 rad from opposite | 0.7806 | 0.1919
-vector2_angle_between | random | 4474 | 0.8909
+vector3_angle_between | random | 0.8828 | 0.2102
+vector3_angle_between | 1e-6 rad apart | 0.9531 | 0.2374
+vector3_angle_between | 1e-3 rad from opposite | 0.6109 | 0.1846
+vector2_angle_between | random | 0.9213 | 0.2112
 vector3_rotate_by_quaternion | unit q | 3.569 | 0.6284
 vector3_rotate_by_quaternion | q of length 1 +- 1e-6 | 3.449 | 0.6537
 quaternion_normalize | random length | 0.4716 | 0.2044

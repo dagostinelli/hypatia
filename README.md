@@ -129,6 +129,7 @@ Results that differ from 2.0:
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
 * `matrix2/3/4_inverse` invert matrices with very small or very large entries whenever the inverse is in range: they scale the matrix by a power of two first, so the determinant does not underflow or overflow.
 * Normalizing is correctly rounded: each component is the exact quotient rounded once (within half an ulp), for vectors of any length.  It uses exact products (Dekker's splitting), which costs more arithmetic than a plain square root and division.
+* `vector2_angle_between` and `vector3_angle_between` take the angle from the vectors as given, without normalizing them, in the same way: within an ulp also for nearly parallel vectors.
 * `quaternion_angle_between` and `quaternion_slerp` take the angle from the quaternions as given, without normalizing them, with exact products and sums: within an ulp also for nearly equal rotations.  `quaternion_slerp` combines its two terms with one rounding.
 * `quaternion_get_rotation_tov3` takes the axis of nearly equal vectors from their difference; `quaternion_get_axis_anglev3` divides the axis by the same length that gives the angle; `quaternion_set_from_axis_anglev3` no longer normalizes its result a second time.
 * The 2x2 minors in the determinants, the inverses and `matrix4_normal_matrix` are rounded once each.
