@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Library | Eigen 3.4.0 (3147391) |
-| Function | `QuaternionBase::operator*(Vector3)`, `_transformVector` (`Geometry/Quaternion.h`) |
+| Function | `QuaternionBase::operator*(Vector3)`, `_transformVector`, `toRotationMatrix` (`Geometry/Quaternion.h`) |
 | Kind | wrong result for non-unit q; precision for drifted q |
 | Precision | double and float |
 | Status | still present in Eigen 5.0.1 (the latest release) and at master 6bd3136 (2026-10-10): the program prints the same |
@@ -63,8 +63,12 @@ return v + this->w() * uv + this->vec().cross(uv);
 ## Suggested fix
 
 Divide by `squaredNorm()`: `(2 vec.dot(v) vec + (w*w - vec.squaredNorm()) v + 2 w vec.cross(v))
-/ squaredNorm()`.  If unit length is a requirement of `operator*`, state it in its
-documentation and assert it in debug builds.
+/ squaredNorm()`.  In `toRotationMatrix`, use `tx = (2 / squaredNorm()) * x()`, ....
+The class documentation states the requirement ([line 253](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L253): "Operations
+interpreting the quaternion as rotation have undefined behavior if the quaternion is not
+normalized"), as does `toRotationMatrix` ([lines 587-588](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L587-L588)); the
+documentation of `_transformVector` ([lines 522-528](https://gitlab.com/libeigen/eigen/-/blob/3147391d946bb4b6c68edd901f2add6ac1f31f8c/Eigen/src/Geometry/Quaternion.h#L522-L528)) does not.  If the
+requirement stays, an assertion in debug builds would catch the drifted case.
 
 ## How hypatia does it
 
@@ -84,12 +88,16 @@ int main(void)
 {
 	struct quaternion quarter;
 	struct quaternion q;
-	struct vector3 v;
+	struct vector3 v, x;
+	struct matrix4 m;
 
 	quaternion_set_from_axis_anglev3(&quarter, HYP_VECTOR3_UNIT_Z, HYP_PI / 2);
 	quaternion_multiplyf(quaternion_set(&q, &quarter), 2);
 	vector3_rotate_by_quaternion(vector3_setf3(&v, 1, 0, 0), &q);
 	printf("2q * X = (%g, %g, %g)\n", v.x, v.y, v.z);
+	matrix4_set_from_quaternion(&m, &q);
+	matrix4_multiplyv3(&m, vector3_setf3(&x, 1, 0, 0), &v);
+	printf("matrix4_set_from_quaternion(2q) * X = (%g, %g, %g)\n", v.x, v.y, v.z);
 	quaternion_multiplyf(quaternion_set(&q, &quarter), 1 + 1e-6);
 	vector3_rotate_by_quaternion(vector3_setf3(&v, 1, 0, 0), &q);
 	printf("q (length 1 + 1e-6) * X = (%.17g, %.17g, %g), length %.17g\n", v.x, v.y, v.z, vector3_magnitude(&v));
@@ -99,6 +107,7 @@ int main(void)
 
 ```text
 2q * X = (2.22045e-16, 1, 0)
+matrix4_set_from_quaternion(2q) * X = (2.22045e-16, 1, 0)
 q (length 1 + 1e-6) * X = (1.1102208041824381e-16, 1, 0), length 1
 ```
 

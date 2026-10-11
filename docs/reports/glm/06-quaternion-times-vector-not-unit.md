@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Library | GLM 1.0.1 (0af55cc) |
-| Function | `operator*(qua, vec3)` (`detail/type_quat.inl`) |
+| Function | `operator*(qua, vec3)` (`detail/type_quat.inl`); `mat3_cast`, `mat4_cast` (`gtc/quaternion.inl`) |
 | Kind | wrong result for non-unit q; precision for drifted q |
 | Precision | double and float |
 | Status | still present in GLM 1.0.3 (the latest release) and at master 6f14f47 (2026-04-07): the program prints the same |
@@ -15,7 +15,8 @@ For any other length the result is not the rotation by q scaled, but a different
 for twice the quarter turn about Z, X goes to (-3, 4, 0) instead of (0, 1, 0).
 Quaternions that are composed repeatedly drift from unit length; at a drift of 1e-6 the
 error is 2e-6 relative, 6e9 double epsilons in the mean over random inputs.
-`glm::mat3_cast` makes the same assumption and gives the same (-3, 4, 0).
+`glm::mat3_cast` (and `mat4_cast`, which calls it) makes the same assumption and gives the
+same (-3, 4, 0).
 
 ## Reproduction
 
@@ -63,15 +64,20 @@ vec<3, T, Q> const uuv(glm::cross(QuatVector, uv));
 return v + ((uv * q.w) + uuv) * static_cast<T>(2);
 ```
 
-This is `q v q*` expanded with `|q| = 1` substituted.  Without that substitution,
+This is `q v q*` expanded with `|q| = 1` substituted.  [`mat3_cast`, `gtc/quaternion.inl`
+lines 47-72](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/gtc/quaternion.inl#L47-L72) builds the matrix from `T(2) * (qxy + qwz)`, ...,
+with the same substitution; [`mat4_cast`, lines 75-78](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/gtc/quaternion.inl#L75-L78) calls it.
+The documentation of both ([`gtc/quaternion.hpp` lines 76 and 84](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/gtc/quaternion.hpp#L76-L90))
+says only "Converts a quaternion to a 3 * 3 matrix" ("4 * 4").  Without that substitution,
 `q v q*` is `|q|^2` times the rotation; the formula is neither.
 
 ## Suggested fix
 
 Divide by `dot(q, q)`: with `u` the vector part,
 `(2 dot(u, v) u + (w*w - dot(u, u)) v + 2 w cross(u, v)) / dot(q, q)`.  It costs one
-division and is the rotation for any non-zero q.  If the unit-length requirement is
-intended, document it on `operator*` and assert it in debug builds.
+division and is the rotation for any non-zero q.  In `mat3_cast`, use `T(2) / dot(q, q)`
+in place of `T(2)`.  If the unit-length requirement is intended, document it on `operator*`,
+`mat3_cast` and `mat4_cast` and assert it in debug builds.
 
 ## How hypatia does it
 
@@ -91,13 +97,17 @@ int main(void)
 {
 	struct quaternion quarter;
 	struct quaternion q;
-	struct vector3 v;
+	struct vector3 v, x;
+	struct matrix4 m;
 
 	quaternion_set_from_axis_anglev3(&quarter, HYP_VECTOR3_UNIT_Z, HYP_PI / 2);
 
 	quaternion_multiplyf(quaternion_set(&q, &quarter), 2);
 	vector3_rotate_by_quaternion(vector3_setf3(&v, 1, 0, 0), &q);
 	printf("2q * X = (%g, %g, %g)\n", v.x, v.y, v.z);
+	matrix4_set_from_quaternion(&m, &q);
+	matrix4_multiplyv3(&m, vector3_setf3(&x, 1, 0, 0), &v);
+	printf("matrix4_set_from_quaternion(2q) * X = (%g, %g, %g)\n", v.x, v.y, v.z);
 
 	quaternion_multiplyf(quaternion_set(&q, &quarter), 1 + 1e-6);
 	vector3_rotate_by_quaternion(vector3_setf3(&v, 1, 0, 0), &q);
@@ -108,6 +118,7 @@ int main(void)
 
 ```text
 2q * X = (2.22045e-16, 1, 0)
+matrix4_set_from_quaternion(2q) * X = (2.22045e-16, 1, 0)
 q (length 1 + 1e-6) * X = (1.1102208041824381e-16, 1, 0), length 1
 ```
 
