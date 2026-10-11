@@ -68,6 +68,20 @@ jobs:
           ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
           UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
 
+  # the measured errors must not be worse than test/precision/baseline_*.txt;
+  # the baselines were made with this image's gcc and glibc
+  precision:
+    name: precision gate
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure
+        run: CC=gcc cmake -B build -DHYPATIA_BUILD_DOCS=OFF -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
+      - name: Build
+        run: cmake --build build --target precision_single precision_double
+      - name: Check
+        run: ctest --test-dir build -R precision_check --output-on-failure
+
   readme-example:
     name: readme example / ${{ matrix.cc }}
     runs-on: ${{ matrix.os }}
