@@ -20,7 +20,7 @@ jobs:
           - { name: ubuntu-24.04 / gcc-14,    os: ubuntu-24.04,   cc: gcc-14,   install: gcc-14 }
           - { name: macos / default,          os: macos-latest }
           - { name: windows / msvc,           os: windows-latest }
-          - { name: windows / mingw gcc,      os: windows-latest, cc: gcc,      generator: MinGW Makefiles }
+          - { name: windows / mingw gcc,      os: windows-latest, cc: gcc,      generator: MinGW Makefiles, quad: __float128 }
           - { name: ubuntu arm64 / gcc,       os: ubuntu-24.04-arm, cc: gcc,    quad: _Float128 }
           - { name: ubuntu arm64 / clang,     os: ubuntu-24.04-arm, cc: clang,  quad: long double }
           - { name: ubuntu / gcc 32-bit,      os: ubuntu-latest,  cc: gcc,      install: gcc-multilib, cflags: -m32, ldflags: -m32 }

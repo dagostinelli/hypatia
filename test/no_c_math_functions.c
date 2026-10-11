@@ -11,7 +11,21 @@
 #include <math.h>
 #include "no_c_math.h"
 
-#if defined(HYPATIA_QUAD_PRECISION_FLOATS) && !(defined(__FLT128_MANT_DIG__) && !defined(__clang__)) && !(defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113)
+/* the choice hypatia.h makes: _Float128 where the C library has sinf128 and
+ * the others, else a 113-bit long double, else __float128 and libquadmath
+ */
+#ifdef HYPATIA_QUAD_PRECISION_FLOATS
+#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && defined(HUGE_VAL_F128)
+#		define TEST_QUAD_FUNCTION(name) name ## f128
+#	elif defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113
+#		define TEST_QUAD_FUNCTION(name) name ## l
+#	else
+#		define TEST_QUAD_FUNCTION(name) name ## q
+#		define TEST_QUADMATH
+#	endif
+#endif
+
+#ifdef TEST_QUADMATH
 /* libquadmath, as declared in hypatia.h */
 extern __float128 sqrtq(__float128 x);
 extern __float128 fmodq(__float128 x, __float128 y);

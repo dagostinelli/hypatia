@@ -31,19 +31,31 @@
 
 /* quad precision uses the 128-bit IEEE type the compiler has:
  *
- *   HYP_QUAD_FLOAT128     GCC 7 or later: _Float128, the f128 suffix, and
- *                         sinf128 and the others from the C library (glibc)
+ *   HYP_QUAD_FLOAT128     GCC 7 or later with a C library that has sinf128
+ *                         and the others (glibc 2.26 or later): _Float128 and
+ *                         the f128 suffix
  *   HYP_QUAD_LONG_DOUBLE  a long double of 113 bits, as on AArch64 Linux: the
  *                         L suffix, and sinl and the others (C99)
- *   HYP_QUAD_QUADMATH     __float128, as in Clang and older GCC on x86-64: the
- *                         Q suffix, and sinq and the others from libquadmath
- *                         (link with -lquadmath)
+ *   HYP_QUAD_QUADMATH     __float128, as in Clang, MinGW GCC and GCC with an
+ *                         older C library on x86-64: the Q suffix, and sinq
+ *                         and the others from libquadmath (link with
+ *                         -lquadmath)
  *
  * A program that defines HYP_FLOAT also defines HYP_FLOAT_C and the math
  * macros (HYP_SQRT, HYP_SIN, ...), and none of these is used.
  */
 #if defined(HYPATIA_QUAD_PRECISION_FLOATS) && !defined(HYP_FLOAT)
-#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__)
+	/* <math.h> declares sinf128, cosf128 and the other _Float128 functions,
+	 * and defines HUGE_VAL_F128, when the C library has them and
+	 * __STDC_WANT_IEC_60559_TYPES_EXT__ is defined before it is first included
+	 */
+#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && !defined(HYP_NO_C_MATH)
+#		ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
+#			define __STDC_WANT_IEC_60559_TYPES_EXT__
+#		endif
+#		include <math.h>
+#	endif
+#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && (defined(HUGE_VAL_F128) || defined(HYP_NO_C_MATH))
 #		define HYP_QUAD_FLOAT128
 #		define HYP_QUAD_FUNCTION(name) name ## f128
 #	elif defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113
@@ -93,13 +105,7 @@
 #	endif
 #endif
 
-/* <math.h> declares sinf128, cosf128 and the other _Float128 functions when
- * __STDC_WANT_IEC_60559_TYPES_EXT__ is defined before it is first included
- */
 #ifndef HYP_NO_C_MATH
-#	if defined(HYP_QUAD_FLOAT128) && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
-#		define __STDC_WANT_IEC_60559_TYPES_EXT__
-#	endif
 #	include <math.h> /* sin, cos, acos, fmod */
 #endif
 
@@ -122,11 +128,6 @@ extern __float128 tanq(__float128 x);
 extern __float128 asinq(__float128 x);
 extern __float128 acosq(__float128 x);
 extern __float128 atan2q(__float128 y, __float128 x);
-#endif
-
-/* <math.h> defines HUGE_VAL_F128 when it declares sinf128, cosf128, ... */
-#if defined(HYP_QUAD_FLOAT128) && !defined(HYP_NO_C_MATH) && !defined(HUGE_VAL_F128)
-#	error "HYPATIA_QUAD_PRECISION_FLOATS needs sinf128, cosf128, ... from <math.h> (glibc 2.26 or later); define __STDC_WANT_IEC_60559_TYPES_EXT__ before the first #include <math.h>, or define HYP_NO_C_MATH and supply the math macros"
 #endif
 
 #ifndef HYP_NO_STDIO

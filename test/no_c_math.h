@@ -10,14 +10,12 @@
 #if defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
 typedef long double test_math_float;
 #elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
+/* in GCC, _Float128 and __float128 are the same type */
 #	if defined(__FLT128_MANT_DIG__) && !defined(__clang__)
-#		define TEST_QUAD_FUNCTION(name) name ## f128
 typedef _Float128 test_math_float;
 #	elif defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113
-#		define TEST_QUAD_FUNCTION(name) name ## l
 typedef long double test_math_float;
 #	else
-#		define TEST_QUAD_FUNCTION(name) name ## q
 typedef __float128 test_math_float;
 #	endif
 #else
