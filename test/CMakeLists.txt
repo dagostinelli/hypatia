@@ -4,8 +4,10 @@ INCLUDE(CheckCSourceCompiles)
 
 SET(HYP_PRECISIONS single double long_double)
 
-# quad precision where the compiler has _Float128 and the C library has
-# sinf128 and the other _Float128 math functions
+# quad precision where the compiler has a 128-bit IEEE type, in the way
+# hypatia.h picks it: _Float128 with sinf128 and the others from the C library
+# (GCC), a 113-bit long double with sinl (AArch64 Linux; C99), or __float128
+# with sinq from libquadmath (Clang or older GCC on x86-64)
 STRING(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${HYP_QUAD_PRECISION_FLAGS}")
 if(HYPATIA_HAS_LIBM)
 	SET(CMAKE_REQUIRED_LIBRARIES m)
@@ -13,16 +15,53 @@ endif()
 CHECK_C_SOURCE_COMPILES("
 #define __STDC_WANT_IEC_60559_TYPES_EXT__
 #include <math.h>
+#if !defined(__FLT128_MANT_DIG__) || defined(__clang__)
+#error not _Float128
+#endif
 int main(void)
 {
 	volatile _Float128 x = 0.5f128;
 	return sinf128(x) > 0.25f128 ? 0 : 1;
 }
-" HYP_HAS_QUAD_PRECISION)
+" HYP_HAS_QUAD_FLOAT128)
+if(NOT HYP_HAS_QUAD_FLOAT128)
+	SET(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} -std=c99")
+	CHECK_C_SOURCE_COMPILES("
+#include <math.h>
+#if !defined(__LDBL_MANT_DIG__) || __LDBL_MANT_DIG__ != 113
+#error not a 113-bit long double
+#endif
+int main(void)
+{
+	volatile long double x = 0.5L;
+	return sinl(x) > 0.25L ? 0 : 1;
+}
+" HYP_HAS_QUAD_LONG_DOUBLE)
+	STRING(REPLACE ";" " " CMAKE_REQUIRED_FLAGS "${HYP_QUAD_PRECISION_FLAGS}")
+endif()
+if(NOT HYP_HAS_QUAD_FLOAT128 AND NOT HYP_HAS_QUAD_LONG_DOUBLE)
+	LIST(APPEND CMAKE_REQUIRED_LIBRARIES quadmath)
+	CHECK_C_SOURCE_COMPILES("
+extern __float128 sinq(__float128 x);
+int main(void)
+{
+	volatile __float128 x = 0.5Q;
+	return sinq(x) > 0.25Q ? 0 : 1;
+}
+" HYP_HAS_QUAD_QUADMATH)
+endif()
 UNSET(CMAKE_REQUIRED_FLAGS)
 UNSET(CMAKE_REQUIRED_LIBRARIES)
-if(HYP_HAS_QUAD_PRECISION)
+if(HYP_HAS_QUAD_FLOAT128 OR HYP_HAS_QUAD_LONG_DOUBLE OR HYP_HAS_QUAD_QUADMATH)
+	SET(HYP_HAS_QUAD_PRECISION ON)
 	LIST(APPEND HYP_PRECISIONS quad)
+endif()
+if(HYP_HAS_QUAD_LONG_DOUBLE)
+	# sinl and the others are C99, as in long double precision
+	LIST(APPEND HYP_QUAD_PRECISION_FLAGS -std=c99)
+endif()
+if(HYP_HAS_QUAD_QUADMATH)
+	SET(HYP_QUAD_PRECISION_LIBRARIES quadmath)
 endif()
 
 # the precision flags and definitions for a target; precision is single,
@@ -37,6 +76,7 @@ function(hyp_precision target precision)
 	elseif(precision STREQUAL "quad")
 		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_QUAD_PRECISION_FLAGS})
 		TARGET_COMPILE_DEFINITIONS(${target} PRIVATE HYPATIA_QUAD_PRECISION_FLOATS)
+		TARGET_LINK_LIBRARIES(${target} ${HYP_QUAD_PRECISION_LIBRARIES})
 	else()
 		TARGET_COMPILE_OPTIONS(${target} PRIVATE ${HYP_DOUBLE_PRECISION_FLAGS})
 	endif()
@@ -86,8 +126,8 @@ endforeach()
 # references, compared with the baselines in precision/
 OPTION(HYPATIA_PRECISION_CHECK "Build the precision measurements and check them against the baselines" OFF)
 if(HYPATIA_PRECISION_CHECK)
-	if(NOT HYP_HAS_QUAD_PRECISION)
-		MESSAGE(FATAL_ERROR "HYPATIA_PRECISION_CHECK needs _Float128 and the f128 math functions")
+	if(NOT HYP_HAS_QUAD_FLOAT128)
+		MESSAGE(FATAL_ERROR "HYPATIA_PRECISION_CHECK needs GCC's _Float128 and the f128 math functions")
 	endif()
 	foreach(precision single double)
 		SET(target precision_${precision})
