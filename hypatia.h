@@ -1231,6 +1231,21 @@ static int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 		return 0; /* zero or infinite */
 	}
 
+#ifdef HYP_FAST
+	/* HYP_FAST scales only outside a range where the squares, and the fourth
+	 * powers of a 4x4 determinant, neither overflow nor underflow
+	 */
+#	ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	if (largest >= HYP_FLOAT_C(1.52587890625e-05) && largest <= HYP_FLOAT_C(65536.0)) {
+		return 0; /* 2^-16 to 2^16 */
+	}
+#	else
+	if (largest >= HYP_FLOAT_C(5.42101086242752217003726400434970855712890625e-20) && largest <= HYP_FLOAT_C(18446744073709551616.0)) {
+		return 0; /* 2^-64 to 2^64 */
+	}
+#	endif
+#endif
+
 	while (largest >= HYP_FLOAT_C(65536.0)) {
 		largest *= HYP_FLOAT_C(1.52587890625e-05); /* 2^-16 */
 		exponent -= 16;
@@ -1285,7 +1300,9 @@ static void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
  * then exactly hi + lo (Dekker); left undefined for a format where splitting
  * does not apply (the double-double long double of PowerPC)
  */
-#if defined(HYPATIA_SINGLE_PRECISION_FLOATS)
+#if defined(HYP_FAST)
+	/* HYP_FAST: the plain formulas, no exact products */
+#elif defined(HYPATIA_SINGLE_PRECISION_FLOATS)
 #	define HYP_SPLIT HYP_FLOAT_C(4097.0)
 #elif defined(HYPATIA_QUAD_PRECISION_FLOATS)
 #	define HYP_SPLIT HYP_FLOAT_C(144115188075855873.0)
@@ -1301,6 +1318,7 @@ static void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
 #	define HYP_SPLIT HYP_FLOAT_C(134217729.0)
 #endif
 
+#ifndef HYP_FAST
 /* a + b = *sum + *error exactly, with *sum the rounded sum (Knuth) */
 static void hyp_exact_sum(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *sum, HYP_FLOAT *error)
 {
@@ -1310,6 +1328,7 @@ static void hyp_exact_sum(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *sum, HYP_FLOAT *e
 	b_part = *sum - a;
 	*error = (a - (*sum - b_part)) + (b - b_part);
 }
+#endif
 
 
 #ifdef HYP_SPLIT
@@ -1516,6 +1535,7 @@ static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
 }
 
 
+#ifndef HYP_FAST
 /* the length of n finite components, rounded, with the rest of it in *low;
  * 0 when they are all zero
  */
@@ -1543,6 +1563,7 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
 
 	return length;
 }
+#endif
 
 
 /* the length of the n (at most 4) components without overflow or underflow;
@@ -1580,6 +1601,7 @@ static HYP_FLOAT hyp_length(const HYP_FLOAT *v, uint8_t n)
 }
 
 
+#ifndef HYP_FAST
 /* the length of (sa + sa_low) a + (sb + sb_low) b for n (at most 4)
  * components, rounded, with the rest of it in *low.  Each product and each
  * sum is kept exactly as a rounded value and its error; the values must be
@@ -1630,8 +1652,10 @@ static HYP_FLOAT hyp_length_of_sum(const HYP_FLOAT *a, HYP_FLOAT sa, HYP_FLOAT s
 
 	return length;
 }
+#endif
 
 
+#ifndef HYP_FAST
 /* (a + a_low) / (b + b_low), with the quotient of the rounded values corrected
  * by its remainder; b must not be zero
  */
@@ -1648,6 +1672,7 @@ static HYP_FLOAT hyp_quotient(HYP_FLOAT a, HYP_FLOAT a_low, HYP_FLOAT b, HYP_FLO
 	return quotient + (a_low - quotient * b_low) / b;
 #endif
 }
+#endif
 
 
 /* half the angle between a and b as n-vectors (n at most 4), from 0 to
@@ -1663,6 +1688,12 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	HYP_FLOAT b[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
 	HYP_FLOAT largest_a = HYP_FLOAT_C(0.0);
 	HYP_FLOAT largest_b = HYP_FLOAT_C(0.0);
+#ifdef HYP_FAST
+	HYP_FLOAT wedge = HYP_FLOAT_C(0.0);
+	HYP_FLOAT dot = HYP_FLOAT_C(0.0);
+	HYP_FLOAT minor;
+	uint8_t j;
+#else
 	HYP_FLOAT length_a;
 	HYP_FLOAT length_a_low;
 	HYP_FLOAT length_b;
@@ -1671,6 +1702,7 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	HYP_FLOAT difference_low;
 	HYP_FLOAT sum;
 	HYP_FLOAT sum_low;
+#endif
 	uint8_t i;
 
 	/* the largest components: 0 for a zero vector or a NaN component */
@@ -1703,6 +1735,27 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	hyp_scale_power2(a, n, hyp_power2_exponent(a, n));
 	hyp_scale_power2(b, n, hyp_power2_exponent(b, n));
 
+#ifdef HYP_FAST
+	/* HYP_FAST: atan2(|a ^ b|, a . b), with |a ^ b|^2 the sum of the squares
+	 * of the 2x2 minors (|a x b| for 3 components), without normalizing.  The
+	 * minors of a and b are those of a and b - a (or b + a when they point
+	 * apart), and for nearly parallel vectors of about the same length that
+	 * difference is exact and short, so the minors do not cancel.
+	 */
+	for (i = 0; i < n; i++) {
+		dot += a[i] * b[i];
+	}
+	for (i = 0; i < n; i++) {
+		b[i] = (dot < HYP_FLOAT_C(0.0)) ? b[i] + a[i] : b[i] - a[i];
+	}
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < i; j++) {
+			minor = a[j] * b[i] - a[i] * b[j];
+			wedge += minor * minor;
+		}
+	}
+	return HYP_ATAN2(HYP_SQRT(wedge), dot) / HYP_FLOAT_C(2.0);
+#else
 	/* the lengths with their low parts: for small angles the second order
 	 * term is not small next to the angle
 	 */
@@ -1716,6 +1769,7 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	}
 
 	return HYP_ATAN2(hyp_quotient(difference, difference_low, sum, sum_low), HYP_FLOAT_C(1.0));
+#endif
 }
 
 
