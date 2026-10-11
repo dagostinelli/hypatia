@@ -12,3 +12,4 @@ Tested: raymath of raylib 6.0, commit [dbc56a8](https://github.com/raysan5/rayli
 | [`QuaternionSlerp` uses a normalized lerp up to 0.64 rad: angle errors up to 9e-4 rad](06-slerp-nlerp-threshold.md) | wrong result (accuracy) | present in the latest release |
 | [`QuaternionToAxisAngle` is inaccurate for small rotations: 2% error at 1e-3 rad](07-to-axis-angle-small-rotations.md) | precision | present in the latest release |
 | [`MatrixRotate` with a zero axis returns cos(angle) times the identity](08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
+| [`MatrixInvert` gives inf or 0 for matrices with small or large entries](09-matrixinvert-tiny-huge-scale.md) | wrong result | present in the latest release |

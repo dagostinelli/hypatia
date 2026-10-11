@@ -24,3 +24,4 @@ Tested: GLM 1.0.1, commit [0af55cc](https://github.com/g-truc/glm/tree/0af55ccec
 | [Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements](18-precision-small-differences.md) | precision | present in the latest release |
 | [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
+| [`glm::inverse` gives inf or 0 for matrices with small or large entries](21-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
