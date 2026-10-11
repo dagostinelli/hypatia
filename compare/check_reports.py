@@ -6,8 +6,9 @@ by a ```text block is compiled, run, and its output compared with that text.
 usage: check_reports.py [--update] [report.md ...]
        (default: every docs/reports/*/*.md)
 
-The C++ blocks build against GLM and Eigen, the C blocks against cglm and
-../hypatia.h, all from compare/ext (run fetch.sh first).  Exit status 1 if any
+The C++ blocks build against GLM and Eigen, the C blocks against cglm,
+HandmadeMath, raymath (raylib/src), linmath.h and ../hypatia.h, all from
+compare/ext (run fetch.sh first).  Exit status 1 if any
 block fails to build or prints something else.  --update writes what each block
 prints into its text block instead of comparing.
 """
@@ -27,7 +28,8 @@ BLOCK = re.compile(r'```(cpp|c)\n(.*?)```[ \t]*\n+(?:[^`\n][^\n]*\n+)*?```text\n
 COMPILE = {
     'cpp': ['c++', '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror',
             '-isystem', EXT + '/glm', '-isystem', EXT + '/eigen'],
-    'c': ['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-I' + ROOT, '-isystem', EXT + '/cglm/include'],
+    'c': ['cc', '-std=c99', '-O2', '-Wall', '-Wextra', '-Werror', '-I' + ROOT, '-isystem', EXT + '/cglm/include',
+          '-isystem', EXT + '/HandmadeMath', '-isystem', EXT + '/raylib/src', '-isystem', EXT + '/linmath.h'],
 }
 
 
