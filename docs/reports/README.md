@@ -64,7 +64,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [Smaller precision differences: Eigen has 2% to 10% more rounding error in seven measurements of six functions](eigen/08-precision-small-differences.md) | precision | present in the latest release |
 | [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](eigen/09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |
 
-## cglm (14 reports)
+## cglm (15 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -82,3 +82,4 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
+| [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](cglm/15-quat-mat4-non-unit.md) | wrong result | present in the latest release |
