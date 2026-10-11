@@ -9,3 +9,4 @@ Tested: linmath.h master, commit [3eef828](https://github.com/datenwolf/linmath.
 | [`quat_mul_vec3` and `mat4x4_from_quat` disagree, and neither rotates, when q is not unit length](03-quat-not-unit.md) | wrong result for non-unit q | present at the latest commit (no releases) |
 | [`mat4x4_rotate` ignores the rotation when the axis is shorter than 1e-4, and `quat_rotate` is NaN for a zero axis](04-rotate-short-axis-ignored.md) | wrong result; NaN on degenerate input | present at the latest commit (no releases) |
 | [`mat4x4_look_at` gives NaN when the eye is at the target or looks along up](05-look-at-degenerate-nan.md) | NaN on degenerate input | present at the latest commit (no releases) |
+| [`mat4x4_invert` gives inf or 0 for matrices with small or large entries](06-invert-tiny-huge-scale.md) | wrong result | present at the latest commit (no releases) |
