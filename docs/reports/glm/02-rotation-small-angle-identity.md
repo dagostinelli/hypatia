@@ -12,9 +12,8 @@
 
 `glm::rotation` returns the identity whenever `dot(orig, dest) >= 1 - epsilon`.  For unit
 vectors that is every pair less than sqrt(2 epsilon) apart: 4.9e-4 rad (0.028 degrees) in
-float, 2.1e-8 rad in double.  The rotation it should return is perfectly representable;
-the result is off by the whole angle: about 4000 float epsilons for vectors 4.8e-4 rad
-apart.
+float, 2.1e-8 rad in double.  The rotation it should return is representable; the result
+is off by the whole angle: 4027 float epsilons for vectors 4.8e-4 rad apart.
 
 ## Reproduction
 
@@ -67,6 +66,13 @@ if(cosTheta >= static_cast<T>(1) - epsilon<T>()) {
 cos(a) >= 1 - epsilon holds for a up to sqrt(2 epsilon).  The test is there to avoid a
 division by zero further down, but it treats small rotations as no rotation.
 
+## Suggested fix
+
+Remove the threshold.  The formula below it only divides by `sqrt(2 (1 + cosTheta))`,
+which is not zero for vectors in the same direction; the cross product is then zero and
+the result is the identity anyway.  The accurate form in
+[01-rotation-opposite-vectors.md](01-rotation-opposite-vectors.md) has no division at all.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors and takes the half angle from two
@@ -109,15 +115,10 @@ q * from = (0.99999994, 0.000480000017, 0)
 angle missed: -2.96e-11 rad
 ```
 
-## Suggested fix
-
-Remove the threshold.  The formula below it only divides by `sqrt(2 (1 + cosTheta))`,
-which is not zero for vectors in the same direction; the cross product is then zero and
-the result is the identity anyway.  The accurate form in
-[01-rotation-opposite-vectors.md](01-rotation-opposite-vectors.md) has no division at all.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/02-rotation-small-angle-identity.md` builds both programs above and compares their output with this report. The harness measures it over 20000 inputs (`results/precision/now.single.md`,
-`quaternion_get_rotation_tov3`, "1e-6 rad apart": GLM 8.39 ulps in the mean, every input
-off by the whole angle; hypatia 0.26).
+`compare/check_reports.py docs/reports/glm/02-rotation-small-angle-identity.md` builds both
+programs above and compares their output with this report.  The harness measures it over
+20000 inputs (`compare/results/precision/now.single.md`, `quaternion_get_rotation_tov3`,
+"1e-6 rad apart": GLM largest 8.73 and mean 8.39 float epsilons, about the whole angle of
+1e-6 rad; hypatia 1.41 / 0.26).

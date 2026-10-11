@@ -14,7 +14,7 @@
 ("an invalid result to flag the error") when that is not positive.  For components below
 about 1e-154 (1e-19 in float) the squared norm is subnormal and loses precision; below
 about 1.6e-162 (2.6e-23 in float) it is exactly 0, so a valid, invertible quaternion is
-reported as having no inverse; above 1e154 it overflows to inf and the
+reported as having no inverse; above about 1.3e154 it overflows to inf and the
 result is zero as well.  `normalized()` on a tiny quaternion returns it unchanged
 ([04](04-normalized-underflow-overflow.md)).
 
@@ -56,6 +56,12 @@ else
 }
 ```
 
+## Suggested fix
+
+When `n2` is subnormal, zero after underflow, or inf, compute
+`conjugate().coeffs() / norm() / norm()` with a stable norm (`stableNorm()`); return the
+invalid result only for an exactly zero quaternion.
+
 ## How hypatia does it
 
 `quaternion_inverse` divides the conjugate by |q|^2 when it is between 1e-30 and 1e30, and
@@ -85,12 +91,7 @@ inverse(w 1e-200) = (w 1e+200, x -0, y -0, z -0)
 inverse(w 1e200)  = (w 1e-200, x -0, y -0, z -0)
 ```
 
-## Suggested fix
-
-When `n2` is subnormal, zero after underflow, or inf, compute
-`conjugate().coeffs() / norm() / norm()` with a stable norm (`stableNorm()`); return the
-invalid result only for an exactly zero quaternion.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/09-quaternion-inverse-tiny-huge.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/eigen/09-quaternion-inverse-tiny-huge.md` builds
+both programs above and compares their output with this report.

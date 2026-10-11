@@ -11,9 +11,9 @@
 ## Summary
 
 `glm::normalize(v)` is `v * inversesqrt(dot(v, v))`.  The sum of squares overflows for
-components above about 1e154 (double; 1e19 in float).  For components below about 1e-154
-(1e-19 in float) it is subnormal and loses precision, and below about 1.6e-162 (2.6e-23 in
-float) it is exactly 0.  In each case the unit vector is representable:
+components above about 1.3e154 (double; 1.8e19 in float).  For components below about
+1e-154 (1e-19 in float) it is subnormal and loses precision, and below about 1.6e-162
+(2.6e-23 in float) it is exactly 0.  In each case the unit vector is representable:
 - (1e-200, 1e-200, 0) gives (inf, inf, NaN);
 - (1e200, 1e200, 0) gives (0, 0, 0);
 - a vector with one infinite component gives NaN in that component.
@@ -21,10 +21,7 @@ float) it is exactly 0.  In each case the unit vector is representable:
 ## Reproduction
 
 ```cpp
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <cmath>
 #include <cstdio>
 
@@ -54,6 +51,12 @@ Expected: (0.707106781, 0.707106781, 0) for the first two, and (1, 0, 0) as the 
 [`detail/func_geometric.inl` line 88](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/detail/func_geometric.inl#L88):
 `return v * inversesqrt(dot(v, v));`.  `dot(v, v)` is computed in the type of `v`, so its
 range is that of the squares, not that of the vector.
+
+## Suggested fix
+
+When `dot(v, v)` is outside a safe range such as 1e-30 to 1e30, divide `v` by its largest
+absolute component first (or use `length` computed with scaling, as `hypot` does), then
+normalize.  The fast path stays as it is.
 
 ## How hypatia does it
 
@@ -89,12 +92,8 @@ normalize(1e200, 1e200, 0)   = (0.707106781, 0.707106781, 0)
 normalize(inf, 1, 0)         = (1, 0, 0)
 ```
 
-## Suggested fix
-
-When `dot(v, v)` is outside a safe range such as 1e-30 to 1e30, divide `v` by its largest
-absolute component first (or use `length` computed with scaling, as `hypot` does), then
-normalize.  The fast path stays as it is.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/08-normalize-overflow-underflow.md` builds both programs above and compares their output with this report. The harness: `results/double.md`, "Edge cases", `vector3_normalize`.
+`compare/check_reports.py docs/reports/glm/08-normalize-overflow-underflow.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/double.md`, "Edge cases", `vector3_normalize`.

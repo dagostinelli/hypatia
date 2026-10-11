@@ -45,6 +45,10 @@ Expected: the identity (w 1), or a documented error.
 vector survives `normalized()` and the formula divides a zero cross product by
 `sqrt(2)`.
 
+## Suggested fix
+
+Return the identity when `a.squaredNorm()` or `b.squaredNorm()` is zero.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` returns the identity when either vector has zero length.
@@ -72,10 +76,7 @@ int main(void)
 get_rotation_tov3(a, 0) = (w 1, x 0, y 0, z 0), length 1
 ```
 
-## Suggested fix
-
-Return the identity when `a.squaredNorm()` or `b.squaredNorm()` is zero.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/eigen/06-fromtwovectors-zero-vector.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/eigen/06-fromtwovectors-zero-vector.md` builds both
+programs above and compares their output with this report.

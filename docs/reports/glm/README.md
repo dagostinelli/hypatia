@@ -15,7 +15,7 @@ Tested: GLM 1.0.1, commit [0af55cc](https://github.com/g-truc/glm/tree/0af55ccec
 | [`glm::normalize` of the zero vector is NaN, and the NaN spreads](09-normalize-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angle(x, y)` loses its digits for nearly parallel and nearly opposite vectors](10-angle-acos-nearly-parallel.md) | precision | present in the latest release |
 | [`glm::proj` onto the zero vector is NaN](11-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
-| [`glm::inverse` of the zero quaternion is NaN](12-inverse-zero-quaternion.md) | NaN on degenerate input | present in the latest release |
+| [`glm::inverse` is NaN for the zero quaternion, and wrong for tiny and huge ones](12-inverse-zero-quaternion.md) | NaN on degenerate input; wrong result | present in the latest release |
 | [`glm::lookAt` gives NaN when the eye is at the target or looks along up](13-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
 | [`glm::rotation` with a zero vector is NaN](14-rotation-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm::angleAxis` and `glm::rotate` disagree on axes that are not unit length, and fail on a zero axis](15-axis-angle-zero-or-not-unit-axis.md) | inconsistent API; NaN on degenerate input | present in the latest release |

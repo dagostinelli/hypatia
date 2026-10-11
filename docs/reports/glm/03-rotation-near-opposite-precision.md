@@ -100,6 +100,13 @@ For nearly opposite unit vectors `cosTheta` is close to -1 and `1 + cosTheta` ke
 the digits of `cosTheta` that are not cancelled; `cross(orig, dest)` is small and carries
 the rounding of both inputs.  Both errors are divided by the small `s`.
 
+## Suggested fix
+
+Take the half angle from `length(f + t)` and `length(f - t)` of the unit vectors and the
+axis from `cross(f, f + t)`, as described in
+[01-rotation-opposite-vectors.md](01-rotation-opposite-vectors.md).  Neither quantity
+cancels as the vectors approach opposite.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors and takes the half angle from two
@@ -171,14 +178,9 @@ int main(void)
 quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 1.8, mean 0.32 epsilons
 ```
 
-## Suggested fix
-
-Take the half angle from `length(f + t)` and `length(f - t)` of the unit vectors and the
-axis from `cross(f, f + t)`, as described in
-[01-rotation-opposite-vectors.md](01-rotation-opposite-vectors.md).  Neither quantity
-cancels as the vectors approach opposite.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/03-rotation-near-opposite-precision.md` builds both programs above and compares their output with this report. The harness measures the same over 20000 inputs (`results/precision/now.double.md`,
+`compare/check_reports.py docs/reports/glm/03-rotation-near-opposite-precision.md` builds
+both programs above and compares their output with this report.  The harness measures the
+same over 20000 inputs (`compare/results/precision/now.double.md`,
 `quaternion_get_rotation_tov3`, "1e-3 rad from opposite" and "random").

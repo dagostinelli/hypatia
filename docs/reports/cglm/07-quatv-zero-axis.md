@@ -49,6 +49,11 @@ Expected: the identity (0, 0, 0, 1) for the zero axis, and (0, 0, 0.707, 0.707) 
 [`quat.h` lines 151-165](https://github.com/recp/cglm/blob/1796cc5ce298235b615dc7a4750b8c3ba56a05dd/include/cglm/quat.h#L151-L165): `glm_normalize_to(axis, k)` and then
 `q = (s k, c)`.
 
+## Suggested fix
+
+Return the identity when the axis is exactly zero, and fix the normalization threshold
+([04](04-normalize-zeroes-short-vectors.md)).
+
 ## How hypatia does it
 
 `quaternion_set_from_axis_anglev3` normalizes the axis with scaling; a zero axis gives the
@@ -80,11 +85,7 @@ quarter turn about (0, 0, 0):    (0, 0, 0, 1), length 1
 quarter turn about (0, 0, 1e-8): (0, 0, 0.707107, 0.707107), length 1
 ```
 
-## Suggested fix
-
-Return the identity when the axis is exactly zero, and fix the normalization threshold
-([04](04-normalize-zeroes-short-vectors.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/07-quatv-zero-axis.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/cglm/07-quatv-zero-axis.md` builds both programs
+above and compares their output with this report.

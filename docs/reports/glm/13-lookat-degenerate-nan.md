@@ -12,27 +12,26 @@
 
 `lookAt` normalizes `center - eye` and `cross(f, up)`.  When the eye is at the target the
 first is the zero vector; when the camera looks straight along `up` the second is.  Either
-way `normalize` returns NaN.  With the eye at the target 12 of the 16 entries of the view
-matrix are NaN (the first three rows); looking along up, half of the view matrix is NaN
-(8 entries, the first two rows).  A camera that reaches its
-target or looks straight up or down is common in interactive code; NaN in the view matrix
-corrupts every vertex.
+way `normalize` returns NaN ([09](09-normalize-zero-vector.md)): with the eye at the
+target 12 of the 16 entries of the view matrix are NaN, looking along up 8.  A camera that
+reaches its target, or looks straight up or down, occurs in interactive code; every vertex
+transformed by such a view matrix is NaN.
 
 ## Reproduction
 
 ```cpp
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <cmath>
 #include <cstdio>
 
-#include <glm/ext/matrix_transform.hpp>
-
 static void print(const char *what, const glm::dmat4 &m)
 {
-	std::printf("%s: row 0 = (%g, %g, %g, %g)\n", what, m[0][0], m[1][0], m[2][0], m[3][0]);
+	int nans = 0;
+	for (int c = 0; c < 4; c++)
+		for (int r = 0; r < 4; r++)
+			nans += std::isnan(m[c][r]);
+	std::printf("%s: row 0 = (%g, %g, %g, %g), %d of 16 entries NaN\n", what, m[0][0], m[1][0], m[2][0], m[3][0], nans);
 }
 
 int main()
@@ -46,8 +45,8 @@ int main()
 Output (x86-64, gcc 13.3, `-O2`):
 
 ```text
-eye == target   : row 0 = (-nan, -nan, -nan, nan)
-looking along up: row 0 = (-nan, -nan, -nan, nan)
+eye == target   : row 0 = (-nan, -nan, -nan, nan), 12 of 16 entries NaN
+looking along up: row 0 = (-nan, -nan, -nan, nan), 8 of 16 entries NaN
 ```
 
 Expected: a finite matrix (or an assertion): there is no view direction, or no right axis.
@@ -63,6 +62,12 @@ vec<3, T, Q> const s(normalize(cross(f, up)));
 
 with `normalize` returning NaN for the zero vector
 ([09-normalize-zero-vector.md](09-normalize-zero-vector.md)).
+
+## Suggested fix
+
+Fix `normalize` for the zero vector ([09](09-normalize-zero-vector.md)), or check the two
+lengths in `lookAt` and fall back (for example, to the identity rotation, or to another
+up axis when `cross(f, up)` vanishes).
 
 ## How hypatia does it
 
@@ -80,7 +85,10 @@ returning the shortest rotation from -Z to the direction.
 
 static void print(const char *what, const struct matrix4 *m)
 {
-	printf("%s: row 0 = (%g, %g, %g, %g)\n", what, m->r00, m->r01, m->r02, m->r03);
+	int i, nans = 0;
+	for (i = 0; i < 16; i++)
+		nans += isnan(m->m[i]) != 0;
+	printf("%s: row 0 = (%g, %g, %g, %g), %d of 16 entries NaN\n", what, m->r00, m->r01, m->r02, m->r03, nans);
 }
 
 int main(void)
@@ -98,18 +106,13 @@ int main(void)
 ```
 
 ```text
-eye == target   : row 0 = (0, 0, 0, -0)
-looking along up: row 0 = (0, 0, 0, -0)
+eye == target   : row 0 = (0, 0, 0, -0), 0 of 16 entries NaN
+looking along up: row 0 = (0, 0, 0, -0), 0 of 16 entries NaN
 ```
-
-## Suggested fix
-
-Fix `normalize` for the zero vector ([09](09-normalize-zero-vector.md)), or check the two
-lengths in `lookAt` and fall back (for example, to the identity rotation, or to another
-up axis when `cross(f, up)` vanishes).
 
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/13-lookat-degenerate-nan.md` builds both programs above and compares their output with this report.  The full
-matrices are in `results/double.md`, "Edge cases", `matrix4_view_lookat_rh` rows "eye ==
-target" and "looking along up".
+`compare/check_reports.py docs/reports/glm/13-lookat-degenerate-nan.md` builds both
+programs above and compares their output with this report.  The full matrices are in
+`compare/results/double.md`, "Edge cases", `matrix4_view_lookat_rh` rows "eye == target"
+and "looking along up".

@@ -17,8 +17,9 @@
 - for vectors within 4.5e-3 rad of opposite it returns a half turn about `glm_vec3_ortho(a)`,
   an axis that ignores `b`: the rotation misses `b` by the whole remaining angle.
 
-At 1e-3 rad from opposite every input misses by 1e-3 rad (8400 float epsilons); at 1e-6
-rad apart every input misses by 1e-6 rad.
+In the comparison harness, at 1e-3 rad from opposite every input misses by about 1e-3 rad
+(largest and mean error 8390 float epsilons); at 1e-6 rad apart the mean miss is 8.39
+float epsilons, the whole 1e-6 rad.
 
 ## Reproduction
 
@@ -80,6 +81,12 @@ if (cos_theta < -1.f + GLM_FLT_EPSILON) {  /*  angle(a, b) = π  */
 
 A threshold on the cosine is a threshold on the square of the angle.
 
+## Suggested fix
+
+Remove both thresholds.  Take the half angle from `length(a + b)` and `length(a - b)` of
+the unit vectors and the axis from `cross(a, a + b)`, and use `glm_vec3_ortho` only when
+that cross product is exactly zero.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors and takes the half angle from two
@@ -126,14 +133,10 @@ int main(void)
 1e-3 rad from opposite: misses b by 1.4e-07 rad
 ```
 
-## Suggested fix
-
-Remove both thresholds.  Take the half angle from `length(a + b)` and `length(a - b)` of
-the unit vectors and the axis from `cross(a, a + b)`, and use `glm_vec3_ortho` only when
-that cross product is exactly zero.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/05-quat-from-vecs-thresholds.md` builds both programs above and compares their output with this report. The harness: `results/precision/now.single.md`, `quaternion_get_rotation_tov3`, "1e-3
-rad from opposite" (cglm 8390 epsilons in the mean, hypatia 0.35) and "1e-6 rad apart"
-(cglm 8.39, hypatia 0.26).
+`compare/check_reports.py docs/reports/cglm/05-quat-from-vecs-thresholds.md` builds both
+programs above and compares their output with this report.  The harness:
+`compare/results/precision/now.single.md`, `quaternion_get_rotation_tov3`, "1e-3 rad from
+opposite" (cglm 8390 epsilons in the mean, hypatia 0.35) and "1e-6 rad apart" (cglm 8.39,
+hypatia 0.26).
