@@ -555,6 +555,9 @@ static void vectors(void)
 		add(r, error(ha.v, o, 3, rlength(a, 3)));
 	}
 
+	/* the largest errors are near the critical angle, where a change of the
+	 * input direction by one ulp changes the result by eta^2 |d| / sqrt(k) ulps
+	 */
 	r = row("vector3_refract", "random, eta 0.5 .. 2");
 	for (i = 0; i < N; i++) {
 		R a[3], n[3], o[3], d, kk, eta;
@@ -939,6 +942,9 @@ static void quaternions(void)
 	}
 
 	/* the camera turns -Z into forward, with +Y toward up */
+	/* the largest errors are where forward is nearly parallel to up: the
+	 * result changes by about 1 / sin(forward, up) times a change of forward
+	 */
 	r = row("quaternion_set_look_rotation_rh", "random");
 	for (i = 0; i < N; i++) {
 		R f[3], up[3], right[3], above[3], m[9], o[4];
