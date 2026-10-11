@@ -98,3 +98,22 @@ if(HYPATIA_PRECISION_CHECK)
 			COMMAND ${target} --check ${CMAKE_CURRENT_SOURCE_DIR}/precision/baseline_${precision}.txt)
 	endforeach()
 endif()
+
+# the speed gate: the instructions each function executes per call, counted by
+# valgrind, compared with the baselines in speed/
+OPTION(HYPATIA_SPEED_CHECK "Build the speed measurements and check them against the baselines" OFF)
+if(HYPATIA_SPEED_CHECK)
+	FIND_PROGRAM(HYP_VALGRIND valgrind)
+	if(NOT HYP_VALGRIND OR NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		MESSAGE(FATAL_ERROR "HYPATIA_SPEED_CHECK needs GCC and valgrind")
+	endif()
+	foreach(precision single double)
+		SET(target speed_${precision})
+		ADD_EXECUTABLE(${target} speed/speed.c)
+		hyp_precision(${target} ${precision})
+		TARGET_LINK_LIBRARIES(${target} hypatia::hypatia)
+		ADD_TEST(NAME speed_check_${precision}
+			COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/speed/speed.sh $<TARGET_FILE:${target}>
+				--check ${CMAKE_CURRENT_SOURCE_DIR}/speed/baseline_${precision}.txt)
+	endforeach()
+endif()
