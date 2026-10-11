@@ -1331,6 +1331,15 @@ static void hyp_exact_sum(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *sum, HYP_FLOAT *e
 #	define HYP_ROUNDED volatile
 #endif
 
+/* where the target has a fast fused multiply-add, fma(a, b, -a b) is the
+ * exact error of the rounded product a b in one operation, without splitting
+ */
+#if defined(__GNUC__) && defined(HYPATIA_SINGLE_PRECISION_FLOATS) && defined(__FP_FAST_FMAF)
+#	define HYP_FMA(a, b, c) __builtin_fmaf(a, b, c)
+#elif defined(__GNUC__) && !defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && !defined(HYPATIA_QUAD_PRECISION_FLOATS) && defined(__FP_FAST_FMA)
+#	define HYP_FMA(a, b, c) __builtin_fma(a, b, c)
+#endif
+
 /* the high half of a, so that a = high + (a - high) with both halves short
  * enough that their products are exact
  */
@@ -1339,9 +1348,14 @@ static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
 	/* rounded before it is used (HYP_ROUNDED): a compiler that fuses it with
 	 * the subtraction into a multiply-add breaks the split
 	 */
+#ifdef HYP_FMA
+	/* hyp_exact_product_split does not use it */
+	return a;
+#else
 	HYP_ROUNDED HYP_FLOAT c = HYP_SPLIT * a;
 
 	return c - (c - a);
+#endif
 }
 
 
@@ -1351,6 +1365,12 @@ static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
  */
 static void hyp_exact_product_split(HYP_FLOAT a, HYP_FLOAT ah, HYP_FLOAT b, HYP_FLOAT bh, HYP_FLOAT *hi, HYP_FLOAT *lo)
 {
+#ifdef HYP_FMA
+	(void)ah;
+	(void)bh;
+	*hi = a * b;
+	*lo = HYP_FMA(a, b, -*hi);
+#else
 	HYP_FLOAT al = a - ah;
 	HYP_FLOAT bl = b - bh;
 	/* rounded, as in hyp_split_high: *lo is the error of this rounded
@@ -1360,6 +1380,7 @@ static void hyp_exact_product_split(HYP_FLOAT a, HYP_FLOAT ah, HYP_FLOAT b, HYP_
 
 	*hi = product;
 	*lo = ((ah * bh - *hi) + ah * bl + al * bh) + al * bl;
+#endif
 }
 
 
@@ -6669,6 +6690,7 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 #undef HYP_CAT
 #undef HYP_SPLIT
 #undef HYP_ROUNDED
+#undef HYP_FMA
 #undef HYP_PRIMITIVE_CAT
 #undef HYP_DEC
 #undef HYP_DEC_11
