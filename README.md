@@ -148,6 +148,8 @@ View the official [documentation](http://dagostinelli.github.io/hypatia/) here.
 
 Can I trust this math library?
 ------------------------------
+A goal of the unit tests is to test each function against HYP_EPSILON which is defined in hypatia.h, currently as 1E-5.  A number of functions do not yet have unit tests proving 1E-5, but more are coming.
+
 Compared with other math libraries for graphics, the concrete differences are:
 
 * quaternions that are not unit length still rotate correctly, because hypatia divides by |q|²;
@@ -155,22 +157,9 @@ Compared with other math libraries for graphics, the concrete differences are:
 * very large and very small values don't break normalize or inverse;
 * double, long double and quad precision modes are available.
 
-Every change has to pass two checks in CI.  Each one catches what the other misses.
+The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
 
-**The unit tests check that each function gives the right answer and follows the conventions.**  They run in every CI configuration: GCC, Clang and MSVC on Linux, macOS and Windows; MinGW; 32-bit; Debug and Release; the sanitizers; the builds without stdio and without the C math library; and each precision mode.  They catch:
-
-* broken conventions: the rotation direction, the order of matrix products, the quaternion layout, the depth range, and right- versus left-handed cameras.  A wrong sign, a transposed matrix or swapped arguments fail here;
-* mishandled edge cases: zero vectors, parallel and exactly opposite vectors, quaternions that are not unit length, an output that is also an input, matrices that cannot be inverted, and very large and very small values;
-* broken contracts: in-place functions return their first argument, and nothing writes outside its result;
-* portability problems: the same results with every compiler, platform and build option.
-
-Most unit tests compare with a fixed tolerance, HYP_EPSILON (1e-5).  That catches a wrong formula.  It does not catch a loss of accuracy: a function whose error grows from half an ulp to fifty ulps is still well within 1e-5.
-
-**The precision gate checks how close each answer is to the exact one.**  test/precision/precision.c computes the error of each numerical function against `_Float128` references.  It reports the largest error and the mean error, in epsilons, over a fixed set of inputs: random ones, and cases known to be hard, such as nearly parallel vectors, nearly opposite vectors, small angles and badly conditioned matrices.  The results for single and double precision are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse than the baseline, or any largest error more than 10% worse.  A change that improves a figure updates the baseline in the same commit, so the baseline records the best results so far.
-
-The gate runs in one configuration only: GCC on Linux, in Release.  It does not check conventions: a function that returned the transpose of the right matrix would pass, as long as the reference had the same mistake.  The unit tests cover that.
-
-To run the check (GCC on Linux, which has `_Float128`):
+The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse.  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the two gates need each other.
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
@@ -179,11 +168,7 @@ ctest --test-dir build -R precision_check --output-on-failure
 build/test/precision_double > test/precision/baseline_double.txt   # to update a baseline
 ```
 
-Neither check covers:
-
-* speed: nothing measures how long a function takes.  Some accuracy fixes, such as the correctly rounded normalize, do more arithmetic;
-* API compatibility: nothing checks that a change keeps existing code compiling and behaving the same;
-* the precision of the long double and quad modes: they are unit-tested, but measuring their error would need references more precise than `_Float128`.
+Neither gate measures speed, checks API compatibility, or measures the precision of the long double and quad modes.
 
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
