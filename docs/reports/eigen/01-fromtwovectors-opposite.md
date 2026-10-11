@@ -116,4 +116,4 @@ programs above and compares their output with this report.  The harness:
 `compare/results/double.md`, "accuracy against long double", `Eigen FromTwoVectors`,
 "exactly opposite" (2.98e-8; hypatia 2.4e-16), and
 `compare/results/precision/now.single.md`, "1e-3 rad from opposite" (Eigen 1.66e4 epsilons
-in the mean, hypatia 0.35).
+in the mean, hypatia 0.349).

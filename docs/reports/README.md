@@ -49,7 +49,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm::angleAxis` and `glm::rotate` disagree on axes that are not unit length, and fail on a zero axis](glm/15-axis-angle-zero-or-not-unit-axis.md) | inconsistent API; NaN on degenerate input | present in the latest release |
 | [`glm::inverse` of a singular matrix returns NaN with no way to tell](glm/16-inverse-singular-matrix-nan.md) | NaN on degenerate input; no error report | present in the latest release |
 | [`glm::normalize` rounds three times instead of twice: more error than dividing by the length](glm/17-normalize-two-roundings.md) | precision | present in the latest release |
-| [Smaller precision differences: GLM has 3% to 21% more rounding error in thirteen measurements](glm/18-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: GLM has from 3% more to 7.4 times the rounding error of hypatia in seventeen measurements](glm/18-precision-small-differences.md) | precision | present in the latest release |
 | [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](glm/19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](glm/20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
 | [`glm::inverse` gives inf or 0 for matrices with small or large entries](glm/21-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
@@ -65,7 +65,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`q * v` does not rotate when q is not exactly unit length](eigen/05-quaternion-times-vector-not-unit.md) | wrong result for non-unit q; precision for drifted q | present in the latest release |
 | [`Quaternion::FromTwoVectors` with a zero vector returns a quaternion of length 0.71](eigen/06-fromtwovectors-zero-vector.md) | wrong result on degenerate input | present in the latest release |
 | [`AngleAxis` with an axis that is not unit length gives a scaled quaternion and a non-rotation matrix](eigen/07-angleaxis-axis-not-unit.md) | documented precondition, not checked | present in the latest release |
-| [Smaller precision differences: Eigen has 2% to 10% more rounding error in seven measurements of six functions](eigen/08-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: Eigen has from 2% more to 7 times the rounding error of hypatia in eighteen measurements](eigen/08-precision-small-differences.md) | precision | present in the latest release |
 | [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](eigen/09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |
 | [`inverse()` of a 4x4 matrix gives inf or 0 for small or large entries](eigen/10-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
@@ -84,7 +84,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm_vec3_angle` returns 0 for vectors up to about 6e-4 rad apart, and NaN for a zero vector](cglm/09-vec3-angle-acos.md) | precision; NaN on degenerate input | present in the latest release |
 | [`glm_vec3_proj` onto the zero vector is NaN](cglm/10-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
 | [`glm_quat_inv` is NaN for the zero quaternion, and wrong for tiny and huge ones](cglm/11-quat-inv-zero.md) | NaN on degenerate input; wrong result | present in the latest release |
-| [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
+| [Smaller precision differences: cglm has from 4% more to 265 times the rounding error of hypatia in twenty-four measurements](cglm/12-precision-small-differences.md) | precision | present in the latest release |
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
 | [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](cglm/15-quat-mat4-non-unit.md) | wrong result | present in the latest release |

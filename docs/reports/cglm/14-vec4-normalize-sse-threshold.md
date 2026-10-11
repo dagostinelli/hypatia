@@ -67,9 +67,12 @@ Return zero only for `dot == 0` in every branch, and scale out-of-range vectors 
 
 ## How hypatia does it
 
-`vector4_normalize` (through `hyp_normalize`) leaves unchanged only an exactly zero vector,
-or one with a NaN component, and divides by the largest component first when the sum of
-the squares is not between 1e-30 and 1e30; the result does not depend on the platform.
+`vector4_normalize` (through `hyp_normalize`) leaves unchanged only an exactly zero
+vector, or one with a NaN component.  It first scales the vector by a power of two so that
+its largest component is between 1 and 2, which is exact, so the squares can neither
+overflow nor underflow; it then divides by the length with exact products and sums, so
+each component is the exact quotient rounded once (within half an ulp); the result does
+not depend on the platform.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS

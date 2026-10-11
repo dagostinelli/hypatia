@@ -56,10 +56,12 @@ such as 1e-30 to 1e30, divide by the largest component first.
 
 ## How hypatia does it
 
-`quaternion_normalize` uses `hyp_normalize`: it divides by the length when the sum of the
-squares is between 1e-30 and 1e30, and otherwise divides by the largest component first,
-so tiny and huge quaternions normalize to the same unit quaternion as any other multiple.
-Only the zero quaternion (or NaN) is left unchanged.
+`quaternion_normalize` uses `hyp_normalize`, which first scales the vector by a power of
+two so that its largest component is between 1 and 2, which is exact, so the squares can
+neither overflow nor underflow; it then divides by the length with exact products and
+sums, so each component is the exact quotient rounded once (within half an ulp): tiny and
+huge quaternions normalize to the same unit quaternion as any other multiple.  Only the
+zero quaternion (or NaN) is left unchanged.
 
 ```c
 #define HYPATIA_SINGLE_PRECISION_FLOATS

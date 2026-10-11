@@ -59,8 +59,10 @@ Check the squared length: zero, return the input; outside a safe range such as 1
 
 ## How hypatia does it
 
-`vector3_normalize` divides by the length when the squared length is between 1e-30 and
-1e30, and otherwise divides by the largest component first.  The zero vector is left
+`vector3_normalize` first scales the vector by a power of two so that its largest
+component is between 1 and 2, which is exact, so the squares can neither overflow nor
+underflow; it then divides by the length with exact products and sums, so each component
+is the exact quotient rounded once (within half an ulp).  The zero vector is left
 unchanged.
 
 ```c

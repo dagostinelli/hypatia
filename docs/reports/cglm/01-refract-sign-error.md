@@ -113,4 +113,4 @@ v = -n:    (0, -1.000000, 0), length 1.000000
 above and compares their output with this report.  The harness:
 `compare/results/single.md`, `vector3_refract` against `cglm glm_vec3_refract` (2000 of
 2000 inputs differ), and `compare/results/precision/now.single.md`, `vector3_refract` (cglm
-9.32e6 epsilons in the mean, hypatia 0.385).
+9.32e6 epsilons in the mean, hypatia 0.318).

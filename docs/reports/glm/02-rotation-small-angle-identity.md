@@ -121,4 +121,4 @@ angle missed: -2.96e-11 rad
 programs above and compares their output with this report.  The harness measures it over
 20000 inputs (`compare/results/precision/now.single.md`, `quaternion_get_rotation_tov3`,
 "1e-6 rad apart": GLM largest 8.73 and mean 8.39 float epsilons, about the whole angle of
-1e-6 rad; hypatia 1.41 / 0.26).
+1e-6 rad; hypatia 0.598 / 0.122).

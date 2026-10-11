@@ -14,7 +14,7 @@ For unit vectors 1e-3 rad from opposite, the rotation from `glm::rotation` puts 
 2100 double epsilons away from `dest` in the program below (mean 330); over the 20000
 inputs of the comparison harness the largest is 4090 (mean 840).  The cause is the
 cancellation in `1 + cosTheta` and in the cross product of nearly opposite vectors.  The
-same inputs give 1.8 epsilons at most with hypatia (2.2 in the harness).  On random inputs
+same inputs give 2.5 epsilons at most with hypatia (2.7 in the harness).  On random inputs
 GLM's largest error in the harness is 116 epsilons, hypatia's 2.2.
 
 ## Reproduction
@@ -175,7 +175,7 @@ int main(void)
 ```
 
 ```text
-quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 1.8, mean 0.32 epsilons
+quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 2.5, mean 0.33 epsilons
 ```
 
 ## Checking

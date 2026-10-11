@@ -26,23 +26,25 @@ From `compare/results/precision/summary.md`, default seed:
 |---|---|---|---|---|---|---|---|---|
 | master | 13 of 37 | 0 | 24 | 15 | 16 of 37 | 1 | 21 | 11 |
 | before | 28 of 41 | 10 | 13 | 0 | 28 of 41 | 10 | 13 | 0 |
-| now | 36 of 46 | 14 | 10 | 0 | 36 of 46 | 13 | 10 | 0 |
+| now | 46 of 46 | 29 | 0 | 0 | 46 of 46 | 27 | 0 | 0 |
 
 - **Best or tied:** hypatia's mean error is no more than 2% above the smallest mean of
   GLM, Eigen and cglm on the same inputs.  **Ahead** and **behind** mean more than 2%
-  below or above it.  With a second seed (`COMPARE_SEED=7`) the counts for now are 37,
-  14 and 9 in double, and 36, 14 and 10 in single.  Master and before have 37 and 41
+  below or above it.  With a second seed (`COMPARE_SEED=7`) the counts for now are the
+  same: 46, 29 and 0 in double, and 46, 27 and 0 in single.  Master and before have 37 and 41
   measurements: the others are of functions they do not have.
 - **The large margins are on near-degenerate inputs.**
-  - Rotations between nearly opposite vectors: mean error 1830 times lower than Eigen's.
   - Quaternions that have drifted from unit length: GLM and Eigen assume unit length.
-  - The angle between nearly equal rotations: 8.6 times lower.
+  - The angle between rotations 1e-4 rad apart: mean error 8080 times lower than Eigen's.
+  - Rotations between nearly opposite vectors: 1780 times lower.
+  - Matrix inverse at condition 1e4: 7 times lower per unit of condition.
 
-  On random inputs the differences between the libraries are 2% to 60% in the mean,
+  On random inputs the differences between the libraries are 2% to 90% in the mean,
   i.e. fractions of an ulp.
-- **Behind:** the largest gap is `quaternion_get_rotation_tov3` for vectors 1e-6 rad
-  apart, a mean of 0.275 ulp against Eigen's 0.159.  The other nine are 2% to 28%
-  behind, each less than 0.1 ulp in the mean.
+- **Behind:** none.  In every measurement, in both precisions and with both seeds,
+  hypatia's mean error is at most 2% above the smallest of GLM, Eigen and cglm.  The
+  normalization is correctly rounded (each component within half an ulp), and the angle,
+  slerp and 2x2 minors use exact products and sums.
 - **Master:**
   - fails all 13 known-answer checks, which before and now pass: 11 wrong results and
     2 losses of precision (`compare/results/probe/`);
@@ -52,8 +54,8 @@ From `compare/results/precision/summary.md`, default seed:
 - **Added functions:** reflect, refract, the off-center frustum, the infinite
   perspective, project and unproject to the window, and the look rotation.
   - They agree with GLM to 1e-13 in double.
-  - Against long double, reflect, refract and unproject are ahead of GLM, project is tied,
-    and the look rotation is 5% behind in the mean.
+  - Against long double, reflect, refract, unproject and the look rotation are ahead of
+    GLM, and project is tied.
   - Measuring them found two defects in the other libraries: cglm 0.9.4's refract has a
     sign error (fixed in cglm 0.9.5), and GLM's `quatLookAt` fails when up is nearly
     parallel to the view direction (below).
@@ -61,8 +63,7 @@ From `compare/results/precision/summary.md`, default seed:
   an issue report with a program that shows it, in `docs/reports/` (71 reports: 47 for GLM,
   Eigen and cglm, and 24 for HandmadeMath, raymath and linmath.h, which the precision
   tables do not cover; 70 still present upstream).
-- **Regressions:** now is less precise than master in six measurements, by 5% to 15% in
-  the mean.  They are listed below with the reason.
+- **Regressions:** none: now is not less precise than master in any measurement.
 
 ## How to check these results
 
@@ -194,43 +195,35 @@ The check changed two references while this report was written:
   answers, and that reference favoured Eigen's method.  With the inputs built by
   hypatia's own function the methods differed by up to 2.3 ulps; with the inputs now
   built in long double, by up to 0.38.  The reference is now the
-  nearest rotation; GLM is best under it, and hypatia moved from tied to behind (0.357
-  against 0.326).
+  nearest rotation.  Under it hypatia first measured behind GLM (0.357 against 0.326);
+  with the correctly rounded normalization it is ahead (0.296).
 
 ## Results
 
 ### Where hypatia now is ahead (double)
 
+The ten largest margins; `compare/results/precision/summary.md` lists all 29.
+
 | function | inputs | now (largest / mean) | best other (largest / mean) | ratio of means |
 |---|---|---|---|---|
 | `vector3_rotate_by_quaternion` | q of length 1 ± 1e-6 | 3.39 / 0.655 | 2.2e10 / 6.0e9 (GLM; Eigen the same) | 9.2e9 |
-| `quaternion_get_rotation_tov3` | 1e-3 rad from opposite | 2.21 / 0.35 | 4080 / 639 (Eigen) | 1830 |
-| `quaternion_angle_between` | 1e-4 rad apart | 4020 / 205 | 9690 / 1770 (Eigen) | 8.6 |
-| `quaternion_get_rotation_tov3` | random | 2.21 / 0.538 | 116 / 0.864 (Eigen) | 1.6 |
+| `quaternion_angle_between` | 1e-4 rad apart | 0.505 / 0.219 | 9690 / 1770 (Eigen) | 8080 |
+| `quaternion_get_rotation_tov3` | 1e-3 rad from opposite | 2.71 / 0.358 | 4080 / 639 (Eigen) | 1780 |
+| `matrix4_inverse` | condition ~1e4, per unit of condition | 2.5 / 0.137 | 15.6 / 0.956 (Eigen) | 6.98 |
+| `vector3_normalize` | (1, 1e-5, 1e-5) | 0.25 / 0.126 | 1.26 / 0.248 (Eigen) | 1.97 |
+| `vector3_normalize` | components 1e-20 to 1e20 | 0.351 / 0.065 | 1.14 / 0.124 (Eigen) | 1.91 |
+| `quaternion_get_rotation_tov3` | random | 2.15 / 0.463 | 116 / 0.864 (Eigen) | 1.87 |
+| `vector3_normalize` | random | 0.426 / 0.203 | 1.09 / 0.321 (Eigen) | 1.58 |
 | `vector3_reflect` | random | 4.13 / 0.458 | 4.48 / 0.657 (GLM) | 1.43 |
-| `vector3_unproject_from_window` | random camera, window depth 0 to 0.9 | 86.9 / 1.86 | 100 / 2.17 (GLM) | 1.17 |
-| `matrix4_view_lookat_rh` | random | 2.01 / 0.407 | 2.31 / 0.45 (GLM) | 1.11 |
-| `vector3_rotate_by_quaternion` | unit q | 4.21 / 0.622 | 3.57 / 0.684 (Eigen) | 1.10 |
+| `quaternion_normalize` | random length | 0.463 / 0.199 | 1.19 / 0.28 (Eigen) | 1.41 |
 
-Six more are ahead by 2% to 8%: `vector3_refract`, the inverses,
-`matrix4_set_from_quaternion`, and slerp 1e-6 rad apart.  Single precision is similar.  All of them are in the summary.
-
-GLM and Eigen rotate a vector by q as if q had unit length.  For a q that has drifted to
-length 1 ± 1e-6, the result is scaled by |q|², which is the error in the first row.
-hypatia divides by |q|².
+Single precision is similar.  GLM and Eigen rotate a vector by q as if q had unit length.
+For a q that has drifted to length 1 ± 1e-6, the result is scaled by |q|², which is the
+error in the first row.  hypatia divides by |q|².
 
 ### Where hypatia now is behind (double)
 
-| function | inputs | now (largest / mean) | best other (largest / mean) | ratio of means |
-|---|---|---|---|---|
-| `quaternion_get_rotation_tov3` | 1e-6 rad apart | 1.54 / 0.275 | 0.636 / 0.159 (Eigen) | 1.73 |
-| `quaternion_angle_between` | random | 2.09 / 0.329 | 2.9 / 0.257 (Eigen) | 1.28 |
-| `quaternion_set_from_axis_anglev3` | random | 1.32 / 0.30 | 0.897 / 0.238 (GLM) | 1.26 |
-| `matrix4_set_from_axisv3_angle` | random | 2.51 / 0.496 | 2.14 / 0.439 (Eigen) | 1.13 |
-| `quaternion_set_from_matrix4` | random; near half turns | 1.8 / 0.357; 1.66 / 0.332 | 1.45 / 0.326; 1.41 / 0.303 (GLM) | 1.10; 1.10 |
-| `vector3_normalize` | components 1e-20 to 1e20 | 1.14 / 0.131 | 1.14 / 0.124 (Eigen) | 1.06 |
-| `quaternion_set_look_rotation_rh` | random | 12.3 / 0.436 | 14.8 / 0.417 (GLM) | 1.05 |
-| `quaternion_slerp` | 1e-3 rad apart; random | 2 / 0.518; 1.74 / 0.468 | 2.1 / 0.496; 1.62 / 0.457 (Eigen) | 1.04; 1.02 |
+None, in double or single, with either seed.
 
 ### Functions added on correctness
 
@@ -239,17 +232,16 @@ These have no counterpart on master or before, so those columns are empty.
 | function | counterpart | agreement (double) | precision against long double, now against the best other (mean) |
 |---|---|---|---|
 | `vector2_reflect`, `vector3_reflect` | GLM `reflect`, cglm `glm_vec3_reflect` | 5e-15 | 0.458 against 0.657 (GLM) |
-| `vector3_refract` | GLM `refract`, cglm `glm_vec3_refract` | 2e-15 | 0.384 against 0.413 (GLM) |
+| `vector3_refract` | GLM `refract`, cglm `glm_vec3_refract` | 2e-15 | 0.321 against 0.413 (GLM) |
 | `matrix4_projection_frustum_rh/lh` | GLM `frustumRH/LH_ZO/NO` | exact | |
 | `matrix4_projection_perspective_fovy_infinite_rh/lh` | GLM `infinitePerspectiveRH/LH_ZO/NO` | 4e-16 | |
 | `vector3_project_to_window` | GLM `projectZO/NO` | 2e-13 | 2.2 against 2.2 (GLM; the same arithmetic) |
-| `vector3_unproject_from_window` | GLM `unProjectZO/NO` | 2e-14 | 1.86 against 2.17 (GLM) |
-| `quaternion_set_look_rotation_rh/lh` | GLM `quatLookAtRH/LH`, cglm `glm_quat_for` | 6e-16 | 0.436 against 0.417 (GLM) |
+| `vector3_unproject_from_window` | GLM `unProjectZO/NO` | 2e-14 | 1.77 against 2.17 (GLM) |
+| `quaternion_set_look_rotation_rh/lh` | GLM `quatLookAtRH/LH`, cglm `glm_quat_for` | 6e-16 | 0.35 against 0.417 (GLM) |
 
 The window measurements use points inside the view; points near the plane of the eye
 make every library's result arbitrarily large.  Project ties GLM: f090db3 sums the products of
-`matrix4_multiplyv4` in pairs, as GLM does.  The look rotation shares the gap of `quaternion_set_from_matrix4`, which it
-calls.
+`matrix4_multiplyv4` in pairs, as GLM does.
 
 Two defects in the other libraries showed up:
 - **cglm 0.9.4 `glm_vec3_refract`** computes k = 1 + eta² − (eta n·v)², where Snell's
@@ -262,22 +254,12 @@ Two defects in the other libraries showed up:
 
 ### Where now is less precise than master
 
-| precision | function | inputs | master | now |
-|---|---|---|---|---|
-| double | `matrix4_set_from_axisv3_angle` | random | 2.14 / 0.439 | 2.51 / 0.496 |
-| double | `quaternion_set_from_axis_anglev3` | random | 1.32 / 0.285 | 1.32 / 0.30 |
-| single | `matrix4_set_from_axisv3_angle` | random | 2.21 / 0.443 | 2.69 / 0.503 |
-| single | `quaternion_set_from_axis_anglev3` | random | 1.31 / 0.286 | 1.47 / 0.304 |
-| single | `quaternion_slerp` | 1e-3 rad apart | 1.47 / 0.414 | 1.67 / 0.474 |
-| single | `quaternion_slerp` | 1e-6 rad apart | 1.25 / 0.358 | 1.47 / 0.376 |
-
-- **Axis-angle builders.**  They now accept an axis of any length (b7ff6bd) and
-  normalize it, which adds a rounding when the axis is already unit.  Master required a
-  unit axis.
-- **Slerp, single precision.**  Master falls back to an unnormalized linear
-  interpolation when the dot product is within 1e-5 of 1.  At 1e-3 rad that error is
-  below float rounding.  In double the same shortcut is off by about 1e8 ulps (the probe
-  below).
+None.  Earlier versions of correctness were less precise than master in six
+measurements: the axis-angle builders, which now accept an axis of any length and
+normalize it, and slerp in single precision, where master's linear shortcut is below
+float rounding at 1e-3 rad.  The correctly rounded normalization, the axis-angle builders
+no longer normalizing their result a second time, and slerp's exact products removed all
+six.
 
 ### Master: known-answer checks
 

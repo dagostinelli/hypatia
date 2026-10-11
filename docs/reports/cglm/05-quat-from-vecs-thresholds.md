@@ -129,8 +129,8 @@ int main(void)
 ```
 
 ```text
-3e-3 rad apart:         misses b by 6.66e-08 rad
-1e-3 rad from opposite: misses b by 1.4e-07 rad
+3e-3 rad apart:         misses b by 7.3e-08 rad
+1e-3 rad from opposite: misses b by 6.66e-08 rad
 ```
 
 ## Checking
@@ -138,5 +138,5 @@ int main(void)
 `compare/check_reports.py docs/reports/cglm/05-quat-from-vecs-thresholds.md` builds both
 programs above and compares their output with this report.  The harness:
 `compare/results/precision/now.single.md`, `quaternion_get_rotation_tov3`, "1e-3 rad from
-opposite" (cglm 8390 epsilons in the mean, hypatia 0.35) and "1e-6 rad apart" (cglm 8.39,
-hypatia 0.26).
+opposite" (cglm 8390 epsilons in the mean, hypatia 0.349) and "1e-6 rad apart" (cglm 8.39,
+hypatia 0.122).

@@ -108,7 +108,7 @@ int main(void)
 
 ```text
 vectors 0.001 rad apart: vector3_angle_between = 0.001, relative error 0
-vectors 1e-06 rad apart: vector3_angle_between = 1.0000000000000002e-06, relative error 2.1e-16
+vectors 1e-06 rad apart: vector3_angle_between = 9.9999999999999995e-07, relative error 0
 vectors 1e-08 rad apart: vector3_angle_between = 1e-08, relative error 0
 vectors 0.001 rad from opposite: vector3_angle_between = 3.1405926535897932, error 1.2e-17
 vectors 1e-06 rad from opposite: vector3_angle_between = 3.1415916535897934, error 1.8e-16

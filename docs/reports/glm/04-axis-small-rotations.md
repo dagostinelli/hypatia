@@ -17,7 +17,7 @@ epsilons.  In float `w` rounds to exactly 1, `1 - w*w` is 0, and `glm::axis` ret
 fallback (0, 0, 1) whatever the actual axis: for a rotation of 1e-4 rad about X it returns
 Z.  `axis * angle` (the rotation vector) inherits the error: 1.2e7 double epsilons in the
 mean over random rotations of 1e-4 rad.  On random rotations of any size the largest error
-is 70 epsilons (mean 0.65), against 1.33 (mean 0.38) with hypatia.  `glm::angle` itself is
+is 70 epsilons (mean 0.65), against 1.28 (mean 0.374) with hypatia.  `glm::angle` itself is
 accurate here (for `|w|` near 1 it uses `asin` of the length of the vector part; the
 program prints it), so the error is in the axis.
 
@@ -107,5 +107,5 @@ length of the axis = 1, angle = 0.0001
 `compare/check_reports.py docs/reports/glm/04-axis-small-rotations.md` builds both programs
 above and compares their output with this report.  The harness measures `axis * angle` over
 20000 inputs (`compare/results/precision/now.double.md`, `quaternion_get_axis_anglev3`,
-"angle 1e-4": GLM 1.18e7 epsilons in the mean, hypatia 0.349; "random": GLM largest 70.1,
-mean 0.645, hypatia 1.33 / 0.383).
+"angle 1e-4": GLM 1.18e7 epsilons in the mean, hypatia 0.346; "random": GLM largest 70.1,
+mean 0.645, hypatia 1.28 / 0.374).

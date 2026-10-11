@@ -15,8 +15,8 @@ formula divides `v0.cross(v1)` by `sqrt(2 (1 + c))`.  Both the cross product of 
 opposite vectors and `1 + c` carry cancelled rounding errors.  The rotation puts `v0` up to
 4080 double epsilons away from `v1` in the program below (mean 600); over the 20000 inputs
 of the comparison harness the largest is also 4080 (mean 640).  On random inputs the
-largest is 116 epsilons.  hypatia's largest is 1.8 for the same inputs (2.2 in the harness,
-for both).
+largest is 116 epsilons.  hypatia's largest is 2.5 for the same inputs (2.7 in the harness, and
+2.2 on random inputs).
 
 ## Reproduction
 
@@ -163,7 +163,7 @@ int main(void)
 ```
 
 ```text
-quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 1.8, mean 0.32 epsilons
+quaternion_get_rotation_tov3, 1e-3 rad from opposite: largest 2.5, mean 0.33 epsilons
 ```
 
 ## Checking

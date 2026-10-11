@@ -9,6 +9,6 @@ ok   quaternion_slerp, t = 1e-6: turns by 1.570796327e-06 rad, exact 1.570796327
 ok   quaternion_slerp, 1e-3 rad apart: length 1 (error 0)
 ok   quaternion_get_rotation_tov3, x to y: (0, 0, 0.707107, 0.707107) (error 0)
 ok   quaternion_get_rotation_tov3, x to -x: (0, 0, 1, 0) (error 0)
-ok   quaternion_angle_between, 1e-4 rad: 0.00010000000000000002 (error 2.22e-16)
+ok   quaternion_angle_between, 1e-4 rad: 0.0001 (error 0)
 ok   quaternion_get_axis_anglev3, 1e-4 rad: axis (0, 0, 1), angle 0.0001 (error 0)
 0 failed
