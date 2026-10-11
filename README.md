@@ -89,6 +89,7 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 | `HYPATIA_SINGLE_PRECISION_FLOATS` | `HYP_FLOAT` is `float` instead of `double`. | |
 | `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS` | `HYP_FLOAT` is `long double` instead of `double`.  Needs the C99 math functions (`sinl`, `cosl`, ...).  On MSVC and on macOS arm64, `long double` is the same as `double`. | |
 | `HYPATIA_QUAD_PRECISION_FLOATS` | `HYP_FLOAT` is IEEE binary128 (emulated in software on most machines) instead of `double`, in the spelling the compiler has.  GCC 7 or later with glibc 2.26 or later: `_Float128` and `sinf128`, ...; nothing extra to link.  A 113-bit `long double` (AArch64 Linux, any compiler): `long double` and `sinl`, ... (C99); nothing extra to link.  Clang, MinGW GCC, or GCC with an older C library, on x86-64: `__float128` and `sinq`, ... from libquadmath; link with `-lquadmath`.  With GCC's `_Float128`, `hypatia.h` defines `__STDC_WANT_IEC_60559_TYPES_EXT__` before it includes `<math.h>`; a file that includes `<math.h>` first must define it before that include.  To use another 128-bit type, define `HYP_FLOAT`, `HYP_FLOAT_C` and the math macros. | |
+| `HYP_FAST` | Plain formulas instead of exact arithmetic: normalize, the lengths and angles, slerp, the rotation functions and the inverses do 2.5 to 10 times less work.  Every input still has a defined result, and the robust formulas stay (atan2, no cancellation near parallel or opposite vectors).  What goes is the last ulp: errors are about 1 to 2 ulps instead of half an ulp, and a tiny angle between vectors of different lengths is accurate in absolute terms, not to the last digit.  The measured errors are in test/precision/baseline_fast_single.txt and baseline_fast_double.txt. | |
 | `HYP_EPSILON` | The tolerance of the `*_equals` functions: absolute for values up to 1 in size, relative above 1. | `1E-5` |
 
 **Standard library**
@@ -160,7 +161,7 @@ Compared with other math libraries for graphics, the concrete differences are:
 
 The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
 
-The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse.  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the gates need each other.
+The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse, in the default mode or with `HYP_FAST` (baseline_fast_single.txt and baseline_fast_double.txt).  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the gates need each other.
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
@@ -201,7 +202,8 @@ Conventions:
 New in 2.1:
 
 * Long double precision: `HYPATIA_LONG_DOUBLE_PRECISION_FLOATS`.
-* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`.
+* Quad precision: `HYPATIA_QUAD_PRECISION_FLOATS`, with `_Float128` (GCC), a 113-bit `long double` (AArch64) or `__float128` and libquadmath (Clang, MinGW).
+* A fast mode: `HYP_FAST`.
 
 Coding Standard
 ---------------
@@ -241,6 +243,7 @@ Numerical principles:
 * Scale before squaring so that lengths neither overflow nor underflow; divide by a value rather than multiply by a reciprocal that can overflow
 * A function of rotations gives the same result for q and -q
 * Measure precision instead of assuming it: the error in ulps against a reference in higher precision, on random and on hard inputs, with the reference itself checked a second way
+* The default is precise: a speedup there must give the same bits (the precision output is unchanged) and less work (the speed gate).  `HYP_FAST` gives up the last ulps for speed, never correctness: every input still has a defined result
 * Compare with other libraries on the same inputs, and publish the commands that reproduce each claim
 
 Unit Tests
