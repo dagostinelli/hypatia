@@ -11,16 +11,16 @@
 ## Summary
 
 `glm_vec3_normalize` returns the zero vector whenever the length is below `FLT_EPSILON`
-(1.19e-7).  Vectors that short are ordinary in float (a velocity of 1e-8 per step, a
-difference of nearby points); their direction is representable and lost.  Above about 1e19
-the squared length overflows to inf and the result is zero as well; a NaN component makes
-every component NaN.  Every cglm function that normalizes (rotation axes, `glm_quatv`,
-`glm_rotate_make`, `glm_quat_imagn`) inherits this.  `glm_vec4_normalize` compares the
-length with `FLT_EPSILON` the same way on its scalar path; its SSE and WebAssembly paths
-compare the squared length, which zeroes every 4-vector shorter than 3.45e-4
-([14](14-vec4-normalize-sse-threshold.md)).  For components spread from 1e-15 to 1e15 the
-harness measures a mean error of 1.7e5 epsilons (largest 8.4e6), against 0.085 with
-hypatia.
+(1.19e-7).  Vectors that short occur in float (a velocity of 1e-8 per step, a difference of
+nearby points); their direction is representable and lost.  Above about 1.8e19 per
+component the squared length overflows to inf and the result is zero as well; a NaN
+component makes every component NaN.  Every cglm function that normalizes (rotation axes,
+`glm_quatv`, `glm_rotate_make`, `glm_quat_imagn`) inherits this.  `glm_vec4_normalize`
+compares the length with `FLT_EPSILON` the same way on its scalar path; its SSE and
+WebAssembly paths compare the squared length, which zeroes every 4-vector shorter than
+3.45e-4 ([14](14-vec4-normalize-sse-threshold.md)).  For components spread from 1e-15 to
+1e15 the harness measures a mean error of 1.7e5 float epsilons (largest 8.4e6), against
+0.085 with hypatia.
 
 ## Reproduction
 
@@ -71,6 +71,13 @@ glm_vec3_scale(v, 1.0f / norm, v);
 `FLT_EPSILON` is a relative quantity (the spacing of floats near 1); as an absolute
 threshold on a length it has no meaning.  `glm_vec3_norm` squares the components.
 
+## Suggested fix
+
+Return early only for a norm of exactly zero; when `dot(v, v)` is outside a safe range
+such as 1e-30 to 1e30, divide by the largest component first.  Dividing by `norm` instead
+of multiplying by `1.0f / norm` also removes a rounding
+([12](12-precision-small-differences.md)).
+
 ## How hypatia does it
 
 `vector3_normalize` (all hypatia normalizations use `hyp_normalize`) leaves unchanged only
@@ -106,14 +113,10 @@ normalize(1e30, 1e30, 0)    = (0.707107, 0.707107, 0)
 normalize(NaN, 1, 0)        = (nan, 1, 0)
 ```
 
-## Suggested fix
-
-Return early only for a norm of exactly zero; when `dot(v, v)` is outside a safe range
-such as 1e-30 to 1e30, divide by the largest component first.  Dividing by `norm` instead
-of multiplying by `1.0f / norm` also removes a rounding
-([12](12-precision-small-differences.md)).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/04-normalize-zeroes-short-vectors.md` builds both programs above and compares their output with this report. The harness: `results/single.md`, "Edge cases", and `results/precision/now.single.md`,
-`vector3_normalize`.
+`compare/check_reports.py docs/reports/cglm/04-normalize-zeroes-short-vectors.md` builds
+both programs above and compares their output with this report.  The harness:
+`compare/results/single.md`, "Edge cases", and `compare/results/precision/now.single.md`,
+`vector3_normalize`, "components 1e-20 .. 1e20 (single 1e-15 .. 1e15)" (cglm 8.39e6 /
+1.68e5, hypatia 1.05 / 0.0851).

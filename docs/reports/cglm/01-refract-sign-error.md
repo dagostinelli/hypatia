@@ -66,6 +66,10 @@ k   = 1.0f + eta * eta - eni * eni;
 
 The signs of the two eta terms are swapped.
 
+## Suggested fix
+
+`k = 1.0f - eta * eta + eni * eni;` (the rest of the function is right).
+
 ## How hypatia does it
 
 `vector3_refract(self, normal, eta)` normalizes both vectors (they need not be unit
@@ -103,12 +107,10 @@ eta 1/1.5: (0.471405, -0.881917, 0), length 1.000000
 v = -n:    (0, -1.000000, 0), length 1.000000
 ```
 
-## Suggested fix
-
-`k = 1.0f - eta * eta + eni * eni;` (the rest of the function is right).
-
 ## Checking
 
-`compare/check_reports.py docs/reports/cglm/01-refract-sign-error.md` builds both programs above and compares their output with this report. The harness: `results/single.md`, `vector3_refract` against `cglm glm_vec3_refract`
-(2000 of 2000 inputs differ), and `results/precision/now.single.md`, `vector3_refract`
-(cglm 9.32e6 epsilons in the mean, hypatia 0.385).
+`compare/check_reports.py docs/reports/cglm/01-refract-sign-error.md` builds both programs
+above and compares their output with this report.  The harness:
+`compare/results/single.md`, `vector3_refract` against `cglm glm_vec3_refract` (2000 of
+2000 inputs differ), and `compare/results/precision/now.single.md`, `vector3_refract` (cglm
+9.32e6 epsilons in the mean, hypatia 0.385).

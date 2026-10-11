@@ -14,7 +14,7 @@ Tested: cglm 0.9.4, commit [1796cc5](https://github.com/recp/cglm/tree/1796cc5ce
 | [`glm_quat_for` returns a quaternion of length 0.71 when up is parallel to the direction](08-quat-for-up-parallel.md) | wrong result on degenerate input | present in the latest release |
 | [`glm_vec3_angle` returns 0 for vectors up to about 6e-4 rad apart, and NaN for a zero vector](09-vec3-angle-acos.md) | precision; NaN on degenerate input | present in the latest release |
 | [`glm_vec3_proj` onto the zero vector is NaN](10-proj-onto-zero-vector.md) | NaN on degenerate input | present in the latest release |
-| [`glm_quat_inv` of the zero quaternion is NaN; tiny and huge quaternions overflow](11-quat-inv-zero.md) | NaN on degenerate input | present in the latest release |
+| [`glm_quat_inv` is NaN for the zero quaternion, and wrong for tiny and huge ones](11-quat-inv-zero.md) | NaN on degenerate input; wrong result | present in the latest release |
 | [Smaller precision differences: cglm has more rounding error than hypatia in seventeen measurements](12-precision-small-differences.md) | precision | present in the latest release |
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |

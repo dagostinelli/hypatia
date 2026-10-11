@@ -76,6 +76,15 @@ which has no information left: for opposite vectors `cross(orig, dest)` is (0, 0
 result is (w 1.05e-8, x 0, y 0, z 0).  Vectors close to opposite (1e-3 rad) are affected in the same way to a lesser
 degree: see [03-rotation-near-opposite-precision.md](03-rotation-near-opposite-precision.md).
 
+## Suggested fix
+
+Do not branch on the rounded dot product.  With `f = normalize(orig)` and `t =
+normalize(dest)`, take `c = length(f + t) / 2` and `s = length(f - t) / 2` (the cosine and
+sine of half the angle) and the axis `normalize(cross(f, f + t))`.  If that cross product
+is exactly zero and `c > 0` (same direction), return the identity; if it is zero and `c`
+is 0 (opposite), use `normalize(cross(f, e))` with `e` the coordinate axis of the smallest
+component of `f`, and `s = 1`.  Return `quat(c, axis * s)`, normalized.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors and takes the half angle from two
@@ -119,20 +128,11 @@ q * from = (-0.622192, 0.232124, -0.747660)
 to       = (-0.622192, 0.232124, -0.747660)
 ```
 
-## Suggested fix
-
-Do not branch on the rounded dot product.  With `f = normalize(orig)` and `t =
-normalize(dest)`, take `c = length(f + t) / 2` and `s = length(f - t) / 2` (the cosine and
-sine of half the angle) and the axis `normalize(cross(f, f + t))`.  If that cross product
-is exactly zero and `c > 0` (same direction), return the identity; if it is zero and `c`
-is 0 (opposite), use `normalize(cross(f, e))` with `e` the coordinate axis of the smallest
-component of `f`, and `s = 1`.  Return `quat(c, axis * s)`, normalized.
-
 ## Checking
 
 `compare/check_reports.py docs/reports/glm/01-rotation-opposite-vectors.md` builds both
 programs above and compares their output with this report.  The comparison harness in
-`compare/` measures the same case over 2000 inputs (`results/double.md`, table "accuracy
-against long double", row `glm::rotation`, "exactly opposite (to = -2 from)"): the largest
-error is 2, the largest possible distance between unit vectors, against 2.4e-16 for
-`quaternion_get_rotation_tov3`.
+`compare/` measures the same case over 2000 inputs (`compare/results/double.md`, table
+"accuracy against long double", row `glm::rotation`, "exactly opposite (to = -2 from)"):
+the largest error is 2, the largest possible distance between unit vectors, against 2.4e-16
+for `quaternion_get_rotation_tov3`.

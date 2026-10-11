@@ -54,8 +54,16 @@ Expected: q or -q: both ends are the same rotation.  `glm::slerp` gets this righ
 [`ext/quaternion_common.inl` lines 4-26](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/quaternion_common.inl#L4-L26): only
 `cosTheta > 1 - epsilon` is special-cased; `cosTheta` near -1 goes to
 `(sin((1 - a) angle) x + sin(a angle) y) / sin(angle)` with `angle = acos(cosTheta)`
-close to pi.  The documentation says `mix` does not take the shortest path, but the
-result at a = 0.5 for opposite inputs is not a unit quaternion at all.
+close to pi.  The documentation says "For short path spherical linear interpolation, use
+the slerp function."
+([`ext/quaternion_common.hpp` line 42](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/quaternion_common.hpp#L42)),
+but the result at a = 0.5 for opposite inputs is not a unit quaternion at all.
+
+## Suggested fix
+
+Special-case `cosTheta < -1 + epsilon` (the quaternions are the same rotation; return `x`,
+or rotate about any axis perpendicular in 4D if a long-arc path is wanted), or point users
+of `mix` to `slerp`.  At least document that `mix` of opposite quaternions returns zero.
 
 ## How hypatia does it
 
@@ -90,12 +98,7 @@ int main(void)
 slerp(q, -q, 0.5) = (w 0.877582562, x 0, y 0, z 0.479425539), length 1
 ```
 
-## Suggested fix
-
-Special-case `cosTheta < -1 + epsilon` (the quaternions are the same rotation; return `x`,
-or rotate about any axis perpendicular in 4D if a long-arc path is wanted), or point users
-of `mix` to `slerp`.  At least document that `mix` of opposite quaternions returns zero.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/07-mix-opposite-quaternions.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/07-mix-opposite-quaternions.md` builds both
+programs above and compares their output with this report.

@@ -12,9 +12,8 @@
 
 `glm::rotate` for quaternions normalizes the axis only if its length differs from 1 by more
 than 0.001.  An axis of length 1.0009 is used as it is: the quaternion has length 1.00045,
-and `q * v` then stretches the vector by 1.0009 and turns it 1.8e-3 rad off.  Axes computed
-in float routinely have lengths that differ from 1 by more than an epsilon but less than
-0.001, so the error is silent and proportional to how far the axis is from unit length.
+and `q * v` then stretches the vector by 1.0009 and turns it 1.8e-3 rad off.  The error is
+proportional to how far the axis is from unit length, up to 0.1%, and nothing reports it.
 
 ## Reproduction
 
@@ -54,6 +53,11 @@ if(abs(len - static_cast<T>(1)) > static_cast<T>(0.001))
 	...
 ```
 
+## Suggested fix
+
+Normalize unconditionally (the threshold saves one division, at the cost of an error of up
+to 0.1%), and return `q` unchanged for a zero axis.
+
 ## How hypatia does it
 
 `quaternion_rotate_by_axis_angle` builds the rotation with `quaternion_set_from_axis_anglev3`,
@@ -85,11 +89,7 @@ int main(void)
 quarter turn of X about (0, 0, 1.0009): (2.22044605e-16, 1, 0), length 1
 ```
 
-## Suggested fix
-
-Normalize unconditionally (the threshold saves one division, at the cost of an error of up
-to 0.1%), and return `q` unchanged for a zero axis.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/20-rotate-quaternion-axis-threshold.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/20-rotate-quaternion-axis-threshold.md` builds
+both programs above and compares their output with this report.
