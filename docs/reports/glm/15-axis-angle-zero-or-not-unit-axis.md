@@ -12,22 +12,21 @@
 
 `glm::rotate(m, angle, axis)` normalizes the axis; `glm::angleAxis(angle, axis)` does not.
 The same call with the axis (0, 0, 10) gives a matrix that turns X into Y and a quaternion
-of length 7.1 that turns X into (-99, 10, 0).  `angleAxis` documents that the axis must be
-normalized, but nothing checks it, and the matrix function suggests that it does not need
-to be.  For the zero axis, `rotate` returns NaN (`normalize` of zero) and `angleAxis`
+of length 7.1 that turns X into (-99, 10, 0).  The documentation of `angleAxis` says "Axis
+of the quaternion, must be normalized."
+([`ext/quaternion_trigonometric.hpp` line 55](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/quaternion_trigonometric.hpp#L55)),
+but nothing checks it; that of `rotate` says "Rotation axis, recommended to be normalized."
+([`ext/matrix_transform.hpp` line 71](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/matrix_transform.hpp#L71)).
+For the zero axis, `rotate` returns NaN (`normalize` of zero) and `angleAxis`
 returns the non-unit (w 0.71, x 0, y 0, z 0).
 
 ## Reproduction
 
 ```cpp
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <cmath>
-#include <cstdio>
-
 #include <glm/ext/matrix_transform.hpp>
+#include <cstdio>
 
 int main()
 {
@@ -61,6 +60,11 @@ Expected: the same rotation from both functions, and a defined result (the ident
 [`ext/quaternion_trigonometric.inl` lines 30-36](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/quaternion_trigonometric.inl#L30-L36)
 uses the axis as given: `qua(cos(a/2), v * sin(a/2))`;
 [`ext/matrix_transform.inl` line 24](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/ext/matrix_transform.inl#L24) normalizes it.
+
+## Suggested fix
+
+Normalize the axis in `angleAxis` as `rotate` does (one inverse square root), and return
+the identity for the zero axis in both.  Or assert `length(axis) == 1` in debug builds.
 
 ## How hypatia does it
 
@@ -100,11 +104,7 @@ quaternion_set_from_axis_anglev3(quarter, (0, 0, 10)) * X = (2.22e-16, 1, 0), |q
 quaternion_set_from_axis_anglev3(quarter, 0) = (w 1, x 0, y 0, z 0)
 ```
 
-## Suggested fix
-
-Normalize the axis in `angleAxis` as `rotate` does (one inverse square root), and return
-the identity for the zero axis in both.  Or assert `length(axis) == 1` in debug builds.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/15-axis-angle-zero-or-not-unit-axis.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/15-axis-angle-zero-or-not-unit-axis.md` builds
+both programs above and compares their output with this report.

@@ -13,8 +13,8 @@
 `glm::rotation` takes unit vectors; the usual call is `rotation(normalize(a),
 normalize(b))`, which gives NaN when either vector is zero (`normalize` returns NaN, see
 [09](09-normalize-zero-vector.md)).  Called directly with a zero vector it divides
-`cross = 0` by `sqrt(2 (1 + 0))` and returns the non-unit quaternion (w 0.71, x 0, y 0, z 0).  A
-zero direction has no rotation to it; the identity is the defined answer.
+`cross = 0` by `sqrt(2 (1 + 0))` and returns the non-unit quaternion (w 0.71, x 0, y 0,
+z 0).  A zero direction has no rotation to it; the identity is the defined answer.
 
 ## Reproduction
 
@@ -50,6 +50,11 @@ Expected: the identity, or a documented error.
 [`gtx/quaternion.inl` lines 148-157](https://github.com/g-truc/glm/blob/0af55ccecd98d4e5a8d1fad7de25ba429d60e863/glm/gtx/quaternion.inl#L148-L157): with `dest = 0`,
 `cosTheta = 0` and the general formula returns w = sqrt(2)/2 with a zero axis.
 
+## Suggested fix
+
+Return the identity when either length is zero; with the accurate formula of
+[01](01-rotation-opposite-vectors.md) this falls out of the normalization step.
+
 ## How hypatia does it
 
 `quaternion_get_rotation_tov3` normalizes both vectors itself; if either has zero length
@@ -77,11 +82,7 @@ int main(void)
 get_rotation_tov3(a, 0) = (w 1, x 0, y 0, z 0)
 ```
 
-## Suggested fix
-
-Return the identity when either length is zero; with the accurate formula of
-[01](01-rotation-opposite-vectors.md) this falls out of the normalization step.
-
 ## Checking
 
-`compare/check_reports.py docs/reports/glm/14-rotation-zero-vector.md` builds both programs above and compares their output with this report.
+`compare/check_reports.py docs/reports/glm/14-rotation-zero-vector.md` builds both programs
+above and compares their output with this report.
