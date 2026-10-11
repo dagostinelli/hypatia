@@ -103,7 +103,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`HMM_LookAt_RH` gives NaN when the eye is at the target or looks along up](handmademath/07-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
 | [`HMM_InvGeneralM4` gives NaN or 0 for matrices with small or large entries](handmademath/08-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## raymath (9 reports)
+## raymath (10 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -116,6 +116,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`QuaternionToAxisAngle` is inaccurate for small rotations: 2% error at 1e-3 rad](raymath/07-to-axis-angle-small-rotations.md) | precision | present in the latest release |
 | [`MatrixRotate` with a zero axis returns cos(angle) times the identity](raymath/08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
 | [`MatrixInvert` gives inf or 0 for matrices with small or large entries](raymath/09-matrixinvert-tiny-huge-scale.md) | wrong result | present in the latest release |
+| [`QuaternionSlerp` returns its first argument when the dot product rounds to 1](raymath/10-slerp-returns-first.md) | wrong result (accuracy) | present in the latest release |
 
 ## linmath.h (6 reports)
 
