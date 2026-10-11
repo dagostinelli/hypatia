@@ -241,6 +241,7 @@ Numerical principles:
 * Scale before squaring so that lengths neither overflow nor underflow; divide by a value rather than multiply by a reciprocal that can overflow
 * A function of rotations gives the same result for q and -q
 * Measure precision instead of assuming it: the error in ulps against a reference in higher precision, on random and on hard inputs, with the reference itself checked a second way
+* Speed never buys back precision: make the correct method fast, and prove each speedup gives the same bits (the precision output is unchanged) and less work (the speed gate)
 * Compare with other libraries on the same inputs, and publish the commands that reproduce each claim
 
 Unit Tests
