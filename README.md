@@ -157,6 +157,19 @@ Compared with other math libraries for graphics, the concrete differences are:
 * very large and very small values don't break normalize or inverse;
 * double, long double and quad precision modes are available.
 
+The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
+
+The precision gate answers "how close is it?"  test/precision/precision.c measures the error of each function against `_Float128` references, on random inputs and on the hard cases (nearly parallel vectors, small angles, badly conditioned matrices).  The results are kept in test/precision/baseline_single.txt and baseline_double.txt.  CI fails a change that makes any mean error more than 1% worse, or any largest error more than 10% worse.  If a change improves a number, update the baseline in the same commit.  The gate only runs on GCC/Linux, and it doesn't know about conventions, so the two gates need each other.
+
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DHYPATIA_PRECISION_CHECK=ON
+cmake --build build --target precision_single precision_double
+ctest --test-dir build -R precision_check --output-on-failure
+build/test/precision_double > test/precision/baseline_double.txt   # to update a baseline
+```
+
+Neither gate measures speed, checks API compatibility, or measures the precision of the long double and quad modes.
+
 Parts of this library, its tests and documentation were written with AI assistance (Claude) under the maintainer's direction and review.
 
 A word about convention
