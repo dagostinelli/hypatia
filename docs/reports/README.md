@@ -1,4 +1,4 @@
-# Reports for GLM, Eigen and cglm
+# Reports for GLM, Eigen, cglm, HandmadeMath, raymath and linmath.h
 
 Each file describes one case where another library gives a wrong result, NaN, or
 measurably more rounding error than hypatia, in the form of an issue report for that
@@ -11,15 +11,18 @@ compares their output with the text of the report:
 
 ```sh
 cd compare
-./fetch.sh                 # GLM, cglm and Eigen at the tested commits
+./fetch.sh                 # the libraries at the tested commits
 python3 check_reports.py   # every report; or name one or more .md files
 ```
 
 The reports cite the commits the comparison was run against (GLM 1.0.1, cglm 0.9.4, Eigen
-3.4.0).  Every program was also run against the latest releases (GLM 1.0.3, cglm 0.9.6,
-Eigen 5.0.1) and the master branches of 2026-10-10 with `COMPARE_EXT=<directory with glm,
-cglm and eigen> python3 check_reports.py`: each prints the same, except cglm's refract,
-fixed in cglm 0.9.5.  Each report has a Status line.
+3.4.0; HandmadeMath master 661fef0, raymath of raylib 6.0, linmath.h master 3eef828).
+Every program was also run against the latest releases (GLM 1.0.3, cglm 0.9.6, Eigen
+5.0.1, HandmadeMath v2.0.0, raylib 6.0) and the master branches of 2026-10-10 with
+`COMPARE_EXT=<directory with the libraries> python3 check_reports.py`: each prints the
+same, except cglm's refract, fixed in cglm 0.9.5; raymath's rotation between opposite
+vectors, changed at master (see its Status line); and two HandmadeMath functions that are
+not in a release yet.  Each report has a Status line.
 
 The outputs were produced on x86-64 Linux with gcc 13.3 at `-O2` (no `-ffast-math`, no FMA).
 Other platforms can differ in the last digits printed.  The measurements quoted from the
@@ -83,3 +86,38 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm_quat_normalize` turns a tiny quaternion into the identity, a different rotation, and a huge one into zero](cglm/13-quat-normalize-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
 | [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](cglm/15-quat-mat4-non-unit.md) | wrong result | present in the latest release |
+
+## HandmadeMath (7 reports)
+
+| report | kind | status |
+|---|---|---|
+| [`HMM_NormV3`, `HMM_NormV4` and `HMM_NormQ` give NaN, inf or zero for zero, tiny and huge inputs](handmademath/01-normalize-zero-tiny-huge.md) | NaN on degenerate input; wrong result | present in the latest release |
+| [`HMM_InvQ` is NaN for the zero quaternion, and wrong for tiny and huge ones](handmademath/02-invq-zero-tiny-huge.md) | NaN on degenerate input; wrong result | present in the latest release |
+| [`HMM_QFromVecPair` is NaN for opposite vectors and loses most digits for nearly opposite ones](handmademath/03-qfromvecpair-opposite.md) | NaN on valid input; precision | present at master (not in a release) |
+| [`HMM_RotateV3Q` does not rotate when q is not unit length](handmademath/04-rotatev3q-not-unit.md) | wrong result for non-unit q | present at master (not in a release) |
+| [`HMM_SLerp` uses a normalized lerp up to 0.063 rad: angle errors 120 times the rounding](handmademath/05-slerp-nlerp-threshold.md) | precision | present in the latest release |
+| [`HMM_Rotate_RH` and `HMM_QFromAxisAngle_RH` give NaN for a zero axis](handmademath/06-zero-axis-nan.md) | NaN on degenerate input | present in the latest release |
+| [`HMM_LookAt_RH` gives NaN when the eye is at the target or looks along up](handmademath/07-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
+
+## raymath (8 reports)
+
+| report | kind | status |
+|---|---|---|
+| [`Vector3Normalize` and `QuaternionNormalize` return tiny inputs unchanged and huge ones as zero](raymath/01-normalize-tiny-huge.md) | wrong result | present in the latest release |
+| [`QuaternionInvert` gives inf and NaN for tiny quaternions and zero for huge ones](raymath/02-quaternioninvert-tiny-huge.md) | wrong result | present in the latest release |
+| [`Vector3Project` onto the zero vector is NaN](raymath/03-project-onto-zero.md) | NaN on degenerate input | present in the latest release |
+| [`Vector3RotateByQuaternion` and `QuaternionToMatrix` disagree, and neither rotates, when q is not unit length](raymath/04-rotate-by-quaternion-not-unit.md) | wrong result for non-unit q | present in the latest release |
+| [`QuaternionFromVector3ToVector3` returns the zero quaternion for opposite vectors and loses digits for nearly opposite ones](raymath/05-from-vector3-to-vector3-opposite.md) | wrong result; precision | present in the latest release |
+| [`QuaternionSlerp` uses a normalized lerp up to 0.64 rad: angle errors up to 9e-4 rad](raymath/06-slerp-nlerp-threshold.md) | wrong result (accuracy) | present in the latest release |
+| [`QuaternionToAxisAngle` is inaccurate for small rotations: 2% error at 1e-3 rad](raymath/07-to-axis-angle-small-rotations.md) | precision | present in the latest release |
+| [`MatrixRotate` with a zero axis returns cos(angle) times the identity](raymath/08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
+
+## linmath.h (5 reports)
+
+| report | kind | status |
+|---|---|---|
+| [`quat_from_mat4x4` returns the wrong rotation: the identity becomes a half turn about x](linmath/01-quat-from-mat4x4-wrong.md) | wrong result | present at the latest commit (no releases) |
+| [`vec3_norm` gives NaN, inf or zero for zero, tiny and huge vectors](linmath/02-norm-zero-tiny-huge.md) | NaN on degenerate input; wrong result | present at the latest commit (no releases) |
+| [`quat_mul_vec3` and `mat4x4_from_quat` disagree, and neither rotates, when q is not unit length](linmath/03-quat-not-unit.md) | wrong result for non-unit q | present at the latest commit (no releases) |
+| [`mat4x4_rotate` ignores the rotation when the axis is shorter than 1e-4, and `quat_rotate` is NaN for a zero axis](linmath/04-rotate-short-axis-ignored.md) | wrong result; NaN on degenerate input | present at the latest commit (no releases) |
+| [`mat4x4_look_at` gives NaN when the eye is at the target or looks along up](linmath/05-look-at-degenerate-nan.md) | NaN on degenerate input | present at the latest commit (no releases) |
