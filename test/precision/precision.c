@@ -1775,7 +1775,10 @@ static void more(void)
 
 	/* a perspective camera: window coordinates relative to the viewport size;
 	 * unproject relative to the size of the point, over the condition number
-	 * of the transform
+	 * of the transform.  The largest projection errors are where the terms of
+	 * transform * point are 20 to 100 times the result (a point near the
+	 * camera plane next to the translation of the view): the product is
+	 * within an ulp of the size of its terms, as matrix4_multiplyv4
 	 */
 	for (kind = 0; kind < 2; kind++) {
 		r = row(kind ? "vector3_unproject_from_window" : "vector3_project_to_window", kind ? "perspective camera (error / condition number)" : "perspective camera");
