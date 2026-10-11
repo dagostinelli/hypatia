@@ -1392,8 +1392,181 @@ static const char *test_quaternion_set_look_rotation(void)
 }
 
 
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+/* a random unit quaternion in double, and the one turned from it by angle
+ * about a random axis
+ */
+static void reference_quaternion_pair(double angle, double *a, double *b)
+{
+	double axis[3];
+	double length = 0.0;
+	double s;
+	double c;
+	int k;
+
+	for (k = 0; k < 4; k++) {
+		a[k] = 2.0 * reference_random() - 1.0;
+		length += a[k] * a[k];
+	}
+	length = reference_sqrt(length);
+	for (k = 0; k < 4; k++) {
+		a[k] /= length;
+	}
+	length = 0.0;
+	for (k = 0; k < 3; k++) {
+		axis[k] = 2.0 * reference_random() - 1.0;
+		length += axis[k] * axis[k];
+	}
+	length = reference_sqrt(length);
+
+	/* angle is small: the series for sin and cos of angle / 2 */
+	s = angle / 2.0 - angle * angle * angle / 48.0;
+	c = 1.0 - angle * angle / 8.0;
+	for (k = 0; k < 3; k++) {
+		axis[k] *= s / length;
+	}
+
+	/* b = a (axis s, c) */
+	b[0] = a[3] * axis[0] + a[0] * c + a[1] * axis[2] - a[2] * axis[1];
+	b[1] = a[3] * axis[1] - a[0] * axis[2] + a[1] * c + a[2] * axis[0];
+	b[2] = a[3] * axis[2] + a[0] * axis[1] - a[1] * axis[0] + a[2] * c;
+	b[3] = a[3] * c - a[0] * axis[0] - a[1] * axis[1] - a[2] * axis[2];
+}
+
+
+static const char *test_quaternion_angle_between_ulp(void)
+{
+	struct quaternion qa;
+	struct quaternion qb;
+	double a[4];
+	double b[4];
+	double ua[4];
+	double ub[4];
+	double length_a;
+	double length_b;
+	double difference;
+	double sum;
+	double ratio;
+	double exact;
+	double got;
+	double error;
+	double x;
+	double y;
+	int i;
+	int k;
+
+	/* rotations 1e-4 rad apart: within one ulp of the angle between the
+	 * rounded quaternions
+	 */
+	for (i = 0; i < 5000; i++) {
+		reference_quaternion_pair(1e-4, a, b);
+		quaternion_setf4(&qa, (HYP_FLOAT)a[0], (HYP_FLOAT)a[1], (HYP_FLOAT)a[2], (HYP_FLOAT)a[3]);
+		quaternion_setf4(&qb, (HYP_FLOAT)b[0], (HYP_FLOAT)b[1], (HYP_FLOAT)b[2], (HYP_FLOAT)b[3]);
+
+		/* the reference: 4 atan(|ua - ub| / |ua + ub|), the series for a
+		 * small ratio
+		 */
+		length_a = 0.0;
+		length_b = 0.0;
+		for (k = 0; k < 4; k++) {
+			x = qa.q[k];
+			y = qb.q[k];
+			length_a += x * x;
+			length_b += y * y;
+		}
+		length_a = reference_sqrt(length_a);
+		length_b = reference_sqrt(length_b);
+		difference = 0.0;
+		sum = 0.0;
+		for (k = 0; k < 4; k++) {
+			x = qa.q[k];
+			y = qb.q[k];
+			ua[k] = x / length_a;
+			ub[k] = y / length_b;
+			difference += (ua[k] - ub[k]) * (ua[k] - ub[k]);
+			sum += (ua[k] + ub[k]) * (ua[k] + ub[k]);
+		}
+		ratio = reference_sqrt(difference) / reference_sqrt(sum);
+		exact = 4.0 * (ratio - ratio * ratio * ratio / 3.0);
+
+		got = quaternion_angle_between(&qa, &qb);
+		error = got - exact;
+		test_assert((error < 0.0 ? -error : error) <= reference_float_ulp(exact));
+	}
+
+	return NULL;
+}
+
+
+static const char *test_quaternion_get_rotation_tov3_nearly_equal_ulp(void)
+{
+	struct vector3 from;
+	struct vector3 to;
+	struct quaternion q;
+	double a[4];
+	double b[4];
+	double f[3];
+	double t[3];
+	double qd[4];
+	double landed[3];
+	double length;
+	double uv[3];
+	double uu;
+	double qq;
+	double fd[3];
+	double td[3];
+	int i;
+	int k;
+
+	/* vectors 1e-6 rad apart: the rotation takes from onto to within one
+	 * ulp of the unit length
+	 */
+	for (i = 0; i < 5000; i++) {
+		reference_quaternion_pair(1e-6, a, b);
+		vector3_setf3(&from, (HYP_FLOAT)a[0], (HYP_FLOAT)a[1], (HYP_FLOAT)a[2]);
+		vector3_setf3(&to, (HYP_FLOAT)b[0], (HYP_FLOAT)b[1], (HYP_FLOAT)b[2]);
+		quaternion_get_rotation_tov3(&from, &to, &q);
+
+		for (k = 0; k < 3; k++) {
+			fd[k] = from.v[k];
+			td[k] = to.v[k];
+		}
+		length = reference_sqrt(fd[0] * fd[0] + fd[1] * fd[1] + fd[2] * fd[2]);
+		for (k = 0; k < 3; k++) {
+			f[k] = fd[k] / length;
+		}
+		length = reference_sqrt(td[0] * td[0] + td[1] * td[1] + td[2] * td[2]);
+		for (k = 0; k < 3; k++) {
+			t[k] = td[k] / length;
+		}
+
+		/* f rotated by q in double: 2 (u.f) u + (w^2 - u.u) f + 2 w (u x f), over |q|^2 */
+		for (k = 0; k < 4; k++) {
+			qd[k] = q.q[k];
+		}
+		uv[0] = qd[1] * f[2] - qd[2] * f[1];
+		uv[1] = qd[2] * f[0] - qd[0] * f[2];
+		uv[2] = qd[0] * f[1] - qd[1] * f[0];
+		uu = qd[0] * qd[0] + qd[1] * qd[1] + qd[2] * qd[2];
+		qq = uu + qd[3] * qd[3];
+		for (k = 0; k < 3; k++) {
+			landed[k] = (2.0 * (qd[0] * f[0] + qd[1] * f[1] + qd[2] * f[2]) * qd[k]
+				+ (qd[3] * qd[3] - uu) * f[k] + 2.0 * qd[3] * uv[k]) / qq;
+			test_assert((landed[k] - t[k] < 0.0 ? t[k] - landed[k] : landed[k] - t[k]) <= reference_float_ulp(1.0));
+		}
+	}
+
+	return NULL;
+}
+#endif
+
+
 static const char *quaternion_all_tests(void)
 {
+#ifdef HYPATIA_SINGLE_PRECISION_FLOATS
+	run_test(test_quaternion_angle_between_ulp);
+	run_test(test_quaternion_get_rotation_tov3_nearly_equal_ulp);
+#endif
 	run_test(test_quaternion_set_look_rotation);
 	run_test(test_quaternion_slerp_same_direction);
 	run_test(test_quaternion_axis_and_rotation_any_length);
