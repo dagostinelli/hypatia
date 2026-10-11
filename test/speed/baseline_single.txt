@@ -9,7 +9,7 @@ matrix4_projection_perspective_fovy_rh | 100.0
 matrix4_set_from_axisv3_angle | 579.4
 matrix4_set_from_quaternion | 34.0
 matrix4_view_lookat_rh | 972.0
-quaternion_angle_between | 3265.1
+quaternion_angle_between | 2711.0
 quaternion_get_axis_anglev3 | 458.9
 quaternion_get_rotation_tov3 | 2529.8
 quaternion_inverse | 26.0
@@ -18,10 +18,10 @@ quaternion_normalize | 527.5
 quaternion_set_from_axis_anglev3 | 569.2
 quaternion_set_from_matrix4 | 560.6
 quaternion_set_look_rotation_rh | 1578.1
-quaternion_slerp | 3889.9
-vector2_angle_between | 2308.0
+quaternion_slerp | 3335.8
+vector2_angle_between | 1922.3
 vector2_normalize | 377.0
-vector3_angle_between | 2857.0
+vector3_angle_between | 2371.2
 vector3_cross_product | 10.0
 vector3_normalize | 480.4
 vector3_project | 36.0

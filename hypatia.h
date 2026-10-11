@@ -1622,6 +1622,8 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 {
 	HYP_FLOAT a[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
 	HYP_FLOAT b[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT largest_a = HYP_FLOAT_C(0.0);
+	HYP_FLOAT largest_b = HYP_FLOAT_C(0.0);
 	HYP_FLOAT length_a;
 	HYP_FLOAT length_a_low;
 	HYP_FLOAT length_b;
@@ -1632,25 +1634,35 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	HYP_FLOAT sum_low;
 	uint8_t i;
 
-	/* scale each by a power of two, which is exact, so the products below
-	 * neither overflow nor underflow
-	 */
+	/* the largest components: 0 for a zero vector or a NaN component */
 	for (i = 0; i < n; i++) {
 		a[i] = a_in[i];
 		b[i] = b_in[i];
+		if (HYP_ABS(a[i]) > largest_a) {
+			largest_a = HYP_ABS(a[i]);
+		} else if (!(HYP_ABS(a[i]) <= largest_a)) {
+			return HYP_FLOAT_C(0.0);
+		}
+		if (HYP_ABS(b[i]) > largest_b) {
+			largest_b = HYP_ABS(b[i]);
+		} else if (!(HYP_ABS(b[i]) <= largest_b)) {
+			return HYP_FLOAT_C(0.0);
+		}
 	}
-	hyp_scale_power2(a, n, hyp_power2_exponent(a, n));
-	hyp_scale_power2(b, n, hyp_power2_exponent(b, n));
-	length_a = hyp_length(a, n);
-	length_b = hyp_length(b, n);
-	if (!(length_a > HYP_FLOAT_C(0.0)) || !(length_b > HYP_FLOAT_C(0.0))) {
+	if (!(largest_a > HYP_FLOAT_C(0.0)) || !(largest_b > HYP_FLOAT_C(0.0))) {
 		return HYP_FLOAT_C(0.0);
 	}
-	if (!(length_a - length_a <= HYP_FLOAT_C(0.0)) || !(length_b - length_b <= HYP_FLOAT_C(0.0))) {
+	if (!(largest_a - largest_a <= HYP_FLOAT_C(0.0)) || !(largest_b - largest_b <= HYP_FLOAT_C(0.0))) {
 		/* infinite components: the direction of the infinite ones */
 		hyp_normalize(a, n);
 		hyp_normalize(b, n);
 	}
+
+	/* scale each by a power of two, which is exact, so the products below
+	 * neither overflow nor underflow
+	 */
+	hyp_scale_power2(a, n, hyp_power2_exponent(a, n));
+	hyp_scale_power2(b, n, hyp_power2_exponent(b, n));
 
 	/* the lengths with their low parts: for small angles the second order
 	 * term is not small next to the angle
