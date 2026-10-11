@@ -28,7 +28,7 @@ The outputs were produced on x86-64 Linux with gcc 13.3 at `-O2` (no `-ffast-mat
 Other platforms can differ in the last digits printed.  The measurements quoted from the
 comparison harness come from `compare/results/` (see `docs/comparison.md`).
 
-## GLM (21 reports)
+## GLM (22 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -53,6 +53,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](glm/19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](glm/20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
 | [`glm::inverse` gives inf or 0 for matrices with small or large entries](glm/21-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
+| [`glm::eulerAngles` loses half its digits near a pitch of +-pi/2, and gives a wrong pitch for a quaternion that is not unit length](glm/22-euler-angles-asin-near-pitch-pi-2.md) | precision; wrong result | present in the latest release |
 
 ## Eigen (10 reports)
 
@@ -69,7 +70,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`Quaternion::inverse()` returns zero for tiny and huge quaternions, which have inverses](eigen/09-quaternion-inverse-tiny-huge.md) | wrong result | present in the latest release |
 | [`inverse()` of a 4x4 matrix gives inf or 0 for small or large entries](eigen/10-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## cglm (16 reports)
+## cglm (17 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -89,6 +90,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`glm_vec4_normalize` on SSE sets every vector shorter than 3.45e-4 to zero](cglm/14-vec4-normalize-sse-threshold.md) | wrong result | present in the latest release |
 | [`glm_quat_mat4` and `glm_quat_mat3` scale by 2 / |q| instead of 2 / |q|^2](cglm/15-quat-mat4-non-unit.md) | wrong result | present in the latest release |
 | [`glm_mat4_inv` gives inf or 0 for matrices with small or large entries](cglm/16-mat4-inv-tiny-huge-scale.md) | wrong result | present in the latest release |
+| [`glm_euler_angles` loses half its digits near a y angle of +-pi/2](cglm/17-euler-angles-asin.md) | precision | present in the latest release |
 
 ## HandmadeMath (8 reports)
 
@@ -103,7 +105,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`HMM_LookAt_RH` gives NaN when the eye is at the target or looks along up](handmademath/07-lookat-degenerate-nan.md) | NaN on degenerate input | present in the latest release |
 | [`HMM_InvGeneralM4` gives NaN or 0 for matrices with small or large entries](handmademath/08-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
 
-## raymath (10 reports)
+## raymath (11 reports)
 
 | report | kind | status |
 |---|---|---|
@@ -117,6 +119,7 @@ comparison harness come from `compare/results/` (see `docs/comparison.md`).
 | [`MatrixRotate` with a zero axis returns cos(angle) times the identity](raymath/08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
 | [`MatrixInvert` gives inf or 0 for matrices with small or large entries](raymath/09-matrixinvert-tiny-huge-scale.md) | wrong result | present in the latest release |
 | [`QuaternionSlerp` returns its first argument when the dot product rounds to 1](raymath/10-slerp-returns-first.md) | wrong result (accuracy) | present in the latest release |
+| [`QuaternionToEuler` loses half its digits near a y angle of +-pi/2, and gives wrong angles for a quaternion that is not unit length](raymath/11-quaternion-to-euler-asin.md) | precision; wrong result | present in the latest release |
 
 ## linmath.h (6 reports)
 

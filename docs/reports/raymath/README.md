@@ -14,3 +14,4 @@ Tested: raymath of raylib 6.0, commit [dbc56a8](https://github.com/raysan5/rayli
 | [`MatrixRotate` with a zero axis returns cos(angle) times the identity](08-matrix-rotate-zero-axis.md) | wrong result on degenerate input | present in the latest release |
 | [`MatrixInvert` gives inf or 0 for matrices with small or large entries](09-matrixinvert-tiny-huge-scale.md) | wrong result | present in the latest release |
 | [`QuaternionSlerp` returns its first argument when the dot product rounds to 1](10-slerp-returns-first.md) | wrong result (accuracy) | present in the latest release |
+| [`QuaternionToEuler` loses half its digits near a y angle of +-pi/2, and gives wrong angles for a quaternion that is not unit length](11-quaternion-to-euler-asin.md) | precision; wrong result | present in the latest release |

@@ -25,3 +25,4 @@ Tested: GLM 1.0.1, commit [0af55cc](https://github.com/g-truc/glm/tree/0af55ccec
 | [`glm::normalize` of a tiny quaternion returns the identity, a different rotation; of a huge one, zero](19-normalize-quaternion-tiny-huge.md) | wrong result | present in the latest release |
 | [`glm::rotate(q, angle, axis)` skips normalizing axes within 0.001 of unit length](20-rotate-quaternion-axis-threshold.md) | wrong result (accuracy) | present in the latest release |
 | [`glm::inverse` gives inf or 0 for matrices with small or large entries](21-inverse-tiny-huge-scale.md) | wrong result | present in the latest release |
+| [`glm::eulerAngles` loses half its digits near a pitch of +-pi/2, and gives a wrong pitch for a quaternion that is not unit length](22-euler-angles-asin-near-pitch-pi-2.md) | precision; wrong result | present in the latest release |
