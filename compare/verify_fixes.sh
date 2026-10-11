@@ -12,7 +12,7 @@
 set -e
 cd "$(dirname "$0")/.."
 WORK=${WORK:-compare/build/verify}
-FIXES=${*:-"2700d4b 8b69e46 3ff02c7 5ffe649 9ebeeb8 f5137e6 f1f9ad2 735a70e 87032b1 ed5c45a 082ad4a 860b94d"}
+FIXES=${*:-"96c072f fb163c4 d68e63b 1588eb7 f2b1f22 9b67752 8e6eea3 b7ff6bd 79cd6d9"}
 
 run() { # tree -> pass | fail | no build
 	if ! cmake -S "$1" -B "$1/build" -DCMAKE_BUILD_TYPE=Release > "$1/log" 2>&1 ||

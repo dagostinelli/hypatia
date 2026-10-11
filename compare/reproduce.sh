@@ -17,7 +17,7 @@
 set -e
 cd "$(dirname "$0")"
 MASTER=${MASTER:-125ab87}
-BEFORE=${BEFORE:-35049bd}
+BEFORE=${BEFORE:-e479a29}
 NOW=${NOW:-HEAD}
 WORK=${WORK:-build/reproduce}
 

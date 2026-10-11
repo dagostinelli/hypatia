@@ -8,8 +8,8 @@ regenerates them.
 | version | commit | what it is |
 |---|---|---|
 | master | 125ab87 | 2.1.0-dev, before the correctness work |
-| before | 35049bd | correctness-h after the bug fixes, before the precision work |
-| now | 25260ab | correctness-h when measured; the later 5c52596 changes only `scalar_equals_epsilonf`, which the measurements do not use |
+| before | e479a29 | correctness after every bug fix; the normalize, rotation and inverse commits it contains also carry their precision changes, and only 1effbda (divide by \|q\|^2 directly) and f090db3 (sums in pairs) come after it |
+| now | ffe28b0 | correctness when measured |
 
 | library | version | commit |
 |---|---|---|
@@ -25,7 +25,7 @@ From `compare/results/precision/summary.md`, default seed:
 | | double: best or tied | ahead | behind | 1e6 ulps or more | single: best or tied | ahead | behind | 1e6 ulps or more |
 |---|---|---|---|---|---|---|---|---|
 | master | 13 of 37 | 0 | 24 | 15 | 16 of 37 | 1 | 21 | 11 |
-| before | 19 of 41 | 7 | 22 | 0 | 19 of 41 | 5 | 22 | 0 |
+| before | 28 of 41 | 10 | 13 | 0 | 28 of 41 | 10 | 13 | 0 |
 | now | 36 of 46 | 14 | 10 | 0 | 36 of 46 | 13 | 10 | 0 |
 
 - **Best or tied:** hypatia's mean error is no more than 2% above the smallest mean of
@@ -47,7 +47,7 @@ From `compare/results/precision/summary.md`, default seed:
   - fails all 13 known-answer checks, which before and now pass: 11 wrong results and
     2 losses of precision (`compare/results/probe/`);
   - an error of 1e6 ulps or more in 15 of 37 double measurements.
-- **Bug fixes:** each of 12 ships with a test that fails without the fix and passes with
+- **Bug fixes:** each of 9 ships with a test that fails without the fix and passes with
   it (`compare/results/verify_fixes.txt`).
 - **Added functions:** reflect, refract, the off-center frustum, the infinite
   perspective, project and unproject to the window, and the look rotation.
@@ -232,7 +232,7 @@ hypatia divides by |q|².
 | `quaternion_set_look_rotation_rh` | random | 12.3 / 0.436 | 14.8 / 0.417 (GLM) | 1.05 |
 | `quaternion_slerp` | 1e-3 rad apart; random | 2 / 0.518; 1.74 / 0.468 | 2.1 / 0.496; 1.62 / 0.457 (Eigen) | 1.04; 1.02 |
 
-### Functions added on correctness-h
+### Functions added on correctness
 
 These have no counterpart on master or before, so those columns are empty.
 
@@ -247,9 +247,8 @@ These have no counterpart on master or before, so those columns are empty.
 | `quaternion_set_look_rotation_rh/lh` | GLM `quatLookAtRH/LH`, cglm `glm_quat_for` | 6e-16 | 0.436 against 0.417 (GLM) |
 
 The window measurements use points inside the view; points near the plane of the eye
-make every library's result arbitrarily large.  Project ties GLM after 25260ab, which
-sums the products of `matrix4_multiplyv4` in pairs as GLM does; before it hypatia was 5%
-behind.  The look rotation shares the gap of `quaternion_set_from_matrix4`, which it
+make every library's result arbitrarily large.  Project ties GLM: f090db3 sums the products of
+`matrix4_multiplyv4` in pairs, as GLM does.  The look rotation shares the gap of `quaternion_set_from_matrix4`, which it
 calls.
 
 Two defects in the other libraries showed up:
@@ -272,7 +271,7 @@ Two defects in the other libraries showed up:
 | single | `quaternion_slerp` | 1e-3 rad apart | 1.47 / 0.414 | 1.67 / 0.474 |
 | single | `quaternion_slerp` | 1e-6 rad apart | 1.25 / 0.358 | 1.47 / 0.376 |
 
-- **Axis-angle builders.**  They now accept an axis of any length (87032b1) and
+- **Axis-angle builders.**  They now accept an axis of any length (b7ff6bd) and
   normalize it, which adds a rounding when the axis is already unit.  Master required a
   unit axis.
 - **Slerp, single precision.**  Master falls back to an unnormalized linear
@@ -316,28 +315,22 @@ fail with the `hypatia.h` of the commit before it.
 
 | commit | fix | first assertion that fails without it |
 |---|---|---|
-| 2700d4b | sign in `vector3_rotate_by_quaternion` | test/test_quaternion.c(229) |
-| 8b69e46 | matrix rotation builders follow the right-hand rule | test/test_quaternion.c(1180) |
-| 3ff02c7 | normalize anything but an exactly zero vector; scale before squaring | test/test_quaternion.c(947) |
-| 5ffe649 | only an exactly zero determinant has no inverse | test/test_matrix2.c(370) |
-| 9ebeeb8 | slerp: shortest arc, exact at the ends | test/test_quaternion.c(1004) |
-| f5137e6 | `get_rotation_tov3` and `get_axis_anglev3` accurate for any length | test/test_quaternion.c(1194) |
-| f1f9ad2 | `vector2/3_angle_between`: no NaN for parallel vectors | test/test_vector2.c(464) |
-| 735a70e | slerp: no linear shortcut below 0.009 rad | test/test_quaternion.c(1275) |
-| 87032b1 | rotate by a quaternion or an axis of any length | test/test_quaternion.c(1292) |
-| ed5c45a | `matrix4_inverse`: no overflow for very small matrices | test/test_matrix4.c(1170) |
-| 082ad4a | `matrix2/3_inverse`: the same | test/test_matrix2.c(495) |
-| 860b94d | `matrix4_inverse`: precision for ill-conditioned matrices | test/test_matrix4.c(1126) |
-
-The first six fix defects that are on master.  The last six fix defects that this
-comparison found in intermediate versions of correctness-h.
+| 96c072f | sign in `vector3_rotate_by_quaternion` | test/test_quaternion.c(229) |
+| fb163c4 | matrix rotation builders follow the right-hand rule | test/test_quaternion.c(1180) |
+| d68e63b | normalize anything but an exactly zero vector; scale before squaring | test/test_quaternion.c(947) |
+| 1588eb7 | only an exactly zero determinant has no inverse | test/test_matrix2.c(370) |
+| f2b1f22 | slerp: shortest arc, exact at the ends, no linear shortcut near parallel | test/test_quaternion.c(1025) |
+| 9b67752 | `get_rotation_tov3` and `get_axis_anglev3` accurate for any length | test/test_quaternion.c(1194) |
+| 8e6eea3 | `vector2/3_angle_between`: no NaN for parallel vectors | test/test_vector2.c(505) |
+| b7ff6bd | rotate by a quaternion or an axis of any length | test/test_quaternion.c(1292) |
+| 79cd6d9 | `matrix2/3/4_inverse`: no overflow for very small or large matrices; precision for ill-conditioned ones | test/test_matrix2.c(495) |
 
 ### Earlier claims corrected
 
-- **The commit message of 58eb5fb** quotes a gain for `matrix4_inverse` from 9 to 3.5
-  ulps in the mean.  That figure was not divided by the condition number and came from
-  a few nearly singular matrices.  Per unit of condition the change is about level with
-  before: a mean of 0.0623 against 0.0631, and a largest error of 0.414 against 0.433.
+- **An earlier commit message for `matrix4_inverse`** (2x2 blocks, as Eigen) quoted a gain
+  from 9 to 3.5 ulps in the mean.  That figure was not divided by the condition number and
+  came from a few nearly singular matrices.  Per unit of condition, `matrix4_inverse` has
+  a mean of 0.0623 on random entries, against 0.0641 for GLM and 0.0637 for Eigen.
 - **The first version of this report** counted now as best or tied in 34 of 41.  Three
   corrections bring that to 32:
   - the input generators called hypatia's own functions, so each version was measured
