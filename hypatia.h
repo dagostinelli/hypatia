@@ -1267,47 +1267,92 @@ static void hyp_exact_sum(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *sum, HYP_FLOAT *e
 
 
 #ifdef HYP_SPLIT
+/* HYP_ROUNDED makes a product a variable holds rounded to HYP_FLOAT, not fused
+ * with a later addition into a multiply-add (floating-point contraction) and
+ * not kept in a wider register.  volatile does that on every compiler, at the
+ * cost of a store and a load.  On x86-64 without FMA instructions and with
+ * SSE arithmetic (__FLT_EVAL_METHOD__ 0; MSVC without /arch:AVX2) neither can
+ * happen, and a plain variable gives the same values.
+ */
+#if defined(__x86_64__) && !defined(__FMA__) && defined(__FLT_EVAL_METHOD__)
+#	if __FLT_EVAL_METHOD__ == 0
+#		define HYP_ROUNDED
+#	endif
+#elif defined(_M_X64) && !defined(__AVX2__) && !defined(__clang__)
+#	define HYP_ROUNDED
+#endif
+#ifndef HYP_ROUNDED
+#	define HYP_ROUNDED volatile
+#endif
+
+/* where the target has a fast fused multiply-add, fma(a, b, -a b) is the
+ * exact error of the rounded product a b in one operation, without splitting
+ */
+#if defined(__GNUC__) && defined(HYPATIA_SINGLE_PRECISION_FLOATS) && defined(__FP_FAST_FMAF)
+#	define HYP_FMA(a, b, c) __builtin_fmaf(a, b, c)
+#elif defined(__GNUC__) && !defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS) && !defined(HYPATIA_QUAD_PRECISION_FLOATS) && defined(__FP_FAST_FMA)
+#	define HYP_FMA(a, b, c) __builtin_fma(a, b, c)
+#endif
+
 /* the high half of a, so that a = high + (a - high) with both halves short
  * enough that their products are exact
  */
 static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
 {
-	/* volatile: the product must be rounded before it is used; a compiler
-	 * that fuses it with the subtraction into a multiply-add breaks the split
+	/* rounded before it is used (HYP_ROUNDED): a compiler that fuses it with
+	 * the subtraction into a multiply-add breaks the split
 	 */
-	volatile HYP_FLOAT c = HYP_SPLIT * a;
+#ifdef HYP_FMA
+	/* hyp_exact_product_split does not use it */
+	return a;
+#else
+	HYP_ROUNDED HYP_FLOAT c = HYP_SPLIT * a;
 
 	return c - (c - a);
+#endif
+}
+
+
+/* a * b = *hi + *lo exactly, with *hi the rounded product, given the high
+ * halves ah and bh of a and b from hyp_split_high: a value used in several
+ * products is split once
+ */
+static void hyp_exact_product_split(HYP_FLOAT a, HYP_FLOAT ah, HYP_FLOAT b, HYP_FLOAT bh, HYP_FLOAT *hi, HYP_FLOAT *lo)
+{
+#ifdef HYP_FMA
+	(void)ah;
+	(void)bh;
+	*hi = a * b;
+	*lo = HYP_FMA(a, b, -*hi);
+#else
+	HYP_FLOAT al = a - ah;
+	HYP_FLOAT bl = b - bh;
+	/* rounded, as in hyp_split_high: *lo is the error of this rounded
+	 * product, not of a fused one
+	 */
+	HYP_ROUNDED HYP_FLOAT product = a * b;
+
+	*hi = product;
+	*lo = ((ah * bh - *hi) + ah * bl + al * bh) + al * bl;
+#endif
 }
 
 
 /* a * b = *hi + *lo exactly, with *hi the rounded product */
 static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT *lo)
 {
-	HYP_FLOAT ah = hyp_split_high(a);
-	HYP_FLOAT al = a - ah;
-	HYP_FLOAT bh = hyp_split_high(b);
-	HYP_FLOAT bl = b - bh;
-	/* volatile, as in hyp_split_high: *lo is the error of this rounded
-	 * product, not of a fused one
-	 */
-	volatile HYP_FLOAT product = a * b;
-
-	*hi = product;
-	*lo = ((ah * bh - *hi) + ah * bl + al * bh) + al * bl;
+	hyp_exact_product_split(a, hyp_split_high(a), b, hyp_split_high(b), hi, lo);
 }
 
 
 #endif
 
 
-/* divides the n components, the largest of them at least 1 and less than 2,
- * by their length and returns the length, rounded, with the rest of it in
- * *excess_out.  The sum of the squares is kept exactly as a sum of two values,
- * and each quotient is corrected by its remainder, so each component is
- * rounded once.
+/* the length of the n components, the largest of them at least 1 and less
+ * than 2, rounded, with the rest of it in *excess_out.  The sum of the squares
+ * is kept exactly as a sum of two values.
  */
-static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
+static HYP_INLINE HYP_FLOAT hyp_length_scaled(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
 {
 #ifdef HYP_SPLIT
 	HYP_FLOAT sum = HYP_FLOAT_C(0.0);
@@ -1316,48 +1361,66 @@ static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess
 	HYP_FLOAT square_low;
 	HYP_FLOAT error;
 	HYP_FLOAT length;
-	HYP_FLOAT excess;
-	HYP_FLOAT quotient;
-	HYP_FLOAT product;
-	HYP_FLOAT product_low;
+	HYP_FLOAT high;
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
-		hyp_exact_product(v[i], v[i], &square, &square_low);
+		high = hyp_split_high(v[i]);
+		hyp_exact_product_split(v[i], high, v[i], high, &square, &square_low);
 		hyp_exact_sum(sum, square, &sum, &error);
 		sum_low += error + square_low;
 	}
 
 	/* the true length is length + excess, to first order */
 	length = HYP_SQRT(sum + sum_low);
-	hyp_exact_product(length, length, &square, &square_low);
-	excess = ((sum - square) + (sum_low - square_low)) / (HYP_FLOAT_C(2.0) * length);
+	high = hyp_split_high(length);
+	hyp_exact_product_split(length, high, length, high, &square, &square_low);
+	*excess_out = ((sum - square) + (sum_low - square_low)) / (HYP_FLOAT_C(2.0) * length);
 
-	for (i = 0; i < n; i++) {
-		/* v / (length + excess) = quotient + (remainder - quotient excess) / length */
-		quotient = v[i] / length;
-		hyp_exact_product(quotient, length, &product, &product_low);
-		v[i] = quotient + (((v[i] - product) - product_low) - quotient * excess) / length;
-	}
-
-	*excess_out = excess;
 	return length;
 #else
 	HYP_FLOAT sum = HYP_FLOAT_C(0.0);
-	HYP_FLOAT length;
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
 		sum += v[i] * v[i];
 	}
-	length = HYP_SQRT(sum);
-	for (i = 0; i < n; i++) {
-		v[i] /= length;
-	}
 
 	*excess_out = HYP_FLOAT_C(0.0);
-	return length;
+	return HYP_SQRT(sum);
 #endif
+}
+
+
+/* divides the n components, the largest of them at least 1 and less than 2,
+ * by their length and returns the length, rounded, with the rest of it in
+ * *excess_out.  Each quotient is corrected by its remainder, so each
+ * component is rounded once.
+ */
+static HYP_FLOAT hyp_normalize_scaled(HYP_FLOAT *v, uint8_t n, HYP_FLOAT *excess_out)
+{
+	HYP_FLOAT length = hyp_length_scaled(v, n, excess_out);
+#ifdef HYP_SPLIT
+	HYP_FLOAT excess = *excess_out;
+	HYP_FLOAT length_high = hyp_split_high(length);
+	HYP_FLOAT quotient;
+	HYP_FLOAT product;
+	HYP_FLOAT product_low;
+#endif
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+#ifdef HYP_SPLIT
+		/* v / (length + excess) = quotient + (remainder - quotient excess) / length */
+		quotient = v[i] / length;
+		hyp_exact_product_split(quotient, hyp_split_high(quotient), length, length_high, &product, &product_low);
+		v[i] = quotient + (((v[i] - product) - product_low) - quotient * excess) / length;
+#else
+		v[i] /= length;
+#endif
+	}
+
+	return length;
 }
 
 
@@ -1428,7 +1491,7 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
 	}
 	exponent = hyp_power2_exponent(copy, n);
 	hyp_scale_power2(copy, n, exponent);
-	length = hyp_normalize_scaled(copy, n, low);
+	length = hyp_length_scaled(copy, n, low);
 	hyp_scale_power2(&length, 1, -exponent);
 	hyp_scale_power2(low, 1, -exponent);
 
@@ -1441,14 +1504,33 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
  */
 static HYP_FLOAT hyp_length(const HYP_FLOAT *v, uint8_t n)
 {
-	HYP_FLOAT copy[4];
+	HYP_FLOAT copy[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	HYP_FLOAT length;
+	HYP_FLOAT excess;
+	int exponent;
 	uint8_t i;
 
+	/* as hyp_normalize, without dividing the components */
 	for (i = 0; i < n; i++) {
 		copy[i] = v[i];
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return HYP_FLOAT_C(0.0); /* NaN */
+		}
+	}
+	if (!(largest > HYP_FLOAT_C(0.0)) || !(largest - largest <= HYP_FLOAT_C(0.0))) {
+		return largest; /* zero or infinite */
 	}
 
-	return hyp_normalize(copy, n);
+	exponent = hyp_power2_exponent(copy, n);
+	hyp_scale_power2(copy, n, exponent);
+	length = hyp_length_scaled(copy, n, &excess);
+	length += excess;
+	hyp_scale_power2(&length, 1, -exponent);
+
+	return length;
 }
 
 
@@ -1467,12 +1549,16 @@ static HYP_FLOAT hyp_length_of_sum(const HYP_FLOAT *a, HYP_FLOAT sa, HYP_FLOAT s
 	HYP_FLOAT q_low = HYP_FLOAT_C(0.0);
 	HYP_FLOAT length;
 	HYP_FLOAT correction = HYP_FLOAT_C(0.0);
+#ifdef HYP_SPLIT
+	HYP_FLOAT sa_high = hyp_split_high(sa);
+	HYP_FLOAT sb_high = hyp_split_high(sb);
+#endif
 	uint8_t i;
 
 	for (i = 0; i < n; i++) {
 #ifdef HYP_SPLIT
-		hyp_exact_product(sa, a[i], &p, &p_low);
-		hyp_exact_product(sb, b[i], &q, &q_low);
+		hyp_exact_product_split(sa, sa_high, a[i], hyp_split_high(a[i]), &p, &p_low);
+		hyp_exact_product_split(sb, sb_high, b[i], hyp_split_high(b[i]), &q, &q_low);
 #else
 		p = sa * a[i];
 		q = sb * b[i];
@@ -1529,6 +1615,8 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 {
 	HYP_FLOAT a[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
 	HYP_FLOAT b[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT largest_a = HYP_FLOAT_C(0.0);
+	HYP_FLOAT largest_b = HYP_FLOAT_C(0.0);
 	HYP_FLOAT length_a;
 	HYP_FLOAT length_a_low;
 	HYP_FLOAT length_b;
@@ -1539,25 +1627,35 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 	HYP_FLOAT sum_low;
 	uint8_t i;
 
-	/* scale each by a power of two, which is exact, so the products below
-	 * neither overflow nor underflow
-	 */
+	/* the largest components: 0 for a zero vector or a NaN component */
 	for (i = 0; i < n; i++) {
 		a[i] = a_in[i];
 		b[i] = b_in[i];
+		if (HYP_ABS(a[i]) > largest_a) {
+			largest_a = HYP_ABS(a[i]);
+		} else if (!(HYP_ABS(a[i]) <= largest_a)) {
+			return HYP_FLOAT_C(0.0);
+		}
+		if (HYP_ABS(b[i]) > largest_b) {
+			largest_b = HYP_ABS(b[i]);
+		} else if (!(HYP_ABS(b[i]) <= largest_b)) {
+			return HYP_FLOAT_C(0.0);
+		}
 	}
-	hyp_scale_power2(a, n, hyp_power2_exponent(a, n));
-	hyp_scale_power2(b, n, hyp_power2_exponent(b, n));
-	length_a = hyp_length(a, n);
-	length_b = hyp_length(b, n);
-	if (!(length_a > HYP_FLOAT_C(0.0)) || !(length_b > HYP_FLOAT_C(0.0))) {
+	if (!(largest_a > HYP_FLOAT_C(0.0)) || !(largest_b > HYP_FLOAT_C(0.0))) {
 		return HYP_FLOAT_C(0.0);
 	}
-	if (!(length_a - length_a <= HYP_FLOAT_C(0.0)) || !(length_b - length_b <= HYP_FLOAT_C(0.0))) {
+	if (!(largest_a - largest_a <= HYP_FLOAT_C(0.0)) || !(largest_b - largest_b <= HYP_FLOAT_C(0.0))) {
 		/* infinite components: the direction of the infinite ones */
 		hyp_normalize(a, n);
 		hyp_normalize(b, n);
 	}
+
+	/* scale each by a power of two, which is exact, so the products below
+	 * neither overflow nor underflow
+	 */
+	hyp_scale_power2(a, n, hyp_power2_exponent(a, n));
+	hyp_scale_power2(b, n, hyp_power2_exponent(b, n));
 
 	/* the lengths with their low parts: for small angles the second order
 	 * term is not small next to the angle
@@ -1595,6 +1693,49 @@ static HYP_FLOAT hyp_sum_of_products(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT c, HYP_
 	return sum + (error + (p_low + q_low));
 #else
 	return a * b + c * d;
+#endif
+}
+
+
+/* the high halves of the n values (hyp_split_high), for hyp_minor: a matrix
+ * entry used in several minors is split once
+ */
+static void hyp_split_all(const HYP_FLOAT *m, HYP_FLOAT *high, uint8_t n)
+{
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+#ifdef HYP_SPLIT
+		high[i] = hyp_split_high(m[i]);
+#else
+		high[i] = m[i];
+#endif
+	}
+}
+
+
+/* m[i] m[j] - m[k] m[l], rounded once, with high from hyp_split_all: the same
+ * value as hyp_sum_of_products(m[i], m[j], -m[k], m[l]), since the high half
+ * of -x is minus the high half of x
+ */
+static HYP_FLOAT hyp_minor(const HYP_FLOAT *m, const HYP_FLOAT *high, uint8_t i, uint8_t j, uint8_t k, uint8_t l)
+{
+#ifdef HYP_SPLIT
+	HYP_FLOAT p;
+	HYP_FLOAT p_low;
+	HYP_FLOAT q;
+	HYP_FLOAT q_low;
+	HYP_FLOAT sum;
+	HYP_FLOAT error;
+
+	hyp_exact_product_split(m[i], high[i], m[j], high[j], &p, &p_low);
+	hyp_exact_product_split(-m[k], -high[k], m[l], high[l], &q, &q_low);
+	hyp_exact_sum(p, q, &sum, &error);
+
+	return sum + (error + (p_low + q_low));
+#else
+	(void)high;
+	return m[i] * m[j] + -m[k] * m[l];
 #endif
 }
 
@@ -3864,8 +4005,12 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
 #define HYP_DEC_44 33
 #define HYP_A(x) HYP_CAT(self->r,  HYP_DEC(x))
 #define HYP_B(x) HYP_CAT(inverse.r, HYP_DEC(x))
-/* HYP_A(x1) HYP_A(x2) - HYP_A(x3) HYP_A(x4), rounded once */
-#define HYP_MINOR(x1, x2, x3, x4) hyp_sum_of_products(HYP_A(x1), HYP_A(x2), -HYP_A(x3), HYP_A(x4))
+/* the index in m[] of the matrix3 element x (11 to 33) */
+#define HYP_INDEX3(x) ((HYP_DEC(x) / 10) * 3 + HYP_DEC(x) % 10)
+/* HYP_A(x1) HYP_A(x2) - HYP_A(x3) HYP_A(x4), rounded once, with the high
+ * halves of the elements in high[]
+ */
+#define HYP_MINOR(x1, x2, x3, x4) hyp_minor(self->m, high, HYP_INDEX3(x1), HYP_INDEX3(x2), HYP_INDEX3(x3), HYP_INDEX3(x4))
 
 
 /**
@@ -3877,8 +4022,10 @@ HYPAPI struct matrix3 *matrix3_scalev2(struct matrix3 *self, const struct vector
  */
 HYPAPI HYP_FLOAT matrix3_determinant(const struct matrix3 *self)
 {
+	HYP_FLOAT high[9];
 	HYP_FLOAT determinant;
 
+	hyp_split_all(self->m, high, 9);
 	determinant =
 	  (HYP_A(11) * (HYP_MINOR(22, 33, 32, 23)))
 	- (HYP_A(12) * (HYP_MINOR(21, 33, 31, 23)))
@@ -3918,21 +4065,12 @@ HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
 static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
 {
 	struct matrix3 inverse;
+	HYP_FLOAT high[9];
 	HYP_FLOAT determinant;
 	uint8_t i;
 
-	determinant = matrix3_determinant(self);
-
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
-	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
-		return NULL;
-	}
-
-	matrix3_identity(&inverse);
-
-	/* find the adjugate of self */
+	/* the adjugate of self */
+	hyp_split_all(self->m, high, 9);
 	HYP_B(11) = HYP_MINOR(22, 33, 32, 23);
 	HYP_B(12) = HYP_MINOR(32, 13, 12, 33);
 	HYP_B(13) = HYP_MINOR(12, 23, 22, 13);
@@ -3944,6 +4082,18 @@ static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct ma
 	HYP_B(31) = HYP_MINOR(21, 32, 31, 22);
 	HYP_B(32) = HYP_MINOR(31, 12, 11, 32);
 	HYP_B(33) = HYP_MINOR(11, 22, 21, 12);
+
+	/* the determinant from the first column of the adjugate: the same value
+	 * as matrix3_determinant, whose second minor is exactly -HYP_B(21)
+	 */
+	determinant = (HYP_A(11) * HYP_B(11) + HYP_A(12) * HYP_B(21)) + HYP_A(13) * HYP_B(31);
+
+	/* only an exactly zero determinant has no inverse (written without ==
+	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 */
+	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+		return NULL;
+	}
 
 	/* divide rather than multiply by 1 / determinant, which overflows when the
 	 * determinant is very small and the inverse is not
@@ -4518,22 +4668,26 @@ HYPAPI struct matrix4 *matrix4_scalev3(struct matrix4 *self, const struct vector
  */
 static HYP_FLOAT hyp_matrix4_blocks(const struct matrix4 *m, HYP_FLOAT *blocks, HYP_FLOAT *ab, HYP_FLOAT *dc)
 {
-	blocks[0] = hyp_sum_of_products(m->r00, m->r11, -m->r01, m->r10);
-	blocks[1] = hyp_sum_of_products(m->r02, m->r13, -m->r03, m->r12);
-	blocks[2] = hyp_sum_of_products(m->r20, m->r31, -m->r21, m->r30);
-	blocks[3] = hyp_sum_of_products(m->r22, m->r33, -m->r23, m->r32);
+	HYP_FLOAT high[16];
+
+	/* m->m[] holds rRC at 4 R + C */
+	hyp_split_all(m->m, high, 16);
+	blocks[0] = hyp_minor(m->m, high, 0, 5, 1, 4);     /* r00 r11 - r01 r10 */
+	blocks[1] = hyp_minor(m->m, high, 2, 7, 3, 6);     /* r02 r13 - r03 r12 */
+	blocks[2] = hyp_minor(m->m, high, 8, 13, 9, 12);   /* r20 r31 - r21 r30 */
+	blocks[3] = hyp_minor(m->m, high, 10, 15, 11, 14); /* r22 r33 - r23 r32 */
 
 	/* A# = [r11 -r01; -r10 r00] */
-	ab[0] = hyp_sum_of_products(m->r11, m->r02, -m->r01, m->r12);
-	ab[1] = hyp_sum_of_products(m->r11, m->r03, -m->r01, m->r13);
-	ab[2] = hyp_sum_of_products(m->r00, m->r12, -m->r10, m->r02);
-	ab[3] = hyp_sum_of_products(m->r00, m->r13, -m->r10, m->r03);
+	ab[0] = hyp_minor(m->m, high, 5, 2, 1, 6);         /* r11 r02 - r01 r12 */
+	ab[1] = hyp_minor(m->m, high, 5, 3, 1, 7);         /* r11 r03 - r01 r13 */
+	ab[2] = hyp_minor(m->m, high, 0, 6, 4, 2);         /* r00 r12 - r10 r02 */
+	ab[3] = hyp_minor(m->m, high, 0, 7, 4, 3);         /* r00 r13 - r10 r03 */
 
 	/* D# = [r33 -r23; -r32 r22] */
-	dc[0] = hyp_sum_of_products(m->r33, m->r20, -m->r23, m->r30);
-	dc[1] = hyp_sum_of_products(m->r33, m->r21, -m->r23, m->r31);
-	dc[2] = hyp_sum_of_products(m->r22, m->r30, -m->r32, m->r20);
-	dc[3] = hyp_sum_of_products(m->r22, m->r31, -m->r32, m->r21);
+	dc[0] = hyp_minor(m->m, high, 15, 8, 11, 12);      /* r33 r20 - r23 r30 */
+	dc[1] = hyp_minor(m->m, high, 15, 9, 11, 13);      /* r33 r21 - r23 r31 */
+	dc[2] = hyp_minor(m->m, high, 10, 12, 14, 8);      /* r22 r30 - r32 r20 */
+	dc[3] = hyp_minor(m->m, high, 10, 13, 14, 9);      /* r22 r31 - r32 r21 */
 
 	return (blocks[0] * blocks[3] + blocks[1] * blocks[2])
 		- ((ab[0] * dc[0] + ab[1] * dc[2]) + (ab[2] * dc[1] + ab[3] * dc[3]));
@@ -4728,20 +4882,23 @@ HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
 HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
 {
 	struct matrix4 cofactors;
+	HYP_FLOAT high[11];
 	HYP_FLOAT determinant;
 	uint8_t i;
 
 	/* the inverse transpose is the cofactor matrix over the determinant */
+	/* self->m[] holds rRC at 4 R + C; the upper 3x3 is in the first 11 */
+	hyp_split_all(self->m, high, 11);
 	matrix4_identity(&cofactors);
-	cofactors.r00 = hyp_sum_of_products(self->r11, self->r22, -self->r12, self->r21);
-	cofactors.r01 = hyp_sum_of_products(self->r12, self->r20, -self->r10, self->r22);
-	cofactors.r02 = hyp_sum_of_products(self->r10, self->r21, -self->r11, self->r20);
-	cofactors.r10 = hyp_sum_of_products(self->r02, self->r21, -self->r01, self->r22);
-	cofactors.r11 = hyp_sum_of_products(self->r00, self->r22, -self->r02, self->r20);
-	cofactors.r12 = hyp_sum_of_products(self->r01, self->r20, -self->r00, self->r21);
-	cofactors.r20 = hyp_sum_of_products(self->r01, self->r12, -self->r02, self->r11);
-	cofactors.r21 = hyp_sum_of_products(self->r02, self->r10, -self->r00, self->r12);
-	cofactors.r22 = hyp_sum_of_products(self->r00, self->r11, -self->r01, self->r10);
+	cofactors.r00 = hyp_minor(self->m, high, 5, 10, 6, 9); /* r11 r22 - r12 r21 */
+	cofactors.r01 = hyp_minor(self->m, high, 6, 8, 4, 10); /* r12 r20 - r10 r22 */
+	cofactors.r02 = hyp_minor(self->m, high, 4, 9, 5, 8);  /* r10 r21 - r11 r20 */
+	cofactors.r10 = hyp_minor(self->m, high, 2, 9, 1, 10); /* r02 r21 - r01 r22 */
+	cofactors.r11 = hyp_minor(self->m, high, 0, 10, 2, 8); /* r00 r22 - r02 r20 */
+	cofactors.r12 = hyp_minor(self->m, high, 1, 8, 0, 9);  /* r01 r20 - r00 r21 */
+	cofactors.r20 = hyp_minor(self->m, high, 1, 6, 2, 5);  /* r01 r12 - r02 r11 */
+	cofactors.r21 = hyp_minor(self->m, high, 2, 4, 0, 6);  /* r02 r10 - r00 r12 */
+	cofactors.r22 = hyp_minor(self->m, high, 0, 5, 1, 4);  /* r00 r11 - r01 r10 */
 
 	determinant = self->r00 * cofactors.r00 + self->r01 * cofactors.r01 + self->r02 * cofactors.r02;
 
@@ -6486,6 +6643,8 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 
 #undef HYP_CAT
 #undef HYP_SPLIT
+#undef HYP_ROUNDED
+#undef HYP_FMA
 #undef HYP_PRIMITIVE_CAT
 #undef HYP_DEC
 #undef HYP_DEC_11
@@ -6507,6 +6666,7 @@ HYPAPI uint8_t matrix4_transformation_decompose(struct matrix4 *self, struct vec
 #undef HYP_A
 #undef HYP_B
 #undef HYP_MINOR
+#undef HYP_INDEX3
 
 #endif /* HYPATIA_IMPLEMENTATION_H_ */
 #endif /* HYPATIA_IMPLEMENTATION */
