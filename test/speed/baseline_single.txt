@@ -1,8 +1,8 @@
 # function | instructions per call (cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0)
-matrix2_inverse | 207.7
-matrix3_inverse | 1194.0
-matrix4_determinant | 1015.0
-matrix4_inverse | 1571.0
+matrix2_inverse | 205.7
+matrix3_inverse | 891.9
+matrix4_determinant | 986.0
+matrix4_inverse | 1450.0
 matrix4_multiply | 100.0
 matrix4_multiplyv4 | 16.0
 matrix4_projection_perspective_fovy_rh | 100.0
@@ -18,7 +18,7 @@ quaternion_normalize | 527.5
 quaternion_set_from_axis_anglev3 | 569.2
 quaternion_set_from_matrix4 | 560.6
 quaternion_set_look_rotation_rh | 1578.1
-quaternion_slerp | 3335.8
+quaternion_slerp | 3288.8
 vector2_angle_between | 1922.3
 vector2_normalize | 377.0
 vector3_angle_between | 2371.2
