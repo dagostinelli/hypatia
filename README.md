@@ -138,6 +138,7 @@ Results that differ from 2.0:
 * `matrix4_inverse` and `matrix4_determinant` are as accurate as GLM and Eigen for badly conditioned matrices (2.0 lost up to 100 times more).
 * `vector2_angle_between` and `vector3_angle_between` are accurate for parallel and nearly parallel vectors (2.0 could give NaN) and give 0 for a zero vector.
 * `vector3_rotate_by_quaternion` rotates by a quaternion of any length without scaling the vector; the axis-angle functions accept an axis of any length.
+* `vector2/3/4_magnitude`, `vector2/3/4_distance` and `quaternion_magnitude` are correct also when the squares of the components overflow or underflow.
 * `HYP_WRAP` wraps into [start, limit) for any start.
 * The former `_EXP` functions: perspective, ortho and lookat give correct projections; the Euler angle functions rotate about X, then Y, then Z; `matrix4_multiplyv3_EXP` is `matrix4_multiplyv3`; `quaternion_angle_between` and `quaternion_difference` treat q and -q as the same rotation; `matrix4_transformation_decompose` returns the rotation.
 * `quaternion_axis_between_EXP` and `quaternion_cross_product_EXP` are deprecated: they are not the operations their names describe (`HYP_NO_DEPRECATED` removes them).
@@ -157,7 +158,7 @@ Compared with other math libraries for graphics, the concrete differences are:
 
 * quaternions that are not unit length still rotate correctly, because hypatia divides by |q|²;
 * small angles stay accurate in the angle-between, axis-angle and slerp functions;
-* very large and very small values don't break normalize or inverse;
+* very large and very small values don't break normalize, the lengths or inverse;
 * double, long double and quad precision modes are available.
 
 The unit tests answer "is it right?"  They check the conventions (rotation direction, multiplication order, handedness, depth range), the edge cases (zero vectors, opposite vectors, matrices with no inverse) and that every compiler and platform in CI gets the same results.  What they don't catch is a function getting less accurate.  An error that grows from half an ulp to fifty ulps is still well inside 1E-5.
