@@ -28,7 +28,7 @@ matrix4_view_lookat_rh | 757.9
 quaternion_angle_between | 1859.4
 quaternion_difference | 40.0
 quaternion_get_axis_anglev3 | 394.4
-quaternion_get_euler_anglesf3 | 1320.5
+quaternion_get_euler_anglesf3 | 1317.5
 quaternion_get_rotation_tov3 | 1893.4
 quaternion_inverse | 26.0
 quaternion_magnitude | 24.0

@@ -3922,13 +3922,19 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
  */
 HYPAPI HYP_FLOAT matrix2_reciprocal_condition(const struct matrix2 *self)
 {
+	struct matrix2 scaled;
 	struct matrix2 inverse;
 
-	if (matrix2_inverse(self, &inverse) == NULL) {
+	/* of the matrix scaled by a power of two, which does not change it, so
+	 * that the norms neither overflow nor underflow
+	 */
+	scaled = *self;
+	(void)hyp_scale_to_unit(scaled.m, 4);
+	if (matrix2_inverse(&scaled, &inverse) == NULL) {
 		return HYP_FLOAT_C(0.0);
 	}
 
-	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 2) * hyp_matrix_row_norm(inverse.m, 2));
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(scaled.m, 2) * hyp_matrix_row_norm(inverse.m, 2));
 }
 
 
@@ -4476,13 +4482,19 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
  */
 HYPAPI HYP_FLOAT matrix3_reciprocal_condition(const struct matrix3 *self)
 {
+	struct matrix3 scaled;
 	struct matrix3 inverse;
 
-	if (matrix3_inverse(self, &inverse) == NULL) {
+	/* of the matrix scaled by a power of two, which does not change it, so
+	 * that the norms neither overflow nor underflow
+	 */
+	scaled = *self;
+	(void)hyp_scale_to_unit(scaled.m, 9);
+	if (matrix3_inverse(&scaled, &inverse) == NULL) {
 		return HYP_FLOAT_C(0.0);
 	}
 
-	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 3) * hyp_matrix_row_norm(inverse.m, 3));
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(scaled.m, 3) * hyp_matrix_row_norm(inverse.m, 3));
 }
 
 
@@ -5190,13 +5202,19 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
  */
 HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
 {
+	struct matrix4 scaled;
 	struct matrix4 inverse;
 
-	if (matrix4_inverse(self, &inverse) == NULL) {
+	/* of the matrix scaled by a power of two, which does not change it, so
+	 * that the norms neither overflow nor underflow
+	 */
+	scaled = *self;
+	(void)hyp_scale_to_unit(scaled.m, 16);
+	if (matrix4_inverse(&scaled, &inverse) == NULL) {
 		return HYP_FLOAT_C(0.0);
 	}
 
-	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(self->m, 4) * hyp_matrix_row_norm(inverse.m, 4));
+	return HYP_FLOAT_C(1.0) / (hyp_matrix_row_norm(scaled.m, 4) * hyp_matrix_row_norm(inverse.m, 4));
 }
 
 
