@@ -75,3 +75,25 @@ quaternion_nlerp | 1e-6 rad apart | 1.247 | 0.2816
 quaternion_difference | random | 1.892 | 0.3634
 vector3_reflect_by_quaternion | random | 1.854 | 0.3708
 quaternion_rotate_by_axis_angle | random | 1.497 | 0.3683
+matrix4_view_lookat_lh | random (error * sin(view, up)) | 1.524 | 0.3592
+matrix4_projection_perspective_fovy_lh | random | 1.102 | 0.3536
+matrix4_projection_ortho3d_lh | random | 0.7434 | 0.319
+matrix4_projection_frustum_lh | random | 0.9514 | 0.359
+matrix4_projection_perspective_fovy_infinite_lh | random | 1.069 | 0.2903
+quaternion_set_look_rotation_lh | random | 4.521 | 0.3471
+matrix4_make_transformation_rotationf_x | random angle | 0.2513 | 0.1431
+matrix4_make_transformation_rotationf_y | random angle | 0.2513 | 0.1425
+matrix4_make_transformation_rotationf_z | random angle | 0.2511 | 0.1433
+matrix3_make_transformation_rotationf_z | random angle | 0.2516 | 0.1428
+matrix2_make_transformation_rotationf_z | random angle | 0.351 | 0.1612
+matrix4_rotatev3 | random | 3.227 | 0.7291
+matrix4_multiplyv3 | random | 1.204 | 0.3369
+quaternion_rotate_by_quaternion | random | 1.225 | 0.3433
+quaternion_rotate_by_euler_angles | random | 1.715 | 0.4604
+quaternion_multiplyv3 | random | 1.187 | 0.2741
+quaternion_magnitude | random length | 0.9115 | 0.2179
+vector2_distance | random | 1.288 | 0.2572
+vector4_distance | random | 1.268 | 0.257
+vector2_dot_product | random | 0.8771 | 0.2032
+vector4_dot_product | random | 1.247 | 0.1941
+quaternion_dot_product | random | 1.22 | 0.1945

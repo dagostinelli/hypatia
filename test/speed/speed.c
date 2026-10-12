@@ -550,6 +550,86 @@ BENCH bench_quaternion_rotate_by_axis_angle(void)
 	}
 }
 
+BENCH bench_matrix4_view_lookat_lh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_view_lookat_lh(&m, &v3a[i], &v3b[i], &v3c[i])->m[0];
+	}
+}
+
+BENCH bench_matrix4_projection_perspective_fovy_lh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_projection_perspective_fovy_lh(&m, fb[i], fb[i], fc[i], fd[i])->m[0];
+	}
+}
+
+BENCH bench_quaternion_set_look_rotation_lh(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q;
+		sink = quaternion_set_look_rotation_lh(&q, &v3a[i], &v3b[i])->x;
+	}
+}
+
+BENCH bench_matrix4_make_transformation_rotationf_x(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m;
+		sink = matrix4_make_transformation_rotationf_x(&m, fb[i])->m[5];
+	}
+}
+
+BENCH bench_matrix4_rotatev3(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct matrix4 m = m4a[i];
+		sink = matrix4_rotatev3(&m, &v3a[i], fb[i])->m[0];
+	}
+}
+
+BENCH bench_matrix4_multiplyv3(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct vector3 r;
+		sink = matrix4_multiplyv3(&m4a[i], &v3a[i], &r)->x;
+	}
+}
+
+BENCH bench_quaternion_rotate_by_quaternion(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q = qu[i];
+		sink = quaternion_rotate_by_quaternion(&q, &qv[i])->x;
+	}
+}
+
+BENCH bench_quaternion_rotate_by_euler_angles(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		struct quaternion q = qu[i];
+		sink = quaternion_rotate_by_euler_angles(&q, fa[i], fb[i], fc[i])->x;
+	}
+}
+
+BENCH bench_quaternion_magnitude(void)
+{
+	int i;
+	for (i = 0; i < M; i++) {
+		sink = quaternion_magnitude(&qa[i]);
+	}
+}
+
 int main(void)
 {
 	prepare();
@@ -609,6 +689,15 @@ int main(void)
 	bench_quaternion_difference();
 	bench_vector3_reflect_by_quaternion();
 	bench_quaternion_rotate_by_axis_angle();
+	bench_matrix4_view_lookat_lh();
+	bench_matrix4_projection_perspective_fovy_lh();
+	bench_quaternion_set_look_rotation_lh();
+	bench_matrix4_make_transformation_rotationf_x();
+	bench_matrix4_rotatev3();
+	bench_matrix4_multiplyv3();
+	bench_quaternion_rotate_by_quaternion();
+	bench_quaternion_rotate_by_euler_angles();
+	bench_quaternion_magnitude();
 
 	return 0;
 }

@@ -35,7 +35,7 @@ typedef _Float128 R;
 
 #define PI acosf128(-1)
 #define N 20000
-#define MAX_ROWS 160
+#define MAX_ROWS 192
 
 struct row {
 	const char *function;
@@ -2060,6 +2060,419 @@ static void more(void)
 	}
 }
 
+/* the 4x4 (row-major) rotation by angle about the unit axis, from its
+ * quaternion
+ */
+static void axis_rotation4(const R *axis, R angle, R *o)
+{
+	R q[4], m[9];
+	int k;
+
+	for (k = 0; k < 3; k++) {
+		q[k] = axis[k] * sinf128(angle / 2);
+	}
+	q[3] = cosf128(angle / 2);
+	rotation_matrix(q, m);
+	for (k = 0; k < 16; k++) {
+		o[k] = (k % 5 == 0) ? 1 : 0;
+	}
+	for (k = 0; k < 9; k++) {
+		o[(k / 3) * 4 + k % 3] = m[k];
+	}
+}
+
+/* the left-handed variants, the rotation builders, and the rest */
+static void last(void)
+{
+	struct row *r;
+	int i, j, k, kind;
+
+	/* multiplied by the sine of the angle between the view and up, as the
+	 * right-handed lookat
+	 */
+	r = row("matrix4_view_lookat_lh", "random (error * sin(view, up))");
+	for (i = 0; i < N; i++) {
+		R eye[3], target[3], up[3], z[3], x[3], y[3], o[16], s;
+		HYP_FLOAT h[16];
+		struct vector3 he, ht, hu;
+		struct matrix4 hm;
+		for (k = 0; k < 3; k++) {
+			eye[k] = uniform(-10, 10);
+			target[k] = uniform(-10, 10);
+		}
+		random_unit(up, 3);
+		set3(&he, eye);
+		set3(&ht, target);
+		set3(&hu, up);
+		get3(&he, eye);
+		get3(&ht, target);
+		get3(&hu, up);
+		for (k = 0; k < 3; k++) {
+			z[k] = target[k] - eye[k];
+		}
+		rnormalize(z, 3);
+		rcross(up, z, x);
+		s = rlength(x, 3) / rlength(up, 3);
+		rnormalize(x, 3);
+		rcross(z, x, y);
+		for (k = 0; k < 3; k++) {
+			o[0 * 4 + k] = x[k];
+			o[1 * 4 + k] = y[k];
+			o[2 * 4 + k] = z[k];
+			o[3 * 4 + k] = 0;
+		}
+		o[3] = -rdot3(x, eye);
+		o[7] = -rdot3(y, eye);
+		o[11] = -rdot3(z, eye);
+		o[15] = 1;
+		matrix4_view_lookat_lh(&hm, &he, &ht, &hu);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0) * s);
+	}
+
+	for (kind = 0; kind < 4; kind++) {
+		static const char *names[4] = {"matrix4_projection_perspective_fovy_lh", "matrix4_projection_ortho3d_lh", "matrix4_projection_frustum_lh", "matrix4_projection_perspective_fovy_infinite_lh"};
+		r = row(names[kind], "random");
+		for (i = 0; i < N; i++) {
+			R o[16], hh, l, rr, b, t, n, f, a;
+			HYP_FLOAT h[16];
+			struct matrix4 hm;
+			HYP_FLOAT p1 = (HYP_FLOAT)uniform((R)0.5, 2), p2 = (HYP_FLOAT)uniform((R)0.5, 2);
+			HYP_FLOAT hl = (HYP_FLOAT)uniform(-1, (R)-0.1), hr = (HYP_FLOAT)uniform((R)0.1, 1), hb = (HYP_FLOAT)uniform(-1, (R)-0.1), ht = (HYP_FLOAT)uniform((R)0.1, 1);
+			HYP_FLOAT hn = (HYP_FLOAT)uniform((R)0.01, 1), hf = (HYP_FLOAT)uniform(10, 1000);
+			l = (R)hl;
+			rr = (R)hr;
+			b = (R)hb;
+			t = (R)ht;
+			n = (R)hn;
+			f = (R)hf;
+			a = (R)p2;
+			hh = cosf128((R)p1 / 2) / sinf128((R)p1 / 2);
+			for (k = 0; k < 16; k++) {
+				o[k] = 0;
+			}
+			if (kind == 0) {
+				o[0] = hh / a;
+				o[5] = hh;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = (f + n) / (f - n);
+				o[11] = -2 * f * n / (f - n);
+#else
+				o[10] = f / (f - n);
+				o[11] = -n * f / (f - n);
+#endif
+				o[14] = 1;
+				matrix4_projection_perspective_fovy_lh(&hm, p1, p2, hn, hf);
+			} else if (kind == 1) {
+				o[0] = 2 / (rr - l);
+				o[3] = -(rr + l) / (rr - l);
+				o[5] = 2 / (t - b);
+				o[7] = -(t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = 2 / (f - n);
+				o[11] = -(f + n) / (f - n);
+#else
+				o[10] = 1 / (f - n);
+				o[11] = -n / (f - n);
+#endif
+				o[15] = 1;
+				matrix4_projection_ortho3d_lh(&hm, hl, hr, hb, ht, hn, hf);
+			} else if (kind == 2) {
+				o[0] = 2 * n / (rr - l);
+				o[2] = -(rr + l) / (rr - l);
+				o[5] = 2 * n / (t - b);
+				o[6] = -(t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = (f + n) / (f - n);
+				o[11] = -2 * f * n / (f - n);
+#else
+				o[10] = f / (f - n);
+				o[11] = -n * f / (f - n);
+#endif
+				o[14] = 1;
+				matrix4_projection_frustum_lh(&hm, hl, hr, hb, ht, hn, hf);
+			} else {
+				o[0] = hh / a;
+				o[5] = hh;
+				o[10] = 1;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[11] = -2 * n;
+#else
+				o[11] = -n;
+#endif
+				o[14] = 1;
+				matrix4_projection_perspective_fovy_infinite_lh(&hm, p1, p2, hn);
+			}
+			rowmajor4(&hm, h);
+			add(r, error(h, o, 16, 0));
+		}
+	}
+
+	/* the camera turns +Z into forward, with +Y toward up */
+	r = row("quaternion_set_look_rotation_lh", "random");
+	for (i = 0; i < N; i++) {
+		R f[3], up[3], right[3], above[3], m[9], o[4];
+		struct vector3 hf, hu;
+		struct quaternion h;
+		random_unit(f, 3);
+		random_unit(up, 3);
+		for (k = 0; k < 3; k++) {
+			f[k] *= uniform(1, 10);
+		}
+		set3(&hf, f);
+		set3(&hu, up);
+		get3(&hf, f);
+		get3(&hu, up);
+		rnormalize(f, 3);
+		rcross(up, f, right);
+		rnormalize(right, 3);
+		rcross(f, right, above);
+		for (k = 0; k < 3; k++) {
+			m[k * 3 + 0] = right[k];
+			m[k * 3 + 1] = above[k];
+			m[k * 3 + 2] = f[k];
+		}
+		matrix_quaternion(m, o);
+		quaternion_set_look_rotation_lh(&h, &hf, &hu);
+		add(r, errorq(h.q, o));
+	}
+
+	/* against the rotation about the axis by the right-hand rule */
+	for (kind = 0; kind < 5; kind++) {
+		static const char *names[5] = {"matrix4_make_transformation_rotationf_x", "matrix4_make_transformation_rotationf_y", "matrix4_make_transformation_rotationf_z", "matrix3_make_transformation_rotationf_z", "matrix2_make_transformation_rotationf_z"};
+		r = row(names[kind], "random angle");
+		for (i = 0; i < N; i++) {
+			R axis[3] = {0, 0, 0}, o[16], ref[16];
+			HYP_FLOAT h[16];
+			HYP_FLOAT angle = (HYP_FLOAT)uniform(-PI, PI);
+			struct matrix4 h4;
+			struct matrix3 h3;
+			struct matrix2 h2;
+			int n = 16;
+			axis[kind < 3 ? kind : 2] = 1;
+			axis_rotation4(axis, (R)angle, o);
+			if (kind < 3) {
+				if (kind == 0) {
+					matrix4_make_transformation_rotationf_x(&h4, angle);
+				} else if (kind == 1) {
+					matrix4_make_transformation_rotationf_y(&h4, angle);
+				} else {
+					matrix4_make_transformation_rotationf_z(&h4, angle);
+				}
+				rowmajor4(&h4, h);
+				for (k = 0; k < 16; k++) {
+					ref[k] = o[k];
+				}
+			} else if (kind == 3) {
+				matrix3_make_transformation_rotationf_z(&h3, angle);
+				n = 9;
+				for (k = 0; k < 9; k++) {
+					h[k] = h3.m[k];
+					ref[k] = (k == 8) ? 1 : (k % 3 == 2 || k >= 6) ? 0 : o[(k / 3) * 4 + k % 3];
+				}
+			} else {
+				matrix2_make_transformation_rotationf_z(&h2, angle);
+				n = 4;
+				for (k = 0; k < 4; k++) {
+					h[k] = h2.m[k];
+					ref[k] = o[(k / 2) * 4 + k % 2];
+				}
+			}
+			add(r, error(h, ref, n, 0));
+		}
+	}
+
+	/* self = R self, relative to the largest entry of the result: a rotation
+	 * keeps the lengths of the columns, and its own entries are accurate
+	 * relative to 1, not to their size
+	 */
+	r = row("matrix4_rotatev3", "random");
+	for (i = 0; i < N; i++) {
+		R a[16], axis[3], rot[16];
+		HYP_FLOAT angle = (HYP_FLOAT)uniform(-PI, PI);
+		struct matrix4 hm;
+		struct vector3 ha;
+		for (k = 0; k < 16; k++) {
+			a[k] = uniform(-1, 1);
+		}
+		random_unit(axis, 3);
+		setm4(&hm, a);
+		getm4(&hm, a);
+		set3(&ha, axis);
+		get3(&ha, axis);
+		rnormalize(axis, 3);
+		axis_rotation4(axis, (R)angle, rot);
+		matrix4_rotatev3(&hm, &ha, angle);
+		{
+			HYP_FLOAT h[16];
+			R o[16];
+			for (j = 0; j < 4; j++) {
+				for (k = 0; k < 4; k++) {
+					int l;
+					o[j * 4 + k] = 0;
+					for (l = 0; l < 4; l++) {
+						o[j * 4 + k] += rot[j * 4 + l] * a[l * 4 + k];
+					}
+				}
+			}
+			rowmajor4(&hm, h);
+			add(r, error(h, o, 16, 0));
+		}
+	}
+
+	/* relative to the size of the terms (the translation is a term) */
+	r = row("matrix4_multiplyv3", "random");
+	for (i = 0; i < N; i++) {
+		R a[16], v[3], worst = 0;
+		struct matrix4 hm;
+		struct vector3 hv, hr;
+		for (k = 0; k < 16; k++) {
+			a[k] = uniform(-1, 1);
+		}
+		for (k = 0; k < 3; k++) {
+			v[k] = uniform(-10, 10);
+		}
+		setm4(&hm, a);
+		getm4(&hm, a);
+		set3(&hv, v);
+		get3(&hv, v);
+		matrix4_multiplyv3(&hm, &hv, &hr);
+		for (j = 0; j < 3; j++) {
+			R exact = a[j * 4 + 3], size = rabs(a[j * 4 + 3]);
+			for (k = 0; k < 3; k++) {
+				exact += a[j * 4 + k] * v[k];
+				size += rabs(a[j * 4 + k] * v[k]);
+			}
+			if (rabs((R)hr.v[j] - exact) / size > worst) {
+				worst = rabs((R)hr.v[j] - exact) / size;
+			}
+		}
+		add(r, worst / EPSILON);
+	}
+
+	r = row("quaternion_rotate_by_quaternion", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4], o[4];
+		struct quaternion ha, hb;
+		random_unit(a, 4);
+		random_unit(b, 4);
+		setq(&ha, a);
+		setq(&hb, b);
+		getq(&ha, a);
+		getq(&hb, b);
+		rqmul(a, b, o);
+		rnormalize(o, 4);
+		quaternion_rotate_by_quaternion(&ha, &hb);
+		add(r, errorq(ha.q, o));
+	}
+
+	r = row("quaternion_rotate_by_euler_angles", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4], o[4];
+		struct quaternion ha;
+		HYP_FLOAT ax = (HYP_FLOAT)uniform(-PI, PI), ay = (HYP_FLOAT)uniform(-PI / 2, PI / 2), az = (HYP_FLOAT)uniform(-PI, PI);
+		random_unit(a, 4);
+		setq(&ha, a);
+		getq(&ha, a);
+		euler_quaternion((R)ax, (R)ay, (R)az, b);
+		rqmul(a, b, o);
+		rnormalize(o, 4);
+		quaternion_rotate_by_euler_angles(&ha, ax, ay, az);
+		add(r, errorq(ha.q, o));
+	}
+
+	/* q (v, 0), relative to |q| |v| */
+	r = row("quaternion_multiplyv3", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], v[4], o[4];
+		struct quaternion hq;
+		struct vector3 hv;
+		random_unit(q, 4);
+		for (k = 0; k < 3; k++) {
+			v[k] = uniform(-10, 10);
+		}
+		v[3] = 0;
+		setq(&hq, q);
+		getq(&hq, q);
+		set3(&hv, v);
+		get3(&hv, v);
+		rqmul(q, v, o);
+		quaternion_multiplyv3(&hq, &hv);
+		add(r, error(hq.q, o, 4, rlength(q, 4) * rlength(v, 3)));
+	}
+
+	r = row("quaternion_magnitude", "random length");
+	for (i = 0; i < N; i++) {
+		R q[4], l;
+		struct quaternion h;
+		random_unit(q, 4);
+		l = powf128(10, uniform(-3, 3));
+		for (k = 0; k < 4; k++) {
+			q[k] *= l;
+		}
+		setq(&h, q);
+		getq(&h, q);
+		add(r, error1(quaternion_magnitude(&h), rlength(q, 4)));
+	}
+
+	for (kind = 2; kind <= 4; kind += 2) {
+		r = row(kind == 2 ? "vector2_distance" : "vector4_distance", "random");
+		for (i = 0; i < N; i++) {
+			R a[4], b[4], d[4];
+			struct vector2 a2, b2;
+			struct vector4 a4, b4;
+			HYP_FLOAT got;
+			for (k = 0; k < 4; k++) {
+				HYP_FLOAT x = (HYP_FLOAT)uniform(-10, 10), y = (HYP_FLOAT)uniform(-10, 10);
+				a4.v[k] = x;
+				b4.v[k] = y;
+				if (k < 2) {
+					a2.v[k] = x;
+					b2.v[k] = y;
+				}
+				a[k] = (R)x;
+				b[k] = (R)y;
+				d[k] = a[k] - b[k];
+			}
+			got = (kind == 2) ? vector2_distance(&a2, &b2) : vector4_distance(&a4, &b4);
+			add(r, error1(got, rlength(d, kind)));
+		}
+	}
+
+	/* relative to the sum of the absolute values of the terms */
+	for (kind = 0; kind < 3; kind++) {
+		static const char *names[3] = {"vector2_dot_product", "vector4_dot_product", "quaternion_dot_product"};
+		r = row(names[kind], "random");
+		for (i = 0; i < N; i++) {
+			R a[4], b[4], exact = 0, size = 0;
+			struct vector2 a2, b2;
+			struct vector4 a4, b4;
+			struct quaternion aq, bq;
+			HYP_FLOAT got;
+			int n = kind == 0 ? 2 : 4;
+			for (k = 0; k < 4; k++) {
+				HYP_FLOAT x = (HYP_FLOAT)uniform(-10, 10), y = (HYP_FLOAT)uniform(-10, 10);
+				a4.v[k] = x;
+				b4.v[k] = y;
+				aq.q[k] = x;
+				bq.q[k] = y;
+				if (k < 2) {
+					a2.v[k] = x;
+					b2.v[k] = y;
+				}
+				a[k] = (R)x;
+				b[k] = (R)y;
+			}
+			for (k = 0; k < n; k++) {
+				exact += a[k] * b[k];
+				size += rabs(a[k] * b[k]);
+			}
+			got = (kind == 0) ? vector2_dot_product(&a2, &b2) : (kind == 1) ? vector4_dot_product(&a4, &b4) : quaternion_dot_product(&aq, &bq);
+			add(r, rabs((R)got - exact) / size / EPSILON);
+		}
+	}
+}
+
 /* ------------------------------------------------------------ table */
 
 static void print_table(FILE *out)
@@ -2171,6 +2584,7 @@ int main(int argc, char **argv)
 	quaternions();
 	matrices();
 	more();
+	last();
 
 	if (argc == 3 && strcmp(argv[1], "--check") == 0) {
 		return check(argv[2]);
