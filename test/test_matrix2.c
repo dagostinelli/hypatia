@@ -539,8 +539,27 @@ static const char *test_matrix2_inverse_tiny_and_huge_scale(void)
 }
 
 
+static const char *test_matrix2_determinant_huge_and_tiny(void)
+{
+	struct matrix2 m;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+
+	/* the largest power of two: the exact products split it, and splitting
+	 * it must not overflow
+	 */
+	big = test_largest_power2();
+	matrix2_identity(&m);
+	m.r00 = big;
+	m.r11 = HYP_FLOAT_C(4.0) / big;
+	test_assert(scalar_equalsf(matrix2_determinant(&m), HYP_FLOAT_C(4.0)));
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_determinant_huge_and_tiny);
 	run_test(test_matrix2_inverse_small_determinant);
 	run_test(test_matrix2_inverse_tiny_and_huge_scale);
 	run_test(test_matrix2_reciprocal_condition);

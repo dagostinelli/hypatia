@@ -16,6 +16,7 @@
 
 #include "unittest.h"
 #include "reference.h"
+#include "limits.h"
 
 #include "test_vector2.c"
 #include "test_vector3.c"
