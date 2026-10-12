@@ -1209,23 +1209,12 @@ static void hyp_print_value(const char *prefix, HYP_FLOAT value)
 #endif
 
 
-/* the exponent e for which 2^e times the largest absolute value of the n
- * values is at least 1 and less than 2; 0 when they are all zero or one is
- * infinite or NaN
+/* the exponent e for which 2^e largest is at least 1 and less than 2, for a
+ * largest that is not negative; 0 when it is zero, infinite or NaN
  */
-static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+static HYP_INLINE int hyp_power2_exponent_of(HYP_FLOAT largest)
 {
-	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
 	int exponent = 0;
-	uint8_t i;
-
-	for (i = 0; i < n; i++) {
-		if (HYP_ABS(v[i]) > largest) {
-			largest = HYP_ABS(v[i]);
-		} else if (!(HYP_ABS(v[i]) <= largest)) {
-			return 0; /* NaN */
-		}
-	}
 
 	if (!(largest > HYP_FLOAT_C(0.0)) || !(largest - largest <= HYP_FLOAT_C(0.0))) {
 		return 0; /* zero or infinite */
@@ -1264,6 +1253,27 @@ static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 	}
 
 	return exponent;
+}
+
+
+/* the exponent e for which 2^e times the largest absolute value of the n
+ * values is at least 1 and less than 2; 0 when they are all zero or one is
+ * infinite or NaN
+ */
+static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+{
+	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		if (HYP_ABS(v[i]) > largest) {
+			largest = HYP_ABS(v[i]);
+		} else if (!(HYP_ABS(v[i]) <= largest)) {
+			return 0; /* NaN */
+		}
+	}
+
+	return hyp_power2_exponent_of(largest);
 }
 
 
@@ -1544,7 +1554,7 @@ static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
 		return largest;
 	}
 
-	exponent = hyp_power2_exponent(v, n);
+	exponent = hyp_power2_exponent_of(largest);
 	hyp_scale_power2(v, n, exponent);
 	length = hyp_normalize_scaled(v, n, &excess);
 	length += excess;
@@ -1574,7 +1584,7 @@ static HYP_FLOAT hyp_length_and_low(const HYP_FLOAT *v, uint8_t n, HYP_FLOAT *lo
 	if (!(largest > HYP_FLOAT_C(0.0))) {
 		return HYP_FLOAT_C(0.0);
 	}
-	exponent = hyp_power2_exponent(copy, n);
+	exponent = hyp_power2_exponent_of(largest);
 	hyp_scale_power2(copy, n, exponent);
 	length = hyp_length_scaled(copy, n, low);
 	hyp_scale_power2(&length, 1, -exponent);
@@ -1610,13 +1620,29 @@ static HYP_FLOAT hyp_length(const HYP_FLOAT *v, uint8_t n)
 		return largest; /* zero or infinite */
 	}
 
-	exponent = hyp_power2_exponent(copy, n);
+	exponent = hyp_power2_exponent_of(largest);
 	hyp_scale_power2(copy, n, exponent);
 	length = hyp_length_scaled(copy, n, &excess);
 	length += excess;
 	hyp_scale_power2(&length, 1, -exponent);
 
 	return length;
+}
+
+/* the square root of sum, the sum of the squares of the n components: as it
+ * is when no square overflowed and none lost anything to underflow (the
+ * squares below 2^-100 are too small to change it), else the length without
+ * overflow or underflow
+ */
+static HYP_INLINE HYP_FLOAT hyp_root_of_squares(HYP_FLOAT sum, const HYP_FLOAT *v, uint8_t n)
+{
+	if (sum >= HYP_FLOAT_C(7.888609052210118054117285652827862296732064351090230047702789306640625e-31) && sum - sum <= HYP_FLOAT_C(0.0)) {
+		return HYP_SQRT(sum);
+	}
+	if (!(sum >= HYP_FLOAT_C(0.0))) {
+		return sum; /* NaN */
+	}
+	return hyp_length(v, n);
 }
 
 
@@ -2156,7 +2182,7 @@ HYPAPI struct vector2 *vector2_dividef(struct vector2 *self, HYP_FLOAT fT)
 
 HYPAPI HYP_FLOAT vector2_magnitude(const struct vector2 *self)
 {
-	return HYP_SQRT((self->x * self->x) + (self->y * self->y));
+	return hyp_root_of_squares((self->x * self->x) + (self->y * self->y), self->v, 2);
 }
 
 
@@ -2204,7 +2230,11 @@ HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct 
  */
 HYPAPI HYP_FLOAT vector2_distance(const struct vector2 *v1, const struct vector2 *v2)
 {
-	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y));
+	struct vector2 d;
+
+	d.x = v2->x - v1->x;
+	d.y = v2->y - v1->y;
+	return hyp_root_of_squares((d.x * d.x) + (d.y * d.y), d.v, 2);
 }
 
 
@@ -2696,7 +2726,7 @@ HYPAPI struct vector3 *vector3_dividef(struct vector3 *self, HYP_FLOAT fT)
  */
 HYPAPI HYP_FLOAT vector3_magnitude(const struct vector3 *self)
 {
-	return HYP_SQRT((self->x * self->x) + (self->y * self->y) + (self->z * self->z));
+	return hyp_root_of_squares((self->x * self->x) + (self->y * self->y) + (self->z * self->z), self->v, 3);
 }
 
 
@@ -2771,7 +2801,12 @@ HYPAPI struct vector3 *vector3_find_normal_axis_between(struct vector3 *vR, cons
  */
 HYPAPI HYP_FLOAT vector3_distance(const struct vector3 *v1, const struct vector3 *v2)
 {
-	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x) + (v2->y - v1->y) * (v2->y - v1->y) + (v2->z - v1->z) * (v2->z - v1->z));
+	struct vector3 d;
+
+	d.x = v2->x - v1->x;
+	d.y = v2->y - v1->y;
+	d.z = v2->z - v1->z;
+	return hyp_root_of_squares((d.x * d.x) + (d.y * d.y) + (d.z * d.z), d.v, 3);
 }
 
 
@@ -3232,7 +3267,7 @@ HYPAPI struct vector4 *vector4_dividef(struct vector4 *self, HYP_FLOAT fT)
  */
 HYPAPI HYP_FLOAT vector4_magnitude(const struct vector4 *self)
 {
-	return HYP_SQRT((self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w));
+	return hyp_root_of_squares((self->x * self->x) + (self->y * self->y) + (self->z * self->z) + (self->w * self->w), self->v, 4);
 }
 
 
@@ -3280,10 +3315,13 @@ HYPAPI struct vector4 *vector4_cross_product(struct vector4 *vR, const struct ve
  */
 HYPAPI HYP_FLOAT vector4_distance(const struct vector4 *v1, const struct vector4 *v2)
 {
-	return HYP_SQRT((v2->x - v1->x) * (v2->x - v1->x)
-		    + (v2->y - v1->y) * (v2->y - v1->y)
-		    + (v2->z - v1->z) * (v2->z - v1->z)
-		    + (v2->w - v1->w) * (v2->w - v1->w));
+	struct vector4 d;
+
+	d.x = v2->x - v1->x;
+	d.y = v2->y - v1->y;
+	d.z = v2->z - v1->z;
+	d.w = v2->w - v1->w;
+	return hyp_root_of_squares((d.x * d.x) + (d.y * d.y) + (d.z * d.z) + (d.w * d.w), d.v, 4);
 }
 
 
@@ -5397,7 +5435,7 @@ HYPAPI HYP_FLOAT quaternion_norm(const struct quaternion *self)
  */
 HYPAPI HYP_FLOAT quaternion_magnitude(const struct quaternion *self)
 {
-	return HYP_SQRT(quaternion_norm(self));
+	return hyp_root_of_squares(quaternion_norm(self), self->q, 4);
 }
 
 
