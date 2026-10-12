@@ -559,8 +559,40 @@ static const char *test_matrix2_determinant_huge_and_tiny(void)
 }
 
 
+static const char *test_matrix2_inverse_wide_range(void)
+{
+	struct matrix2 m;
+	struct matrix2 inverse;
+	HYP_FLOAT largest = HYP_FLOAT_C(1.0);
+	HYP_FLOAT big = HYP_FLOAT_C(2.0);
+	HYP_FLOAT small;
+
+	/* entries from 1 / big to big with a determinant of 1: scaling the
+	 * largest entry to 1 would make the smallest subnormal
+	 */
+	while (largest * HYP_FLOAT_C(2.0) - largest * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
+		largest *= HYP_FLOAT_C(2.0);
+	}
+	while (big * big < largest) {
+		big *= HYP_FLOAT_C(2.0);
+	}
+	small = HYP_FLOAT_C(1.0) / big;
+	matrix2_identity(&m);
+	m.r00 = big;
+	m.r01 = small / HYP_FLOAT_C(2.0);
+	m.r11 = small;
+	test_assert(matrix2_inverse(&m, &inverse) != NULL);
+	/* [[1 / big, -small / 2], [0, big]], exactly */
+	test_assert(!(inverse.r00 < small) && !(inverse.r00 > small));
+	test_assert(!(inverse.r11 < big) && !(inverse.r11 > big));
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_inverse_wide_range);
 	run_test(test_matrix2_determinant_huge_and_tiny);
 	run_test(test_matrix2_inverse_small_determinant);
 	run_test(test_matrix2_inverse_tiny_and_huge_scale);

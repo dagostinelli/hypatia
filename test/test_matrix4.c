@@ -1234,8 +1234,46 @@ static const char *test_matrix4_determinant_huge_and_tiny(void)
 }
 
 
+static const char *test_matrix4_normal_matrix_huge_and_tiny(void)
+{
+	struct matrix4 m;
+	struct matrix4 normal;
+	HYP_FLOAT largest = HYP_FLOAT_C(1.0);
+	HYP_FLOAT t = HYP_FLOAT_C(2.0);
+	HYP_FLOAT tiny;
+	uint8_t i;
+
+	/* a uniform scale t whose determinant t^3 overflows, and one 1 / t^2
+	 * whose determinant underflows to 0: neither changes the normal matrix
+	 * but by the inverse scale
+	 */
+	while (largest * HYP_FLOAT_C(2.0) - largest * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
+		largest *= HYP_FLOAT_C(2.0);
+	}
+	while (t * t * t < largest) {
+		t *= HYP_FLOAT_C(2.0);
+	}
+	matrix4_identity(&m);
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = t;
+	}
+	test_assert(matrix4_normal_matrix(&m, &normal) != NULL);
+	test_assert(!(normal.r00 < HYP_FLOAT_C(1.0) / t) && !(normal.r00 > HYP_FLOAT_C(1.0) / t));
+
+	tiny = HYP_FLOAT_C(1.0) / (t * t);
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = tiny;
+	}
+	test_assert(matrix4_normal_matrix(&m, &normal) != NULL);
+	test_assert(!(normal.r22 < t * t) && !(normal.r22 > t * t));
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
+	run_test(test_matrix4_normal_matrix_huge_and_tiny);
 	run_test(test_matrix4_determinant_huge_and_tiny);
 	run_test(test_matrix4_inverse_small_determinant);
 	run_test(test_matrix4_inverse_tiny_and_huge_scale);

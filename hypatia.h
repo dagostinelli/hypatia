@@ -1213,7 +1213,7 @@ static void hyp_print_value(const char *prefix, HYP_FLOAT value)
  * values is at least 1 and less than 2; 0 when they are all zero or one is
  * infinite or NaN
  */
-static int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 {
 	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
 	int exponent = 0;
@@ -1270,7 +1270,7 @@ static int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 /* multiplies the n values by 2^exponent, in steps of 2^16 and 2, which are
  * exact unless a value overflows or becomes subnormal
  */
-static void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
+static HYP_INLINE void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
 {
 	HYP_FLOAT step;
 	uint8_t i;
@@ -3677,9 +3677,10 @@ static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct ma
 	determinant = matrix2_determinant(self);
 
 	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
+	 * caller scales the matrix
 	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -3718,10 +3719,18 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	struct matrix2 scaled;
 	int exponent;
 
-	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
-	 * the determinant neither overflows nor underflows when the inverse is in
-	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
-	 * powers of two is exact
+	/* the inverse of self as it is, when its determinant is a finite number
+	 * other than zero: scaling a matrix whose entries span a wide range
+	 * would turn its small entries subnormal
+	 */
+	if (hyp_matrix2_inverse(self, mR) != NULL) {
+		return mR;
+	}
+
+	/* else invert 2^e self, whose largest entry is at least 1 and less than
+	 * 2, so the determinant neither overflows nor underflows when the inverse
+	 * is in range: 2^e inverse(2^e self) is the inverse of self, and
+	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
 	exponent = hyp_power2_exponent(scaled.m, 4);
@@ -4226,9 +4235,10 @@ static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct ma
 	determinant = (HYP_A(11) * HYP_B(11) + HYP_A(12) * HYP_B(21)) + HYP_A(13) * HYP_B(31);
 
 	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
+	 * caller scales the matrix
 	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -4261,10 +4271,18 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	struct matrix3 scaled;
 	int exponent;
 
-	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
-	 * the determinant neither overflows nor underflows when the inverse is in
-	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
-	 * powers of two is exact
+	/* the inverse of self as it is, when its determinant is a finite number
+	 * other than zero: scaling a matrix whose entries span a wide range
+	 * would turn its small entries subnormal
+	 */
+	if (hyp_matrix3_inverse(self, mR) != NULL) {
+		return mR;
+	}
+
+	/* else invert 2^e self, whose largest entry is at least 1 and less than
+	 * 2, so the determinant neither overflows nor underflows when the inverse
+	 * is in range: 2^e inverse(2^e self) is the inverse of self, and
+	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
 	exponent = hyp_power2_exponent(scaled.m, 9);
@@ -4887,9 +4905,10 @@ static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct ma
 	determinant = hyp_matrix4_blocks(self, blocks, ab, dc);
 
 	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal; a NaN determinant also returns NULL)
+	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
+	 * caller scales the matrix
 	 */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -4964,10 +4983,18 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	struct matrix4 scaled;
 	int exponent;
 
-	/* invert 2^e self, whose largest entry is at least 1 and less than 2, so
-	 * the determinant neither overflows nor underflows when the inverse is in
-	 * range: 2^e inverse(2^e self) is the inverse of self, and multiplying by
-	 * powers of two is exact
+	/* the inverse of self as it is, when its determinant is a finite number
+	 * other than zero: scaling a matrix whose entries span a wide range
+	 * would turn its small entries subnormal
+	 */
+	if (hyp_matrix4_inverse(self, mR) != NULL) {
+		return mR;
+	}
+
+	/* else invert 2^e self, whose largest entry is at least 1 and less than
+	 * 2, so the determinant neither overflows nor underflows when the inverse
+	 * is in range: 2^e inverse(2^e self) is the inverse of self, and
+	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
 	exponent = hyp_power2_exponent(scaled.m, 16);
@@ -5005,18 +5032,8 @@ HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
 }
 
 
-/**
- * @ingroup matrix4
- * @brief The normal matrix: the inverse transpose of the upper 3x3, with no
- * translation and 1 in r33.  Surface normals transformed by it stay
- * perpendicular to the surface under a non-uniform scale, where the matrix
- * itself would tilt them.  Returns NULL when the upper 3x3 has no inverse
- * (its determinant is exactly zero).
- *
- * @param self The transformation matrix
- * @param mR The normal matrix is returned here
- */
-HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
+/* matrix4_normal_matrix without the scaling */
+static struct matrix4 *hyp_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
 {
 	struct matrix4 cofactors;
 	HYP_FLOAT high[11];
@@ -5039,8 +5056,10 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 
 	determinant = self->r00 * cofactors.r00 + self->r01 * cofactors.r01 + self->r02 * cofactors.r02;
 
-	/* written without == for -Wfloat-equal; a NaN determinant also returns NULL */
-	if (!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) {
+	/* written without == for -Wfloat-equal; an infinite or NaN determinant
+	 * also returns NULL, and the caller scales the matrix
+	 */
+	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
 		return NULL;
 	}
 
@@ -5049,6 +5068,58 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 		mR->m44[i][0] = cofactors.m44[i][0] / determinant;
 		mR->m44[i][1] = cofactors.m44[i][1] / determinant;
 		mR->m44[i][2] = cofactors.m44[i][2] / determinant;
+	}
+
+	return mR;
+}
+
+
+/**
+ * @ingroup matrix4
+ * @brief The normal matrix: the inverse transpose of the upper 3x3, with no
+ * translation and 1 in r33.  Surface normals transformed by it stay
+ * perpendicular to the surface under a non-uniform scale, where the matrix
+ * itself would tilt them.  Returns NULL when the upper 3x3 has no inverse
+ * (its determinant is exactly zero).
+ *
+ * @param self The transformation matrix
+ * @param mR The normal matrix is returned here
+ */
+HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
+{
+	struct matrix4 scaled;
+	HYP_FLOAT upper[9];
+	uint8_t i;
+	int exponent;
+
+	/* as matrix4_inverse: as it is, else with the upper 3x3 scaled by a power
+	 * of two so its largest entry is at least 1 and less than 2; the normal
+	 * matrix of 2^e A is 2^-e times that of A
+	 */
+	if (hyp_normal_matrix(self, mR) != NULL) {
+		return mR;
+	}
+
+	for (i = 0; i < 9; i++) {
+		upper[i] = self->m44[i / 3][i % 3];
+	}
+	exponent = hyp_power2_exponent(upper, 9);
+	hyp_scale_power2(upper, 9, exponent);
+	scaled = *self;
+	for (i = 0; i < 9; i++) {
+		scaled.m44[i / 3][i % 3] = upper[i];
+	}
+
+	if (hyp_normal_matrix(&scaled, mR) == NULL) {
+		return NULL;
+	}
+
+	for (i = 0; i < 9; i++) {
+		upper[i] = mR->m44[i / 3][i % 3];
+	}
+	hyp_scale_power2(upper, 9, exponent);
+	for (i = 0; i < 9; i++) {
+		mR->m44[i / 3][i % 3] = upper[i];
 	}
 
 	return mR;
