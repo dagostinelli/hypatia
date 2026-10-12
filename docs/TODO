@@ -1,4 +1,25 @@
 Docs:
 - Publish the Doxygen output (.github/workflows/publish-docs.yml)
 
+Attitude (spacecraft ADCS):
+- 3x3 rotation matrices (direction cosine matrices): matrix3 is the 2D
+  homogeneous transform, so a 3D rotation needs a matrix4 today.  A new
+  struct, or quaternion to and from the upper 3x3 of a matrix4 (API decision)
+- The exponential map: quaternion_exp, quaternion_log and the rotation vector
+  (axis times angle) both ways, with sin(x)/x accurate near 0
+- Kinematics: quaternion_integrate(q, w, dt) through the exponential map
+  (q * exp(w dt / 2)), and the derivative 1/2 q * (0, w)
+- State the convention: Hamilton, (x, y, z, w), and the multiply order; note
+  the JPL/Shuster equivalent of each function
+- Error representations: the small error angle of q_a^-1 q_b (for an MEKF),
+  Modified Rodrigues Parameters with the shadow set, Gibbs vectors
+- Euler sequences beyond XYZ: 3-2-1 and 3-1-3, with atan2 (no asin near the
+  singularity)
+- Wahba's problem: TRIAD, then Davenport's q-method (a 4x4 symmetric
+  eigensolver)
+- Each with precision rows against _Float128, a speed row, unit tests and
+  sweep cases in test_scaling.c
+- Not planned: general NxN matrices, a Kalman filter, environment models
+  (IGRF, ephemerides); they belong in a separate library
+
 // end of TODO.txt ...
