@@ -1601,8 +1601,30 @@ static const char *test_quaternion_get_euler_anglesf3_gimbal_and_length(void)
 }
 
 
+static const char *test_quaternion_magnitude_huge_and_tiny(void)
+{
+	struct quaternion q;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+	HYP_FLOAT tiny;
+
+	/* as test_vector3_magnitude_huge_and_tiny */
+	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
+		big *= HYP_FLOAT_C(2.0);
+	}
+	tiny = HYP_FLOAT_C(1.0) / big;
+
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), big);
+	test_assert(!(quaternion_magnitude(&q) < big) && !(quaternion_magnitude(&q) > big));
+	quaternion_setf4(&q, tiny, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(!(quaternion_magnitude(&q) < tiny) && !(quaternion_magnitude(&q) > tiny));
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_magnitude_huge_and_tiny);
 	run_test(test_quaternion_get_euler_anglesf3_gimbal_and_length);
 #if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_quaternion_angle_between_ulp);

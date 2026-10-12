@@ -956,8 +956,37 @@ static const char *test_vector_angle_between_small_ulp(void)
 #endif
 
 
+static const char *test_vector3_magnitude_huge_and_tiny(void)
+{
+	struct vector3 v;
+	struct vector3 zero;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+	HYP_FLOAT tiny;
+
+	/* big squared overflows and tiny squared underflows to 0; neither
+	 * changes the length
+	 */
+	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
+		big *= HYP_FLOAT_C(2.0);
+	}
+	tiny = HYP_FLOAT_C(1.0) / big;
+
+	vector3_setf3(&v, big, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	test_assert(!(vector3_magnitude(&v) < big) && !(vector3_magnitude(&v) > big));
+	vector3_zero(&zero);
+	test_assert(!(vector3_distance(&zero, &v) < big) && !(vector3_distance(&zero, &v) > big));
+
+	vector3_setf3(&v, HYP_FLOAT_C(0.0), tiny, HYP_FLOAT_C(0.0));
+	test_assert(!(vector3_magnitude(&v) < tiny) && !(vector3_magnitude(&v) > tiny));
+	test_assert(!(vector3_distance(&v, &zero) < tiny) && !(vector3_distance(&v, &zero) > tiny));
+
+	return NULL;
+}
+
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_magnitude_huge_and_tiny);
 #if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_vector3_normalize_correctly_rounded);
 	run_test(test_vector_angle_between_small_ulp);
