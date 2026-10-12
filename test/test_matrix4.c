@@ -1214,8 +1214,29 @@ static const char *test_matrix4_inverse_tiny_and_huge_scale(void)
 }
 
 
+static const char *test_matrix4_determinant_huge_and_tiny(void)
+{
+	struct matrix4 m;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+
+	/* the largest power of two: the exact products split it, and splitting
+	 * it must not overflow
+	 */
+	while (big * HYP_FLOAT_C(2.0) - big * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
+		big *= HYP_FLOAT_C(2.0);
+	}
+	matrix4_identity(&m);
+	m.r00 = big;
+	m.r11 = HYP_FLOAT_C(4.0) / big;
+	test_assert(scalar_equalsf(matrix4_determinant(&m), HYP_FLOAT_C(4.0)));
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
+	run_test(test_matrix4_determinant_huge_and_tiny);
 	run_test(test_matrix4_inverse_small_determinant);
 	run_test(test_matrix4_inverse_tiny_and_huge_scale);
 	run_test(test_matrix4_inverse_ill_conditioned);
