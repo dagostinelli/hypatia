@@ -1442,6 +1442,15 @@ static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT
 #endif
 
 
+/* multiplies the n values by the power of two that brings the largest
+ * absolute value to at least 1 and less than 2
+ */
+static void hyp_scale_to_unit(HYP_FLOAT *v, uint8_t n)
+{
+	hyp_scale_power2(v, n, hyp_power2_exponent(v, n));
+}
+
+
 /* the length of the n components, the largest of them at least 1 and less
  * than 2, rounded, with the rest of it in *excess_out.  The sum of the squares
  * is kept exactly as a sum of two values.
@@ -5373,6 +5382,7 @@ HYPAPI struct quaternion *quaternion_set_from_matrix4(struct quaternion *self, c
  */
 HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
 {
+	struct quaternion q;
 	HYP_FLOAT plus[2];
 	HYP_FLOAT minus[2];
 
@@ -5384,12 +5394,16 @@ HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLO
 	 * the pitch an atan2 of their lengths.  No asin, which loses half the
 	 * digits near a pitch of +-pi/2, and the same angles for q of any
 	 * length.  At gimbal lock c + a is undefined, and its weight
-	 * cos b - sin b is 0.
+	 * cos b - sin b is 0.  q is first scaled by a power of two, which is
+	 * exact and does not change the angles, so that the products neither
+	 * overflow nor underflow.
 	 */
-	plus[0] = self->w + self->y;
-	plus[1] = self->z - self->x;
-	minus[0] = self->w - self->y;
-	minus[1] = self->x + self->z;
+	quaternion_set(&q, self);
+	hyp_scale_to_unit(q.q, 4);
+	plus[0] = q.w + q.y;
+	plus[1] = q.z - q.x;
+	minus[0] = q.w - q.y;
+	minus[1] = q.x + q.z;
 
 	*ax = HYP_ATAN2(hyp_sum_of_products(plus[0], minus[1], -plus[1], minus[0]), hyp_sum_of_products(plus[0], minus[0], plus[1], minus[1]));
 	*ay = HYP_FLOAT_C(2.0) * HYP_ATAN2(hyp_length(plus, 2), hyp_length(minus, 2)) - HYP_PI_HALF;
