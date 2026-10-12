@@ -1378,6 +1378,25 @@ static HYP_FLOAT hyp_split_high(HYP_FLOAT a)
 }
 
 
+/* hyp_split_high for a value of any size: where HYP_SPLIT a overflows, the
+ * high half of a / 2^64, which is exact, scaled back
+ */
+static HYP_FLOAT hyp_split_high_any(HYP_FLOAT a)
+{
+#ifdef HYP_FMA
+	return a;
+#else
+	HYP_FLOAT high = hyp_split_high(a);
+
+	if (!(high - high <= HYP_FLOAT_C(0.0)) && a - a <= HYP_FLOAT_C(0.0)) {
+		high = hyp_split_high(a * HYP_FLOAT_C(5.42101086242752217003726400434970855712890625e-20)) * HYP_FLOAT_C(18446744073709551616.0);
+	}
+
+	return high;
+#endif
+}
+
+
 /* a * b = *hi + *lo exactly, with *hi the rounded product, given the high
  * halves ah and bh of a and b from hyp_split_high: a value used in several
  * products is split once
@@ -1773,6 +1792,36 @@ static HYP_FLOAT hyp_half_angle_between(const HYP_FLOAT *a_in, const HYP_FLOAT *
 }
 
 
+/* the high halves of the n values (hyp_split_high), for hyp_minor: a matrix
+ * entry used in several minors is split once
+ */
+static void hyp_split_all(const HYP_FLOAT *m, HYP_FLOAT *high, uint8_t n)
+{
+	uint8_t i;
+#ifdef HYP_SPLIT
+	HYP_FLOAT total = HYP_FLOAT_C(0.0);
+
+	for (i = 0; i < n; i++) {
+		high[i] = hyp_split_high(m[i]);
+		total += high[i];
+	}
+
+	/* an overflowed split (inf or NaN) makes the total inf or NaN: split
+	 * again, the large values scaled
+	 */
+	if (!(total - total <= HYP_FLOAT_C(0.0))) {
+		for (i = 0; i < n; i++) {
+			high[i] = hyp_split_high_any(m[i]);
+		}
+	}
+#else
+	for (i = 0; i < n; i++) {
+		high[i] = m[i];
+	}
+#endif
+}
+
+
 /* a b + c d, with the products and the sum kept exactly until one final
  * rounding (without a splitting constant, the plain expression)
  */
@@ -1785,32 +1834,22 @@ static HYP_INLINE HYP_FLOAT hyp_sum_of_products(HYP_FLOAT a, HYP_FLOAT b, HYP_FL
 	HYP_FLOAT q_low;
 	HYP_FLOAT sum;
 	HYP_FLOAT error;
+	HYP_FLOAT high[4];
+	HYP_FLOAT value[4];
 
-	hyp_exact_product(a, b, &p, &p_low);
-	hyp_exact_product(c, d, &q, &q_low);
+	value[0] = a;
+	value[1] = b;
+	value[2] = c;
+	value[3] = d;
+	hyp_split_all(value, high, 4);
+	hyp_exact_product_split(a, high[0], b, high[1], &p, &p_low);
+	hyp_exact_product_split(c, high[2], d, high[3], &q, &q_low);
 	hyp_exact_sum(p, q, &sum, &error);
 
 	return sum + (error + (p_low + q_low));
 #else
 	return a * b + c * d;
 #endif
-}
-
-
-/* the high halves of the n values (hyp_split_high), for hyp_minor: a matrix
- * entry used in several minors is split once
- */
-static void hyp_split_all(const HYP_FLOAT *m, HYP_FLOAT *high, uint8_t n)
-{
-	uint8_t i;
-
-	for (i = 0; i < n; i++) {
-#ifdef HYP_SPLIT
-		high[i] = hyp_split_high(m[i]);
-#else
-		high[i] = m[i];
-#endif
-	}
 }
 
 
@@ -2154,8 +2193,6 @@ HYPAPI HYP_FLOAT vector2_angle_between(const struct vector2 *self, const struct 
 	/* as vector3_angle_between */
 	return HYP_FLOAT_C(2.0) * hyp_half_angle_between(self->v, vT->v, 2);
 }
-
-
 
 
 /**
