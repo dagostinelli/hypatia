@@ -1620,8 +1620,42 @@ static const char *test_quaternion_magnitude_huge_and_tiny(void)
 }
 
 
+static const char *test_quaternion_get_euler_anglesf3_huge_and_tiny(void)
+{
+	struct quaternion q;
+	struct quaternion scaled;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+	HYP_FLOAT scale[2];
+	HYP_FLOAT a[3];
+	HYP_FLOAT b[3];
+	uint8_t i;
+	uint8_t j;
+
+	/* q times a power of two has the same angles, exactly, also where the
+	 * products of its components overflow or underflow
+	 */
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
+	scale[0] = big;
+	scale[1] = HYP_FLOAT_C(1048576.0) / big;
+
+	quaternion_set_from_euler_anglesf3(&q, HYP_FLOAT_C(0.3), HYP_FLOAT_C(0.2), HYP_FLOAT_C(0.1));
+	quaternion_get_euler_anglesf3(&q, &a[0], &a[1], &a[2]);
+	for (i = 0; i < 2; i++) {
+		quaternion_set(&scaled, &q);
+		quaternion_multiplyf(&scaled, scale[i]);
+		quaternion_get_euler_anglesf3(&scaled, &b[0], &b[1], &b[2]);
+		for (j = 0; j < 3; j++) {
+			test_assert(!(a[j] < b[j]) && !(a[j] > b[j]));
+		}
+	}
+
+	return NULL;
+}
+
+
 static const char *quaternion_all_tests(void)
 {
+	run_test(test_quaternion_get_euler_anglesf3_huge_and_tiny);
 	run_test(test_quaternion_magnitude_huge_and_tiny);
 	run_test(test_quaternion_get_euler_anglesf3_gimbal_and_length);
 #if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
