@@ -35,7 +35,7 @@ typedef _Float128 R;
 
 #define PI acosf128(-1)
 #define N 20000
-#define MAX_ROWS 128
+#define MAX_ROWS 192
 
 struct row {
 	const char *function;
@@ -1328,6 +1328,1151 @@ static void matrices(void)
 	}
 }
 
+/* the quaternion of the Euler angles: Rz(az) Ry(ay) Rx(ax), applied as M v */
+static void euler_quaternion(R ax, R ay, R az, R *q)
+{
+	R qx[4], qy[4], qz[4], t[4];
+
+	qx[0] = sinf128(ax / 2);
+	qx[1] = 0;
+	qx[2] = 0;
+	qx[3] = cosf128(ax / 2);
+	qy[0] = 0;
+	qy[1] = sinf128(ay / 2);
+	qy[2] = 0;
+	qy[3] = cosf128(ay / 2);
+	qz[0] = 0;
+	qz[1] = 0;
+	qz[2] = sinf128(az / 2);
+	qz[3] = cosf128(az / 2);
+	rqmul(qz, qy, t);
+	rqmul(t, qx, q);
+}
+
+/* the largest error of hypatia's product mT self (n x n, row-major m[]),
+ * each entry relative to the sum of the absolute values of its terms
+ */
+static R product_error(const HYP_FLOAT *h, const R *a, const R *b, int n)
+{
+	R worst = 0;
+	int i, j, k;
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			R exact = 0, size = 0;
+			for (k = 0; k < n; k++) {
+				exact += a[i * n + k] * b[k * n + j];
+				size += rabs(a[i * n + k] * b[k * n + j]);
+			}
+			if (size > 0 && rabs((R)h[i * n + j] - exact) / size > worst) {
+				worst = rabs((R)h[i * n + j] - exact) / size;
+			}
+		}
+	}
+	return worst / EPSILON;
+}
+
+/* the determinant of the n x n row-major matrix, by elimination */
+static R rdeterminant(const R *a, int n)
+{
+	R m[16];
+	R det = 1;
+	int i, j, k, p;
+
+	for (k = 0; k < n * n; k++) {
+		m[k] = a[k];
+	}
+	for (k = 0; k < n; k++) {
+		p = k;
+		for (j = k + 1; j < n; j++) {
+			if (rabs(m[j * n + k]) > rabs(m[p * n + k])) {
+				p = j;
+			}
+		}
+		if (p != k) {
+			for (j = 0; j < n; j++) {
+				R t = m[k * n + j];
+				m[k * n + j] = m[p * n + j];
+				m[p * n + j] = t;
+			}
+			det = -det;
+		}
+		det *= m[k * n + k];
+		if (!(rabs(m[k * n + k]) > 0)) {
+			return 0;
+		}
+		for (j = k + 1; j < n; j++) {
+			R f = m[j * n + k] / m[k * n + k];
+			for (i = k; i < n; i++) {
+				m[j * n + i] -= f * m[k * n + i];
+			}
+		}
+	}
+	return det;
+}
+
+/* the rest of the numerical functions */
+static void more(void)
+{
+	struct row *r;
+	int i, j, k, kind;
+
+	for (kind = 0; kind < 2; kind++) {
+		r = row("vector3_magnitude", kind ? "components 1e-15 .. 1e15" : "random");
+		for (i = 0; i < N; i++) {
+			R v[3];
+			struct vector3 h;
+			for (k = 0; k < 3; k++) {
+				v[k] = kind ? powf128(10, uniform(-15, 15)) * (random01() < (R)0.5 ? -1 : 1) : uniform(-10, 10);
+			}
+			set3(&h, v);
+			get3(&h, v);
+			add(r, error1(vector3_magnitude(&h), rlength(v, 3)));
+		}
+	}
+
+	r = row("vector2_magnitude", "random");
+	for (i = 0; i < N; i++) {
+		R v[2];
+		struct vector2 h;
+		vector2_setf2(&h, (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10));
+		v[0] = (R)h.x;
+		v[1] = (R)h.y;
+		add(r, error1(vector2_magnitude(&h), rlength(v, 2)));
+	}
+
+	r = row("vector4_magnitude", "random");
+	for (i = 0; i < N; i++) {
+		R v[4];
+		struct vector4 h;
+		vector4_setf4(&h, (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10));
+		for (k = 0; k < 4; k++) {
+			v[k] = (R)h.v[k];
+		}
+		add(r, error1(vector4_magnitude(&h), rlength(v, 4)));
+	}
+
+	r = row("vector3_distance", "random");
+	for (i = 0; i < N; i++) {
+		R a[3], b[3], d[3];
+		struct vector3 ha, hb;
+		for (k = 0; k < 3; k++) {
+			a[k] = uniform(-10, 10);
+			b[k] = uniform(-10, 10);
+		}
+		set3(&ha, a);
+		set3(&hb, b);
+		get3(&ha, a);
+		get3(&hb, b);
+		for (k = 0; k < 3; k++) {
+			d[k] = a[k] - b[k];
+		}
+		add(r, error1(vector3_distance(&ha, &hb), rlength(d, 3)));
+	}
+
+	/* relative to the sum of the absolute values of the terms */
+	r = row("vector3_dot_product", "random");
+	for (i = 0; i < N; i++) {
+		R a[3], b[3], size = 0;
+		struct vector3 ha, hb;
+		for (k = 0; k < 3; k++) {
+			a[k] = uniform(-10, 10);
+			b[k] = uniform(-10, 10);
+		}
+		set3(&ha, a);
+		set3(&hb, b);
+		get3(&ha, a);
+		get3(&hb, b);
+		for (k = 0; k < 3; k++) {
+			size += rabs(a[k] * b[k]);
+		}
+		add(r, rabs((R)vector3_dot_product(&ha, &hb) - rdot3(a, b)) / size / EPSILON);
+	}
+
+	r = row("quaternion_set_from_euler_anglesf3", "random");
+	for (i = 0; i < N; i++) {
+		R o[4];
+		struct quaternion h;
+		HYP_FLOAT ax = (HYP_FLOAT)uniform(-PI, PI), ay = (HYP_FLOAT)uniform(-PI / 2, PI / 2), az = (HYP_FLOAT)uniform(-PI, PI);
+		euler_quaternion((R)ax, (R)ay, (R)az, o);
+		quaternion_set_from_euler_anglesf3(&h, ax, ay, az);
+		add(r, errorq(h.q, o));
+	}
+
+	r = row("matrix4_set_from_euler_anglesf3", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], m[9], o[16];
+		HYP_FLOAT h[16];
+		struct matrix4 hm;
+		HYP_FLOAT ax = (HYP_FLOAT)uniform(-PI, PI), ay = (HYP_FLOAT)uniform(-PI / 2, PI / 2), az = (HYP_FLOAT)uniform(-PI, PI);
+		euler_quaternion((R)ax, (R)ay, (R)az, q);
+		rotation_matrix(q, m);
+		for (k = 0; k < 16; k++) {
+			o[k] = (k % 5 == 0) ? 1 : 0;
+		}
+		for (k = 0; k < 9; k++) {
+			o[(k / 3) * 4 + k % 3] = m[k];
+		}
+		matrix4_set_from_euler_anglesf3(&hm, ax, ay, az);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0));
+	}
+
+	/* the rotation the angles give back, against the input rotation: the
+	 * angles themselves are not unique at gimbal lock
+	 */
+	for (kind = 0; kind < 3; kind++) {
+		static const char *names[3] = {"unit q (rotation of the angles)", "pitch within 1e-3 of +-pi/2 (rotation of the angles)", "q of length 0.1 .. 10 (rotation of the angles)"};
+		r = row("quaternion_get_euler_anglesf3", names[kind]);
+		for (i = 0; i < N; i++) {
+			R q[4], back[4], l;
+			struct quaternion h;
+			HYP_FLOAT ax, ay, az;
+			if (kind == 1) {
+				euler_quaternion(uniform(-PI, PI), (random01() < (R)0.5 ? -1 : 1) * (PI / 2 - uniform(0, (R)1e-3)), uniform(-PI, PI), q);
+			} else {
+				random_unit(q, 4);
+			}
+			if (kind == 2) {
+				l = uniform((R)0.1, 10);
+				for (k = 0; k < 4; k++) {
+					q[k] *= l;
+				}
+			}
+			setq(&h, q);
+			getq(&h, q);
+			rnormalize(q, 4);
+			quaternion_get_euler_anglesf3(&h, &ax, &ay, &az);
+			euler_quaternion((R)ax, (R)ay, (R)az, back);
+			{
+				R e1 = 0, e2 = 0;
+				for (k = 0; k < 4; k++) {
+					if (rabs(back[k] - q[k]) > e1) {
+						e1 = rabs(back[k] - q[k]);
+					}
+					if (rabs(back[k] + q[k]) > e2) {
+						e2 = rabs(back[k] + q[k]);
+					}
+				}
+				add(r, (e1 < e2 ? e1 : e2) / EPSILON);
+			}
+		}
+	}
+
+	r = row("matrix4_transformation_compose", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], m[9], s[3], t[3], o[16];
+		HYP_FLOAT h[16];
+		struct quaternion hq;
+		struct vector3 hs, ht;
+		struct matrix4 hm;
+		random_unit(q, 4);
+		for (k = 0; k < 3; k++) {
+			s[k] = uniform((R)0.5, 2);
+			t[k] = uniform(-10, 10);
+		}
+		setq(&hq, q);
+		getq(&hq, q);
+		set3(&hs, s);
+		get3(&hs, s);
+		set3(&ht, t);
+		get3(&ht, t);
+		rotation_matrix(q, m);
+		for (k = 0; k < 16; k++) {
+			o[k] = (k == 15) ? 1 : 0;
+		}
+		for (j = 0; j < 3; j++) {
+			for (k = 0; k < 3; k++) {
+				o[j * 4 + k] = m[j * 3 + k] * s[k];
+			}
+			o[j * 4 + 3] = t[j];
+		}
+		matrix4_transformation_compose(&hm, &hs, &hq, &ht);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0));
+	}
+
+	/* scale relative to itself, the rotation up to sign, the translation
+	 * exactly; the reference rotation is the nearest one to the unit columns
+	 */
+	for (kind = 0; kind < 2; kind++) {
+		r = row("matrix4_transformation_decompose", kind ? "scales 1e-3 .. 1e3" : "random rotation, scale and translation");
+		for (i = 0; i < N; i++) {
+			R q[4], m[9], a[16], x[9], xi[9], o[4], s[3], e;
+			HYP_FLOAT hsv[3];
+			struct matrix4 hm;
+			struct vector3 hs, ht;
+			struct quaternion hq;
+			int it;
+			random_unit(q, 4);
+			rotation_matrix(q, m);
+			for (k = 0; k < 3; k++) {
+				s[k] = kind ? powf128(10, uniform(-3, 3)) : uniform((R)0.5, 2);
+			}
+			for (k = 0; k < 16; k++) {
+				a[k] = (k == 15) ? 1 : 0;
+			}
+			for (j = 0; j < 3; j++) {
+				for (k = 0; k < 3; k++) {
+					a[j * 4 + k] = m[j * 3 + k] * s[k];
+				}
+				a[j * 4 + 3] = uniform(-10, 10);
+			}
+			setm4(&hm, a);
+			getm4(&hm, a);
+			for (k = 0; k < 3; k++) {
+				R col[3];
+				for (j = 0; j < 3; j++) {
+					col[j] = a[j * 4 + k];
+				}
+				s[k] = rlength(col, 3);
+				for (j = 0; j < 3; j++) {
+					x[j * 3 + k] = col[j] / s[k];
+				}
+			}
+			for (it = 0; it < 6; it++) {
+				rinverse(x, xi, 3);
+				for (k = 0; k < 9; k++) {
+					x[k] = (x[k] + xi[(k % 3) * 3 + k / 3]) / 2;
+				}
+			}
+			matrix_quaternion(x, o);
+			matrix4_transformation_decompose(&hm, &hs, &hq, &ht);
+			e = errorq(hq.q, o);
+			for (k = 0; k < 3; k++) {
+				hsv[k] = hs.v[k];
+				if (rabs((R)hsv[k] - s[k]) / s[k] / EPSILON > e) {
+					e = rabs((R)hsv[k] - s[k]) / s[k] / EPSILON;
+				}
+				if (rabs((R)ht.v[k] - a[k * 4 + 3]) / EPSILON > e) {
+					e = rabs((R)ht.v[k] - a[k * 4 + 3]) / EPSILON;
+				}
+			}
+			add(r, e);
+		}
+	}
+
+	/* the error over the condition number of the upper 3x3, as for the inverses */
+	r = row("matrix4_normal_matrix", "random affine (error / condition number)");
+	for (i = 0; i < N; i++) {
+		R a[16], u[9], ui[9], o[16];
+		HYP_FLOAT h[16];
+		struct matrix4 hm, hn;
+		R condition;
+		for (k = 0; k < 16; k++) {
+			a[k] = (k == 15) ? 1 : (k >= 12) ? 0 : uniform(-1, 1);
+		}
+		setm4(&hm, a);
+		getm4(&hm, a);
+		for (j = 0; j < 3; j++) {
+			for (k = 0; k < 3; k++) {
+				u[j * 3 + k] = a[j * 4 + k];
+			}
+		}
+		condition = row_sum_norm(u, 3) * rinverse(u, ui, 3);
+		for (k = 0; k < 16; k++) {
+			o[k] = (k % 5 == 0) ? 1 : 0;
+		}
+		for (j = 0; j < 3; j++) {
+			for (k = 0; k < 3; k++) {
+				o[j * 4 + k] = ui[k * 3 + j];
+			}
+		}
+		if (matrix4_normal_matrix(&hm, &hn) == NULL) {
+			continue;
+		}
+		rowmajor4(&hn, h);
+		add(r, error(h, o, 16, 0) / condition);
+	}
+
+	r = row("matrix4_projection_ortho3d_rh", "random");
+	for (i = 0; i < N; i++) {
+		R o[16], l, rr, b, t, n, f;
+		HYP_FLOAT h[16];
+		struct matrix4 hm;
+		HYP_FLOAT hl = (HYP_FLOAT)uniform(-10, -1), hr = (HYP_FLOAT)uniform(1, 10), hb = (HYP_FLOAT)uniform(-10, -1), ht = (HYP_FLOAT)uniform(1, 10), hn = (HYP_FLOAT)uniform((R)0.01, 1), hf = (HYP_FLOAT)uniform(10, 1000);
+		l = (R)hl;
+		rr = (R)hr;
+		b = (R)hb;
+		t = (R)ht;
+		n = (R)hn;
+		f = (R)hf;
+		for (k = 0; k < 16; k++) {
+			o[k] = 0;
+		}
+		o[0] = 2 / (rr - l);
+		o[3] = -(rr + l) / (rr - l);
+		o[5] = 2 / (t - b);
+		o[7] = -(t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+		o[10] = 2 / (n - f);
+		o[11] = (f + n) / (n - f);
+#else
+		o[10] = 1 / (n - f);
+		o[11] = n / (n - f);
+#endif
+		o[15] = 1;
+		matrix4_projection_ortho3d_rh(&hm, hl, hr, hb, ht, hn, hf);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0));
+	}
+
+	r = row("matrix4_projection_frustum_rh", "random");
+	for (i = 0; i < N; i++) {
+		R o[16], l, rr, b, t, n, f;
+		HYP_FLOAT h[16];
+		struct matrix4 hm;
+		HYP_FLOAT hl = (HYP_FLOAT)uniform(-1, (R)-0.1), hr = (HYP_FLOAT)uniform((R)0.1, 1), hb = (HYP_FLOAT)uniform(-1, (R)-0.1), ht = (HYP_FLOAT)uniform((R)0.1, 1), hn = (HYP_FLOAT)uniform((R)0.01, 1), hf = (HYP_FLOAT)uniform(10, 1000);
+		l = (R)hl;
+		rr = (R)hr;
+		b = (R)hb;
+		t = (R)ht;
+		n = (R)hn;
+		f = (R)hf;
+		for (k = 0; k < 16; k++) {
+			o[k] = 0;
+		}
+		o[0] = 2 * n / (rr - l);
+		o[2] = (rr + l) / (rr - l);
+		o[5] = 2 * n / (t - b);
+		o[6] = (t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+		o[10] = (f + n) / (n - f);
+		o[11] = 2 * f * n / (n - f);
+#else
+		o[10] = f / (n - f);
+		o[11] = n * f / (n - f);
+#endif
+		o[14] = -1;
+		matrix4_projection_frustum_rh(&hm, hl, hr, hb, ht, hn, hf);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0));
+	}
+
+	r = row("matrix4_projection_perspective_fovy_infinite_rh", "random");
+	for (i = 0; i < N; i++) {
+		R o[16], hh;
+		HYP_FLOAT h[16];
+		struct matrix4 hm;
+		HYP_FLOAT hf = (HYP_FLOAT)uniform((R)0.5, 2), ha = (HYP_FLOAT)uniform((R)0.5, 2), hn = (HYP_FLOAT)uniform((R)0.01, 1);
+		hh = cosf128((R)hf / 2) / sinf128((R)hf / 2);
+		for (k = 0; k < 16; k++) {
+			o[k] = 0;
+		}
+		o[0] = hh / (R)ha;
+		o[5] = hh;
+		o[10] = -1;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+		o[11] = -2 * (R)hn;
+#else
+		o[11] = -(R)hn;
+#endif
+		o[14] = -1;
+		matrix4_projection_perspective_fovy_infinite_rh(&hm, hf, ha, hn);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0));
+	}
+
+	/* a perspective camera: window coordinates relative to the viewport size;
+	 * unproject relative to the size of the point, over the condition number
+	 * of the transform.  The largest projection errors are where the terms of
+	 * transform * point are 20 to 100 times the result (a point near the
+	 * camera plane next to the translation of the view): the product is
+	 * within an ulp of the size of its terms, as matrix4_multiplyv4
+	 */
+	for (kind = 0; kind < 2; kind++) {
+		r = row(kind ? "vector3_unproject_from_window" : "vector3_project_to_window", kind ? "perspective camera (error / condition number)" : "perspective camera");
+		for (i = 0; i < N; i++) {
+			R t[16], ti[16], vp[4], pt[4], c[4], o[3], condition;
+			struct matrix4 hp, hv, ht;
+			struct vector3 eye, target, up, hpt;
+			struct vector4 hvp;
+			HYP_FLOAT got[3];
+			vector3_setf3(&eye, (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10));
+			vector3_setf3(&target, (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10));
+			vector3_setf3(&up, 0, 1, 0);
+			matrix4_view_lookat_rh(&hv, &eye, &target, &up);
+			matrix4_projection_perspective_fovy_rh(&hp, (HYP_FLOAT)uniform((R)0.5, 2), (HYP_FLOAT)uniform((R)0.5, 2), (HYP_FLOAT)uniform((R)0.1, 1), (HYP_FLOAT)uniform(50, 500));
+			ht = hv;
+			matrix4_multiply(&ht, &hp); /* ht = hp hv */
+			getm4(&ht, t);
+			vector4_setf4(&hvp, (HYP_FLOAT)uniform(0, 100), (HYP_FLOAT)uniform(0, 100), (HYP_FLOAT)uniform(100, 2000), (HYP_FLOAT)uniform(100, 2000));
+			for (k = 0; k < 4; k++) {
+				vp[k] = (R)hvp.v[k];
+			}
+			if (kind == 0) {
+				/* a point in front of the camera */
+				R fwd[3], d = uniform(1, 40);
+				for (k = 0; k < 3; k++) {
+					fwd[k] = (R)target.v[k] - (R)eye.v[k];
+				}
+				rnormalize(fwd, 3);
+				for (k = 0; k < 3; k++) {
+					pt[k] = (R)eye.v[k] + d * fwd[k] + uniform(-1, 1) * d / 4;
+				}
+				pt[3] = 1;
+				set3(&hpt, pt);
+				get3(&hpt, pt);
+				for (j = 0; j < 4; j++) {
+					c[j] = 0;
+					for (k = 0; k < 4; k++) {
+						c[j] += t[j * 4 + k] * pt[k];
+					}
+				}
+				o[0] = vp[0] + vp[2] * (c[0] / c[3] + 1) / 2;
+				o[1] = vp[1] + vp[3] * (c[1] / c[3] + 1) / 2;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[2] = (c[2] / c[3] + 1) / 2;
+#else
+				o[2] = c[2] / c[3];
+#endif
+				if (vector3_project_to_window(&hpt, &ht, &hvp) == NULL) {
+					continue;
+				}
+				for (k = 0; k < 3; k++) {
+					got[k] = hpt.v[k];
+				}
+				{
+					R e = 0;
+					for (k = 0; k < 2; k++) {
+						if (rabs((R)got[k] - o[k]) / vp[2 + k] > e) {
+							e = rabs((R)got[k] - o[k]) / vp[2 + k];
+						}
+					}
+					if (rabs((R)got[2] - o[2]) > e) {
+						e = rabs((R)got[2] - o[2]);
+					}
+					add(r, e / EPSILON);
+				}
+			} else {
+				R ndc[4], w[3];
+				vector3_setf3(&hpt, (HYP_FLOAT)(vp[0] + uniform(0, 1) * vp[2]), (HYP_FLOAT)(vp[1] + uniform(0, 1) * vp[3]), (HYP_FLOAT)uniform((R)0.5, (R)0.999));
+				get3(&hpt, w);
+				ndc[0] = 2 * (w[0] - vp[0]) / vp[2] - 1;
+				ndc[1] = 2 * (w[1] - vp[1]) / vp[3] - 1;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				ndc[2] = 2 * w[2] - 1;
+#else
+				ndc[2] = w[2];
+#endif
+				ndc[3] = 1;
+				condition = row_sum_norm(t, 4) * rinverse(t, ti, 4);
+				for (j = 0; j < 4; j++) {
+					c[j] = 0;
+					for (k = 0; k < 4; k++) {
+						c[j] += ti[j * 4 + k] * ndc[k];
+					}
+				}
+				for (k = 0; k < 3; k++) {
+					o[k] = c[k] / c[3];
+				}
+				if (vector3_unproject_from_window(&hpt, &ht, &hvp) == NULL) {
+					continue;
+				}
+				add(r, error(hpt.v, o, 3, 0) / condition);
+			}
+		}
+	}
+
+	r = row("matrix3_multiply", "random");
+	for (i = 0; i < N; i++) {
+		R a[9], b[9];
+		struct matrix3 ha, hb;
+		for (k = 0; k < 9; k++) {
+			ha.m[k] = (HYP_FLOAT)uniform(-1, 1);
+			hb.m[k] = (HYP_FLOAT)uniform(-1, 1);
+			a[k] = (R)ha.m[k];
+			b[k] = (R)hb.m[k];
+		}
+		/* self = mT self */
+		matrix3_multiply(&ha, &hb);
+		add(r, product_error(ha.m, b, a, 3));
+	}
+
+	r = row("matrix2_multiply", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4];
+		struct matrix2 ha, hb;
+		for (k = 0; k < 4; k++) {
+			ha.m[k] = (HYP_FLOAT)uniform(-1, 1);
+			hb.m[k] = (HYP_FLOAT)uniform(-1, 1);
+			a[k] = (R)ha.m[k];
+			b[k] = (R)hb.m[k];
+		}
+		matrix2_multiply(&ha, &hb);
+		add(r, product_error(ha.m, b, a, 2));
+	}
+
+	r = row("matrix3_multiplyv2", "random");
+	for (i = 0; i < N; i++) {
+		R a[9], v[3];
+		HYP_FLOAT got[3];
+		struct matrix3 hm;
+		struct vector2 hv, hr;
+		for (k = 0; k < 9; k++) {
+			hm.m[k] = (HYP_FLOAT)uniform(-1, 1);
+			a[k] = (R)hm.m[k];
+		}
+		vector2_setf2(&hv, (HYP_FLOAT)uniform(-10, 10), (HYP_FLOAT)uniform(-10, 10));
+		v[0] = (R)hv.x;
+		v[1] = (R)hv.y;
+		v[2] = 1;
+		matrix3_multiplyv2(&hm, &hv, &hr);
+		got[0] = hr.x;
+		got[1] = hr.y;
+		got[2] = 1;
+		/* the first two rows of a (x, y, 1) */
+		{
+			R worst = 0;
+			for (j = 0; j < 2; j++) {
+				R exact = 0, size = 0;
+				for (k = 0; k < 3; k++) {
+					exact += a[j * 3 + k] * v[k];
+					size += rabs(a[j * 3 + k] * v[k]);
+				}
+				if (rabs((R)got[j] - exact) / size > worst) {
+					worst = rabs((R)got[j] - exact) / size;
+				}
+			}
+			add(r, worst / EPSILON);
+		}
+	}
+
+	/* relative to the product of the row lengths (Hadamard's bound) */
+	for (kind = 2; kind <= 3; kind++) {
+		r = row(kind == 2 ? "matrix2_determinant" : "matrix3_determinant", "random entries");
+		for (i = 0; i < N; i++) {
+			R a[9], scale = 1;
+			HYP_FLOAT got;
+			struct matrix2 h2;
+			struct matrix3 h3;
+			for (k = 0; k < kind * kind; k++) {
+				HYP_FLOAT x = (HYP_FLOAT)uniform(-1, 1);
+				if (kind == 2) {
+					h2.m[k] = x;
+				} else {
+					h3.m[k] = x;
+				}
+				a[k] = (R)x;
+			}
+			for (k = 0; k < kind; k++) {
+				scale *= rlength(&a[k * kind], kind);
+			}
+			got = (kind == 2) ? matrix2_determinant(&h2) : matrix3_determinant(&h3);
+			add(r, rabs((R)got - rdeterminant(a, kind)) / scale / EPSILON);
+		}
+	}
+
+	for (kind = 0; kind < 2; kind++) {
+		r = row("quaternion_nlerp", kind ? "1e-6 rad apart" : "random, same hemisphere");
+		for (i = 0; i < N; i++) {
+			R s[4], t[4], d[4], o[4];
+			struct quaternion hs, ht, h;
+			HYP_FLOAT hu = (HYP_FLOAT)random01();
+			random_unit(s, 4);
+			if (kind) {
+				rotation_by((R)1e-6, d);
+				rqmul(s, d, t);
+			} else {
+				random_unit(t, 4);
+				if (s[0] * t[0] + s[1] * t[1] + s[2] * t[2] + s[3] * t[3] < 0) {
+					for (k = 0; k < 4; k++) {
+						t[k] = -t[k];
+					}
+				}
+			}
+			setq(&hs, s);
+			setq(&ht, t);
+			getq(&hs, s);
+			getq(&ht, t);
+			for (k = 0; k < 4; k++) {
+				o[k] = (1 - (R)hu) * s[k] + (R)hu * t[k];
+			}
+			rnormalize(o, 4);
+			quaternion_nlerp(&hs, &ht, hu, &h);
+			add(r, error(h.q, o, 4, 0));
+		}
+	}
+
+	r = row("quaternion_difference", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4], dif[4], sum[4], o;
+		struct quaternion ha, hb;
+		random_unit(a, 4);
+		random_unit(b, 4);
+		setq(&ha, a);
+		setq(&hb, b);
+		getq(&ha, a);
+		getq(&hb, b);
+		for (k = 0; k < 4; k++) {
+			dif[k] = b[k] - a[k];
+			sum[k] = b[k] + a[k];
+		}
+		/* the squared distance, as documented */
+		o = rlength(dif, 4) < rlength(sum, 4) ? rlength(dif, 4) : rlength(sum, 4);
+		o = o * o;
+		add(r, error1(quaternion_difference(&ha, &hb), o));
+	}
+
+	/* q v q, relative to |q|^2 |v| */
+	r = row("vector3_reflect_by_quaternion", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], v[4], t[4], o[4];
+		struct quaternion hq;
+		struct vector3 hv;
+		random_unit(q, 4);
+		for (k = 0; k < 3; k++) {
+			v[k] = uniform(-10, 10);
+		}
+		v[3] = 0;
+		setq(&hq, q);
+		getq(&hq, q);
+		set3(&hv, v);
+		get3(&hv, v);
+		rqmul(q, v, t);
+		rqmul(t, q, o);
+		vector3_reflect_by_quaternion(&hv, &hq);
+		add(r, error(hv.v, o, 3, rlength(v, 3) * rlength(q, 4) * rlength(q, 4)));
+	}
+
+	/* self = normalize(self q(axis, angle)) */
+	r = row("quaternion_rotate_by_axis_angle", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], axis[3], a[4], o[4];
+		struct quaternion hq;
+		struct vector3 ha;
+		HYP_FLOAT angle = (HYP_FLOAT)uniform(-PI, PI);
+		random_unit(q, 4);
+		random_unit(axis, 3);
+		setq(&hq, q);
+		getq(&hq, q);
+		set3(&ha, axis);
+		get3(&ha, axis);
+		rnormalize(axis, 3);
+		for (k = 0; k < 3; k++) {
+			a[k] = axis[k] * sinf128((R)angle / 2);
+		}
+		a[3] = cosf128((R)angle / 2);
+		rqmul(q, a, o);
+		rnormalize(o, 4);
+		quaternion_rotate_by_axis_angle(&hq, &ha, angle);
+		add(r, errorq(hq.q, o));
+	}
+}
+
+/* the 4x4 (row-major) rotation by angle about the unit axis, from its
+ * quaternion
+ */
+static void axis_rotation4(const R *axis, R angle, R *o)
+{
+	R q[4], m[9];
+	int k;
+
+	for (k = 0; k < 3; k++) {
+		q[k] = axis[k] * sinf128(angle / 2);
+	}
+	q[3] = cosf128(angle / 2);
+	rotation_matrix(q, m);
+	for (k = 0; k < 16; k++) {
+		o[k] = (k % 5 == 0) ? 1 : 0;
+	}
+	for (k = 0; k < 9; k++) {
+		o[(k / 3) * 4 + k % 3] = m[k];
+	}
+}
+
+/* the left-handed variants, the rotation builders, and the rest */
+static void last(void)
+{
+	struct row *r;
+	int i, j, k, kind;
+
+	/* multiplied by the sine of the angle between the view and up, as the
+	 * right-handed lookat
+	 */
+	r = row("matrix4_view_lookat_lh", "random (error * sin(view, up))");
+	for (i = 0; i < N; i++) {
+		R eye[3], target[3], up[3], z[3], x[3], y[3], o[16], s;
+		HYP_FLOAT h[16];
+		struct vector3 he, ht, hu;
+		struct matrix4 hm;
+		for (k = 0; k < 3; k++) {
+			eye[k] = uniform(-10, 10);
+			target[k] = uniform(-10, 10);
+		}
+		random_unit(up, 3);
+		set3(&he, eye);
+		set3(&ht, target);
+		set3(&hu, up);
+		get3(&he, eye);
+		get3(&ht, target);
+		get3(&hu, up);
+		for (k = 0; k < 3; k++) {
+			z[k] = target[k] - eye[k];
+		}
+		rnormalize(z, 3);
+		rcross(up, z, x);
+		s = rlength(x, 3) / rlength(up, 3);
+		rnormalize(x, 3);
+		rcross(z, x, y);
+		for (k = 0; k < 3; k++) {
+			o[0 * 4 + k] = x[k];
+			o[1 * 4 + k] = y[k];
+			o[2 * 4 + k] = z[k];
+			o[3 * 4 + k] = 0;
+		}
+		o[3] = -rdot3(x, eye);
+		o[7] = -rdot3(y, eye);
+		o[11] = -rdot3(z, eye);
+		o[15] = 1;
+		matrix4_view_lookat_lh(&hm, &he, &ht, &hu);
+		rowmajor4(&hm, h);
+		add(r, error(h, o, 16, 0) * s);
+	}
+
+	for (kind = 0; kind < 4; kind++) {
+		static const char *names[4] = {"matrix4_projection_perspective_fovy_lh", "matrix4_projection_ortho3d_lh", "matrix4_projection_frustum_lh", "matrix4_projection_perspective_fovy_infinite_lh"};
+		r = row(names[kind], "random");
+		for (i = 0; i < N; i++) {
+			R o[16], hh, l, rr, b, t, n, f, a;
+			HYP_FLOAT h[16];
+			struct matrix4 hm;
+			HYP_FLOAT p1 = (HYP_FLOAT)uniform((R)0.5, 2), p2 = (HYP_FLOAT)uniform((R)0.5, 2);
+			HYP_FLOAT hl = (HYP_FLOAT)uniform(-1, (R)-0.1), hr = (HYP_FLOAT)uniform((R)0.1, 1), hb = (HYP_FLOAT)uniform(-1, (R)-0.1), ht = (HYP_FLOAT)uniform((R)0.1, 1);
+			HYP_FLOAT hn = (HYP_FLOAT)uniform((R)0.01, 1), hf = (HYP_FLOAT)uniform(10, 1000);
+			l = (R)hl;
+			rr = (R)hr;
+			b = (R)hb;
+			t = (R)ht;
+			n = (R)hn;
+			f = (R)hf;
+			a = (R)p2;
+			hh = cosf128((R)p1 / 2) / sinf128((R)p1 / 2);
+			for (k = 0; k < 16; k++) {
+				o[k] = 0;
+			}
+			if (kind == 0) {
+				o[0] = hh / a;
+				o[5] = hh;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = (f + n) / (f - n);
+				o[11] = -2 * f * n / (f - n);
+#else
+				o[10] = f / (f - n);
+				o[11] = -n * f / (f - n);
+#endif
+				o[14] = 1;
+				matrix4_projection_perspective_fovy_lh(&hm, p1, p2, hn, hf);
+			} else if (kind == 1) {
+				o[0] = 2 / (rr - l);
+				o[3] = -(rr + l) / (rr - l);
+				o[5] = 2 / (t - b);
+				o[7] = -(t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = 2 / (f - n);
+				o[11] = -(f + n) / (f - n);
+#else
+				o[10] = 1 / (f - n);
+				o[11] = -n / (f - n);
+#endif
+				o[15] = 1;
+				matrix4_projection_ortho3d_lh(&hm, hl, hr, hb, ht, hn, hf);
+			} else if (kind == 2) {
+				o[0] = 2 * n / (rr - l);
+				o[2] = -(rr + l) / (rr - l);
+				o[5] = 2 * n / (t - b);
+				o[6] = -(t + b) / (t - b);
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[10] = (f + n) / (f - n);
+				o[11] = -2 * f * n / (f - n);
+#else
+				o[10] = f / (f - n);
+				o[11] = -n * f / (f - n);
+#endif
+				o[14] = 1;
+				matrix4_projection_frustum_lh(&hm, hl, hr, hb, ht, hn, hf);
+			} else {
+				o[0] = hh / a;
+				o[5] = hh;
+				o[10] = 1;
+#ifdef HYP_DEPTH_MINUS_ONE_TO_ONE
+				o[11] = -2 * n;
+#else
+				o[11] = -n;
+#endif
+				o[14] = 1;
+				matrix4_projection_perspective_fovy_infinite_lh(&hm, p1, p2, hn);
+			}
+			rowmajor4(&hm, h);
+			add(r, error(h, o, 16, 0));
+		}
+	}
+
+	/* the camera turns +Z into forward, with +Y toward up */
+	r = row("quaternion_set_look_rotation_lh", "random");
+	for (i = 0; i < N; i++) {
+		R f[3], up[3], right[3], above[3], m[9], o[4];
+		struct vector3 hf, hu;
+		struct quaternion h;
+		random_unit(f, 3);
+		random_unit(up, 3);
+		for (k = 0; k < 3; k++) {
+			f[k] *= uniform(1, 10);
+		}
+		set3(&hf, f);
+		set3(&hu, up);
+		get3(&hf, f);
+		get3(&hu, up);
+		rnormalize(f, 3);
+		rcross(up, f, right);
+		rnormalize(right, 3);
+		rcross(f, right, above);
+		for (k = 0; k < 3; k++) {
+			m[k * 3 + 0] = right[k];
+			m[k * 3 + 1] = above[k];
+			m[k * 3 + 2] = f[k];
+		}
+		matrix_quaternion(m, o);
+		quaternion_set_look_rotation_lh(&h, &hf, &hu);
+		add(r, errorq(h.q, o));
+	}
+
+	/* against the rotation about the axis by the right-hand rule */
+	for (kind = 0; kind < 5; kind++) {
+		static const char *names[5] = {"matrix4_make_transformation_rotationf_x", "matrix4_make_transformation_rotationf_y", "matrix4_make_transformation_rotationf_z", "matrix3_make_transformation_rotationf_z", "matrix2_make_transformation_rotationf_z"};
+		r = row(names[kind], "random angle");
+		for (i = 0; i < N; i++) {
+			R axis[3] = {0, 0, 0}, o[16], ref[16];
+			HYP_FLOAT h[16];
+			HYP_FLOAT angle = (HYP_FLOAT)uniform(-PI, PI);
+			struct matrix4 h4;
+			struct matrix3 h3;
+			struct matrix2 h2;
+			int n = 16;
+			axis[kind < 3 ? kind : 2] = 1;
+			axis_rotation4(axis, (R)angle, o);
+			if (kind < 3) {
+				if (kind == 0) {
+					matrix4_make_transformation_rotationf_x(&h4, angle);
+				} else if (kind == 1) {
+					matrix4_make_transformation_rotationf_y(&h4, angle);
+				} else {
+					matrix4_make_transformation_rotationf_z(&h4, angle);
+				}
+				rowmajor4(&h4, h);
+				for (k = 0; k < 16; k++) {
+					ref[k] = o[k];
+				}
+			} else if (kind == 3) {
+				matrix3_make_transformation_rotationf_z(&h3, angle);
+				n = 9;
+				for (k = 0; k < 9; k++) {
+					h[k] = h3.m[k];
+					ref[k] = (k == 8) ? 1 : (k % 3 == 2 || k >= 6) ? 0 : o[(k / 3) * 4 + k % 3];
+				}
+			} else {
+				matrix2_make_transformation_rotationf_z(&h2, angle);
+				n = 4;
+				for (k = 0; k < 4; k++) {
+					h[k] = h2.m[k];
+					ref[k] = o[(k / 2) * 4 + k % 2];
+				}
+			}
+			add(r, error(h, ref, n, 0));
+		}
+	}
+
+	/* self = R self, relative to the largest entry of the result: a rotation
+	 * keeps the lengths of the columns, and its own entries are accurate
+	 * relative to 1, not to their size
+	 */
+	r = row("matrix4_rotatev3", "random");
+	for (i = 0; i < N; i++) {
+		R a[16], axis[3], rot[16];
+		HYP_FLOAT angle = (HYP_FLOAT)uniform(-PI, PI);
+		struct matrix4 hm;
+		struct vector3 ha;
+		for (k = 0; k < 16; k++) {
+			a[k] = uniform(-1, 1);
+		}
+		random_unit(axis, 3);
+		setm4(&hm, a);
+		getm4(&hm, a);
+		set3(&ha, axis);
+		get3(&ha, axis);
+		rnormalize(axis, 3);
+		axis_rotation4(axis, (R)angle, rot);
+		matrix4_rotatev3(&hm, &ha, angle);
+		{
+			HYP_FLOAT h[16];
+			R o[16];
+			for (j = 0; j < 4; j++) {
+				for (k = 0; k < 4; k++) {
+					int l;
+					o[j * 4 + k] = 0;
+					for (l = 0; l < 4; l++) {
+						o[j * 4 + k] += rot[j * 4 + l] * a[l * 4 + k];
+					}
+				}
+			}
+			rowmajor4(&hm, h);
+			add(r, error(h, o, 16, 0));
+		}
+	}
+
+	/* relative to the size of the terms (the translation is a term) */
+	r = row("matrix4_multiplyv3", "random");
+	for (i = 0; i < N; i++) {
+		R a[16], v[3], worst = 0;
+		struct matrix4 hm;
+		struct vector3 hv, hr;
+		for (k = 0; k < 16; k++) {
+			a[k] = uniform(-1, 1);
+		}
+		for (k = 0; k < 3; k++) {
+			v[k] = uniform(-10, 10);
+		}
+		setm4(&hm, a);
+		getm4(&hm, a);
+		set3(&hv, v);
+		get3(&hv, v);
+		matrix4_multiplyv3(&hm, &hv, &hr);
+		for (j = 0; j < 3; j++) {
+			R exact = a[j * 4 + 3], size = rabs(a[j * 4 + 3]);
+			for (k = 0; k < 3; k++) {
+				exact += a[j * 4 + k] * v[k];
+				size += rabs(a[j * 4 + k] * v[k]);
+			}
+			if (rabs((R)hr.v[j] - exact) / size > worst) {
+				worst = rabs((R)hr.v[j] - exact) / size;
+			}
+		}
+		add(r, worst / EPSILON);
+	}
+
+	r = row("quaternion_rotate_by_quaternion", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4], o[4];
+		struct quaternion ha, hb;
+		random_unit(a, 4);
+		random_unit(b, 4);
+		setq(&ha, a);
+		setq(&hb, b);
+		getq(&ha, a);
+		getq(&hb, b);
+		rqmul(a, b, o);
+		rnormalize(o, 4);
+		quaternion_rotate_by_quaternion(&ha, &hb);
+		add(r, errorq(ha.q, o));
+	}
+
+	r = row("quaternion_rotate_by_euler_angles", "random");
+	for (i = 0; i < N; i++) {
+		R a[4], b[4], o[4];
+		struct quaternion ha;
+		HYP_FLOAT ax = (HYP_FLOAT)uniform(-PI, PI), ay = (HYP_FLOAT)uniform(-PI / 2, PI / 2), az = (HYP_FLOAT)uniform(-PI, PI);
+		random_unit(a, 4);
+		setq(&ha, a);
+		getq(&ha, a);
+		euler_quaternion((R)ax, (R)ay, (R)az, b);
+		rqmul(a, b, o);
+		rnormalize(o, 4);
+		quaternion_rotate_by_euler_angles(&ha, ax, ay, az);
+		add(r, errorq(ha.q, o));
+	}
+
+	/* q (v, 0), relative to |q| |v| */
+	r = row("quaternion_multiplyv3", "random");
+	for (i = 0; i < N; i++) {
+		R q[4], v[4], o[4];
+		struct quaternion hq;
+		struct vector3 hv;
+		random_unit(q, 4);
+		for (k = 0; k < 3; k++) {
+			v[k] = uniform(-10, 10);
+		}
+		v[3] = 0;
+		setq(&hq, q);
+		getq(&hq, q);
+		set3(&hv, v);
+		get3(&hv, v);
+		rqmul(q, v, o);
+		quaternion_multiplyv3(&hq, &hv);
+		add(r, error(hq.q, o, 4, rlength(q, 4) * rlength(v, 3)));
+	}
+
+	r = row("quaternion_magnitude", "random length");
+	for (i = 0; i < N; i++) {
+		R q[4], l;
+		struct quaternion h;
+		random_unit(q, 4);
+		l = powf128(10, uniform(-3, 3));
+		for (k = 0; k < 4; k++) {
+			q[k] *= l;
+		}
+		setq(&h, q);
+		getq(&h, q);
+		add(r, error1(quaternion_magnitude(&h), rlength(q, 4)));
+	}
+
+	for (kind = 2; kind <= 4; kind += 2) {
+		r = row(kind == 2 ? "vector2_distance" : "vector4_distance", "random");
+		for (i = 0; i < N; i++) {
+			R a[4], b[4], d[4];
+			struct vector2 a2, b2;
+			struct vector4 a4, b4;
+			HYP_FLOAT got;
+			for (k = 0; k < 4; k++) {
+				HYP_FLOAT x = (HYP_FLOAT)uniform(-10, 10), y = (HYP_FLOAT)uniform(-10, 10);
+				a4.v[k] = x;
+				b4.v[k] = y;
+				if (k < 2) {
+					a2.v[k] = x;
+					b2.v[k] = y;
+				}
+				a[k] = (R)x;
+				b[k] = (R)y;
+				d[k] = a[k] - b[k];
+			}
+			got = (kind == 2) ? vector2_distance(&a2, &b2) : vector4_distance(&a4, &b4);
+			add(r, error1(got, rlength(d, kind)));
+		}
+	}
+
+	/* relative to the sum of the absolute values of the terms */
+	for (kind = 0; kind < 3; kind++) {
+		static const char *names[3] = {"vector2_dot_product", "vector4_dot_product", "quaternion_dot_product"};
+		r = row(names[kind], "random");
+		for (i = 0; i < N; i++) {
+			R a[4], b[4], exact = 0, size = 0;
+			struct vector2 a2, b2;
+			struct vector4 a4, b4;
+			struct quaternion aq, bq;
+			HYP_FLOAT got;
+			int n = kind == 0 ? 2 : 4;
+			for (k = 0; k < 4; k++) {
+				HYP_FLOAT x = (HYP_FLOAT)uniform(-10, 10), y = (HYP_FLOAT)uniform(-10, 10);
+				a4.v[k] = x;
+				b4.v[k] = y;
+				aq.q[k] = x;
+				bq.q[k] = y;
+				if (k < 2) {
+					a2.v[k] = x;
+					b2.v[k] = y;
+				}
+				a[k] = (R)x;
+				b[k] = (R)y;
+			}
+			for (k = 0; k < n; k++) {
+				exact += a[k] * b[k];
+				size += rabs(a[k] * b[k]);
+			}
+			got = (kind == 0) ? vector2_dot_product(&a2, &b2) : (kind == 1) ? vector4_dot_product(&a4, &b4) : quaternion_dot_product(&aq, &bq);
+			add(r, rabs((R)got - exact) / size / EPSILON);
+		}
+	}
+}
+
 /* ------------------------------------------------------------ table */
 
 static void print_table(FILE *out)
@@ -1438,6 +2583,8 @@ int main(int argc, char **argv)
 	vectors();
 	quaternions();
 	matrices();
+	more();
+	last();
 
 	if (argc == 3 && strcmp(argv[1], "--check") == 0) {
 		return check(argv[2]);
