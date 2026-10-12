@@ -586,8 +586,34 @@ static const char *test_matrix2_inverse_wide_range(void)
 }
 
 
+static const char *test_matrix2_reciprocal_condition_huge_and_tiny(void)
+{
+	struct matrix2 m;
+	HYP_FLOAT largest = HYP_FLOAT_C(1.0);
+	HYP_FLOAT scale[2];
+	uint8_t i;
+
+	/* [[1, 1], [-1, 1]] has 0.5 at any scale; the row sums of the largest
+	 * overflow, and the inverse of the smallest overflows
+	 */
+	largest = test_largest_power2();
+	scale[0] = largest;
+	scale[1] = HYP_FLOAT_C(1.0) / largest / HYP_FLOAT_C(4096.0);
+	for (i = 0; i < 2; i++) {
+		m.r00 = scale[i];
+		m.r01 = scale[i];
+		m.r10 = -scale[i];
+		m.r11 = scale[i];
+		test_assert(!(matrix2_reciprocal_condition(&m) < HYP_FLOAT_C(0.5)) && !(matrix2_reciprocal_condition(&m) > HYP_FLOAT_C(0.5)));
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix2_all_tests(void)
 {
+	run_test(test_matrix2_reciprocal_condition_huge_and_tiny);
 	run_test(test_matrix2_inverse_wide_range);
 	run_test(test_matrix2_determinant_huge_and_tiny);
 	run_test(test_matrix2_inverse_small_determinant);
