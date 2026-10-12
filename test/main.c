@@ -42,6 +42,18 @@ static HYP_FLOAT test_largest_power2(void)
 	return largest;
 }
 
+/* 1 when the power of two x is subnormal: x (1 + epsilon) rounds to x */
+static int test_is_subnormal(HYP_FLOAT x)
+{
+	HYP_FLOAT epsilon = HYP_FLOAT_C(1.0);
+
+	while (test_rounded(HYP_FLOAT_C(1.0) + epsilon / HYP_FLOAT_C(2.0)) > HYP_FLOAT_C(1.0)) {
+		epsilon /= HYP_FLOAT_C(2.0);
+	}
+
+	return !(test_rounded(x * (HYP_FLOAT_C(1.0) + epsilon)) > x);
+}
+
 #include "test_vector2.c"
 #include "test_vector3.c"
 #include "test_vector4.c"

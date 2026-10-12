@@ -3829,8 +3829,10 @@ HYPAPI struct matrix2 *matrix2_invert(struct matrix2 *self)
 }
 
 
-/* matrix2_inverse without the scaling */
-static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR)
+/* matrix2_inverse without the scaling; as_is is 1 for the matrix as the
+ * caller gave it, 0 for the scaled one
+ */
+static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct matrix2 *mR, int as_is)
 {
 	struct matrix2 inverse;
 	HYP_FLOAT determinant;
@@ -3838,11 +3840,12 @@ static struct matrix2 *hyp_matrix2_inverse(const struct matrix2 *self, struct ma
 
 	determinant = matrix2_determinant(self);
 
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
-	 * caller scales the matrix
+	/* only an exactly zero determinant has no inverse.  An infinite or NaN
+	 * one also returns NULL, and so does one below 2^-60 for the matrix as
+	 * the caller gave it (as_is), whose products can have lost digits to
+	 * underflow; the caller then scales the matrix.
 	 */
-	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
+	if (!(HYP_ABS(determinant) > HYP_FLOAT_C(0.0)) || !(determinant - determinant <= HYP_FLOAT_C(0.0)) || (as_is && HYP_ABS(determinant) < HYP_FLOAT_C(8.67361737988403547205962240695953369140625e-19))) {
 		return NULL;
 	}
 
@@ -3881,11 +3884,11 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	struct matrix2 scaled;
 	int exponent;
 
-	/* the inverse of self as it is, when its determinant is a finite number
-	 * other than zero: scaling a matrix whose entries span a wide range
-	 * would turn its small entries subnormal
+	/* the inverse of self as it is, when its determinant is finite and at
+	 * least 2^-60: scaling a matrix whose entries span a wide range would
+	 * turn its small entries subnormal
 	 */
-	if (hyp_matrix2_inverse(self, mR) != NULL) {
+	if (hyp_matrix2_inverse(self, mR, 1) != NULL) {
 		return mR;
 	}
 
@@ -3897,7 +3900,7 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	scaled = *self;
 	exponent = hyp_scale_to_unit(scaled.m, 4);
 
-	if (hyp_matrix2_inverse(&scaled, mR) == NULL) {
+	if (hyp_matrix2_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
@@ -4374,8 +4377,10 @@ HYPAPI struct matrix3 *matrix3_invert(struct matrix3 *self)
 }
 
 
-/* matrix3_inverse without the scaling */
-static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR)
+/* matrix3_inverse without the scaling; as_is is 1 for the matrix as the
+ * caller gave it, 0 for the scaled one
+ */
+static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct matrix3 *mR, int as_is)
 {
 	struct matrix3 inverse;
 	HYP_FLOAT high[9];
@@ -4401,11 +4406,12 @@ static struct matrix3 *hyp_matrix3_inverse(const struct matrix3 *self, struct ma
 	 */
 	determinant = (HYP_A(11) * HYP_B(11) + HYP_A(12) * HYP_B(21)) + HYP_A(13) * HYP_B(31);
 
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
-	 * caller scales the matrix
+	/* only an exactly zero determinant has no inverse.  An infinite or NaN
+	 * one also returns NULL, and so does one below 2^-60 for the matrix as
+	 * the caller gave it (as_is), whose products can have lost digits to
+	 * underflow; the caller then scales the matrix.
 	 */
-	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
+	if (!(HYP_ABS(determinant) > HYP_FLOAT_C(0.0)) || !(determinant - determinant <= HYP_FLOAT_C(0.0)) || (as_is && HYP_ABS(determinant) < HYP_FLOAT_C(8.67361737988403547205962240695953369140625e-19))) {
 		return NULL;
 	}
 
@@ -4438,11 +4444,11 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	struct matrix3 scaled;
 	int exponent;
 
-	/* the inverse of self as it is, when its determinant is a finite number
-	 * other than zero: scaling a matrix whose entries span a wide range
-	 * would turn its small entries subnormal
+	/* the inverse of self as it is, when its determinant is finite and at
+	 * least 2^-60: scaling a matrix whose entries span a wide range would
+	 * turn its small entries subnormal
 	 */
-	if (hyp_matrix3_inverse(self, mR) != NULL) {
+	if (hyp_matrix3_inverse(self, mR, 1) != NULL) {
 		return mR;
 	}
 
@@ -4454,7 +4460,7 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	scaled = *self;
 	exponent = hyp_scale_to_unit(scaled.m, 9);
 
-	if (hyp_matrix3_inverse(&scaled, mR) == NULL) {
+	if (hyp_matrix3_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
@@ -5063,8 +5069,10 @@ HYPAPI struct matrix4 *matrix4_invert(struct matrix4 *self)
 }
 
 
-/* matrix4_inverse without the scaling */
-static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR)
+/* matrix4_inverse without the scaling; as_is is 1 for the matrix as the
+ * caller gave it, 0 for the scaled one
+ */
+static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct matrix4 *mR, int as_is)
 {
 	HYP_FLOAT blocks[4];
 	HYP_FLOAT ab[4];
@@ -5076,11 +5084,12 @@ static struct matrix4 *hyp_matrix4_inverse(const struct matrix4 *self, struct ma
 
 	determinant = hyp_matrix4_blocks(self, blocks, ab, dc);
 
-	/* only an exactly zero determinant has no inverse (written without ==
-	 * for -Wfloat-equal); an infinite or NaN one also returns NULL, and the
-	 * caller scales the matrix
+	/* only an exactly zero determinant has no inverse.  An infinite or NaN
+	 * one also returns NULL, and so does one below 2^-60 for the matrix as
+	 * the caller gave it (as_is), whose products can have lost digits to
+	 * underflow; the caller then scales the matrix.
 	 */
-	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
+	if (!(HYP_ABS(determinant) > HYP_FLOAT_C(0.0)) || !(determinant - determinant <= HYP_FLOAT_C(0.0)) || (as_is && HYP_ABS(determinant) < HYP_FLOAT_C(8.67361737988403547205962240695953369140625e-19))) {
 		return NULL;
 	}
 
@@ -5155,11 +5164,11 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	struct matrix4 scaled;
 	int exponent;
 
-	/* the inverse of self as it is, when its determinant is a finite number
-	 * other than zero: scaling a matrix whose entries span a wide range
-	 * would turn its small entries subnormal
+	/* the inverse of self as it is, when its determinant is finite and at
+	 * least 2^-60: scaling a matrix whose entries span a wide range would
+	 * turn its small entries subnormal
 	 */
-	if (hyp_matrix4_inverse(self, mR) != NULL) {
+	if (hyp_matrix4_inverse(self, mR, 1) != NULL) {
 		return mR;
 	}
 
@@ -5171,7 +5180,7 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	scaled = *self;
 	exponent = hyp_scale_to_unit(scaled.m, 16);
 
-	if (hyp_matrix4_inverse(&scaled, mR) == NULL) {
+	if (hyp_matrix4_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
@@ -5209,8 +5218,8 @@ HYPAPI HYP_FLOAT matrix4_reciprocal_condition(const struct matrix4 *self)
 }
 
 
-/* matrix4_normal_matrix without the scaling */
-static struct matrix4 *hyp_normal_matrix(const struct matrix4 *self, struct matrix4 *mR)
+/* matrix4_normal_matrix without the scaling; as_is as for hyp_matrix4_inverse */
+static struct matrix4 *hyp_normal_matrix(const struct matrix4 *self, struct matrix4 *mR, int as_is)
 {
 	struct matrix4 cofactors;
 	HYP_FLOAT high[11];
@@ -5233,10 +5242,8 @@ static struct matrix4 *hyp_normal_matrix(const struct matrix4 *self, struct matr
 
 	determinant = self->r00 * cofactors.r00 + self->r01 * cofactors.r01 + self->r02 * cofactors.r02;
 
-	/* written without == for -Wfloat-equal; an infinite or NaN determinant
-	 * also returns NULL, and the caller scales the matrix
-	 */
-	if ((!(determinant < HYP_FLOAT_C(0.0)) && !(determinant > HYP_FLOAT_C(0.0))) || !(determinant - determinant <= HYP_FLOAT_C(0.0))) {
+	/* as hyp_matrix4_inverse */
+	if (!(HYP_ABS(determinant) > HYP_FLOAT_C(0.0)) || !(determinant - determinant <= HYP_FLOAT_C(0.0)) || (as_is && HYP_ABS(determinant) < HYP_FLOAT_C(8.67361737988403547205962240695953369140625e-19))) {
 		return NULL;
 	}
 
@@ -5273,7 +5280,7 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 	 * of two so its largest entry is at least 1 and less than 2; the normal
 	 * matrix of 2^e A is 2^-e times that of A
 	 */
-	if (hyp_normal_matrix(self, mR) != NULL) {
+	if (hyp_normal_matrix(self, mR, 1) != NULL) {
 		return mR;
 	}
 
@@ -5286,7 +5293,7 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 		scaled.m44[i / 3][i % 3] = upper[i];
 	}
 
-	if (hyp_normal_matrix(&scaled, mR) == NULL) {
+	if (hyp_normal_matrix(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 

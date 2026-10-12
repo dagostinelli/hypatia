@@ -1,17 +1,17 @@
 # function | instructions per call (cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0)
 matrix2_determinant | 9.0
-matrix2_inverse | 18.0
+matrix2_inverse | 24.0
 matrix3_determinant | 27.0
-matrix3_inverse | 117.1
+matrix3_inverse | 126.0
 matrix3_multiply | 22.0
 matrix3_multiplyv2 | 11.0
 matrix4_determinant | 79.0
-matrix4_inverse | 334.0
+matrix4_inverse | 332.0
 matrix4_make_transformation_rotationf_x | 87.1
 matrix4_multiply | 173.0
 matrix4_multiplyv3 | 14.0
 matrix4_multiplyv4 | 16.0
-matrix4_normal_matrix | 189.0
+matrix4_normal_matrix | 197.0
 matrix4_projection_frustum_rh | 7.0
 matrix4_projection_ortho3d_rh | 8.0
 matrix4_projection_perspective_fovy_infinite_rh | 98.0
@@ -58,5 +58,5 @@ vector3_reflect | 52.0
 vector3_reflect_by_quaternion | 49.0
 vector3_refract | 174.3
 vector3_rotate_by_quaternion | 66.0
-vector3_unproject_from_window | 374.0
+vector3_unproject_from_window | 371.0
 vector4_normalize | 92.9
