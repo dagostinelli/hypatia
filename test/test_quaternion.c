@@ -1608,9 +1608,7 @@ static const char *test_quaternion_magnitude_huge_and_tiny(void)
 	HYP_FLOAT tiny;
 
 	/* as test_vector3_magnitude_huge_and_tiny */
-	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
-		big *= HYP_FLOAT_C(2.0);
-	}
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
 	tiny = HYP_FLOAT_C(1.0) / big;
 
 	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), big);
@@ -1636,9 +1634,7 @@ static const char *test_quaternion_get_euler_anglesf3_huge_and_tiny(void)
 	/* q times a power of two has the same angles, exactly, also where the
 	 * products of its components overflow or underflow
 	 */
-	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
-		big *= HYP_FLOAT_C(2.0);
-	}
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
 	scale[0] = big;
 	scale[1] = HYP_FLOAT_C(1048576.0) / big;
 

@@ -966,9 +966,7 @@ static const char *test_vector3_magnitude_huge_and_tiny(void)
 	/* big squared overflows and tiny squared underflows to 0; neither
 	 * changes the length
 	 */
-	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
-		big *= HYP_FLOAT_C(2.0);
-	}
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
 	tiny = HYP_FLOAT_C(1.0) / big;
 
 	vector3_setf3(&v, big, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
@@ -995,9 +993,7 @@ static const char *test_vector3_project_reflect_rotate_huge_and_tiny(void)
 	/* the dot products and the products with |q|^2 overflow for big and
 	 * underflow for tiny; the results are representable and exact
 	 */
-	while (big * HYP_FLOAT_C(4.0) - big * HYP_FLOAT_C(4.0) <= HYP_FLOAT_C(0.0)) {
-		big *= HYP_FLOAT_C(2.0);
-	}
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
 	tiny = HYP_FLOAT_C(1.1) / big;
 
 	vector3_setf3(&onto, HYP_FLOAT_C(4.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));

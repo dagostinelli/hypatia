@@ -657,7 +657,6 @@ static const char *test_matrix3_inverse_subnormal_determinant(void)
 	struct matrix3 m;
 	struct matrix3 inverse;
 	struct matrix3 reference;
-	HYP_FLOAT epsilon = HYP_FLOAT_C(1.0);
 	HYP_FLOAT p = HYP_FLOAT_C(1.0);
 	HYP_FLOAT power;
 	HYP_FLOAT expected;
@@ -669,16 +668,13 @@ static const char *test_matrix3_inverse_subnormal_determinant(void)
 	 * less than twice p^3.  The inverse is that of 1.1 I divided by p,
 	 * exactly.
 	 */
-	while (HYP_FLOAT_C(1.0) + epsilon / HYP_FLOAT_C(2.0) > HYP_FLOAT_C(1.0)) {
-		epsilon /= HYP_FLOAT_C(2.0);
-	}
 	do {
 		p /= HYP_FLOAT_C(2.0);
 		power = HYP_FLOAT_C(1.0);
 		for (i = 0; i < 3; i++) {
 			power *= p;
 		}
-	} while (power * (HYP_FLOAT_C(1.0) + epsilon) > power);
+	} while (!test_is_subnormal(test_rounded(power)));
 	t = HYP_FLOAT_C(1.1) * p;
 
 	matrix3_identity(&m);

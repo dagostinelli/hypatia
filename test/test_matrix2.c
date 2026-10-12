@@ -547,9 +547,7 @@ static const char *test_matrix2_determinant_huge_and_tiny(void)
 	/* the largest power of two: the exact products split it, and splitting
 	 * it must not overflow
 	 */
-	while (big * HYP_FLOAT_C(2.0) - big * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
-		big *= HYP_FLOAT_C(2.0);
-	}
+	big = test_largest_power2();
 	matrix2_identity(&m);
 	m.r00 = big;
 	m.r11 = HYP_FLOAT_C(4.0) / big;
@@ -570,9 +568,7 @@ static const char *test_matrix2_inverse_wide_range(void)
 	/* entries from 1 / big to big with a determinant of 1: scaling the
 	 * largest entry to 1 would make the smallest subnormal
 	 */
-	while (largest * HYP_FLOAT_C(2.0) - largest * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
-		largest *= HYP_FLOAT_C(2.0);
-	}
+	largest = test_largest_power2();
 	while (big * big < largest) {
 		big *= HYP_FLOAT_C(2.0);
 	}
@@ -600,9 +596,7 @@ static const char *test_matrix2_reciprocal_condition_huge_and_tiny(void)
 	/* [[1, 1], [-1, 1]] has 0.5 at any scale; the row sums of the largest
 	 * overflow, and the inverse of the smallest overflows
 	 */
-	while (largest * HYP_FLOAT_C(2.0) - largest * HYP_FLOAT_C(2.0) <= HYP_FLOAT_C(0.0)) {
-		largest *= HYP_FLOAT_C(2.0);
-	}
+	largest = test_largest_power2();
 	scale[0] = largest;
 	scale[1] = HYP_FLOAT_C(1.0) / largest / HYP_FLOAT_C(4096.0);
 	for (i = 0; i < 2; i++) {
@@ -622,7 +616,6 @@ static const char *test_matrix2_inverse_subnormal_determinant(void)
 	struct matrix2 m;
 	struct matrix2 inverse;
 	struct matrix2 reference;
-	HYP_FLOAT epsilon = HYP_FLOAT_C(1.0);
 	HYP_FLOAT p = HYP_FLOAT_C(1.0);
 	HYP_FLOAT power;
 	HYP_FLOAT expected;
@@ -634,16 +627,13 @@ static const char *test_matrix2_inverse_subnormal_determinant(void)
 	 * less than twice p^2.  The inverse is that of 1.1 I divided by p,
 	 * exactly.
 	 */
-	while (HYP_FLOAT_C(1.0) + epsilon / HYP_FLOAT_C(2.0) > HYP_FLOAT_C(1.0)) {
-		epsilon /= HYP_FLOAT_C(2.0);
-	}
 	do {
 		p /= HYP_FLOAT_C(2.0);
 		power = HYP_FLOAT_C(1.0);
 		for (i = 0; i < 2; i++) {
 			power *= p;
 		}
-	} while (power * (HYP_FLOAT_C(1.0) + epsilon) > power);
+	} while (!test_is_subnormal(test_rounded(power)));
 	t = HYP_FLOAT_C(1.1) * p;
 
 	matrix2_identity(&m);
