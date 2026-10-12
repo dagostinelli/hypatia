@@ -16,27 +16,23 @@
 /* for the small helpers on the common paths, which the compiler otherwise
  * stops inlining once the file has grown by its limit
  */
-#ifndef HYP_ALWAYS_INLINE
-#	if defined(_MSC_VER)
-#		define HYP_ALWAYS_INLINE __forceinline
-#	elif defined(__GNUC__)
-#		define HYP_ALWAYS_INLINE __inline__ __attribute__((always_inline))
-#	else
-#		define HYP_ALWAYS_INLINE HYP_INLINE
-#	endif
+#if defined(_MSC_VER)
+#	define HYP_ALWAYS_INLINE __forceinline
+#elif defined(__GNUC__)
+#	define HYP_ALWAYS_INLINE __inline__ __attribute__((always_inline))
+#else
+#	define HYP_ALWAYS_INLINE HYP_INLINE
 #endif
 
 /* for the paths taken only for values near overflow or underflow, which would
  * otherwise take the compiler's inlining from the common paths
  */
-#ifndef HYP_NOINLINE
-#	if defined(_MSC_VER)
-#		define HYP_NOINLINE __declspec(noinline)
-#	elif defined(__GNUC__)
-#		define HYP_NOINLINE __attribute__((noinline))
-#	else
-#		define HYP_NOINLINE
-#	endif
+#if defined(_MSC_VER)
+#	define HYP_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#	define HYP_NOINLINE __attribute__((noinline))
+#else
+#	define HYP_NOINLINE
 #endif
 
 /* with HYP_STATIC every function is private to the file that includes the
