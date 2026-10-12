@@ -13,6 +13,28 @@
 #	endif
 #endif
 
+/* for the small helpers on the common paths, which the compiler otherwise
+ * stops inlining once the file has grown by its limit
+ */
+#if defined(_MSC_VER)
+#	define HYP_ALWAYS_INLINE __forceinline
+#elif defined(__GNUC__)
+#	define HYP_ALWAYS_INLINE __inline__ __attribute__((always_inline))
+#else
+#	define HYP_ALWAYS_INLINE HYP_INLINE
+#endif
+
+/* for the paths taken only for values near overflow or underflow, which would
+ * otherwise take the compiler's inlining from the common paths
+ */
+#if defined(_MSC_VER)
+#	define HYP_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#	define HYP_NOINLINE __attribute__((noinline))
+#else
+#	define HYP_NOINLINE
+#endif
+
 /* with HYP_STATIC every function is private to the file that includes the
  * implementation; inline keeps compilers from warning about the ones that file
  * does not use
@@ -1228,7 +1250,7 @@ static void hyp_print_value(const char *prefix, HYP_FLOAT value)
 /* the exponent e for which 2^e largest is at least 1 and less than 2, for a
  * largest that is not negative; 0 when it is zero, infinite or NaN
  */
-static HYP_INLINE int hyp_power2_exponent_of(HYP_FLOAT largest)
+static HYP_ALWAYS_INLINE int hyp_power2_exponent_of(HYP_FLOAT largest)
 {
 	int exponent = 0;
 
@@ -1276,7 +1298,7 @@ static HYP_INLINE int hyp_power2_exponent_of(HYP_FLOAT largest)
  * values is at least 1 and less than 2; 0 when they are all zero or one is
  * infinite or NaN
  */
-static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
+static HYP_ALWAYS_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 {
 	HYP_FLOAT largest = HYP_FLOAT_C(0.0);
 	uint8_t i;
@@ -1296,7 +1318,7 @@ static HYP_INLINE int hyp_power2_exponent(const HYP_FLOAT *v, uint8_t n)
 /* multiplies the n values by 2^exponent, in steps of 2^16 and 2, which are
  * exact unless a value overflows or becomes subnormal
  */
-static HYP_INLINE void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
+static HYP_ALWAYS_INLINE void hyp_scale_power2(HYP_FLOAT *v, uint8_t n, int exponent)
 {
 	HYP_FLOAT step;
 	uint8_t i;
@@ -1458,12 +1480,22 @@ static void hyp_exact_product(HYP_FLOAT a, HYP_FLOAT b, HYP_FLOAT *hi, HYP_FLOAT
 #endif
 
 
-/* multiplies the n values by the power of two that brings the largest
- * absolute value to at least 1 and less than 2
- */
-static void hyp_scale_to_unit(HYP_FLOAT *v, uint8_t n)
+/* hyp_scale_power2, not inline: for the paths that are rarely taken */
+static HYP_NOINLINE void hyp_scale_power2_rarely(HYP_FLOAT *v, uint8_t n, int exponent)
 {
-	hyp_scale_power2(v, n, hyp_power2_exponent(v, n));
+	hyp_scale_power2(v, n, exponent);
+}
+
+
+/* multiplies the n values by the power of two 2^e that brings the largest
+ * absolute value to at least 1 and less than 2, and returns e
+ */
+static HYP_NOINLINE int hyp_scale_to_unit(HYP_FLOAT *v, uint8_t n)
+{
+	int exponent = hyp_power2_exponent(v, n);
+
+	hyp_scale_power2_rarely(v, n, exponent);
+	return exponent;
 }
 
 
@@ -1668,6 +1700,108 @@ static HYP_INLINE HYP_FLOAT hyp_root_of_squares(HYP_FLOAT sum, const HYP_FLOAT *
 		return sum; /* NaN */
 	}
 	return hyp_length(v, n);
+}
+
+
+/* projects the n components of v onto the direction of onto, through the
+ * unit direction and with v scaled by a power of two, so that nothing
+ * overflows or underflows but the result; the zero vector when onto is zero
+ * or NaN
+ */
+static HYP_NOINLINE void hyp_project_scaled(HYP_FLOAT *v, const HYP_FLOAT *onto, uint8_t n)
+{
+	HYP_FLOAT direction[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT length = HYP_FLOAT_C(0.0);
+	int exponent;
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		direction[i] = onto[i];
+	}
+	if (!(hyp_normalize(direction, n) > HYP_FLOAT_C(0.0))) {
+		for (i = 0; i < n; i++) {
+			v[i] = HYP_FLOAT_C(0.0);
+		}
+		return;
+	}
+
+	exponent = hyp_scale_to_unit(v, n);
+	for (i = 0; i < n; i++) {
+		length += v[i] * direction[i];
+	}
+	for (i = 0; i < n; i++) {
+		v[i] = direction[i] * length;
+	}
+	hyp_scale_power2_rarely(v, n, -exponent);
+}
+
+
+/* reflects the n components of v off a surface with the given normal, as
+ * hyp_project_scaled; v is unchanged when the normal is zero or NaN
+ */
+static HYP_NOINLINE void hyp_reflect_scaled(HYP_FLOAT *v, const HYP_FLOAT *normal, uint8_t n)
+{
+	HYP_FLOAT direction[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT s = HYP_FLOAT_C(0.0);
+	int exponent;
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		direction[i] = normal[i];
+	}
+	if (!(hyp_normalize(direction, n) > HYP_FLOAT_C(0.0))) {
+		return;
+	}
+
+	exponent = hyp_scale_to_unit(v, n);
+	for (i = 0; i < n; i++) {
+		s += v[i] * direction[i];
+	}
+	s *= HYP_FLOAT_C(2.0);
+	for (i = 0; i < n; i++) {
+		v[i] -= direction[i] * s;
+	}
+	hyp_scale_power2_rarely(v, n, -exponent);
+}
+
+
+/* rotates the 3 components of v by q / |q|, with |q|^2 = norm:
+ * (2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) / |q|^2, with u the vector
+ * part of q; q * v * conjugate(q) also scales by |q|^2
+ */
+static HYP_INLINE void hyp_rotate(HYP_FLOAT *v, const struct quaternion *q, HYP_FLOAT norm)
+{
+	HYP_FLOAT uv[3];
+	HYP_FLOAT parallel = HYP_FLOAT_C(2.0) * (q->x * v[0] + q->y * v[1] + q->z * v[2]);
+	HYP_FLOAT along = q->w * q->w - (q->x * q->x + q->y * q->y + q->z * q->z);
+	HYP_FLOAT across = HYP_FLOAT_C(2.0) * q->w;
+
+	uv[0] = q->y * v[2] - q->z * v[1];
+	uv[1] = q->z * v[0] - q->x * v[2];
+	uv[2] = q->x * v[1] - q->y * v[0];
+
+	v[0] = (parallel * q->x + along * v[0] + across * uv[0]) / norm;
+	v[1] = (parallel * q->y + along * v[1] + across * uv[1]) / norm;
+	v[2] = (parallel * q->z + along * v[2] + across * uv[2]) / norm;
+}
+
+
+/* hyp_rotate by the unit quaternion in the direction of q, with v scaled by
+ * a power of two, so that nothing overflows or underflows but the result; v
+ * is unchanged when q is zero or NaN
+ */
+static HYP_NOINLINE void hyp_rotate_scaled(HYP_FLOAT *v, const struct quaternion *q)
+{
+	struct quaternion unit;
+	int exponent;
+
+	unit = *q;
+	if (!(hyp_normalize(unit.q, 4) > HYP_FLOAT_C(0.0))) {
+		return;
+	}
+	exponent = hyp_scale_to_unit(v, 3);
+	hyp_rotate(v, &unit, HYP_FLOAT_C(1.0));
+	hyp_scale_power2_rarely(v, 3, -exponent);
 }
 
 
@@ -2083,25 +2217,20 @@ HYPAPI struct vector2 *vector2_max(struct vector2 *self, const struct vector2 *v
  */
 HYPAPI struct vector2 *vector2_project(struct vector2 *self, const struct vector2 *onto)
 {
-	struct vector2 direction;
 	HYP_FLOAT norm = vector2_dot_product(onto, onto);
+	HYP_FLOAT self_norm = vector2_dot_product(self, self);
 	HYP_FLOAT length;
 
-	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
-	 * |onto|^2 overflows or underflows
+	/* (self . onto) / |onto|^2 times onto when |onto|^2 and |self|^2 are in
+	 * the normal range, else through the unit vector
 	 */
-	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30) && self_norm > HYP_FLOAT_C(1e-30) && self_norm < HYP_FLOAT_C(1e30)) {
 		length = vector2_dot_product(self, onto) / norm;
 		return vector2_multiplyf(vector2_set(self, onto), length);
 	}
 
-	if (!(hyp_normalize(vector2_set(&direction, onto)->v, 2) > HYP_FLOAT_C(0.0))) {
-		return vector2_zero(self);
-	}
-
-	length = vector2_dot_product(self, &direction);
-
-	return vector2_multiplyf(vector2_set(self, &direction), length);
+	hyp_project_scaled(self->v, onto->v, 2);
+	return self;
 }
 
 
@@ -2115,21 +2244,20 @@ HYPAPI struct vector2 *vector2_reflect(struct vector2 *self, const struct vector
 {
 	struct vector2 direction;
 	HYP_FLOAT norm = vector2_dot_product(normal, normal);
+	HYP_FLOAT self_norm = vector2_dot_product(self, self);
 	HYP_FLOAT s;
 
-	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
-	 * when |normal|^2 overflows or underflows
+	/* 2 (self . normal) / |normal|^2 times normal when |normal|^2 and
+	 * |self|^2 are in the normal range, else through the unit normal
 	 */
-	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30) && self_norm > HYP_FLOAT_C(1e-30) && self_norm < HYP_FLOAT_C(1e30)) {
 		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, normal) / norm;
 		vector2_set(&direction, normal);
-	} else if (hyp_normalize(vector2_set(&direction, normal)->v, 2) > HYP_FLOAT_C(0.0)) {
-		s = HYP_FLOAT_C(2.0) * vector2_dot_product(self, &direction);
-	} else {
-		return self;
+		return vector2_subtract(self, vector2_multiplyf(&direction, s));
 	}
 
-	return vector2_subtract(self, vector2_multiplyf(&direction, s));
+	hyp_reflect_scaled(self->v, normal->v, 2);
+	return self;
 }
 
 
@@ -2537,25 +2665,20 @@ HYPAPI struct vector3 *vector3_max(struct vector3 *self, const struct vector3 *v
  */
 HYPAPI struct vector3 *vector3_project(struct vector3 *self, const struct vector3 *onto)
 {
-	struct vector3 direction;
 	HYP_FLOAT norm = vector3_dot_product(onto, onto);
+	HYP_FLOAT self_norm = vector3_dot_product(self, self);
 	HYP_FLOAT length;
 
-	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
-	 * |onto|^2 overflows or underflows
+	/* (self . onto) / |onto|^2 times onto when |onto|^2 and |self|^2 are in
+	 * the normal range, else through the unit vector
 	 */
-	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30) && self_norm > HYP_FLOAT_C(1e-30) && self_norm < HYP_FLOAT_C(1e30)) {
 		length = vector3_dot_product(self, onto) / norm;
 		return vector3_multiplyf(vector3_set(self, onto), length);
 	}
 
-	if (!(hyp_normalize(vector3_set(&direction, onto)->v, 3) > HYP_FLOAT_C(0.0))) {
-		return vector3_zero(self);
-	}
-
-	length = vector3_dot_product(self, &direction);
-
-	return vector3_multiplyf(vector3_set(self, &direction), length);
+	hyp_project_scaled(self->v, onto->v, 3);
+	return self;
 }
 
 
@@ -2569,21 +2692,20 @@ HYPAPI struct vector3 *vector3_reflect(struct vector3 *self, const struct vector
 {
 	struct vector3 direction;
 	HYP_FLOAT norm = vector3_dot_product(normal, normal);
+	HYP_FLOAT self_norm = vector3_dot_product(self, self);
 	HYP_FLOAT s;
 
-	/* 2 (self . normal) / |normal|^2 times normal, or through the unit normal
-	 * when |normal|^2 overflows or underflows
+	/* 2 (self . normal) / |normal|^2 times normal when |normal|^2 and
+	 * |self|^2 are in the normal range, else through the unit normal
 	 */
-	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30) && self_norm > HYP_FLOAT_C(1e-30) && self_norm < HYP_FLOAT_C(1e30)) {
 		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, normal) / norm;
 		vector3_set(&direction, normal);
-	} else if (hyp_normalize(vector3_set(&direction, normal)->v, 3) > HYP_FLOAT_C(0.0)) {
-		s = HYP_FLOAT_C(2.0) * vector3_dot_product(self, &direction);
-	} else {
-		return self;
+		return vector3_subtract(self, vector3_multiplyf(&direction, s));
 	}
 
-	return vector3_subtract(self, vector3_multiplyf(&direction, s));
+	hyp_reflect_scaled(self->v, normal->v, 3);
+	return self;
 }
 
 
@@ -2882,37 +3004,19 @@ HYPAPI void hyp_vector3_print(const struct vector3 *self)
  */
 HYPAPI struct vector3 *vector3_rotate_by_quaternion(struct vector3 *self, const struct quaternion *qT)
 {
-	struct quaternion unit;
-	struct vector3 u;
-	struct vector3 uv;
 	HYP_FLOAT norm = quaternion_norm(qT);
-	HYP_FLOAT parallel;
-	HYP_FLOAT along;
-	HYP_FLOAT across;
+	HYP_FLOAT size = norm * norm * vector3_dot_product(self, self);
 
-	/* (2 (u . v) u + (w^2 - u . u) v + 2 w (u x v)) / |q|^2, with u the vector
-	 * part: the rotation by q / |q|, which q * v * conjugate(q) also scales by
-	 * |q|^2.  Outside the normal range of |q|^2 (zero, overflow, underflow,
-	 * NaN) normalize q first.
+	/* the terms are of the size |q|^2 |v|; outside the normal range of its
+	 * square (zero, overflow, underflow, NaN) normalize q first, and scale v
+	 * by a power of two
 	 */
-	quaternion_set(&unit, qT);
-	if (!(norm > HYP_FLOAT_C(1e-30)) || !(norm < HYP_FLOAT_C(1e30))) {
-		if (!(hyp_normalize(unit.q, 4) > HYP_FLOAT_C(0.0))) {
-			return self;
-		}
-		norm = HYP_FLOAT_C(1.0);
+	if (!(size > HYP_FLOAT_C(1e-30)) || !(size < HYP_FLOAT_C(1e30))) {
+		hyp_rotate_scaled(self->v, qT);
+		return self;
 	}
 
-	vector3_setf3(&u, unit.x, unit.y, unit.z);
-	vector3_cross_product(&uv, &u, self);
-	parallel = HYP_FLOAT_C(2.0) * vector3_dot_product(&u, self);
-	along = unit.w * unit.w - vector3_dot_product(&u, &u);
-	across = HYP_FLOAT_C(2.0) * unit.w;
-
-	self->x = (parallel * u.x + along * self->x + across * uv.x) / norm;
-	self->y = (parallel * u.y + along * self->y + across * uv.y) / norm;
-	self->z = (parallel * u.z + along * self->z + across * uv.z) / norm;
-
+	hyp_rotate(self->v, qT, norm);
 	return self;
 }
 
@@ -3137,25 +3241,20 @@ HYPAPI struct vector4 *vector4_max(struct vector4 *self, const struct vector4 *v
  */
 HYPAPI struct vector4 *vector4_project(struct vector4 *self, const struct vector4 *onto)
 {
-	struct vector4 direction;
 	HYP_FLOAT norm = vector4_dot_product(onto, onto);
+	HYP_FLOAT self_norm = vector4_dot_product(self, self);
 	HYP_FLOAT length;
 
-	/* (self . onto) / |onto|^2 times onto, or through the unit vector when
-	 * |onto|^2 overflows or underflows
+	/* (self . onto) / |onto|^2 times onto when |onto|^2 and |self|^2 are in
+	 * the normal range, else through the unit vector
 	 */
-	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30)) {
+	if (norm > HYP_FLOAT_C(1e-30) && norm < HYP_FLOAT_C(1e30) && self_norm > HYP_FLOAT_C(1e-30) && self_norm < HYP_FLOAT_C(1e30)) {
 		length = vector4_dot_product(self, onto) / norm;
 		return vector4_multiplyf(vector4_set(self, onto), length);
 	}
 
-	if (!(hyp_normalize(vector4_set(&direction, onto)->v, 4) > HYP_FLOAT_C(0.0))) {
-		return vector4_zero(self);
-	}
-
-	length = vector4_dot_product(self, &direction);
-
-	return vector4_multiplyf(vector4_set(self, &direction), length);
+	hyp_project_scaled(self->v, onto->v, 4);
+	return self;
 }
 
 
@@ -3799,14 +3898,13 @@ HYPAPI struct matrix2 *matrix2_inverse(const struct matrix2 *self, struct matrix
 	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
-	exponent = hyp_power2_exponent(scaled.m, 4);
-	hyp_scale_power2(scaled.m, 4, exponent);
+	exponent = hyp_scale_to_unit(scaled.m, 4);
 
 	if (hyp_matrix2_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
-	hyp_scale_power2(mR->m, 4, exponent);
+	hyp_scale_power2_rarely(mR->m, 4, exponent);
 
 	return mR;
 }
@@ -4354,14 +4452,13 @@ HYPAPI struct matrix3 *matrix3_inverse(const struct matrix3 *self, struct matrix
 	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
-	exponent = hyp_power2_exponent(scaled.m, 9);
-	hyp_scale_power2(scaled.m, 9, exponent);
+	exponent = hyp_scale_to_unit(scaled.m, 9);
 
 	if (hyp_matrix3_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
-	hyp_scale_power2(mR->m, 9, exponent);
+	hyp_scale_power2_rarely(mR->m, 9, exponent);
 
 	return mR;
 }
@@ -5069,14 +5166,13 @@ HYPAPI struct matrix4 *matrix4_inverse(const struct matrix4 *self, struct matrix
 	 * multiplying by powers of two is exact
 	 */
 	scaled = *self;
-	exponent = hyp_power2_exponent(scaled.m, 16);
-	hyp_scale_power2(scaled.m, 16, exponent);
+	exponent = hyp_scale_to_unit(scaled.m, 16);
 
 	if (hyp_matrix4_inverse(&scaled, mR, 0) == NULL) {
 		return NULL;
 	}
 
-	hyp_scale_power2(mR->m, 16, exponent);
+	hyp_scale_power2_rarely(mR->m, 16, exponent);
 
 	return mR;
 }
@@ -5173,8 +5269,7 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 	for (i = 0; i < 9; i++) {
 		upper[i] = self->m44[i / 3][i % 3];
 	}
-	exponent = hyp_power2_exponent(upper, 9);
-	hyp_scale_power2(upper, 9, exponent);
+	exponent = hyp_scale_to_unit(upper, 9);
 	scaled = *self;
 	for (i = 0; i < 9; i++) {
 		scaled.m44[i / 3][i % 3] = upper[i];
@@ -5187,7 +5282,7 @@ HYPAPI struct matrix4 *matrix4_normal_matrix(const struct matrix4 *self, struct 
 	for (i = 0; i < 9; i++) {
 		upper[i] = mR->m44[i / 3][i % 3];
 	}
-	hyp_scale_power2(upper, 9, exponent);
+	hyp_scale_power2_rarely(upper, 9, exponent);
 	for (i = 0; i < 9; i++) {
 		mR->m44[i / 3][i % 3] = upper[i];
 	}
@@ -5422,7 +5517,7 @@ HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLO
 	 * overflow nor underflow.
 	 */
 	quaternion_set(&q, self);
-	hyp_scale_to_unit(q.q, 4);
+	(void)hyp_scale_to_unit(q.q, 4);
 	plus[0] = q.w + q.y;
 	plus[1] = q.z - q.x;
 	minus[0] = q.w - q.y;
