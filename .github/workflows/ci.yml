@@ -66,14 +66,14 @@ jobs:
         run: cmake --build build --config ${{ env.BUILD_TYPE }}
       - name: Test
         run: ctest --test-dir build -C ${{ env.BUILD_TYPE }} --output-on-failure
+        env:
+          ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       # where a 128-bit type is expected, the quad tests must have been built
       - name: Check that quad precision ran (${{ matrix.quad }})
         if: matrix.quad
         shell: bash
         run: ctest --test-dir build -N | grep -q _quad_precision
-        env:
-          ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
-          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
 
   # the measured errors and instruction counts must not be worse than
   # test/precision/baseline_*.txt and test/speed/baseline_*.txt; the baselines
