@@ -982,8 +982,53 @@ static const char *test_vector3_magnitude_huge_and_tiny(void)
 }
 
 
+static const char *test_vector3_project_reflect_rotate_huge_and_tiny(void)
+{
+	struct vector3 v;
+	struct vector3 onto;
+	struct quaternion q;
+	HYP_FLOAT big = HYP_FLOAT_C(1.0);
+	HYP_FLOAT tiny;
+
+	/* the dot products and the products with |q|^2 overflow for big and
+	 * underflow for tiny; the results are representable and exact
+	 */
+	big = test_largest_power2() / HYP_FLOAT_C(2.0);
+	tiny = HYP_FLOAT_C(1.1) / big;
+
+	vector3_setf3(&onto, HYP_FLOAT_C(4.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, big, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_project(&v, &onto);
+	test_assert(!(v.x < big) && !(v.x > big));
+	vector3_setf3(&v, big, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_reflect(&v, &onto);
+	test_assert(!(v.x < -big) && !(v.x > -big));
+
+	vector3_setf3(&onto, HYP_FLOAT_C(1.0) / HYP_FLOAT_C(1048576.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_setf3(&v, tiny, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_project(&v, &onto);
+	test_assert(!(v.x < tiny) && !(v.x > tiny));
+	vector3_setf3(&v, tiny, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_reflect(&v, &onto);
+	test_assert(!(v.x < -tiny) && !(v.x > -tiny));
+
+	/* the identity rotation, by a quaternion of length 4 */
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(4.0));
+	vector3_setf3(&v, big, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	vector3_rotate_by_quaternion(&v, &q);
+	test_assert(!(v.x < big) && !(v.x > big));
+	vector3_setf3(&v, tiny, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0));
+	quaternion_setf4(&q, HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(1.0) / HYP_FLOAT_C(1048576.0));
+	vector3_rotate_by_quaternion(&v, &q);
+	test_assert(!(v.x < tiny) && !(v.x > tiny));
+
+	return NULL;
+}
+
+
 static const char *vector3_all_tests(void)
 {
+	run_test(test_vector3_project_reflect_rotate_huge_and_tiny);
 	run_test(test_vector3_magnitude_huge_and_tiny);
 #if defined(HYPATIA_SINGLE_PRECISION_FLOATS) && !defined(HYP_FAST)
 	run_test(test_vector3_normalize_correctly_rounded);
