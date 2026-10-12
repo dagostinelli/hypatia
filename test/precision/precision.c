@@ -29,6 +29,8 @@ typedef _Float128 R;
 
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 #	define EPSILON ((R)FLT_EPSILON)
+#elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+#	define EPSILON ((R)LDBL_EPSILON)
 #else
 #	define EPSILON ((R)DBL_EPSILON)
 #endif
@@ -2481,6 +2483,8 @@ static void print_table(FILE *out)
 
 #ifdef HYPATIA_SINGLE_PRECISION_FLOATS
 	fprintf(out, "# single precision");
+#elif defined(HYPATIA_LONG_DOUBLE_PRECISION_FLOATS)
+	fprintf(out, "# long double precision");
 #else
 	fprintf(out, "# double precision");
 #endif
