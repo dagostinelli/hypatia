@@ -1232,8 +1232,104 @@ static const char *test_matrix4_determinant_huge_and_tiny(void)
 }
 
 
+static const char *test_matrix4_normal_matrix_huge_and_tiny(void)
+{
+	struct matrix4 m;
+	struct matrix4 normal;
+	HYP_FLOAT largest = HYP_FLOAT_C(1.0);
+	HYP_FLOAT t = HYP_FLOAT_C(2.0);
+	HYP_FLOAT tiny;
+	uint8_t i;
+
+	/* a uniform scale t whose determinant t^3 overflows, and one 1 / t^2
+	 * whose determinant underflows to 0: neither changes the normal matrix
+	 * but by the inverse scale
+	 */
+	largest = test_largest_power2();
+	while (t * t * t < largest) {
+		t *= HYP_FLOAT_C(2.0);
+	}
+	matrix4_identity(&m);
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = t;
+	}
+	test_assert(matrix4_normal_matrix(&m, &normal) != NULL);
+	test_assert(!(normal.r00 < HYP_FLOAT_C(1.0) / t) && !(normal.r00 > HYP_FLOAT_C(1.0) / t));
+
+	tiny = HYP_FLOAT_C(1.0) / (t * t);
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = tiny;
+	}
+	test_assert(matrix4_normal_matrix(&m, &normal) != NULL);
+	test_assert(!(normal.r22 < t * t) && !(normal.r22 > t * t));
+
+	return NULL;
+}
+
+
+static const char *test_matrix4_inverse_subnormal_determinant(void)
+{
+	struct matrix4 m;
+	struct matrix4 inverse;
+	struct matrix4 reference;
+	HYP_FLOAT p = HYP_FLOAT_C(1.0);
+	HYP_FLOAT power;
+	HYP_FLOAT expected;
+	HYP_FLOAT t;
+	uint8_t i;
+
+	/* t I with t = 1.1 p, p a power of two, and a subnormal determinant:
+	 * p^4 is subnormal when p^4 (1 + epsilon) rounds to p^4, and t^4 is
+	 * less than twice p^4.  The inverse is that of 1.1 I divided by p,
+	 * exactly.
+	 */
+	do {
+		p /= HYP_FLOAT_C(2.0);
+		power = HYP_FLOAT_C(1.0);
+		for (i = 0; i < 4; i++) {
+			power *= p;
+		}
+	} while (!test_is_subnormal(test_rounded(power)));
+	t = HYP_FLOAT_C(1.1) * p;
+
+	matrix4_identity(&m);
+	for (i = 0; i < 4; i++) {
+		m.m44[i][i] = HYP_FLOAT_C(1.1);
+	}
+	test_assert(matrix4_inverse(&m, &reference) != NULL);
+	for (i = 0; i < 4; i++) {
+		m.m44[i][i] = t;
+	}
+	test_assert(matrix4_inverse(&m, &inverse) != NULL);
+	for (i = 0; i < 4; i++) {
+		expected = reference.m44[i][i] / p;
+		test_assert(!(inverse.m44[i][i] < expected) && !(inverse.m44[i][i] > expected));
+	}
+
+	/* the upper 3x3 of 1.1 p^2 I has a subnormal determinant: the normal
+	 * matrix is that of 1.1 I divided by p^2
+	 */
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = HYP_FLOAT_C(1.1);
+	}
+	test_assert(matrix4_normal_matrix(&m, &reference) != NULL);
+	for (i = 0; i < 3; i++) {
+		m.m44[i][i] = t * p;
+	}
+	test_assert(matrix4_normal_matrix(&m, &inverse) != NULL);
+	for (i = 0; i < 3; i++) {
+		expected = reference.m44[i][i] / p / p;
+		test_assert(!(inverse.m44[i][i] < expected) && !(inverse.m44[i][i] > expected));
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix4_all_tests(void)
 {
+	run_test(test_matrix4_inverse_subnormal_determinant);
+	run_test(test_matrix4_normal_matrix_huge_and_tiny);
 	run_test(test_matrix4_determinant_huge_and_tiny);
 	run_test(test_matrix4_inverse_small_determinant);
 	run_test(test_matrix4_inverse_tiny_and_huge_scale);

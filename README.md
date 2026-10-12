@@ -129,7 +129,7 @@ Results that differ from 2.0:
 * `quaternion_is_pure` compares w relative to the length of the quaternion.
 * `scalar_equalsf` and the `*_equals` functions compare relative to the size of the values above 1 (2.0: always the absolute difference, so large values one rounding apart could differ), and equal infinities are equal.
 * `matrix2/3/4_inverse` return NULL only for an exactly zero determinant, and `matrix2/3/4_invert` return NULL when there is no inverse.
-* `matrix2/3/4_inverse` invert matrices with very small or very large entries whenever the inverse is in range: they scale the matrix by a power of two first, so the determinant does not underflow or overflow.
+* `matrix2/3/4_inverse` invert matrices with very small or very large entries whenever the inverse is in range: when the determinant underflows or overflows, they scale the matrix by a power of two and invert that.
 * Normalizing is correctly rounded: each component is the exact quotient rounded once (within half an ulp), for vectors of any length.  It uses exact products (Dekker's splitting), which costs more arithmetic than a plain square root and division.
 * `vector2_angle_between` and `vector3_angle_between` take the angle from the vectors as given, without normalizing them, in the same way: within an ulp also for nearly parallel vectors.
 * `quaternion_angle_between` and `quaternion_slerp` take the angle from the quaternions as given, without normalizing them, with exact products and sums: within an ulp also for nearly equal rotations.  `quaternion_slerp` combines its two terms with one rounding.
