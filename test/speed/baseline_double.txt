@@ -1,17 +1,17 @@
 # function | instructions per call (cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0)
 matrix2_determinant | 79.0
-matrix2_inverse | 86.0
+matrix2_inverse | 90.5
 matrix3_determinant | 284.0
-matrix3_inverse | 686.1
+matrix3_inverse | 695.0
 matrix3_multiply | 22.0
 matrix3_multiplyv2 | 11.0
 matrix4_determinant | 898.0
-matrix4_inverse | 1130.0
+matrix4_inverse | 1141.0
 matrix4_make_transformation_rotationf_x | 87.1
 matrix4_multiply | 173.0
 matrix4_multiplyv3 | 14.0
 matrix4_multiplyv4 | 16.0
-matrix4_normal_matrix | 774.0
+matrix4_normal_matrix | 786.0
 matrix4_projection_frustum_rh | 7.0
 matrix4_projection_ortho3d_rh | 8.0
 matrix4_projection_perspective_fovy_infinite_rh | 98.0
@@ -28,7 +28,7 @@ matrix4_view_lookat_rh | 779.8
 quaternion_angle_between | 2128.2
 quaternion_difference | 40.0
 quaternion_get_axis_anglev3 | 397.4
-quaternion_get_euler_anglesf3 | 1319.5
+quaternion_get_euler_anglesf3 | 1317.5
 quaternion_get_rotation_tov3 | 1967.3
 quaternion_inverse | 28.0
 quaternion_magnitude | 24.0
@@ -58,5 +58,5 @@ vector3_reflect | 52.0
 vector3_reflect_by_quaternion | 49.0
 vector3_refract | 796.6
 vector3_rotate_by_quaternion | 66.0
-vector3_unproject_from_window | 1171.0
+vector3_unproject_from_window | 1181.0
 vector4_normalize | 432.7

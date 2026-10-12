@@ -652,8 +652,56 @@ static const char *test_matrix3_inverse_tiny_and_huge_scale(void)
 }
 
 
+static const char *test_matrix3_inverse_subnormal_determinant(void)
+{
+	struct matrix3 m;
+	struct matrix3 inverse;
+	struct matrix3 reference;
+	HYP_FLOAT epsilon = HYP_FLOAT_C(1.0);
+	HYP_FLOAT p = HYP_FLOAT_C(1.0);
+	HYP_FLOAT power;
+	HYP_FLOAT expected;
+	HYP_FLOAT t;
+	uint8_t i;
+
+	/* t I with t = 1.1 p, p a power of two, and a subnormal determinant:
+	 * p^3 is subnormal when p^3 (1 + epsilon) rounds to p^3, and t^3 is
+	 * less than twice p^3.  The inverse is that of 1.1 I divided by p,
+	 * exactly.
+	 */
+	while (HYP_FLOAT_C(1.0) + epsilon / HYP_FLOAT_C(2.0) > HYP_FLOAT_C(1.0)) {
+		epsilon /= HYP_FLOAT_C(2.0);
+	}
+	do {
+		p /= HYP_FLOAT_C(2.0);
+		power = HYP_FLOAT_C(1.0);
+		for (i = 0; i < 3; i++) {
+			power *= p;
+		}
+	} while (power * (HYP_FLOAT_C(1.0) + epsilon) > power);
+	t = HYP_FLOAT_C(1.1) * p;
+
+	matrix3_identity(&m);
+	for (i = 0; i < 3; i++) {
+		m.m33[i][i] = HYP_FLOAT_C(1.1);
+	}
+	test_assert(matrix3_inverse(&m, &reference) != NULL);
+	for (i = 0; i < 3; i++) {
+		m.m33[i][i] = t;
+	}
+	test_assert(matrix3_inverse(&m, &inverse) != NULL);
+	for (i = 0; i < 3; i++) {
+		expected = reference.m33[i][i] / p;
+		test_assert(!(inverse.m33[i][i] < expected) && !(inverse.m33[i][i] > expected));
+	}
+
+	return NULL;
+}
+
+
 static const char *matrix3_all_tests(void)
 {
+	run_test(test_matrix3_inverse_subnormal_determinant);
 	run_test(test_matrix3_inverse_small_determinant);
 	run_test(test_matrix3_inverse_tiny_and_huge_scale);
 	run_test(test_matrix3_reciprocal_condition);
