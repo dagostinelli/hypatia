@@ -25,10 +25,10 @@ matrix4_transformation_compose | 292.0
 matrix4_transformation_decompose | 1507.5
 matrix4_view_lookat_lh | 779.9
 matrix4_view_lookat_rh | 779.8
-quaternion_angle_between | 2128.2
+quaternion_angle_between | 2133.2
 quaternion_difference | 40.0
 quaternion_get_axis_anglev3 | 397.4
-quaternion_get_euler_anglesf3 | 1317.5
+quaternion_get_euler_anglesf3 | 1324.5
 quaternion_get_rotation_tov3 | 1967.3
 quaternion_inverse | 28.0
 quaternion_magnitude | 24.0
@@ -43,7 +43,7 @@ quaternion_set_from_euler_anglesf3 | 811.5
 quaternion_set_from_matrix4 | 414.6
 quaternion_set_look_rotation_lh | 1241.7
 quaternion_set_look_rotation_rh | 1249.4
-quaternion_slerp | 2707.9
+quaternion_slerp | 2706.9
 vector2_angle_between | 1597.2
 vector2_normalize | 295.2
 vector3_angle_between | 1945.7
