@@ -59,7 +59,8 @@
  *
  *   HYP_QUAD_FLOAT128     GCC 7 or later with a C library that has sinf128
  *                         and the others (glibc 2.26 or later): _Float128 and
- *                         the f128 suffix
+ *                         the f128 suffix, whether or not <math.h> was
+ *                         included first
  *   HYP_QUAD_LONG_DOUBLE  a long double of 113 bits, as on AArch64 Linux: the
  *                         L suffix, and sinl and the others (C99)
  *   HYP_QUAD_QUADMATH     __float128, as in Clang, MinGW GCC and GCC with an
@@ -73,7 +74,9 @@
 #if defined(HYPATIA_QUAD_PRECISION_FLOATS) && !defined(HYP_FLOAT)
 	/* <math.h> declares sinf128, cosf128 and the other _Float128 functions,
 	 * and defines HUGE_VAL_F128, when the C library has them and
-	 * __STDC_WANT_IEC_60559_TYPES_EXT__ is defined before it is first included
+	 * __STDC_WANT_IEC_60559_TYPES_EXT__ is defined before it is first included.
+	 * glibc has them from 2.26; when <math.h> was included before without the
+	 * macro, they are declared below.
 	 */
 #	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && !defined(HYP_NO_C_MATH)
 #		ifndef __STDC_WANT_IEC_60559_TYPES_EXT__
@@ -81,7 +84,7 @@
 #		endif
 #		include <math.h>
 #	endif
-#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && (defined(HUGE_VAL_F128) || defined(HYP_NO_C_MATH))
+#	if defined(__FLT128_MANT_DIG__) && !defined(__clang__) && (defined(HUGE_VAL_F128) || defined(HYP_NO_C_MATH) || (defined(__GLIBC__) && (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 26))))
 #		define HYP_QUAD_FLOAT128
 #		define HYP_QUAD_FUNCTION(name) name ## f128
 #	elif defined(__LDBL_MANT_DIG__) && __LDBL_MANT_DIG__ == 113
@@ -142,9 +145,22 @@
 #	endif
 #endif
 
-/* libquadmath's functions, declared here: quadmath.h is in GCC's own include
- * directory, which Clang does not search, and it does not compile as C90
+/* glibc's _Float128 functions, when <math.h> was included before without
+ * __STDC_WANT_IEC_60559_TYPES_EXT__; libquadmath's functions, declared here:
+ * quadmath.h is in GCC's own include directory, which Clang does not search,
+ * and it does not compile as C90
  */
+#if defined(HYP_QUAD_FLOAT128) && !defined(HYP_NO_C_MATH) && !defined(HUGE_VAL_F128)
+extern _Float128 sqrtf128(_Float128 x);
+extern _Float128 fmodf128(_Float128 x, _Float128 y);
+extern _Float128 sinf128(_Float128 x);
+extern _Float128 cosf128(_Float128 x);
+extern _Float128 tanf128(_Float128 x);
+extern _Float128 asinf128(_Float128 x);
+extern _Float128 acosf128(_Float128 x);
+extern _Float128 atan2f128(_Float128 y, _Float128 x);
+#endif
+
 #if defined(HYP_QUAD_QUADMATH) && !defined(HYP_NO_C_MATH)
 extern __float128 sqrtq(__float128 x);
 extern __float128 fmodq(__float128 x, __float128 y);
