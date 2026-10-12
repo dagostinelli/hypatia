@@ -20,6 +20,20 @@
 #define HYPATIA_IMPLEMENTATION
 #include <float.h>
 #include <math.h>
+
+/* glibc's sinl, atan2l and the others on x86 use the x87 instructions fsin,
+ * fpatan and the like, whose last bits differ between processors; the long
+ * double measurements use the _Float128 functions rounded once instead, so
+ * that they measure hypatia and come out the same on every machine
+ */
+#ifdef HYPATIA_LONG_DOUBLE_PRECISION_FLOATS
+#	define HYP_SIN(x) ((long double)sinf128(x))
+#	define HYP_COS(x) ((long double)cosf128(x))
+#	define HYP_TAN(x) ((long double)tanf128(x))
+#	define HYP_ASIN(x) ((long double)asinf128(x))
+#	define HYP_ACOS(x) ((long double)acosf128(x))
+#	define HYP_ATAN2(y, x) ((long double)atan2f128(y, x))
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
