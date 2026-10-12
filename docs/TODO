@@ -19,7 +19,49 @@ Attitude (spacecraft ADCS):
   eigensolver)
 - Each with precision rows against _Float128, a speed row, unit tests and
   sweep cases in test_scaling.c
+- matrix6, for the 6x6 covariance of an attitude filter (attitude error and
+  gyro bias): see the matrix6 branch below
 - Not planned: general NxN matrices, a Kalman filter, environment models
   (IGRF, ephemerides); they belong in a separate library
+
+matrix6 and macros branches (reviewed, not merged):
+Both branch from master at b658944 and share "add macros" (773a730), two mat6
+commits and a CI/TODO pair (2f26355, ac84263); then each removes the other's
+half.  The CI and TODO commits are superseded here: almost every idea in
+ac84263 is done on this branch.
+- matrix6 (hypatia_mat6.h, test/test_matrix6.c): struct matrix6 with zero,
+  identity, set, equals, add, subtract, multiply, multiplyf, transpose,
+  determinant, inverse and invert, and 436 lines of tests.  Worth having:
+  6x6 is the size of an attitude filter's covariance and of a rigid body's
+  spatial inertia.  To bring it here, rewrite rather than merge:
+  - the determinant is the 720-term Leibniz expansion: slow (about 4000
+    multiplies against about 70 for LU), cancels badly, overflows early.
+    Use LU with partial pivoting, as the inverse does.
+  - the inverse (Gauss-Jordan, partial pivoting) calls a matrix singular by
+    scalar_equalsf(pivot, 0), a 1e-5 tolerance: only an exactly zero pivot
+    should.  Scale by a power of two as matrix4_inverse does.
+  - matrix6_multiplyv4/v3/v2 add r04 + r05 to each row (the vector padded
+    with 1s), which is no meaningful operation; there is no vector6.  Drop
+    them; add a vector6 or matrix6_multiplyv6 on 6-element arrays (API
+    decision).
+  - add the filter operations: F P F^T, and keeping P symmetric.
+  - 0.0f / 1.0f literals (HYP_FLOAT_C), reserved names (_matrix6_...,
+    _HYPATIA_MAT6_H_), no Doxygen: in hypatia.h with the conventions of the
+    other matrices.
+  - precision rows against _Float128 LU (badly conditioned and covariance-
+    like matrices), speed rows, sweep cases in test_scaling.c, the tests
+    from test_matrix6.c.
+- macros (hypatia_macros.h, test_macros/): a MATRIXN(dimension) macro meant
+  to generate matrixN of any size.  Not ported:
+  - correct only for N = 4: the union fields (i00..i15, c00..c33), identity,
+    multiplyvN, the Leibniz determinant and the cofactor inverse (B(11) ..
+    B(44)) are written out for 4x4, so MATRIXN(6) does not give a working
+    matrix6.
+  - the same 0.0f literals, tolerance-based singular test and reserved names.
+  - one macro holds the whole implementation, so compiler errors, debugging,
+    Doxygen and coverage all see one line.
+  - this branch replaced generic matrix code with per-size exact arithmetic
+    (rounded-once minors, the block inverse, scaling); a generator would
+    undo that.
 
 // end of TODO.txt ...
