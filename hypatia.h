@@ -1736,6 +1736,46 @@ static HYP_NOINLINE void hyp_project_scaled(HYP_FLOAT *v, const HYP_FLOAT *onto,
 }
 
 
+/* the dot product of the n components of a and b, with each scaled by a
+ * power of two so that the products neither overflow nor underflow: for its
+ * sign where the plain dot product is out of range
+ */
+static HYP_NOINLINE HYP_FLOAT hyp_dot_scaled(const HYP_FLOAT *a, const HYP_FLOAT *b, uint8_t n)
+{
+	HYP_FLOAT a_scaled[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT b_scaled[4] = { HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0), HYP_FLOAT_C(0.0) };
+	HYP_FLOAT dot = HYP_FLOAT_C(0.0);
+	uint8_t i;
+
+	for (i = 0; i < n; i++) {
+		a_scaled[i] = a[i];
+		b_scaled[i] = b[i];
+	}
+	(void)hyp_scale_to_unit(a_scaled, n);
+	(void)hyp_scale_to_unit(b_scaled, n);
+	for (i = 0; i < n; i++) {
+		dot += a_scaled[i] * b_scaled[i];
+	}
+
+	return dot;
+}
+
+
+/* the dot product of two quaternions, or one with the same sign when it
+ * would overflow or underflow: which of q and -q is closer
+ */
+static HYP_ALWAYS_INLINE HYP_FLOAT hyp_quaternion_dot_sign(const struct quaternion *a, const struct quaternion *b)
+{
+	HYP_FLOAT dot = quaternion_dot_product(a, b);
+
+	if (!(HYP_ABS(dot) >= HYP_FLOAT_C(8.67361737988403547205962240695953369140625e-19)) || !(dot - dot <= HYP_FLOAT_C(0.0))) {
+		dot = hyp_dot_scaled(a->q, b->q, 4);
+	}
+
+	return dot;
+}
+
+
 /* reflects the n components of v off a surface with the given normal, as
  * hyp_project_scaled; v is unchanged when the normal is zero or NaN
  */
@@ -5790,7 +5830,7 @@ HYPAPI struct quaternion *quaternion_slerp(const struct quaternion *start, const
 
 	/* the sign of the dot product picks the shorter arc */
 	quaternion_set(&target, end);
-	dot = quaternion_dot_product(start, &target);
+	dot = hyp_quaternion_dot_sign(start, end);
 
 	/* q and -q are the same rotation: when the dot is negative, go toward
 	 * -end, the shortest arc.  The result starts at start and ends at -end.
@@ -6295,7 +6335,7 @@ HYPAPI HYP_FLOAT quaternion_angle_between(const struct quaternion *self, const s
 
 	/* q and -q are the same rotation: take the closer one */
 	quaternion_set(&b, qT);
-	if (quaternion_dot_product(self, &b) < HYP_FLOAT_C(0.0)) {
+	if (hyp_quaternion_dot_sign(self, qT) < HYP_FLOAT_C(0.0)) {
 		quaternion_negate(&b);
 	}
 
