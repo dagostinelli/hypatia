@@ -38,6 +38,8 @@ Results that differ from 2.0:
 * quaternion_get_axis_anglev3 works for a quaternion of any length (2.0
   gave NaN for one that was not unit length), and gives an angle in
   [0, pi] for q and -q alike.
+* quaternion_get_euler_anglesf3 gives angles of the same rotation at and
+  near gimbal lock (a pitch of +-pi/2), and for a quaternion of any length.
 
 New functions:
 

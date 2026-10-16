@@ -1102,6 +1102,19 @@ static HYP_FLOAT hyp_normalize(HYP_FLOAT *v, uint8_t n)
 }
 
 
+/* an angle in (-2 pi, 2 pi) moved into [-pi, pi] */
+static HYP_FLOAT hyp_wrap_angle(HYP_FLOAT angle)
+{
+	if (angle > HYP_PI) {
+		return angle - HYP_TAU;
+	} else if (angle < -HYP_PI) {
+		return angle + HYP_TAU;
+	}
+
+	return angle;
+}
+
+
 /* the length of the n (at most 4) components without overflow or underflow;
  * 0 when they are all zero or one is NaN
  */
@@ -4113,16 +4126,31 @@ HYPAPI struct quaternion *quaternion_set_from_euler_anglesf3(struct quaternion *
  */
 HYPAPI void quaternion_get_euler_anglesf3(const struct quaternion *self, HYP_FLOAT *ax, HYP_FLOAT *ay, HYP_FLOAT *az)
 {
-	HYP_FLOAT qx, qy, qz, qw;
+	HYP_FLOAT plus[2];
+	HYP_FLOAT minus[2];
+	HYP_FLOAT difference;
+	HYP_FLOAT sum;
 
-	qw = self->w;
-	qx = self->x;
-	qy = self->y;
-	qz = self->z;
+	/* for q = qz qy qx with half angles a, b, c (about X, Y, Z):
+	 *   w + y = (cos b + sin b) cos(c - a)   z - x = (cos b + sin b) sin(c - a)
+	 *   w - y = (cos b - sin b) cos(c + a)   x + z = (cos b - sin b) sin(c + a)
+	 * The angle about X is (c + a) - (c - a), the angle about Z is
+	 * (c + a) + (c - a), and the pitch is an atan2 of the lengths.  No asin,
+	 * which loses half the digits near a pitch of +-pi/2, and the same angles
+	 * for q of any length.  At gimbal lock one of c + a and c - a is undefined
+	 * (its pair is 0, and atan2 gives 0); the other still sets the rotation.
+	 */
+	plus[0] = self->w + self->y;
+	plus[1] = self->z - self->x;
+	minus[0] = self->w - self->y;
+	minus[1] = self->x + self->z;
 
-	*ax = HYP_ATAN2(qy * qz + qw * qx, HYP_FLOAT_C(0.5) - ((qx * qx) + (qy * qy)));
-	*ay = HYP_ASIN(-HYP_FLOAT_C(2.0) * ((qx * qz) - (qw * qy)));
-	*az = HYP_ATAN2(((qx * qy) + (qw * qz)), HYP_FLOAT_C(0.5) - ((qy * qy) + (qz * qz)));
+	difference = HYP_ATAN2(plus[1], plus[0]);
+	sum = HYP_ATAN2(minus[1], minus[0]);
+
+	*ax = hyp_wrap_angle(sum - difference);
+	*ay = HYP_FLOAT_C(2.0) * HYP_ATAN2(hyp_length(plus, 2), hyp_length(minus, 2)) - HYP_PI_HALF;
+	*az = hyp_wrap_angle(sum + difference);
 }
 
 
