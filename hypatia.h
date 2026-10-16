@@ -3043,8 +3043,8 @@ HYPAPI void hyp_matrix4_print_with_rowcolumn_indexer(struct matrix4 *self)
 
 /**
  * @ingroup matrix4
- * @brief converts the quaternion to a 4x4 rotation matrix (column major,
- * right hand rule)
+ * @brief converts the quaternion to a 4x4 rotation matrix, applied as M * v
+ * (right hand rule)
  *
  */
 HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *self, const struct quaternion *qT)
@@ -3058,13 +3058,13 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationq(struct matrix4 *sel
 	matrix4_identity(m);
 
 	m->m[0] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->y * q->y + q->z * q->z);
-	m->m[4] = HYP_FLOAT_C(2.0) * (q->x * q->y - q->z * q->w);
-	m->m[8] = HYP_FLOAT_C(2.0) * (q->x * q->z + q->y * q->w);
-	m->m[1] = HYP_FLOAT_C(2.0) * (q->x * q->y + q->z * q->w);
+	m->m[4] = HYP_FLOAT_C(2.0) * (q->x * q->y + q->z * q->w);
+	m->m[8] = HYP_FLOAT_C(2.0) * (q->x * q->z - q->y * q->w);
+	m->m[1] = HYP_FLOAT_C(2.0) * (q->x * q->y - q->z * q->w);
 	m->m[5] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->z * q->z);
-	m->m[9] = HYP_FLOAT_C(2.0) * (q->y * q->z - q->x * q->w);
-	m->m[2] = HYP_FLOAT_C(2.0) * (q->x * q->z - q->y * q->w);
-	m->m[6] = HYP_FLOAT_C(2.0) * (q->y * q->z + q->x * q->w);
+	m->m[9] = HYP_FLOAT_C(2.0) * (q->y * q->z + q->x * q->w);
+	m->m[2] = HYP_FLOAT_C(2.0) * (q->x * q->z + q->y * q->w);
+	m->m[6] = HYP_FLOAT_C(2.0) * (q->y * q->z - q->x * q->w);
 	m->m[10] = HYP_FLOAT_C(1.0) - HYP_FLOAT_C(2.0) * (q->x * q->x + q->y * q->y);
 
 	return self;
@@ -3120,8 +3120,8 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_x(struct matrix4 *m
 	matrix4_identity(m);
 
 	m->r11 = c;
-	m->r12 = s;
-	m->r21 = -s;
+	m->r12 = -s;
+	m->r21 = s;
 	m->r22 = c;
 
 	return m;
@@ -3142,10 +3142,9 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_y(struct matrix4 *m
 
 	matrix4_identity(m);
 
-	/* assuming col-major */
 	m->r00 = c;
-	m->r02 = -s;
-	m->r20 = s;
+	m->r02 = s;
+	m->r20 = -s;
 	m->r22 = c;
 
 	return m;
@@ -3166,10 +3165,9 @@ HYPAPI struct matrix4 *matrix4_make_transformation_rotationf_z(struct matrix4 *m
 
 	matrix4_identity(m);
 
-	/* assuming col-major */
 	m->r00 = c;
-	m->r01 = s;
-	m->r10 = -s;
+	m->r01 = -s;
+	m->r10 = s;
 	m->r11 = c;
 
 	return m;
@@ -4277,37 +4275,40 @@ HYPAPI struct matrix4 *matrix4_set_from_axisv3_angle_EXP(struct matrix4 *self, c
 }
 
 
+/**
+ * @ingroup experimental
+ * @brief Sets the matrix to the rotation Rz(z) * Ry(y) * Rx(x), applied as
+ * M * v (right hand rule): the same rotation as
+ * quaternion_set_from_euler_anglesf3.
+ *
+ * @param self the matrix
+ * @param x the angle about the x axis in radians
+ * @param y the angle about the y axis in radians
+ * @param z the angle about the z axis in radians
+ *
+ */
 HYPAPI struct matrix4 *matrix4_set_from_euler_anglesf3_EXP(struct matrix4 *self, const HYP_FLOAT x, const HYP_FLOAT y, const HYP_FLOAT z)
 {
-	HYP_FLOAT A = HYP_COS(x);
-	HYP_FLOAT B = HYP_SIN(x);
-	HYP_FLOAT C = HYP_COS(y);
-	HYP_FLOAT D = HYP_SIN(y);
-	HYP_FLOAT E = HYP_COS(z);
-	HYP_FLOAT F = HYP_SIN(z);
+	HYP_FLOAT cx = HYP_COS(x);
+	HYP_FLOAT sx = HYP_SIN(x);
+	HYP_FLOAT cy = HYP_COS(y);
+	HYP_FLOAT sy = HYP_SIN(y);
+	HYP_FLOAT cz = HYP_COS(z);
+	HYP_FLOAT sz = HYP_SIN(z);
 
-	HYP_FLOAT AD = A * D;
-	HYP_FLOAT BD = B * D;
+	matrix4_identity(self);
 
-	self->c00 = C * E;
-	self->c01 = -C * F;
-	self->c02 = D;
-	self->c03 = HYP_FLOAT_C(0.0);
+	self->r00 = cz * cy;
+	self->r01 = cz * sy * sx - sz * cx;
+	self->r02 = cz * sy * cx + sz * sx;
 
-	self->c10 = BD * E + A * F;
-	self->c11 = -BD * F + A * E;
-	self->c12 = -B * C;
-	self->c13 = HYP_FLOAT_C(0.0);
+	self->r10 = sz * cy;
+	self->r11 = sz * sy * sx + cz * cx;
+	self->r12 = sz * sy * cx - cz * sx;
 
-	self->c20 = -AD * E + B * F;
-	self->c21 = AD * F + B * E;
-	self->c22 = A * C;
-	self->c23 = HYP_FLOAT_C(0.0);
-
-	self->c30 = HYP_FLOAT_C(0.0);
-	self->c31 = HYP_FLOAT_C(0.0);
-	self->c32 = HYP_FLOAT_C(0.0);
-	self->c33 = HYP_FLOAT_C(1.0);
+	self->r20 = -sy;
+	self->r21 = cy * sx;
+	self->r22 = cy * cx;
 
 	return self;
 }
@@ -4369,10 +4370,10 @@ HYPAPI struct matrix4 *matrix4_view_lookat_rh_EXP(struct matrix4 *self, const st
 
 /**
  * @ingroup matrix4
- * @brief Creates a temporary rotation matrix and then multiplies self by that.
- * Opinionated function about what rotation means.
+ * @brief Sets the matrix to the rotation of the Euler angles in vR (see
+ * matrix4_set_from_euler_anglesf3_EXP).
  *
- * @param self The transformation matrix being rotated
+ * @param self The transformation matrix
  * @param vR the euler angles
  *
  */
