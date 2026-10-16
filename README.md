@@ -106,13 +106,9 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_RANDOM_FLOAT`, `HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
 
-Changes in 2.1
---------------
-Results that differ from 2.0:
-
-* The matrix4 rotations (`matrix4_make_transformation_rotationf_x/_y/_z`, `_rotationq`, `matrix4_rotatev3`) follow the right-hand rule; in 2.0 they turned the other way.
-* `vector3_rotate_by_quaternion` was wrong for vectors not perpendicular to the axis.
-* `matrix4_multiplyv2` treats z as 0.
+Changes
+-------
+The changes in each release, and the results that differ from the release before, are in [CHANGES](CHANGES).
 
 Documentation
 -------------
