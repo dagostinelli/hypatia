@@ -1,0 +1,91 @@
+Hypatia changes
+===============
+
+2.1 (not yet released)
+----------------------
+
+Results that differ from 2.0:
+
+* The matrix4 rotations follow the right-hand rule, as their documentation
+  says: matrix4_make_transformation_rotationf_x, _rotationf_y, _rotationf_z,
+  _rotationq and matrix4_rotatev3.  In 2.0 they turned the other way.  A
+  positive angle about an axis now turns counterclockwise when the axis
+  points toward the viewer, the same as vector3_rotate_by_quaternion.
+  matrix4_transformation_compose_EXP, which uses _rotationq, changes with
+  them.  matrix4_set_from_euler_anglesf3_EXP and
+  matrix4_make_transformation_rotationv3_EXP turn the other way too: they
+  give Rz(z) * Ry(y) * Rx(x), the same rotation as
+  quaternion_set_from_euler_anglesf3.
+* vector3_rotate_by_quaternion was wrong for vectors not perpendicular to
+  the axis (a sign in quaternion_multiplyv3).
+* matrix4_multiplyv2 treats the vector as (x, y, 0, 1); 2.0 added the third
+  column as if z were 1.
+* matrix2/3/4_inverse return NULL only when the determinant is exactly zero
+  (or NaN).  2.0 returned NULL when it was within HYP_EPSILON of zero, so a
+  4x4 scale of 0.02 had no inverse.
+* matrix2/3/4_invert return NULL, and leave the matrix unchanged, when it
+  has no inverse.  2.0 returned the matrix in both cases, so the caller
+  could not tell.
+* vector2/3/4_normalize and quaternion_normalize leave only an exactly zero
+  vector unchanged; 2.0 left anything shorter than HYP_EPSILON unchanged.
+  Very long and very short vectors no longer overflow or underflow, and
+  vector2_normalize no longer gives NaN.
+* quaternion_inverse and quaternion_lerp have no shortcuts near 0 or 1, and
+  quaternion_is_pure compares w relative to the length of the quaternion.
+* quaternion_get_rotation_tov3 works for nearly opposite and opposite
+  vectors (2.0 gave a near-zero or zero quaternion) and for vectors of any
+  length.
+* quaternion_get_axis_anglev3 works for a quaternion of any length (2.0
+  gave NaN for one that was not unit length), and gives an angle in
+  [0, pi] for q and -q alike.
+* quaternion_get_euler_anglesf3 gives angles of the same rotation at and
+  near gimbal lock (a pitch of +-pi/2), and for a quaternion of any length.
+
+New functions:
+
+* vector2/3/4_lerp, _clamp, _min, _max and _project; vector2/3_reflect;
+  vector3_refract.
+* matrix2/3/4_reciprocal_condition: how reliable an inverse is, 1 for a
+  multiple of the identity and 0 for a matrix with no inverse.
+* quaternion_set_from_matrix4: the unit quaternion of a rotation matrix
+  (Shepperd's method).
+* scalar_random_rangef: a random number in [min, max), evenly distributed.
+* vector2/3/4_set_random_unit and quaternion_set_random_unit: evenly
+  distributed directions and rotations.
+* vector2_set_random_in_disk and vector3_set_random_in_ball: evenly
+  distributed points.
+
+New configuration macros:
+
+* HYP_RANDOM() and HYP_RANDOM_MAX: the random number source of the random
+  functions (default rand() and RAND_MAX).  Define both or neither.
+* HYP_NO_RANDOM: leaves out the random functions, HYP_RANDOM,
+  HYP_RANDOM_MAX, HYP_RANDOM_FLOAT and <stdlib.h>.
+
+Deprecated:
+
+* HYP_RANDOM_FLOAT: use scalar_random_rangef(-1, 1).  HYP_NO_DEPRECATED
+  leaves it out.
+
+Known problems in 2.1:
+
+These experimental functions give wrong results; do not use them.
+
+* matrix4_projection_perspective_fovy_rh_EXP, matrix4_projection_ortho3d_rh_EXP
+  and matrix4_view_lookat_rh_EXP do not give correct projections.
+* matrix4_multiplyv3_EXP is not the same as matrix4_multiplyv3; use
+  matrix4_multiplyv3.
+* matrix4_transformation_decompose_EXP always returns the identity rotation.
+* quaternion_angle_between_EXP and quaternion_difference_EXP treat q and -q
+  as different rotations.
+* quaternion_axis_between_EXP and quaternion_cross_product_EXP are not the
+  operations their names describe.
+
+Documentation and tests:
+
+* Doxygen documents the functions from the implementation.
+* The README has a coding standard and the numerical principles.
+* Tests for the matrix4 multiply properties, quaternion_inverse with unit
+  and non-unit quaternions, the slerp shortest arc, the agreement of the
+  quaternion and matrix rotations, and every new function.
+* CI builds with HYP_NO_RANDOM.
