@@ -1,0 +1,55 @@
+Hypatia changes
+===============
+
+2.1 (not yet released)
+----------------------
+
+Results that differ from 2.0:
+
+* The matrix4 rotations follow the right-hand rule, as their documentation
+  says: matrix4_make_transformation_rotationf_x, _rotationf_y, _rotationf_z,
+  _rotationq and matrix4_rotatev3.  In 2.0 they turned the other way.  A
+  positive angle about an axis now turns counterclockwise when the axis
+  points toward the viewer, the same as vector3_rotate_by_quaternion.
+  matrix4_transformation_compose_EXP, which uses _rotationq, changes with
+  them.  matrix4_set_from_euler_anglesf3_EXP and
+  matrix4_make_transformation_rotationv3_EXP turn the other way too: they
+  give Rz(z) * Ry(y) * Rx(x), the same rotation as
+  quaternion_set_from_euler_anglesf3.
+* vector3_rotate_by_quaternion was wrong for vectors not perpendicular to
+  the axis (a sign in quaternion_multiplyv3).
+* matrix4_multiplyv2 treats the vector as (x, y, 0, 1); 2.0 added the third
+  column as if z were 1.
+
+New functions:
+
+* vector2/3/4_lerp, _clamp, _min, _max and _project; vector2/3_reflect;
+  vector3_refract.
+* quaternion_set_from_matrix4: the unit quaternion of a rotation matrix
+  (Shepperd's method).
+* scalar_random_rangef: a random number in [min, max), evenly distributed.
+* vector2/3/4_set_random_unit and quaternion_set_random_unit: evenly
+  distributed directions and rotations.
+* vector2_set_random_in_disk and vector3_set_random_in_ball: evenly
+  distributed points.
+
+New configuration macros:
+
+* HYP_RANDOM() and HYP_RANDOM_MAX: the random number source of the random
+  functions (default rand() and RAND_MAX).  Define both or neither.
+* HYP_NO_RANDOM: leaves out the random functions, HYP_RANDOM,
+  HYP_RANDOM_MAX, HYP_RANDOM_FLOAT and <stdlib.h>.
+
+Deprecated:
+
+* HYP_RANDOM_FLOAT: use scalar_random_rangef(-1, 1).  HYP_NO_DEPRECATED
+  leaves it out.
+
+Documentation and tests:
+
+* Doxygen documents the functions from the implementation.
+* The README has a coding standard and the numerical principles.
+* Tests for the matrix4 multiply properties, quaternion_inverse with unit
+  and non-unit quaternions, the slerp shortest arc, the agreement of the
+  quaternion and matrix rotations, and every new function.
+* CI builds with HYP_NO_RANDOM.
