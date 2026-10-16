@@ -6,6 +6,16 @@ Hypatia changes
 
 Results that differ from 2.0:
 
+* The matrix4 rotations follow the right-hand rule, as their documentation
+  says: matrix4_make_transformation_rotationf_x, _rotationf_y, _rotationf_z,
+  _rotationq and matrix4_rotatev3.  In 2.0 they turned the other way.  A
+  positive angle about an axis now turns counterclockwise when the axis
+  points toward the viewer, the same as vector3_rotate_by_quaternion.
+  matrix4_transformation_compose_EXP, which uses _rotationq, changes with
+  them.  matrix4_set_from_euler_anglesf3_EXP and
+  matrix4_make_transformation_rotationv3_EXP turn the other way too: they
+  give Rz(z) * Ry(y) * Rx(x), the same rotation as
+  quaternion_set_from_euler_anglesf3.
 * vector3_rotate_by_quaternion was wrong for vectors not perpendicular to
   the axis (a sign in quaternion_multiplyv3).
 * matrix4_multiplyv2 treats the vector as (x, y, 0, 1); 2.0 added the third
@@ -31,3 +41,4 @@ Documentation and tests:
 * The README has a coding standard and the numerical principles.
 * Tests for the matrix4 multiply properties, quaternion_inverse with unit
   and non-unit quaternions, and the slerp shortest arc.
+* A test that the matrix4 and quaternion rotations agree.
