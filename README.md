@@ -104,6 +104,10 @@ includes it, except `HYPATIA_IMPLEMENTATION` and `HYPAPI`.
 |---|---|---|
 | `HYP_NO_DEPRECATED` | Leaves out the deprecated macros (`HYP_PIOVER180`, `HYP_PIUNDER180`), to check that code no longer uses them. | |
 
+Changes
+-------
+The changes in each release, and the results that differ from the release before, are in [CHANGES](CHANGES).
+
 Documentation
 -------------
 A great way to learn how to use the library is to review the

@@ -1,0 +1,19 @@
+Hypatia changes
+===============
+
+2.1 (not yet released)
+----------------------
+
+Known problems in 2.1:
+
+These experimental functions give wrong results; do not use them.
+
+* matrix4_projection_perspective_fovy_rh_EXP, matrix4_projection_ortho3d_rh_EXP
+  and matrix4_view_lookat_rh_EXP do not give correct projections.
+* matrix4_multiplyv3_EXP is not the same as matrix4_multiplyv3; use
+  matrix4_multiplyv3.
+* matrix4_transformation_decompose_EXP always returns the identity rotation.
+* quaternion_angle_between_EXP and quaternion_difference_EXP treat q and -q
+  as different rotations.
+* quaternion_axis_between_EXP and quaternion_cross_product_EXP are not the
+  operations their names describe.
